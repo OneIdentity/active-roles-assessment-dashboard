@@ -1,0 +1,51 @@
+@model List<ActiveRolesDashboard.Models.GroupMemberNode>
+
+@if (Model.Count == 0)
+{
+    <p class="muted">No members.</p>
+}
+else
+{
+    <ul class="group-tree">
+    @foreach (var node in Model)
+    {
+        <li class="group-tree-item">
+            <div class="group-tree-row">
+                @if (node.IsGroup && !node.CycleReference && !node.DepthLimitReached)
+                {
+                    <button type="button" class="tree-toggle" data-dn="@node.Dn" data-depth="@node.Depth" aria-expanded="false">&#9654;</button>
+                }
+                else
+                {
+                    <span class="tree-toggle-placeholder"></span>
+                }
+
+                <span class="tree-icon @(node.IsGroup ? "is-group" : "is-user")">
+                    @if (node.IsGroup)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    }
+                </span>
+                <span class="tree-name">@node.Name</span>
+
+                @if (node.CycleReference)
+                {
+                    <em class="muted tree-note">&#8617; already shown (membership loop)</em>
+                }
+                else if (node.DepthLimitReached)
+                {
+                    <em class="muted tree-note">&#8230; depth limit reached</em>
+                }
+                <span class="tree-dn" title="@node.Dn">@node.Dn</span>
+            </div>
+
+            @* Expanded children get injected here by the page script. *@
+            <div class="tree-children"></div>
+        </li>
+    }
+    </ul>
+}

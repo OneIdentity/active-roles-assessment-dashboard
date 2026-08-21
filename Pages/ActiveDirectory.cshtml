@@ -1,0 +1,121 @@
+@page
+@model ActiveRolesDashboard.Pages.ActiveDirectoryModel
+@{
+    ViewData["Title"] = "Active Directory";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Active Directory</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+</head>
+<body>
+<div class="loading-overlay active" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading Dashboard Data...</p>
+    </div>
+</div>
+<div class="page">
+    <div class="sticky-head">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
+            <div>
+                <h1>Active Directory</h1>
+                <p class="hdr-sub">Active Directory KPIs</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            @{ ViewData["RefreshUrl"] = "/ActiveDirectory"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "ActiveDirectory"; }
+            @await Html.PartialAsync("_DashboardToolbar")
+        </div>
+    </header>
+
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+
+    @{
+        var sortedCategories = CategoryInfo.ForDashboard(DashboardInfo.ActiveDirectory)
+            .Where(c => Model.KpiSettings.IsCategoryEnabled(c.Key))
+            .ToList();
+        var renderedCount = 0;
+    }
+
+    @foreach (var category in sortedCategories)
+    {
+        if (renderedCount > 0)
+        {
+            <hr class="kpi-separator" />
+        }
+        // Overview and Governance and Risk are expanded by default; all others collapse.
+        var expanded = category.IsOverviewCategory || category.IsRiskCategory;
+        var collapsedClass = expanded ? "" : " collapsed";
+        var btnCollapsedClass = expanded ? "" : " collapsed";
+        var btnTitle = expanded ? "Collapse" : "Expand";
+        renderedCount++;
+
+        var kpis = KpiInfo.ForCategory(category);
+    <div class="kpi-category@(collapsedClass)">
+        <h2 class="kpi-category-title"><span>@category.DisplayName</span><button type="button" class="btn-collapse@(btnCollapsedClass)" onclick="toggleCategory(this)" title="@btnTitle">&#9650;</button></h2>
+        <div class="kpi-grid">
+            @foreach (var kpi in kpis)
+            {
+                if (!Model.KpiSettings.IsKpiEnabled(category.Key, kpi.Key)) { continue; }
+                var result = Model.Summary.GetKpiResult(kpi.Key);
+            <div class="kpi @kpi.CssColor" data-section="@kpi.SectionId">
+                <div class="lbl">@kpi.Label</div>
+                <div class="val">@(result.Error ?? result.Count.ToString())</div>
+            </div>
+            }
+        </div>
+        @await Html.PartialAsync("_CategoryCharts", (category, Model.Summary, Model.KpiSettings))
+    </div>
+    }
+
+    <hr class="kpi-separator" />
+
+    <div class="panel-grid">
+        @await Html.PartialAsync("_ADDrillDownPanels")
+    </div>
+
+    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+</div>
+@await Html.PartialAsync("_EntraMembershipConfig")
+@await Html.PartialAsync("_ToastAndMembership")
+<script src="js/chart.umd.min.js" asp-append-version="true"></script>
+<script src="js/dashboard.js" asp-append-version="true"></script>
+@if (Model.AutoRefreshMinutes > 0)
+{
+<script>
+    setTimeout(function() { document.getElementById('loadingOverlay').classList.add('active'); window.location.reload(); }, @(Model.AutoRefreshMinutes * 60 * 1000));
+</script>
+}
+<script>
+    document.getElementById('loadingOverlay').classList.remove('active');
+    window.addEventListener('beforeunload', function() {
+        if (window.__isExporting) return;
+        document.getElementById('loadingOverlay').classList.add('active');
+    });
+    document.getElementById('btnRefresh').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('loadingOverlay').classList.add('active');
+        window.location.reload();
+    });
+    function openWebInterface(url) {
+        window.open(url, 'arWebInterface');
+    }
+    function toggleCategory(btn) {
+        var category = btn.closest('.kpi-category');
+        category.classList.toggle('collapsed');
+        btn.classList.toggle('collapsed');
+        btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+@using ActiveRolesDashboard.Pages
+@model DashboardPageModel
+@*
+    Global segment filter: two independent multi-select dropdowns (AD Domains and Entra
+    Tenants). Hosted only on the main dashboard (Model.ShowSegmentFilter true). Each
+    dropdown posts its own dimension to the shared OnPostSetSegmentFilter handler, which
+    persists the selection and redirects back with ?cached=true (re-render from cache, no
+    re-query). An empty selection resolves to "none" — hiding that source's tile / dashboard
+    / export section. No minimum-selection constraint is enforced.
+*@
+@{
+    const string returnPage = "/Index";
+
+    (string Summary, HashSet<string> Selected) DimensionState(string label, IReadOnlyList<string> available, IReadOnlyList<string> selected)
+    {
+        var set = new HashSet<string>(selected, StringComparer.OrdinalIgnoreCase);
+        var text = selected.Count == 0
+            ? $"No {label}"
+            : (selected.Count >= available.Count ? $"All {label}" : $"{selected.Count} of {available.Count} {label}");
+        return (text, set);
+    }
+}
+@if (Model.SegmentFilterEnabled)
+{
+    <div class="segment-filter" data-segment-filter>
+        @if (Model.AvailableDomains.Count > 0)
+        {
+            var (summaryText, selectedSet) = DimensionState("Domains", Model.AvailableDomains, Model.SelectedDomains);
+            <form method="post" asp-page-handler="SetSegmentFilter" class="segment-filter-dimension" data-segment-form>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="dimension" value="Domain" />
+                <input type="hidden" name="returnPage" value="@returnPage" />
+
+                <button type="button" class="segment-filter-toggle" data-segment-toggle aria-haspopup="true" aria-expanded="false">
+                    <span class="segment-filter-label">Domains:</span>
+                    <span class="segment-filter-summary" data-segment-summary>@summaryText</span>
+                    <span class="segment-filter-caret">&#9662;</span>
+                </button>
+
+                <div class="segment-filter-menu" data-segment-menu hidden>
+                    <div class="segment-filter-actions">
+                        <button type="button" class="segment-filter-link" data-segment-all>Select all</button>
+                        <button type="button" class="segment-filter-link" data-segment-none>Clear</button>
+                    </div>
+                    <ul class="segment-filter-list">
+                        @foreach (var segment in Model.AvailableDomains)
+                        {
+                            <li class="segment-filter-item">
+                                <label>
+                                    <input type="checkbox" name="segments" value="@segment"
+                                           data-segment-checkbox
+                                           @(selectedSet.Contains(segment) ? "checked" : "") />
+                                    <span>@segment</span>
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </form>
+        }
+        @if (Model.AvailableTenants.Count > 0)
+        {
+            var (summaryText, selectedSet) = DimensionState("Tenants", Model.AvailableTenants, Model.SelectedTenants);
+            <form method="post" asp-page-handler="SetSegmentFilter" class="segment-filter-dimension" data-segment-form>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="dimension" value="Tenant" />
+                <input type="hidden" name="returnPage" value="@returnPage" />
+
+                <button type="button" class="segment-filter-toggle" data-segment-toggle aria-haspopup="true" aria-expanded="false">
+                    <span class="segment-filter-label">Tenants:</span>
+                    <span class="segment-filter-summary" data-segment-summary>@summaryText</span>
+                    <span class="segment-filter-caret">&#9662;</span>
+                </button>
+
+                <div class="segment-filter-menu" data-segment-menu hidden>
+                    <div class="segment-filter-actions">
+                        <button type="button" class="segment-filter-link" data-segment-all>Select all</button>
+                        <button type="button" class="segment-filter-link" data-segment-none>Clear</button>
+                    </div>
+                    <ul class="segment-filter-list">
+                        @foreach (var segment in Model.AvailableTenants)
+                        {
+                            <li class="segment-filter-item">
+                                <label>
+                                    <input type="checkbox" name="segments" value="@segment"
+                                           data-segment-checkbox
+                                           @(selectedSet.Contains(segment) ? "checked" : "") />
+                                    <span>@segment</span>
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </form>
+        }
+    </div>
+}

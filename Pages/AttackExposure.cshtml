@@ -1,0 +1,267 @@
+@page
+@using ActiveRolesDashboard.Models
+@model ActiveRolesDashboard.Pages.AttackExposureModel
+@{
+    ViewData["Title"] = "ATT&CK Exposure";
+    Layout = null;
+    var pathBase = HttpContext.Request.PathBase.Value ?? "";
+
+    string LevelClass(ExposureLevel level) => level switch
+    {
+        ExposureLevel.High => "exp-high",
+        ExposureLevel.Medium => "exp-medium",
+        ExposureLevel.Low => "exp-low",
+        _ => "exp-none"
+    };
+
+    string LevelLabel(ExposureLevel level) => level switch
+    {
+        ExposureLevel.High => "High",
+        ExposureLevel.Medium => "Medium",
+        ExposureLevel.Low => "Low",
+        _ => "None"
+    };
+
+    string LevelName(ExposureLevel? level) => level == null ? "—" : LevelLabel(level.Value);
+
+    string DirClass(ExposureDeltaDirection dir) => dir switch
+    {
+        ExposureDeltaDirection.Increased => "delta-bad",
+        ExposureDeltaDirection.Decreased => "delta-good",
+        ExposureDeltaDirection.Added => "delta-added",
+        ExposureDeltaDirection.Removed => "delta-removed",
+        _ => "delta-none"
+    };
+
+    string DirArrow(ExposureDeltaDirection dir) => dir switch
+    {
+        ExposureDeltaDirection.Increased => "▲",
+        ExposureDeltaDirection.Decreased => "▼",
+        ExposureDeltaDirection.Added => "＋",
+        ExposureDeltaDirection.Removed => "－",
+        _ => "="
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - ATT&CK Exposure</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+</head>
+<body>
+<div class="page">
+    <div class="sticky-head">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
+            <div>
+                <h1>ATT&amp;CK Exposure</h1>
+                <p class="hdr-sub">MITRE ATT&amp;CK techniques mapped to current directory exposure</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            @{ ViewData["RefreshUrl"] = "/AttackExposure"; ViewData["ShowHome"] = true; }
+            @await Html.PartialAsync("_DashboardToolbar")
+        </div>
+    </header>
+
+    <a href="@(pathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+    @if (Model.EntraMembershipDataPending)
+    {
+        <div class="membership-warning" role="status">@Model.EntraMembershipPendingWarning</div>
+    }
+
+    <div class="atk-summary">
+        <div class="atk-stat exp-high">
+            <div class="atk-stat-val">@Model.Exposure.HighCount</div>
+            <div class="atk-stat-lbl">High Exposure</div>
+        </div>
+        <div class="atk-stat exp-medium">
+            <div class="atk-stat-val">@Model.Exposure.MediumCount</div>
+            <div class="atk-stat-lbl">Medium Exposure</div>
+        </div>
+        <div class="atk-stat exp-low">
+            <div class="atk-stat-val">@Model.Exposure.LowCount</div>
+            <div class="atk-stat-lbl">Low Exposure</div>
+        </div>
+        <div class="atk-stat exp-none">
+            <div class="atk-stat-val">@Model.Exposure.CoveredTechniques / @Model.Exposure.TotalTechniques</div>
+            <div class="atk-stat-lbl">Techniques with Exposure</div>
+        </div>
+    </div>
+
+    <p class="atk-note">
+        Exposure reflects the presence of risky configurations in your environment mapped to MITRE ATT&amp;CK techniques.
+        It is an indicative visibility view, not a compliance score. Generated at
+        @Model.Exposure.GeneratedAt.ToString("yyyy-MM-dd HH:mm:ss") UTC.
+    </p>
+
+    <section class="exp-history">
+        <h2 class="exp-h2">Compare &amp; Trend</h2>
+        <p class="atk-note">
+            Exposure is not stored separately; historical exposure is recomputed from saved
+            <a href="@(pathBase)/Snapshots">snapshots</a>. Pick a baseline to compare against another
+            snapshot or the current live view.
+        </p>
+
+        @if (!Model.Snapshots.Any())
+        {
+            <div class="membership-warning" role="status">
+                No snapshots have been saved yet. Capture a snapshot to enable exposure comparison and trend analysis.
+            </div>
+        }
+        else
+        {
+            <form method="get" class="exp-compare-form">
+                <label>
+                    Baseline
+                    <select name="FromId">
+                        <option value="">— select —</option>
+                        @foreach (var s in Model.Snapshots)
+                        {
+                            var lbl = string.IsNullOrWhiteSpace(s.Label)
+                                ? s.CreatedUtc.ToString("yyyy-MM-dd HH:mm")
+                                : $"{s.Label} ({s.CreatedUtc:yyyy-MM-dd HH:mm})";
+                            <option value="@s.Id" selected="@(s.Id == Model.FromId)">@lbl</option>
+                        }
+                    </select>
+                </label>
+                <label>
+                    Compare to
+                    <select name="ToId">
+                        <option value="current" selected="@(Model.ToId == "current" || string.IsNullOrEmpty(Model.ToId))">Current (live)</option>
+                        @foreach (var s in Model.Snapshots)
+                        {
+                            var lbl = string.IsNullOrWhiteSpace(s.Label)
+                                ? s.CreatedUtc.ToString("yyyy-MM-dd HH:mm")
+                                : $"{s.Label} ({s.CreatedUtc:yyyy-MM-dd HH:mm})";
+                            <option value="@s.Id" selected="@(s.Id == Model.ToId)">@lbl</option>
+                        }
+                    </select>
+                </label>
+                <button type="submit" class="snap-btn snap-btn-primary">Compare</button>
+            </form>
+
+            @if (Model.Comparison != null)
+            {
+                var cmp = Model.Comparison;
+                <div class="exp-cmp-summary">
+                    <span class="delta-bad">▲ @cmp.IncreasedCount increased</span>
+                    <span class="delta-good">▼ @cmp.DecreasedCount decreased</span>
+                    <span class="delta-none">= @cmp.UnchangedCount unchanged</span>
+                    <span class="delta-added">＋ @cmp.AddedCount added</span>
+                    <span class="delta-removed">－ @cmp.RemovedCount removed</span>
+                </div>
+                <p class="atk-note">
+                    Comparing <strong>@cmp.FromLabel</strong> → <strong>@cmp.ToLabel</strong>. A rising
+                    exposure level is worse (▲), a falling level is better (▼).
+                </p>
+
+                <div class="exp-cmp-tactics">
+                    @foreach (var t in cmp.Tactics)
+                    {
+                        <div class="exp-cmp-tactic">
+                            <div class="exp-cmp-tactic-head">
+                                @MitreTacticInfo.DisplayName(t.Tactic)
+                                <span class="atk-tactic-id">@MitreTacticInfo.Id(t.Tactic)</span>
+                            </div>
+                            <table class="exp-cmp-table">
+                                <thead>
+                                    <tr><th>Technique</th><th>Baseline</th><th></th><th>Compared</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in t.Rows)
+                                    {
+                                        <tr class="@DirClass(row.Direction)">
+                                            <td>
+                                                <span class="exp-cmp-tid">@row.TechniqueId</span>
+                                                @row.TechniqueName
+                                            </td>
+                                            <td>@LevelName(row.FromLevel)</td>
+                                            <td class="exp-cmp-arrow">@DirArrow(row.Direction)</td>
+                                            <td>@LevelName(row.ToLevel)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (Model.Trend.Labels.Count > 1)
+            {
+                var maxCount = Math.Max(1, Model.Trend.HighCounts
+                    .Concat(Model.Trend.MediumCounts)
+                    .Concat(Model.Trend.LowCounts)
+                    .DefaultIfEmpty(0)
+                    .Max());
+                <h3 class="exp-h3">Exposure trend</h3>
+                <p class="atk-note">High / Medium / Low exposed technique counts across @Model.Trend.Labels.Count saved snapshots.</p>
+                <div class="exp-trend">
+                    @for (var i = 0; i < Model.Trend.Labels.Count; i++)
+                    {
+                        var hi = Model.Trend.HighCounts.ElementAtOrDefault(i);
+                        var me = Model.Trend.MediumCounts.ElementAtOrDefault(i);
+                        var lo = Model.Trend.LowCounts.ElementAtOrDefault(i);
+                        <div class="exp-trend-col" title="@Model.Trend.Labels[i] — High @hi, Medium @me, Low @lo">
+                            <div class="exp-trend-bars">
+                                <span class="exp-bar exp-high" style="height:@(hi * 100 / maxCount)%"></span>
+                                <span class="exp-bar exp-medium" style="height:@(me * 100 / maxCount)%"></span>
+                                <span class="exp-bar exp-low" style="height:@(lo * 100 / maxCount)%"></span>
+                            </div>
+                            <div class="exp-trend-lbl">@Model.Trend.Labels[i]</div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </section>
+
+    <div class="atk-matrix">
+        @foreach (var tactic in Model.Exposure.Tactics)
+        {
+            <div class="atk-tactic">
+                <div class="atk-tactic-head @LevelClass(tactic.MaxLevel)">
+                    <span class="atk-tactic-name">@MitreTacticInfo.DisplayName(tactic.Tactic)</span>
+                    <span class="atk-tactic-id">@MitreTacticInfo.Id(tactic.Tactic)</span>
+                </div>
+                <div class="atk-tactic-body">
+                    @foreach (var tech in tactic.Techniques)
+                    {
+                        <div class="atk-tech @LevelClass(tech.Level)">
+                            <div class="atk-tech-head">
+                                <span class="atk-tech-name">@tech.Technique.Name</span>
+                                <span class="atk-tech-badge @LevelClass(tech.Level)">@LevelLabel(tech.Level)</span>
+                            </div>
+                            <div class="atk-tech-id">@tech.Technique.Id</div>
+                            <p class="atk-tech-desc">@tech.Technique.Description</p>
+                            <div class="atk-contribs">
+                                @foreach (var c in tech.Contributions)
+                                {
+                                    <div class="atk-contrib @LevelClass(c.Level)">
+                                        <span class="atk-contrib-name">@c.DisplayName</span>
+                                        <span class="atk-contrib-count">@(c.HasError ? "n/a" : c.Count.ToString())</span>
+                                    </div>
+                                }
+                            </div>
+                            <p class="atk-tech-mit"><strong>Mitigation:</strong> @tech.Technique.Mitigation</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <footer class="footer">Active Roles Dashboard &mdash; ATT&amp;CK Exposure generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+    @await Html.PartialAsync("_EntraMembershipConfig")
+</div>
+@await Html.PartialAsync("_ToastAndMembership")
+<script src="js/dashboard.js" asp-append-version="true"></script>
+</body>
+</html>

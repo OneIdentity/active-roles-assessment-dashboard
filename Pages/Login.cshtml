@@ -1,0 +1,101 @@
+﻿@page
+@model ActiveRolesDashboard.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+@if (!string.IsNullOrEmpty(Model.RedirectUrl))
+{
+    <text><!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=@(Model.RedirectUrl)" /><script>window.location.replace("@(Model.RedirectUrl)");</script></head><body>Redirecting to @Model.RedirectUrl...</body></html></text>
+    return;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #fff; border-radius: 16px; padding: 48px 40px; box-shadow: 0 20px 60px rgba(0,0,0,.3); width: 100%; max-width: 420px; }
+        .login-card h1 { font-size: 1.5rem; color: #111827; margin-bottom: 6px; }
+        .login-card p.sub { font-size: .88rem; color: #6b7280; margin-bottom: 28px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 12px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; transition: border-color .2s; }
+        .form-group input:focus { outline: none; border-color: #1a1a2e; box-shadow: 0 0 0 3px rgba(26,26,46,.1); }
+        .btn-login { width: 100%; padding: 13px; background: #1a1a2e; color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+        .btn-login:hover { background: #16213e; }
+        .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 10px 14px; border-radius: 8px; font-size: .84rem; margin-bottom: 18px; }
+        .logo { text-align: center; margin-bottom: 24px; }
+        .logo img { height: 40px; width: auto; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo"><img src="@Url.Content("~/images/oneidentity-logo-v2.svg")" alt="One Identity" /></div>
+        <h1>Active Roles KPI Dashboard</h1>
+        <p class="sub">Sign in with your Active Roles credentials</p>
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="error-msg">@Model.ErrorMessage</div>
+        }
+        <form method="post" id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="Username" placeholder="domain\username" required autofocus />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="Password" required />
+            </div>
+            <button type="submit" class="btn-login">Sign In</button>
+        </form>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p id="loadingMessage">Signing in...</p>
+        </div>
+    </div>
+<style>
+    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,26,46,.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
+    .loading-overlay.active { display: flex; }
+    .loading-spinner { text-align: center; }
+    .loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: #fff; }
+    .spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+@await Html.PartialAsync("_AppBaseScript")
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var overlay = document.getElementById('loadingOverlay');
+        var msg = document.getElementById('loadingMessage');
+        overlay.classList.add('active');
+        var form = this;
+        fetch(form.action || window.location.href, {
+            method: 'POST',
+            body: new FormData(form),
+            redirect: 'manual'
+        }).then(function(response) {
+            if (response.type === 'opaqueredirect' || response.status === 302 || response.status === 301 || response.ok) {
+                msg.textContent = 'Loading data...';
+                window.location.href = appBase + '/';
+            } else {
+                return response.text().then(function(html) {
+                    overlay.classList.remove('active');
+                    document.open();
+                    document.write(html);
+                    document.close();
+                });
+            }
+        }).catch(function() {
+            overlay.classList.remove('active');
+            form.submit();
+        });
+    });
+</script>
+</body>
+</html>

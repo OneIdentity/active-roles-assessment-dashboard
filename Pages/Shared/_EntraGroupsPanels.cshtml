@@ -1,0 +1,206 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@{
+    string WebInterfaceUrl = Model.WebInterfaceUrl;
+    var entra = Model.Summary.EntraTotals;
+    var distributionGroups = entra.EntraObjectsOf(EntraObjectType.DistributionGroup);
+    var dynamicDistributionGroups = entra.EntraObjectsOf(EntraObjectType.DynamicDistributionGroup);
+    var microsoft365Groups = entra.EntraObjectsOf(EntraObjectType.Microsoft365Group);
+    var securityGroups = entra.EntraObjectsOf(EntraObjectType.SecurityGroup);
+
+    // Eager attribute-derived KPIs (visibility / edsvaOnPremisesSyncEnabled) computed from the
+    // initial projection - no membership load required.
+    var publicGroups = entra.EntraPublicGroups();
+    var onPremSyncedGroups = entra.EntraOnPremSyncedGroups();
+
+    // The three membership-dependent KPIs (Empty Groups, No Group Owner, Guest-Containing
+    // Groups) require the 'member'/'edsaAzureGroupManagedBy' attributes, which are loaded
+    // lazily and in parallel after the initial render. When membership has already been
+    // loaded (e.g. back-navigation with cached enriched data) they render fully; otherwise
+    // they render a loading state and are populated client-side by the lazy loader.
+    var membershipLoaded = entra.MembershipLoaded;
+    var emptyGroups = membershipLoaded ? entra.EntraEmptyGroups() : null;
+    var noOwnerGroups = membershipLoaded ? entra.EntraNoGroupOwnerGroups() : null;
+    var guestGroups = membershipLoaded ? entra.EntraGuestContainingGroups() : null;
+    var singleOwnerGroups = membershipLoaded ? entra.EntraSingleOwnerGroups() : null;
+    var largeGroups = membershipLoaded ? entra.EntraLargeGroups(Model.LargeGroupMemberThreshold) : null;
+}
+@functions {
+    // Renders the shared "Open in Web Interface" action cell for an Entra group DN.
+    Microsoft.AspNetCore.Html.IHtmlContent WebLink(string dn, string webUrl)
+    {
+        var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"/><polyline points=\"15 3 21 3 21 9\"/><line x1=\"10\" y1=\"14\" x2=\"21\" y2=\"3\"/></svg>";
+        if (!string.IsNullOrEmpty(dn) && !string.IsNullOrEmpty(webUrl))
+        {
+            var href = $"{webUrl.TrimEnd('/')}/redirect.ashx?dn={Uri.EscapeDataString(dn)}";
+            return new Microsoft.AspNetCore.Html.HtmlString(
+                $"<a href=\"javascript:void(0)\" onclick=\"openWebInterface('{href}')\" title=\"Open in Web Interface\" class=\"btn-manage\">{svg}</a>");
+        }
+        if (!string.IsNullOrEmpty(dn))
+        {
+            return new Microsoft.AspNetCore.Html.HtmlString(
+                $"<span class=\"btn-manage disabled\" title=\"Configure Web Interface URL in Settings\">{svg}</span>");
+        }
+        return Microsoft.AspNetCore.Html.HtmlString.Empty;
+    }
+}
+
+@{
+    // Renders a membership-dependent group panel body. When membership is not yet loaded,
+    // shows a spinner and a stable tbody the lazy loader populates; when loaded, renders rows.
+    void RenderLazyMembershipPanel(string kpiKey, string emptyMessage, EntraGroupDetailSummary? summary)
+    {
+        <div class="panel-content" data-lazy-membership="@kpiKey">
+            @if (summary?.Error != null)
+            {
+                <p class="muted">@summary.Error</p>
+            }
+            else
+            {
+                <div class="membership-loading" data-membership-spinner="@kpiKey" style="@(summary == null ? "" : "display:none;")">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span class="muted">Loading group membership&hellip;</span>
+                </div>
+                <table style="@(summary == null ? "display:none;" : "")" data-membership-table="@kpiKey">
+                    <thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                    <tbody data-membership-body="@kpiKey">
+                        @if (summary != null)
+                        {
+                            foreach (var g in summary.Items)
+                            {
+                                <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr>
+                            }
+                            if (!summary.Items.Any())
+                            {
+                                <tr><td colspan="4" class="empty-row">@emptyMessage</td></tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraDistributionGroups"))
+{
+<div class="panel" id="panel-entradistributiongroups">
+    <h2><span class="sec-icon">D</span> Distribution Groups</h2>
+    <div class="panel-content">
+        @if (distributionGroups.Error != null) { <p class="muted">@distributionGroups.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var g in distributionGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!distributionGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No distribution groups found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraDynamicDistributionGroups"))
+{
+<div class="panel" id="panel-entradynamicdistributiongroups">
+    <h2><span class="sec-icon">Y</span> Dynamic Distribution Groups</h2>
+    <div class="panel-content">
+        @if (dynamicDistributionGroups.Error != null) { <p class="muted">@dynamicDistributionGroups.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var g in dynamicDistributionGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!dynamicDistributionGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No dynamic distribution groups found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraMicrosoft365Groups"))
+{
+<div class="panel" id="panel-entramicrosoft365groups">
+    <h2><span class="sec-icon">M</span> Microsoft 365 Groups</h2>
+    <div class="panel-content">
+        @if (microsoft365Groups.Error != null) { <p class="muted">@microsoft365Groups.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var g in microsoft365Groups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!microsoft365Groups.Items.Any()) { <tr><td colspan="4" class="empty-row">No Microsoft 365 groups found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraSecurityGroups"))
+{
+<div class="panel" id="panel-entrasecuritygroups">
+    <h2><span class="sec-icon">S</span> Security Groups</h2>
+    <div class="panel-content">
+        @if (securityGroups.Error != null) { <p class="muted">@securityGroups.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var g in securityGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!securityGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No security groups found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraEmptyGroups"))
+{
+<div class="panel" id="panel-entraemptygroups">
+    <h2><span class="sec-icon">E</span> Empty Groups</h2>
+    @{ RenderLazyMembershipPanel("emptyGroups", "No empty groups found", emptyGroups); }
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraNoGroupOwner"))
+{
+<div class="panel" id="panel-entranogroupowner">
+    <h2><span class="sec-icon">O</span> No Group Owner</h2>
+    @{ RenderLazyMembershipPanel("noGroupOwner", "No groups without an owner found", noOwnerGroups); }
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraGuestContainingGroups"))
+{
+<div class="panel" id="panel-entraguestcontaininggroups">
+    <h2><span class="sec-icon">G</span> Guest-Containing Groups</h2>
+    @{ RenderLazyMembershipPanel("guestContaining", "No guest-containing groups found", guestGroups); }
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraPublicGroups"))
+{
+<div class="panel" id="panel-entrapublicgroups">
+    <h2><span class="sec-icon">P</span> Public M365 Groups</h2>
+    <div class="panel-content">
+        @if (publicGroups.Error != null) { <p class="muted">@publicGroups.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var g in publicGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!publicGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No public Microsoft 365 groups found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraOnPremSyncedGroups"))
+{
+<div class="panel" id="panel-entraonpremsyncedgroups">
+    <h2><span class="sec-icon">H</span> On-Premises Synced Groups</h2>
+    <div class="panel-content">
+        @if (onPremSyncedGroups.Error != null) { <p class="muted">@onPremSyncedGroups.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var g in onPremSyncedGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!onPremSyncedGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No on-premises synced groups found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraSingleOwnerGroups"))
+{
+<div class="panel" id="panel-entrasingleownergroups">
+    <h2><span class="sec-icon">1</span> Single-Owner Groups</h2>
+    @{ RenderLazyMembershipPanel("singleOwner", "No single-owner groups found", singleOwnerGroups); }
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraLargeGroups"))
+{
+<div class="panel" id="panel-entralargegroups">
+    <h2><span class="sec-icon">L</span> Large Groups (&ge;@Model.LargeGroupMemberThreshold members)</h2>
+    @{ RenderLazyMembershipPanel("largeGroups", "No large groups found", largeGroups); }
+</div>
+}

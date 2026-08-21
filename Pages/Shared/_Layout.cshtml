@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ActiveRolesDashboard</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ActiveRolesDashboard.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">ActiveRolesDashboard</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                    @* Persistent group-membership loading indicator, visible on every page. Shows a
+                       people icon with a badge counting the groups whose membership is still being
+                       loaded. Hidden while idle; driven by window.membershipBadge (see script below). *@
+                    <div id="membership-indicator" class="membership-indicator" hidden
+                         title="Loading group membership" aria-live="polite">
+                        <svg class="membership-indicator-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span class="membership-indicator-badge" id="membership-indicator-badge">0</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - ActiveRolesDashboard - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Global toast notification container. Populated via window.showToast(message, type). -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <script>
+        // Minimal, dependency-free toast helper. type: 'info' (default) | 'success' | 'error'.
+        window.showToast = function (message, type) {
+            var container = document.getElementById('toast-container');
+            if (!container) return;
+            var toast = document.createElement('div');
+            toast.className = 'app-toast ' + (type || 'info');
+            toast.setAttribute('role', 'status');
+            toast.textContent = message;
+            container.appendChild(toast);
+            // Trigger the enter transition on the next frame.
+            requestAnimationFrame(function () { toast.classList.add('show'); });
+            setTimeout(function () {
+                toast.classList.remove('show');
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 4000);
+        };
+
+        // Header group-membership progress badge helper. remaining <= 0 hides the indicator.
+        window.membershipBadge = (function () {
+            var el = document.getElementById('membership-indicator');
+            var badge = document.getElementById('membership-indicator-badge');
+            var current = 0;
+            function render() {
+                if (!el || !badge) return;
+                if (current > 0) {
+                    badge.textContent = String(current);
+                    el.style.display = '';
+                    el.removeAttribute('hidden');
+                } else {
+                    el.style.display = 'none';
+                    el.setAttribute('hidden', 'hidden');
+                }
+            }
+            return {
+                set: function (n) { current = Math.max(0, n | 0); render(); },
+                decrement: function (n) { current = Math.max(0, current - (n | 0 || 1)); render(); },
+                hide: function () { current = 0; render(); }
+            };
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

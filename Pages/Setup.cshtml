@@ -1,0 +1,217 @@
+@page
+@model ActiveRolesDashboard.Pages.SetupModel
+@{
+    ViewData["Title"] = "Setup";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Setup</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <style>
+        .setup-container { max-width: 640px; margin: 40px auto; padding: 0 20px; }
+        .setup-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 24px; }
+        .setup-card h2 { font-size: 1.05rem; font-weight: 600; color: #111827; margin-bottom: 16px; }
+        .setup-card p.subtitle { font-size: .85rem; color: #6b7280; margin-bottom: 24px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
+        .form-group input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
+        .required { color: #dc2626; }
+        .error-msg { margin-bottom: 16px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: .82rem; color: #991b1b; }
+        .wizard-page { display: none; }
+        .wizard-page.active { display: block; }
+        .wizard-steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 28px; }
+        .wizard-steps .step { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; transition: background .2s; }
+        .wizard-steps .step.active { background: #2563eb; }
+        .wizard-steps .step.completed { background: #059669; }
+        .wizard-nav { display: flex; gap: 12px; margin-top: 8px; }
+        .wizard-nav button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+        .btn-back { background: #e5e7eb; color: #374151; }
+        .btn-back:hover { background: #d1d5db; }
+        .btn-next { background: #2563eb; color: #fff; }
+        .btn-next:hover { background: #1d4ed8; }
+        .btn-finish { background: #059669; color: #fff; }
+        .btn-finish:hover { background: #047857; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo">AR</span>
+            <div>
+                <h1>Active Roles Dashboard</h1>
+                <p class="hdr-sub">Initial Configuration</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="setup-container">
+        <div class="wizard-steps">
+            <div class="step active" data-step="0"></div>
+            <div class="step" data-step="1"></div>
+            <div class="step" data-step="2"></div>
+        </div>
+
+        <div id="wizardError" class="error-msg" style="display:none;"></div>
+
+        @if (Model.ErrorMessage != null)
+        {
+            <div class="error-msg">@Model.ErrorMessage</div>
+        }
+
+        <form method="post" id="setupForm">
+            <!-- Page 1: REST API Configuration -->
+            <div class="wizard-page active" data-page="0">
+                <div class="setup-card">
+                    <h2>REST API Configuration <span class="required">*</span></h2>
+                    <p class="subtitle">Configure the connection to the Active Roles REST API service.</p>
+                    <div class="form-group">
+                        <label for="ApiBaseUrl">REST API URL <span class="required">*</span></label>
+                        <input type="text" id="ApiBaseUrl" name="ApiBaseUrl" value="@Model.ApiBaseUrl" placeholder="https://server:5000/api/v1" />
+                        <p class="hint">The base URL of the Active Roles REST API. This setting is mandatory.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="RstsUrl">RSTS Token URL <span class="required">*</span></label>
+                        <input type="text" id="RstsUrl" name="RstsUrl" value="@Model.RstsUrl" placeholder="https://server:443/rsts/oauth2/token" />
+                        <p class="hint">The RSTS OAuth2 token endpoint URL. This setting is mandatory.</p>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-next" onclick="wizardNext()">Next</button>
+                </div>
+            </div>
+
+            <!-- Page 2: Web Interface -->
+            <div class="wizard-page" data-page="1">
+                <div class="setup-card">
+                    <h2>Web Interface</h2>
+                    <p class="subtitle">Optionally configure the Active Roles Web Interface URL for deep linking.</p>
+                    <div class="form-group">
+                        <label for="WebInterfaceUrl">Web Interface URL</label>
+                        <input type="text" id="WebInterfaceUrl" name="WebInterfaceUrl" value="@Model.WebInterfaceUrl" placeholder="https://server/ARWebAdmin" />
+                        <p class="hint">Base URL of the Active Roles Web Interface. This setting is optional.</p>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-back" onclick="wizardBack()">Back</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">Next</button>
+                </div>
+            </div>
+
+            <!-- Page 3: KPI Configuration -->
+            <div class="wizard-page" data-page="2">
+                <div class="setup-card">
+                    <h2>KPI Configuration</h2>
+                    <p class="subtitle">All KPI settings are optional. Leave blank to use defaults.</p>
+                    <div class="form-group">
+                        <label for="CustomActiveRolesAdminsBaseDn">Active Roles Admins - Base DN</label>
+                        <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomActiveRolesAdminsFilter">Active Roles Admins - LDAP Filter</label>
+                        <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultActiveRolesAdminsFilter" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomNoGroupOwnerBaseDn">No Group Owner - Base DN</label>
+                        <input type="text" id="CustomNoGroupOwnerBaseDn" name="CustomNoGroupOwnerBaseDn" value="@Model.CustomNoGroupOwnerBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomNoManagerUserBaseDn">No Manager (User) - Base DN</label>
+                        <input type="text" id="CustomNoManagerUserBaseDn" name="CustomNoManagerUserBaseDn" value="@Model.CustomNoManagerUserBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomNoManagerUserFilter">No Manager (User) - LDAP Filter</label>
+                        <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultNoManagerUserFilter" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomNoManagerServiceAccountBaseDn">No Manager (Service Account) - Base DN</label>
+                        <input type="text" id="CustomNoManagerServiceAccountBaseDn" name="CustomNoManagerServiceAccountBaseDn" value="@Model.CustomNoManagerServiceAccountBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomNoManagerServiceAccountFilter">No Manager (Service Account) - LDAP Filter</label>
+                        <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultNoManagerServiceAccountFilter" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomUserAccountExpiredBaseDn">User Account Expired - Base DN</label>
+                        <input type="text" id="CustomUserAccountExpiredBaseDn" name="CustomUserAccountExpiredBaseDn" value="@Model.CustomUserAccountExpiredBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomUserAccountLockedOutBaseDn">User Account Locked Out - Base DN</label>
+                        <input type="text" id="CustomUserAccountLockedOutBaseDn" name="CustomUserAccountLockedOutBaseDn" value="@Model.CustomUserAccountLockedOutBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CustomEmptyGroupsBaseDn">Empty Groups - Base DN</label>
+                        <input type="text" id="CustomEmptyGroupsBaseDn" name="CustomEmptyGroupsBaseDn" value="@Model.CustomEmptyGroupsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-back" onclick="wizardBack()">Back</button>
+                    <button type="submit" class="btn-finish">Finish Setup</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var currentPage = 0;
+        var totalPages = 3;
+
+        function showPage(index) {
+            var pages = document.querySelectorAll('.wizard-page');
+            var steps = document.querySelectorAll('.wizard-steps .step');
+            pages.forEach(function (p, i) {
+                p.classList.toggle('active', i === index);
+            });
+            steps.forEach(function (s, i) {
+                s.classList.remove('active', 'completed');
+                if (i < index) s.classList.add('completed');
+                else if (i === index) s.classList.add('active');
+            });
+            currentPage = index;
+            hideError();
+        }
+
+        function hideError() {
+            document.getElementById('wizardError').style.display = 'none';
+        }
+
+        function showError(msg) {
+            var el = document.getElementById('wizardError');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function validatePage(index) {
+            if (index === 0) {
+                var apiUrl = document.getElementById('ApiBaseUrl').value.trim();
+                var rstsUrl = document.getElementById('RstsUrl').value.trim();
+                if (!apiUrl) { showError('REST API URL is required.'); document.getElementById('ApiBaseUrl').focus(); return false; }
+                if (!rstsUrl) { showError('RSTS Token URL is required.'); document.getElementById('RstsUrl').focus(); return false; }
+            }
+            return true;
+        }
+
+        window.wizardNext = function () {
+            if (!validatePage(currentPage)) return;
+            if (currentPage < totalPages - 1) {
+                showPage(currentPage + 1);
+            }
+        };
+
+        window.wizardBack = function () {
+            if (currentPage > 0) {
+                showPage(currentPage - 1);
+            }
+        };
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+@page
+@model ActiveRolesDashboard.Pages.LicensingModel
+@{
+    ViewData["Title"] = "Licensing & Compliance";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Licensing &amp; Compliance</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+<div class="loading-overlay active" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading Dashboard Data...</p>
+    </div>
+</div>
+<div class="page">
+    <div class="sticky-head">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
+            <div>
+                <h1>Licensing</h1>
+                <p class="hdr-sub">Licensing and compliance KPIs</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            @{ ViewData["RefreshUrl"] = "/Licensing"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "Licensing"; }
+            @await Html.PartialAsync("_DashboardToolbar")
+        </div>
+    </header>
+
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+    @if (Model.KpiSettings.LicensingEnabled)
+    {
+    <div class="kpi-category">
+        <h2 class="kpi-category-title"><span>@CategoryInfo.Licensing.DisplayName</span><button type="button" class="btn-collapse" onclick="toggleCategory(this)" title="Collapse">&#9650;</button></h2>
+        <div class="kpi-grid">
+            @foreach (var kpi in KpiInfo.ForCategory(CategoryInfo.Licensing))
+            {
+                if (!Model.KpiSettings.IsKpiEnabled(CategoryInfo.Licensing.Key, kpi.Key)) { continue; }
+                var result = Model.Summary.GetKpiResult(kpi.Key);
+            <div class="kpi @kpi.CssColor" data-section="@kpi.SectionId">
+                <div class="lbl">@kpi.Label</div>
+                <div class="val">@(result.Error ?? result.Count.ToString())</div>
+            </div>
+            }
+        </div>
+        @await Html.PartialAsync("_CategoryCharts", (CategoryInfo.Licensing, Model.Summary, Model.KpiSettings))
+    </div>
+    }
+
+    <hr class="kpi-separator" />
+
+    <!-- Drill-down panels -->
+    <div class="panel-grid">
+        @if (Model.KpiSettings.IsKpiEnabled("Licensing", "ManagedObjects"))
+        {
+        <div class="panel" id="panel-managedobjects">
+            <h2><span class="sec-icon">O</span> Managed Objects</h2>
+            <div class="panel-content">
+                @if (Model.Summary.ManagedObjects.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ManagedObjects.Error</p>
+                }
+                else if (!Model.Summary.ManagedObjects.DataPoints.Any())
+                {
+                    <p class="muted">No managed object statistics found</p>
+                }
+                else
+                {
+                    <div style="position:relative; height:350px;">
+                        <canvas id="managedObjectsChart"></canvas>
+                    </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+
+    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+</div>
+@await Html.PartialAsync("_EntraMembershipConfig")
+@await Html.PartialAsync("_ToastAndMembership")
+<script src="js/chart.umd.min.js" asp-append-version="true"></script>
+<script src="js/dashboard.js" asp-append-version="true"></script>
+@if (Model.Summary.ManagedObjects.DataPoints.Any())
+{
+<script>
+(function() {
+    var canvas = document.getElementById('managedObjectsChart');
+    if (!canvas) return;
+
+    var dataPoints = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Summary.ManagedObjects.DataPoints.Select(dp => new {
+            runTime = dp.RunTime.ToString("yyyy-MM-dd HH:mm"),
+            items = dp.Items.Select(i => new { displayName = i.DisplayName, category = i.Category, count = i.Count })
+        })
+    ));
+
+    var labels = dataPoints.map(function(dp) { return dp.runTime; });
+    var itemNames = [];
+    var itemMap = {};
+    dataPoints.forEach(function(dp) {
+        dp.items.forEach(function(item) {
+            var key = item.category + ': ' + item.displayName;
+            if (!itemMap[key]) { itemMap[key] = true; itemNames.push(key); }
+        });
+    });
+
+    var colors = ['#2563eb','#16a34a','#d97706','#dc2626','#7c3aed','#0d9488','#db2777','#475569','#ea580c','#4f46e5'];
+    var datasets = itemNames.map(function(name, idx) {
+        var data = dataPoints.map(function(dp) {
+            var found = dp.items.find(function(item) { return (item.category + ': ' + item.displayName) === name; });
+            return found ? found.count : 0;
+        });
+        return { label: name, data: data, borderColor: colors[idx % colors.length], backgroundColor: colors[idx % colors.length] + '20', tension: 0.3, fill: false, pointRadius: 3 };
+    });
+
+    new Chart(canvas, {
+        type: 'line',
+        data: { labels: labels, datasets: datasets },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+            scales: {
+                x: { title: { display: true, text: 'Time' }, ticks: { maxRotation: 45, font: { size: 10 } } },
+                y: { title: { display: true, text: 'Object Count' }, beginAtZero: true }
+            }
+        }
+    });
+})();
+</script>
+}
+@if (Model.AutoRefreshMinutes > 0)
+{
+<script>
+    setTimeout(function() { document.getElementById('loadingOverlay').classList.add('active'); window.location.reload(); }, @(Model.AutoRefreshMinutes * 60 * 1000));
+</script>
+}
+<script>
+    document.getElementById('loadingOverlay').classList.remove('active');
+    window.addEventListener('beforeunload', function() {
+        if (window.__isExporting) return;
+        document.getElementById('loadingOverlay').classList.add('active');
+    });
+    document.getElementById('btnRefresh').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('loadingOverlay').classList.add('active');
+        window.location.reload();
+    });
+    function toggleCategory(btn) {
+        var category = btn.closest('.kpi-category');
+        category.classList.toggle('collapsed');
+        btn.classList.toggle('collapsed');
+        btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+</script>
+</body>
+</html>

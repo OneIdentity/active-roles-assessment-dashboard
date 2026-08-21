@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ActiveRolesDashboard.csproj" />
+  <Project Path="GraphPerfTest/GraphPerfTest.csproj" />
+</Solution>

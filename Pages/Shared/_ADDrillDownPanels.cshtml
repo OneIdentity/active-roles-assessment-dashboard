@@ -1,0 +1,1217 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+
+@if (Model.KpiSettings.IsKpiEnabled("ADGroupsCategory", "NoGroupOwner") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "NoGroupOwner"))
+{
+<div class="panel" id="panel-nogroupowner">
+    <h2><span class="sec-icon">N</span> No Group Owner</h2>
+    <div class="panel-content">
+        @if (Model.Summary.NoGroupOwner.Error != null)
+        {
+            <p class="muted">@Model.Summary.NoGroupOwner.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:72px;"></th></tr></thead>
+                <tbody>
+                @foreach (var g in Model.Summary.NoGroupOwner.Items)
+                {
+                    <tr>
+                        <td>@g.Name</td>
+                        <td class="dn-cell">@g.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(g.Dn))
+                            {
+                                <a href="GroupTree?Group=@(Uri.EscapeDataString(g.Dn))&return=panel-nogroupowner" title="View nested membership" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(g.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(g.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.NoGroupOwner.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No groups without an owner found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "NoManagerUser") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "NoManagerUser"))
+{
+<div class="panel" id="panel-nomanageruser">
+    <h2><span class="sec-icon">U</span> No Manager (User)</h2>
+    <div class="panel-content">
+        @if (Model.Summary.NoManagerUser.Error != null)
+        {
+            <p class="muted">@Model.Summary.NoManagerUser.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var u in Model.Summary.NoManagerUser.Items)
+                {
+                    <tr>
+                        <td>@u.Name</td>
+                        <td class="dn-cell">@u.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(u.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(u.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(u.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.NoManagerUser.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No users without a manager found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("NHIs", "NoManagerServiceAccount") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "NoManagerServiceAccount"))
+{
+<div class="panel" id="panel-nomanagersa">
+    <h2><span class="sec-icon">S</span> No Manager (Service Account)</h2>
+    <div class="panel-content">
+        @if (Model.Summary.NoManagerServiceAccount.Error != null)
+        {
+            <p class="muted">@Model.Summary.NoManagerServiceAccount.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var s in Model.Summary.NoManagerServiceAccount.Items)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td class="dn-cell">@s.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(s.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(s.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(s.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.NoManagerServiceAccount.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No service accounts without a manager found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("NHIs", "ServiceAccounts"))
+{
+<div class="panel" id="panel-serviceaccounts">
+    <h2><span class="sec-icon">S</span> Service Accounts</h2>
+    <div class="panel-content">
+        @if (Model.Summary.ServiceAccounts.Error != null)
+        {
+            <p class="muted">@Model.Summary.ServiceAccounts.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var s in Model.Summary.ServiceAccounts.Items)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td class="dn-cell">@s.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(s.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(s.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(s.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.ServiceAccounts.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No service accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("NHIs", "GmsaServiceAccounts"))
+{
+<div class="panel" id="panel-gmsaserviceaccounts">
+    <h2><span class="sec-icon">G</span> gMSA Service Accounts</h2>
+    <div class="panel-content">
+        @if (Model.Summary.GmsaServiceAccounts.Error != null)
+        {
+            <p class="muted">@Model.Summary.GmsaServiceAccounts.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var s in Model.Summary.GmsaServiceAccounts.Items)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td class="dn-cell">@s.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(s.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(s.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(s.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.GmsaServiceAccounts.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No gMSA service accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("NHIs", "SmsaServiceAccounts"))
+{
+<div class="panel" id="panel-smsaserviceaccounts">
+    <h2><span class="sec-icon">S</span> sMSA Service Accounts</h2>
+    <div class="panel-content">
+        @if (Model.Summary.SmsaServiceAccounts.Error != null)
+        {
+            <p class="muted">@Model.Summary.SmsaServiceAccounts.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var s in Model.Summary.SmsaServiceAccounts.Items)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td class="dn-cell">@s.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(s.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(s.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(s.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.SmsaServiceAccounts.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No sMSA service accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "UserAccountLockedOut") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "UserAccountLockedOut"))
+{
+<div class="panel" id="panel-accountlockedout">
+    <h2><span class="sec-icon">L</span> User Account Locked Out</h2>
+    <div class="panel-content">
+        @if (Model.Summary.UserAccountLockedOut.Error != null)
+        {
+            <p class="muted">@Model.Summary.UserAccountLockedOut.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.UserAccountLockedOut.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.UserAccountLockedOut.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No locked out user accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "ReversibleEncryption") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "ReversibleEncryption"))
+{
+<div class="panel" id="panel-reversibleencryption">
+    <h2><span class="sec-icon">R</span> Reversible Encryption</h2>
+    <div class="panel-content">
+        @if (Model.Summary.ReversibleEncryption.Error != null)
+        {
+            <p class="muted">@Model.Summary.ReversibleEncryption.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.ReversibleEncryption.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.ReversibleEncryption.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts with reversible encryption found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "MustChangePassword"))
+{
+<div class="panel" id="panel-mustchangepassword">
+    <h2><span class="sec-icon">M</span> Must Change Password</h2>
+    <div class="panel-content">
+        @if (Model.Summary.MustChangePassword.Error != null)
+        {
+            <p class="muted">@Model.Summary.MustChangePassword.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.MustChangePassword.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.MustChangePassword.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts requiring password change found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "PasswordNotRequired"))
+{
+<div class="panel" id="panel-passwordnotrequired">
+    <h2><span class="sec-icon">P</span> Password Not Required</h2>
+    <div class="panel-content">
+        @if (Model.Summary.PasswordNotRequired.Error != null)
+        {
+            <p class="muted">@Model.Summary.PasswordNotRequired.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.PasswordNotRequired.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.PasswordNotRequired.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts with password not required found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "SmartCardRequired"))
+{
+<div class="panel" id="panel-smartcardrequired">
+    <h2><span class="sec-icon">S</span> Smart Card Required</h2>
+    <div class="panel-content">
+        @if (Model.Summary.SmartCardRequired.Error != null)
+        {
+            <p class="muted">@Model.Summary.SmartCardRequired.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.SmartCardRequired.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.SmartCardRequired.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts requiring a smart card found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "CannotChangePassword"))
+{
+<div class="panel" id="panel-cannotchangepassword">
+    <h2><span class="sec-icon">C</span> Cannot Change Password</h2>
+    <div class="panel-content">
+        @if (Model.Summary.CannotChangePassword.Error != null)
+        {
+            <p class="muted">@Model.Summary.CannotChangePassword.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.CannotChangePassword.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.CannotChangePassword.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts that cannot change password found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "UserReversibleEncryption"))
+{
+<div class="panel" id="panel-userreversibleencryption">
+    <h2><span class="sec-icon">R</span> Reversible Encryption</h2>
+    <div class="panel-content">
+        @if (Model.Summary.UserReversibleEncryption.Error != null)
+        {
+            <p class="muted">@Model.Summary.UserReversibleEncryption.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.UserReversibleEncryption.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.UserReversibleEncryption.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts with reversible encryption found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "TrustedForDelegation"))
+{
+<div class="panel" id="panel-trustedfordelegation">
+    <h2><span class="sec-icon">T</span> Trusted for Delegation</h2>
+    <div class="panel-content">
+        @if (Model.Summary.TrustedForDelegation.Error != null)
+        {
+            <p class="muted">@Model.Summary.TrustedForDelegation.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.TrustedForDelegation.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.TrustedForDelegation.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts trusted for delegation found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("NHIs", "SpnUserAccounts"))
+{
+<div class="panel" id="panel-spnuseraccounts">
+    <h2><span class="sec-icon">S</span> Service Accounts (SPN)</h2>
+    <div class="panel-content">
+        @if (Model.Summary.SpnUserAccounts.Error != null)
+        {
+            <p class="muted">@Model.Summary.SpnUserAccounts.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.SpnUserAccounts.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.SpnUserAccounts.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No SPN service accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "StaleUsers"))
+{
+<div class="panel" id="panel-staleusers">
+    <h2><span class="sec-icon">S</span> Stale Accounts (Inactive &gt; @Model.StaleAccountThresholdDays days)</h2>
+    <div class="panel-content">
+        @if (Model.Summary.StaleUsers.Error != null)
+        {
+            <p class="muted">@Model.Summary.StaleUsers.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Last Logon</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.StaleUsers.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td>@l.Description</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.StaleUsers.Items.Any())
+                {
+                    <tr><td colspan="4" class="empty-row">No stale (inactive) accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "SensitiveCannotDelegate"))
+{
+<div class="panel" id="panel-sensitivecannotdelegate">
+    <h2><span class="sec-icon">S</span> Sensitive - Cannot Be Delegated</h2>
+    <div class="panel-content">
+        @if (Model.Summary.SensitiveCannotDelegate.Error != null)
+        {
+            <p class="muted">@Model.Summary.SensitiveCannotDelegate.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.SensitiveCannotDelegate.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.SensitiveCannotDelegate.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No sensitive accounts found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "UseDesEncryption"))
+{
+<div class="panel" id="panel-usedesencryption">
+    <h2><span class="sec-icon">D</span> Use DES Encryption</h2>
+    <div class="panel-content">
+        @if (Model.Summary.UseDesEncryption.Error != null)
+        {
+            <p class="muted">@Model.Summary.UseDesEncryption.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.UseDesEncryption.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.UseDesEncryption.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts using DES encryption found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "DeprovisionedUsers"))
+{
+<div class="panel" id="panel-deprovisionedusers">
+    <h2><span class="sec-icon">D</span> Deprovisioned Users</h2>
+    <div class="panel-content">
+        @if (Model.Summary.DeprovisionedUsers.Error != null)
+        {
+            <p class="muted">@Model.Summary.DeprovisionedUsers.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th>Description</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.DeprovisionedUsers.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>@l.Description</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.DeprovisionedUsers.Items.Any())
+                {
+                    <tr><td colspan="4" class="empty-row">No deprovisioned users found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "NoKerberosPreauth"))
+{
+<div class="panel" id="panel-nokerberospreauth">
+    <h2><span class="sec-icon">K</span> Do Not Require Kerberos Preauthentication</h2>
+    <div class="panel-content">
+        @if (Model.Summary.NoKerberosPreauth.Error != null)
+        {
+            <p class="muted">@Model.Summary.NoKerberosPreauth.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var l in Model.Summary.NoKerberosPreauth.Items)
+                {
+                    <tr>
+                        <td>@l.Name</td>
+                        <td class="dn-cell">@l.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(l.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(l.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(l.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.NoKerberosPreauth.Items.Any())
+                {
+                    <tr><td colspan="3" class="empty-row">No accounts without Kerberos preauthentication found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADGroupsCategory", "EmptyGroups") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "EmptyGroups"))
+{
+<div class="panel" id="panel-emptygroups">
+    <h2><span class="sec-icon">G</span> Empty Groups</h2>
+    <div class="panel-content">
+        @if (Model.Summary.EmptyGroups.Error != null)
+        {
+            <p class="muted">@Model.Summary.EmptyGroups.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var g in Model.Summary.EmptyGroups.Items)
+                {
+                    <tr>
+                        <td>@g.Name</td>
+                        <td>@g.Domain</td>
+                        <td class="dn-cell">@g.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(g.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(g.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.EmptyGroups.Items.Any())
+                {
+                    <tr><td colspan="4" class="empty-row">No empty groups found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADGroupsCategory", "CircularGroupNesting"))
+{
+<div class="panel" id="panel-circulargroupnesting">
+    <h2><span class="sec-icon">C</span> Circular Group Nesting</h2>
+    <div class="panel-content">
+        @if (Model.Summary.CircularGroupNesting.Error != null)
+        {
+            <p class="muted">@Model.Summary.CircularGroupNesting.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var g in Model.Summary.CircularGroupNesting.Items)
+                {
+                    <tr>
+                        <td>@g.Name</td>
+                        <td>@g.Domain</td>
+                        <td class="dn-cell">@g.Dn</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(g.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(g.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.CircularGroupNesting.Items.Any())
+                {
+                    <tr><td colspan="4" class="empty-row">No circular group nesting found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("ADUserAccountsCategory", "NeverLoggedIn") || Model.KpiSettings.IsKpiEnabled("ADGovernance", "NeverLoggedIn"))
+{
+<div class="panel" id="panel-neverloggedin">
+    <h2><span class="sec-icon">N</span> Never Logged In</h2>
+    <div class="panel-content">
+        @if (Model.Summary.NeverLoggedIn.Error != null)
+        {
+            <p class="muted">@Model.Summary.NeverLoggedIn.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead>
+                <tbody>
+                @foreach (var u in Model.Summary.NeverLoggedIn.Items)
+                {
+                    <tr>
+                        <td>@u.Name</td>
+                        <td>@u.Domain</td>
+                        <td class="dn-cell">@u.Dn</td>
+                        <td>@u.Enabled</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(u.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(u.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(u.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Summary.NeverLoggedIn.Items.Any())
+                {
+                    <tr><td colspan="5" class="empty-row">No users found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}
+
+@* Privileged Groups panels are included in this partial since they belong to the AD page *@
+@await Html.PartialAsync("_PrivilegedGroupsPanels")
+
+@* AD User Accounts panels *@
+@await Html.PartialAsync("_ADUserAccountsPanels")
+
+@* AD Groups panels *@
+@await Html.PartialAsync("_ADGroupsPanels")
+
+@* Computers panels *@
+@await Html.PartialAsync("_ComputersPanels")
+
+@* Privileged Users panels *@
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedUsers", "AdminCount"))
+{
+<div class="panel" id="panel-admincount">
+    <h2><span class="sec-icon">A</span> Admin Count</h2>
+    <div class="panel-content">
+        @if (Model.Summary.AdminCount.Error != null) { <p class="muted">@Model.Summary.AdminCount.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var u in Model.Summary.AdminCount.Items)
+            {
+                <tr><td>@u.Name</td><td>@u.Domain</td><td class="dn-cell">@u.Dn</td><td><span class="type-pill">@(u.Enabled ? "Yes" : "No")</span></td><td>@if (!string.IsNullOrEmpty(u.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(u.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(u.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.AdminCount.Items.Any()) { <tr><td colspan="5" class="empty-row">No users found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@* Infrastructure panels *@
+@if (Model.KpiSettings.IsKpiEnabled("Infrastructure", "Sites"))
+{
+<div class="panel" id="panel-sites">
+    <h2><span class="sec-icon">S</span> Sites</h2>
+    <div class="panel-content">
+        @if (Model.Summary.Sites.Error != null) { <p class="muted">@Model.Summary.Sites.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>NetBIOS Name</th><th>Distinguished Name</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Summary.Sites.Items)
+            {
+                <tr><td>@item.Name</td><td>@item.Domain</td><td class="dn-cell">@item.Dn</td></tr>
+            }
+            @if (!Model.Summary.Sites.Items.Any()) { <tr><td colspan="3" class="empty-row">No items found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("Infrastructure", "SiteLinks"))
+{
+<div class="panel" id="panel-sitelinks">
+    <h2><span class="sec-icon">S</span> Site Links</h2>
+    <div class="panel-content">
+        @if (Model.Summary.SiteLinks.Error != null) { <p class="muted">@Model.Summary.SiteLinks.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>NetBIOS Name</th><th>Distinguished Name</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Summary.SiteLinks.Items)
+            {
+                <tr><td>@item.Name</td><td>@item.Domain</td><td class="dn-cell">@item.Dn</td></tr>
+            }
+            @if (!Model.Summary.SiteLinks.Items.Any()) { <tr><td colspan="3" class="empty-row">No items found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("Infrastructure", "Subnets"))
+{
+<div class="panel" id="panel-subnets">
+    <h2><span class="sec-icon">S</span> Subnets</h2>
+    <div class="panel-content">
+        @if (Model.Summary.Subnets.Error != null) { <p class="muted">@Model.Summary.Subnets.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>NetBIOS Name</th><th>Distinguished Name</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Summary.Subnets.Items)
+            {
+                <tr><td>@item.Name</td><td>@item.Domain</td><td class="dn-cell">@item.Dn</td></tr>
+            }
+            @if (!Model.Summary.Subnets.Items.Any()) { <tr><td colspan="3" class="empty-row">No items found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("Infrastructure", "OUs"))
+{
+<div class="panel" id="panel-ous">
+    <h2><span class="sec-icon">O</span> OUs</h2>
+    <div class="panel-content">
+        @if (Model.Summary.OUs.Error != null) { <p class="muted">@Model.Summary.OUs.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>NetBIOS Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Summary.OUs.Items)
+            {
+                <tr><td>@item.Name</td><td>@item.Domain</td><td class="dn-cell">@item.Dn</td><td>@if (!string.IsNullOrEmpty(item.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(item.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(item.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.OUs.Items.Any()) { <tr><td colspan="4" class="empty-row">No items found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("Infrastructure", "DomainControllers"))
+{
+<div class="panel" id="panel-domaincontrollers">
+    <h2><span class="sec-icon">D</span> Domain Controllers</h2>
+    <div class="panel-content">
+        @if (Model.Summary.DomainControllers.Error != null) { <p class="muted">@Model.Summary.DomainControllers.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Site</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var dc in Model.Summary.DomainControllers.Items)
+            {
+                <tr><td>@dc.Name</td><td>@dc.Domain</td><td class="dn-cell">@dc.Dn</td><td>@dc.SiteName</td><td>@if (!string.IsNullOrEmpty(dc.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(dc.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(dc.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.DomainControllers.Items.Any()) { <tr><td colspan="5" class="empty-row">No domain controllers found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}

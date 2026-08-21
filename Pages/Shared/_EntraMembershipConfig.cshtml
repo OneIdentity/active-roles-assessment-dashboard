@@ -1,0 +1,31 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@{
+    // Config for the client-side lazy membership loader (dashboard.js) and the global header
+    // progress badge. Emitted on every dashboard page that pre-warms Entra totals (main
+    // dashboard and Entra ID dashboard) so the badge/toast appear regardless of which panels
+    // are rendered. The loader skips fetching when membership is already loaded.
+    var entra = Model.Summary.EntraTotals;
+    var membershipLoaded = entra.MembershipLoaded;
+
+    // Total number of Entra group objects whose membership must be lazily loaded. Mirrors the
+    // server's group-type classification (Security, Microsoft 365, Distribution, Dynamic Distribution).
+    var totalGroupsToLoad =
+        entra.EntraObjectsOf(EntraObjectType.DistributionGroup).Items.Count +
+        entra.EntraObjectsOf(EntraObjectType.DynamicDistributionGroup).Items.Count +
+        entra.EntraObjectsOf(EntraObjectType.Microsoft365Group).Items.Count +
+        entra.EntraObjectsOf(EntraObjectType.SecurityGroup).Items.Count;
+
+    // How many groups already have membership loaded (persisted in session). Lets the client
+    // resume batched loading after page navigation instead of restarting from zero.
+    var membershipAlreadyLoaded = Math.Min(totalGroupsToLoad, Math.Max(0, entra.MembershipLoadedCount));
+}
+<div id="entra-membership-config"
+     data-endpoint="@Url.Page(null, "EntraMembership")"
+     data-batch-endpoint="@Url.Page(null, "EntraMembershipBatch")"
+     data-web-url="@Model.WebInterfaceUrl"
+     data-loaded="@(membershipLoaded ? "true" : "false")"
+     data-total-groups="@totalGroupsToLoad"
+     data-loaded-count="@membershipAlreadyLoaded"
+     data-batch-size="@Model.MembershipBatchSize"
+     data-toast-delay="@Model.MembershipToastDelayMs"
+     hidden></div>

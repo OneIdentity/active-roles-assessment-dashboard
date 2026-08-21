@@ -1,0 +1,62 @@
+@* Toast notification container and helpers for the self-contained dashboard pages
+   (Index, EntraId, etc. which set Layout = null and therefore do not inherit _Layout).
+   Provides window.showToast(message, type) and window.membershipBadge (set/decrement/hide),
+   which the lazy Entra membership loader in dashboard.js calls. Include once per page,
+   after the header (so #membership-indicator exists) and before dashboard.js. *@
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<script>
+    // Move the toast banner so it sits between the header and the first category, spanning the
+    // content width and left-aligned. The partial is included at the end of the body, so on load
+    // we relocate the container to just after the sticky header (or header) inside .page.
+    (function () {
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+        var anchor = document.querySelector('.page .sticky-head')
+            || document.querySelector('.page > .rpt-header')
+            || document.querySelector('.rpt-header');
+        if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(container, anchor.nextSibling);
+        }
+    })();
+
+    // Minimal, dependency-free toast helper. type: 'info' (default) | 'success' | 'error'.
+    window.showToast = window.showToast || function (message, type) {
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+        var toast = document.createElement('div');
+        toast.className = 'app-toast ' + (type || 'info');
+        toast.setAttribute('role', 'status');
+        toast.textContent = message;
+        container.appendChild(toast);
+        requestAnimationFrame(function () { toast.classList.add('show'); });
+        setTimeout(function () {
+            toast.classList.remove('show');
+            setTimeout(function () { toast.remove(); }, 300);
+        }, 4000);
+    };
+
+    // Header group-membership progress badge helper. remaining <= 0 hides the indicator.
+    // Uses inline display toggling (not the [hidden] attribute) because .btn-icon sets
+    // display:flex, which overrides [hidden]'s display:none.
+    window.membershipBadge = window.membershipBadge || (function () {
+        var el = document.getElementById('membership-indicator');
+        var badge = document.getElementById('membership-indicator-badge');
+        var current = 0;
+        function render() {
+            if (!el || !badge) return;
+            if (current > 0) {
+                badge.textContent = String(current);
+                el.style.display = '';
+                el.removeAttribute('hidden');
+            } else {
+                el.style.display = 'none';
+                el.setAttribute('hidden', 'hidden');
+            }
+        }
+        return {
+            set: function (n) { current = Math.max(0, n | 0); render(); },
+            decrement: function (n) { current = Math.max(0, current - (n | 0 || 1)); render(); },
+            hide: function () { current = 0; render(); }
+        };
+    })();
+</script>

@@ -1,0 +1,4 @@
+@* Shared script block providing the application base path for JavaScript navigation *@
+<script>
+    const appBase = '@(Context.Request.PathBase.Value ?? "")';
+</script>

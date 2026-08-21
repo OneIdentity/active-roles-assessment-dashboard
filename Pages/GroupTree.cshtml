@@ -1,0 +1,129 @@
+@page
+@model ActiveRolesDashboard.Pages.GroupTreeModel
+@{
+    ViewData["Title"] = "Group Membership Tree";
+    Layout = null;
+    var webUrl = Model.WebInterfaceUrl?.TrimEnd('/');
+    // Build a safe return anchor: allow only a "panel-<alnum>" fragment.
+    var returnAnchor = "";
+    if (!string.IsNullOrEmpty(Model.Return) &&
+        System.Text.RegularExpressions.Regex.IsMatch(Model.Return, "^panel-[a-z0-9]+$"))
+    {
+        returnAnchor = "#" + Model.Return;
+    }
+    // Allow only a small whitelist of return pages; default to the AD dashboard.
+    var returnPage = Model.ReturnPage == "ActiveRoles" ? "ActiveRoles" : "ActiveDirectory";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Group Membership Tree</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <style>
+        .group-tree { list-style: none; margin: 0; padding-left: 1.25rem; }
+        .group-tree-row { display: flex; align-items: center; gap: .5rem; padding: 2px 0; }
+        .tree-toggle { cursor: pointer; border: none; background: none; font-size: .8rem; width: 1.2rem; }
+        .tree-toggle-placeholder { display: inline-block; width: 1.2rem; }
+        .tree-name { font-weight: 600; }
+        .tree-icon { display: inline-flex; align-items: center; }
+        .tree-icon.is-group { color: #2563eb; }
+        .tree-icon.is-user { color: #6b7280; }
+        .tree-dn { color: #888; font-size: .75rem; margin-left: .5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }
+        .tree-note { margin-left: .35rem; }
+        .gt-search { display: flex; gap: .5rem; margin: 1rem 0; }
+        .gt-search input { flex: 0 1 360px; padding: .4rem .6rem; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="sticky-head">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
+            <div>
+                <h1>Group Membership Tree</h1>
+                <p class="hdr-sub">Nested group membership</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            @* Group-membership loading indicator: people icon with a remaining-count badge.
+               Hidden while idle; driven by window.membershipBadge (see _ToastAndMembership partial). *@
+            <span id="membership-indicator" class="btn-icon membership-indicator" hidden style="display:none" title="Loading group membership" aria-live="polite">
+                <svg class="membership-indicator-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span class="membership-indicator-badge" id="membership-indicator-badge">0</span>
+            </span>
+        </div>
+    </header>
+    <a class="back-link" href="@returnPage@(returnAnchor)">&larr; Back to Dashboard</a>
+    </div>
+
+    <div class="panel active">
+        <div class="panel-content">
+            <form method="get" class="gt-search">
+                <input type="text" name="Group" value="@Model.Group" placeholder="Enter group name or distinguished name" readonly />
+            </form>
+
+            @if (Model.LookupError != null)
+            {
+                <p class="muted">@Model.LookupError</p>
+            }
+            else if (Model.RootDn != null)
+            {
+                <ul class="group-tree" id="tree-root">
+                    <li class="group-tree-item">
+                        <div class="group-tree-row">
+                            <button type="button" class="tree-toggle" data-dn="@Model.RootDn" data-depth="0" aria-expanded="false">&#9654;</button>
+                            <span class="tree-icon is-group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </span>
+                            <span class="tree-name">@Model.RootName</span>
+                            <span class="tree-dn" title="@Model.RootDn">@Model.RootDn</span>
+                        </div>
+                        <div class="tree-children"></div>
+                    </li>
+                </ul>
+            }
+        </div>
+    </div>
+    @await Html.PartialAsync("_EntraMembershipConfig")
+</div>
+
+<script>
+    document.addEventListener('click', async function (e) {
+        var btn = e.target.closest('.tree-toggle');
+        if (!btn) return;
+
+        var container = btn.closest('.group-tree-item').querySelector('.tree-children');
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+
+        if (expanded) {
+            container.innerHTML = '';
+            btn.setAttribute('aria-expanded', 'false');
+            btn.innerHTML = '\u25B6';
+            return;
+        }
+
+        var dn = btn.getAttribute('data-dn');
+        var depth = btn.getAttribute('data-depth');
+        btn.innerHTML = '\u2026';
+
+        try {
+            var resp = await fetch('GroupTree?handler=Expand&dn=' + encodeURIComponent(dn) + '&depth=' + encodeURIComponent(depth), {
+                headers: { 'RequestVerificationToken': '' }
+            });
+            container.innerHTML = await resp.text();
+            btn.setAttribute('aria-expanded', 'true');
+            btn.innerHTML = '\u25BC';
+        } catch (err) {
+            container.innerHTML = '<p class="muted">Failed to expand.</p>';
+            btn.innerHTML = '\u25B6';
+        }
+    });
+</script>
+@await Html.PartialAsync("_ToastAndMembership")
+<script src="js/dashboard.js" asp-append-version="true"></script>
+</body>
+</html>

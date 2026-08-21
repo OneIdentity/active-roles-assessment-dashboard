@@ -1,0 +1,72 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@{ string WebInterfaceUrl = Model.WebInterfaceUrl; }
+
+@foreach (var groupKpi in new[] {
+    new { Key = "DistributionGroups", Label = "Distribution Groups", Icon = "D", Items = Model.Summary.DistributionGroups },
+    new { Key = "DomainLocalGroups", Label = "Domain Local Groups", Icon = "D", Items = Model.Summary.DomainLocalGroups },
+    new { Key = "GlobalGroups", Label = "Global Groups", Icon = "G", Items = Model.Summary.GlobalGroups },
+    new { Key = "MailEnabledSecurityGroups", Label = "Mail Enabled Security Groups", Icon = "M", Items = Model.Summary.MailEnabledSecurityGroups },
+    new { Key = "SecurityGroups", Label = "Security Groups", Icon = "S", Items = Model.Summary.SecurityGroups },
+    new { Key = "UniversalGroups", Label = "Universal Groups", Icon = "U", Items = Model.Summary.UniversalGroups }
+})
+{
+    if (Model.KpiSettings.IsKpiEnabled("ADGroupsCategory", groupKpi.Key))
+    {
+    <div class="panel" id="panel-@groupKpi.Key.ToLowerInvariant()">
+        <h2><span class="sec-icon">@groupKpi.Icon</span> @groupKpi.Label</h2>
+        <div class="panel-content">
+            @if (groupKpi.Items.Error != null)
+            {
+                <p class="muted">@groupKpi.Items.Error</p>
+            }
+            else
+            {
+                <table>
+                    <thead><tr><th>Name</th><th>Distinguished Name</th><th>Direct Members</th><th>Indirect Members</th><th style="width:72px;"></th></tr></thead>
+                    <tbody>
+                    @foreach (var g in groupKpi.Items.Items)
+                    {
+                        <tr>
+                            <td>@g.Name</td>
+                            <td class="dn-cell">@g.Dn</td>
+                            <td>@g.DirectMembers</td>
+                            <td>@g.IndirectMembers</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(g.Dn) && g.IndirectMembers > 0)
+                                {
+                                    <a href="GroupTree?Group=@(Uri.EscapeDataString(g.Dn))&return=panel-@groupKpi.Key.ToLowerInvariant()" title="View nested membership" class="btn-manage">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    </a>
+                                }
+                                else if (!string.IsNullOrEmpty(g.Dn))
+                                {
+                                    <span class="btn-manage disabled" title="No indirect (nested) members">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    </span>
+                                }
+                                @if (!string.IsNullOrEmpty(g.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl))
+                                {
+                                    <a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                    </a>
+                                }
+                                else if (!string.IsNullOrEmpty(g.Dn))
+                                {
+                                    <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!groupKpi.Items.Items.Any())
+                    {
+                        <tr><td colspan="5" class="empty-row">No @groupKpi.Label.ToLowerInvariant() found</td></tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+    }
+}

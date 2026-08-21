@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 48" role="img" aria-label="One Identity">
+  <g fill="#1a1a2e">
+	<!-- Emblem: ring with a keyhole-style mark -->
+	<circle cx="24" cy="24" r="21" fill="none" stroke="#1a1a2e" stroke-width="4"/>
+	<circle cx="24" cy="19" r="5"/>
+	<rect x="21.5" y="22" width="5" height="12" rx="2.5"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+	<text x="58" y="31" font-size="24" font-weight="700" fill="#1a1a2e">One</text>
+	<text x="112" y="31" font-size="24" font-weight="300" fill="#1a1a2e">Identity</text>
+  </g>
+</svg>

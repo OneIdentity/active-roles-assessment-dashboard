@@ -1,0 +1,177 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@{
+    // Helper to render the Web Interface button
+    string WebInterfaceUrl = Model.WebInterfaceUrl;
+}
+
+@functions {
+    // Renders a nested-membership tree button in a privileged group panel header.
+    // The button targets the privileged group itself and is disabled when the group
+    // has no indirect (nested) members. 'panelId' is the return anchor for the dashboard.
+    Microsoft.AspNetCore.Html.IHtmlContent TreeHeaderButton(ActiveRolesDashboard.Models.PrivilegedGroupSummary summary, string panelId)
+    {
+        var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/></svg>";
+        if (summary.HasIndirectMembers && !string.IsNullOrEmpty(summary.GroupDn))
+        {
+            var href = $"GroupTree?Group={Uri.EscapeDataString(summary.GroupDn!)}&return={Uri.EscapeDataString(panelId)}";
+            return new Microsoft.AspNetCore.Html.HtmlString(
+                $"<a href=\"{href}\" title=\"View nested membership\" class=\"btn-manage sec-tree-btn\">{svg}</a>");
+        }
+        return new Microsoft.AspNetCore.Html.HtmlString(
+            $"<span class=\"btn-manage disabled sec-tree-btn\" title=\"No indirect (nested) members\">{svg}</span>");
+    }
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "Administrators"))
+{
+<div class="panel" id="panel-administrators">
+    <h2><span class="sec-icon">A</span> Administrators @TreeHeaderButton(Model.Summary.Administrators, "panel-administrators")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.Administrators.Error != null) { <p class="muted">@Model.Summary.Administrators.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.Administrators.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.Administrators.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "DomainAdmins"))
+{
+<div class="panel" id="panel-domainadmins">
+    <h2><span class="sec-icon">D</span> Domain Admins @TreeHeaderButton(Model.Summary.DomainAdmins, "panel-domainadmins")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.DomainAdmins.Error != null) { <p class="muted">@Model.Summary.DomainAdmins.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.DomainAdmins.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.DomainAdmins.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "AccountOperators"))
+{
+<div class="panel" id="panel-accountoperators">
+    <h2><span class="sec-icon">A</span> Account Operators @TreeHeaderButton(Model.Summary.AccountOperators, "panel-accountoperators")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.AccountOperators.Error != null) { <p class="muted">@Model.Summary.AccountOperators.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.AccountOperators.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.AccountOperators.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "BackupOperators"))
+{
+<div class="panel" id="panel-backupoperators">
+    <h2><span class="sec-icon">B</span> Backup Operators @TreeHeaderButton(Model.Summary.BackupOperators, "panel-backupoperators")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.BackupOperators.Error != null) { <p class="muted">@Model.Summary.BackupOperators.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.BackupOperators.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.BackupOperators.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "EnterpriseAdmins"))
+{
+<div class="panel" id="panel-enterpriseadmins">
+    <h2><span class="sec-icon">E</span> Enterprise Admins @TreeHeaderButton(Model.Summary.EnterpriseAdmins, "panel-enterpriseadmins")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.EnterpriseAdmins.Error != null) { <p class="muted">@Model.Summary.EnterpriseAdmins.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.EnterpriseAdmins.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.EnterpriseAdmins.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "SchemaAdmins"))
+{
+<div class="panel" id="panel-schemaadmins">
+    <h2><span class="sec-icon">S</span> Schema Admins @TreeHeaderButton(Model.Summary.SchemaAdmins, "panel-schemaadmins")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.SchemaAdmins.Error != null) { <p class="muted">@Model.Summary.SchemaAdmins.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.SchemaAdmins.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.SchemaAdmins.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("PrivilegedGroups", "ServerOperators"))
+{
+<div class="panel" id="panel-serveroperators">
+    <h2><span class="sec-icon">S</span> Server Operators @TreeHeaderButton(Model.Summary.ServerOperators, "panel-serveroperators")</h2>
+    <div class="panel-content">
+        @if (Model.Summary.ServerOperators.Error != null) { <p class="muted">@Model.Summary.ServerOperators.Error</p> }
+        else {
+        <table>
+            <thead><tr><th>Name</th><th>Domain</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.Summary.ServerOperators.Items)
+            {
+                <tr><td>@m.Name</td><td>@m.Domain</td><td class="dn-cell">@m.Dn</td><td><span class="type-pill">@m.MembershipType</span></td><td>@if (!string.IsNullOrEmpty(m.Dn) && !string.IsNullOrEmpty(WebInterfaceUrl)){<a href="javascript:void(0)" onclick="openWebInterface('@(WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>}else if(!string.IsNullOrEmpty(m.Dn)){<span class="btn-manage disabled" title="Configure Web Interface URL in Settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>}</td></tr>
+            }
+            @if (!Model.Summary.ServerOperators.Items.Any()) { <tr><td colspan="5" class="empty-row">No members found</td></tr> }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+}

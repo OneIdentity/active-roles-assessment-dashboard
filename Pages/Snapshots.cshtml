@@ -1,0 +1,465 @@
+@page
+@model ActiveRolesDashboard.Pages.SnapshotsModel
+@{
+    ViewData["Title"] = "Snapshots";
+    Layout = null;
+    var pathBase = HttpContext.Request.PathBase.Value ?? "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Snapshots</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p id="loadingOverlayText">Capturing Snapshot...</p>
+    </div>
+</div>
+<div class="page">
+    <div class="sticky-head">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
+            <div>
+                <h1>Snapshots</h1>
+                <p class="hdr-sub">Capture and compare KPI snapshots over time</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            @{ ViewData["RefreshUrl"] = "/Snapshots"; ViewData["ShowHome"] = true; }
+            @await Html.PartialAsync("_DashboardToolbar")
+        </div>
+    </header>
+
+    <a href="@(pathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="snap-status">@Model.StatusMessage</div>
+    }
+
+    @if (Model.EntraMembershipDataPending)
+    {
+        <div class="membership-warning" role="status">@Model.EntraMembershipPendingWarning</div>
+    }
+
+    <div class="snap-panels">
+        <section class="snap-card">
+            <h2>Take a snapshot</h2>
+            <p class="snap-hint">Captures the current KPI counts across all dashboards. This queries Active Roles for fresh data.</p>
+            <form method="post" asp-page-handler="Capture" class="snap-capture-form" id="snapCaptureForm">
+                <input type="text" name="label" maxlength="80" placeholder="Optional label (e.g. Monthly review)" class="snap-input" />
+                <button type="submit" class="snap-btn snap-btn-primary">Capture snapshot</button>
+            </form>
+        </section>
+
+        <section class="snap-card">
+            <h2>Compare</h2>
+            @if (Model.Snapshots.Count == 0)
+            {
+                <p class="snap-hint">No snapshots yet. Capture one to enable comparison.</p>
+            }
+            else
+            {
+                <form method="get" class="snap-compare-form" id="snapCompareForm">
+                    <label>
+                        <span>Baseline</span>
+                        <select name="FromId" class="snap-input" id="snapFromId">
+                            @foreach (var h in Model.Snapshots)
+                            {
+                                <option value="@h.Id" selected="@(h.Id == Model.FromId)">@SnapshotsModel_Label(h)</option>
+                            }
+                        </select>
+                    </label>
+                    <label>
+                        <span>Compare to</span>
+                        <select name="ToId" class="snap-input" id="snapToId">
+                            <option value="current" selected="@(string.Equals(Model.ToId, "current", StringComparison.OrdinalIgnoreCase))">Current (live)</option>
+                            @foreach (var h in Model.Snapshots)
+                            {
+                                <option value="@h.Id" selected="@(h.Id == Model.ToId)">@SnapshotsModel_Label(h)</option>
+                            }
+                        </select>
+                    </label>
+                    <button type="submit" class="snap-btn snap-btn-primary" id="snapCompareBtn">Compare</button>
+                </form>
+            }
+        </section>
+    </div>
+
+    <section class="snap-card">
+        <h2>Saved snapshots</h2>
+        @if (Model.Snapshots.Count == 0)
+        {
+            <p class="snap-hint">You haven't captured any snapshots yet.</p>
+        }
+        else
+        {
+            <table class="snap-table">
+                <thead>
+                    <tr>
+                        <th>Label</th>
+                        <th>Captured (UTC)</th>
+                        <th>By</th>
+                        <th class="snap-num">KPIs</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model.Snapshots)
+                    {
+                        <tr>
+                            <td>@(string.IsNullOrWhiteSpace(h.Label) ? "(unlabelled)" : h.Label)</td>
+                            <td>@h.CreatedUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@(h.CreatedBy ?? "—")</td>
+                            <td class="snap-num">@h.KpiCount</td>
+                            <td class="snap-row-actions">
+                                <a href="@(pathBase)/Snapshots?FromId=@h.Id&ToId=current" class="snap-icon-btn snap-compare-link" title="Compare to current" aria-label="Compare to current">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                </a>
+                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('Delete this snapshot?');">
+                                    <input type="hidden" name="id" value="@h.Id" />
+                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="Delete snapshot" aria-label="Delete snapshot">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    @if (Model.Comparison != null)
+    {
+        var cmp = Model.Comparison;
+        <section class="snap-card">
+            <h2>
+                Comparison
+                <span class="snap-cmp-caption">
+                    @SnapshotsModel_Label(cmp.From)
+                    &rarr;
+                    @(cmp.ToIsCurrent ? "Current (live)" : SnapshotsModel_Label(cmp.To))
+                </span>
+            </h2>
+
+            <div class="snap-summary">
+                <span class="snap-pill snap-pill-bad">@cmp.IncreaseCount increased</span>
+                <span class="snap-pill snap-pill-good">@cmp.DecreaseCount decreased</span>
+                <span class="snap-pill">@cmp.NoChangeCount unchanged</span>
+                @if (cmp.AddedCount > 0) { <span class="snap-pill">@cmp.AddedCount added</span> }
+                @if (cmp.RemovedCount > 0) { <span class="snap-pill">@cmp.RemovedCount removed</span> }
+            </div>
+
+            @foreach (var dashboard in cmp.Dashboards)
+            {
+                <h3 class="snap-cmp-dashboard">@dashboard.DisplayName</h3>
+                @foreach (var category in dashboard.Categories)
+                {
+                    <h4 class="snap-cmp-category">@category.DisplayName</h4>
+                    <table class="snap-table snap-cmp-table">
+                        <colgroup>
+                            <col class="snap-col-kpi" />
+                            <col class="snap-col-num" />
+                            <col class="snap-col-num" />
+                            <col class="snap-col-num" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>KPI</th>
+                                <th class="snap-num">Baseline</th>
+                                <th class="snap-num">@(cmp.ToIsCurrent ? "Current" : "Compare")</th>
+                                <th class="snap-num">Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in category.Rows)
+                            {
+                                <tr class="@SnapshotsModel_RowClass(row.Sentiment)">
+                                    <td>
+                                        @row.DisplayName
+                                        @if (row.IsRiskKpi) { <span class="snap-risk" title="Risk KPI">&#9888;</span> }
+                                    </td>
+                                    <td class="snap-num">@(row.FromCount?.ToString() ?? "—")</td>
+                                    <td class="snap-num">@(row.ToCount?.ToString() ?? "—")</td>
+                                    <td class="snap-num snap-change">@Html.Raw(SnapshotsModel_Change(row))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            }
+        </section>
+    }
+
+    @if (Model.Trend.Labels.Count >= 2 && Model.Trend.Dashboards.Count > 0)
+    {
+        <section class="snap-card">
+            <h2>Trend</h2>
+            <p class="snap-hint">KPI counts across the last @Model.Trend.Labels.Count snapshots. Pick a dashboard and category, then tick one or more KPIs to plot.</p>
+            <div class="snap-trend-filters">
+                <label>
+                    <span>Dashboard</span>
+                    <select id="trendDashboard" class="snap-input"></select>
+                </label>
+                <label>
+                    <span>Category</span>
+                    <select id="trendCategory" class="snap-input"></select>
+                </label>
+                <label class="snap-trend-kpi-label">
+                    <span>KPIs</span>
+                    <div class="snap-multi" id="trendKpiMulti">
+                        <button type="button" class="snap-input snap-multi-toggle" id="trendKpiToggle" aria-haspopup="true" aria-expanded="false">
+                            <span class="snap-multi-summary" id="trendKpiSummary">Select KPIs</span>
+                            <svg class="snap-multi-caret" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="snap-multi-panel" id="trendKpiPanel" hidden></div>
+                    </div>
+                </label>
+            </div>
+            <div class="snap-trend-wrap">
+                <canvas id="snapshotTrendChart"></canvas>
+            </div>
+            <script type="application/json" id="snapshotTrendData">
+                @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))
+            </script>
+        </section>
+    }
+</div>
+<script src="js/chart.umd.min.js" asp-append-version="true"></script>
+<script>
+    (function () {
+        // Show the loading overlay while a snapshot is being captured or compared.
+        var captureForm = document.getElementById('snapCaptureForm');
+        var overlay = document.getElementById('loadingOverlay');
+        var overlayText = document.getElementById('loadingOverlayText');
+        function showOverlay(message) {
+            if (!overlay) return;
+            if (overlayText && message) { overlayText.textContent = message; }
+            overlay.classList.add('active');
+        }
+        if (captureForm && overlay) {
+            captureForm.addEventListener('submit', function () {
+                showOverlay('Capturing Snapshot...');
+            });
+        }
+
+        // Disable Compare when baseline and compare-to are the same snapshot.
+        var fromSel = document.getElementById('snapFromId');
+        var toSel = document.getElementById('snapToId');
+        var compareBtn = document.getElementById('snapCompareBtn');
+        var compareForm = document.getElementById('snapCompareForm');
+        if (fromSel && toSel && compareBtn) {
+            var syncCompare = function () {
+                compareBtn.disabled = (fromSel.value === toSel.value);
+            };
+            fromSel.addEventListener('change', syncCompare);
+            toSel.addEventListener('change', syncCompare);
+            syncCompare();
+        }
+        if (compareForm) {
+            compareForm.addEventListener('submit', function () {
+                showOverlay('Comparing...');
+            });
+        }
+
+        // The per-row "Compare to current" links also run a comparison.
+        Array.prototype.forEach.call(document.querySelectorAll('.snap-compare-link'), function (link) {
+            link.addEventListener('click', function () {
+                showOverlay('Comparing...');
+            });
+        });
+
+        // Snapshot trend chart with cascading dashboard/category/KPI filters.
+        var trendDataEl = document.getElementById('snapshotTrendData');
+        var trendCanvas = document.getElementById('snapshotTrendChart');
+        if (trendDataEl && trendCanvas && typeof Chart !== 'undefined') {
+            var trend;
+            try { trend = JSON.parse(trendDataEl.textContent); } catch (e) { trend = null; }
+            if (trend && trend.dashboards && trend.dashboards.length) {
+                var dashSel = document.getElementById('trendDashboard');
+                var catSel = document.getElementById('trendCategory');
+                var kpiMulti = document.getElementById('trendKpiMulti');
+                var kpiToggle = document.getElementById('trendKpiToggle');
+                var kpiPanel = document.getElementById('trendKpiPanel');
+                var kpiSummary = document.getElementById('trendKpiSummary');
+                var chart = null;
+
+                var palette = [
+                    '#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed',
+                    '#0891b2', '#db2777', '#65a30d', '#ea580c', '#4b5563'
+                ];
+                function hexToRgba(hex, alpha) {
+                    var n = parseInt(hex.slice(1), 16);
+                    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
+                }
+
+                function fill(sel, items) {
+                    sel.innerHTML = '';
+                    items.forEach(function (it) {
+                        var o = document.createElement('option');
+                        o.value = it.key;
+                        o.textContent = it.displayName;
+                        sel.appendChild(o);
+                    });
+                }
+                function fillKpiPanel(items) {
+                    kpiPanel.innerHTML = '';
+                    items.forEach(function (it) {
+                        var row = document.createElement('label');
+                        row.className = 'snap-multi-item';
+                        var cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.value = it.key;
+                        cb.addEventListener('change', function () { updateSummary(); draw(); });
+                        var text = document.createElement('span');
+                        text.textContent = it.displayName;
+                        row.appendChild(cb);
+                        row.appendChild(text);
+                        kpiPanel.appendChild(row);
+                    });
+                }
+                function kpiCheckboxes() {
+                    return Array.prototype.slice.call(kpiPanel.querySelectorAll('input[type=checkbox]'));
+                }
+                function selectedKpiKeys() {
+                    return kpiCheckboxes().filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
+                }
+                function updateSummary() {
+                    var keys = selectedKpiKeys();
+                    var boxes = kpiCheckboxes();
+                    if (keys.length === 0) {
+                        kpiSummary.textContent = 'Select KPIs';
+                    } else if (keys.length === 1) {
+                        var one = boxes.find(function (c) { return c.checked; });
+                        kpiSummary.textContent = one.nextSibling.textContent;
+                    } else if (keys.length === boxes.length) {
+                        kpiSummary.textContent = 'All KPIs (' + keys.length + ')';
+                    } else {
+                        kpiSummary.textContent = keys.length + ' KPIs selected';
+                    }
+                }
+                function currentDashboard() {
+                    return trend.dashboards.find(function (d) { return d.key === dashSel.value; });
+                }
+                function currentCategory() {
+                    var d = currentDashboard();
+                    return d && d.categories.find(function (c) { return c.key === catSel.value; });
+                }
+                function selectedKpis() {
+                    var c = currentCategory();
+                    if (!c) return [];
+                    var keys = selectedKpiKeys();
+                    return c.kpis.filter(function (k) { return keys.indexOf(k.key) !== -1; });
+                }
+                function draw() {
+                    var kpis = selectedKpis();
+                    if (chart) { chart.destroy(); chart = null; }
+                    if (!kpis.length) return;
+                    var single = kpis.length === 1;
+                    var datasets = kpis.map(function (kpi, i) {
+                        var color = single
+                            ? (kpi.isRiskKpi ? '#dc2626' : '#2563eb')
+                            : palette[i % palette.length];
+                        return {
+                            label: kpi.displayName,
+                            data: kpi.values.map(function (v) { return v === null ? null : v; }),
+                            borderColor: color,
+                            backgroundColor: single ? hexToRgba(color, 0.12) : color,
+                            fill: single,
+                            tension: 0.25,
+                            pointRadius: 3,
+                            spanGaps: true
+                        };
+                    });
+                    chart = new Chart(trendCanvas, {
+                        type: 'line',
+                        data: { labels: trend.labels, datasets: datasets },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: true } },
+                            scales: { y: { min: 0, ticks: { precision: 0 } } }
+                        }
+                    });
+                }
+                function onDashChange() {
+                    fill(catSel, currentDashboard().categories);
+                    onCatChange();
+                }
+                function onCatChange() {
+                    fillKpiPanel(currentCategory().kpis);
+                    // Default to selecting the first KPI so the chart isn't empty.
+                    var boxes = kpiCheckboxes();
+                    if (boxes.length) { boxes[0].checked = true; }
+                    updateSummary();
+                    draw();
+                }
+
+                // Open/close the KPI dropdown panel.
+                function setOpen(open) {
+                    kpiPanel.hidden = !open;
+                    kpiToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    kpiMulti.classList.toggle('snap-multi-open', open);
+                }
+                kpiToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    setOpen(kpiPanel.hidden);
+                });
+                document.addEventListener('click', function (e) {
+                    if (!kpiMulti.contains(e.target)) { setOpen(false); }
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') { setOpen(false); }
+                });
+
+                dashSel.addEventListener('change', onDashChange);
+                catSel.addEventListener('change', onCatChange);
+
+                fill(dashSel, trend.dashboards);
+                onDashChange();
+            }
+        }
+    })();
+</script>
+@await Html.PartialAsync("_ToastAndMembership")
+</body>
+</html>
+
+@functions {
+    static string SnapshotsModel_Label(Models.SnapshotHeader h)
+    {
+        var label = string.IsNullOrWhiteSpace(h.Label) ? "(unlabelled)" : h.Label;
+        return $"{label} — {h.CreatedUtc:yyyy-MM-dd HH:mm}";
+    }
+
+    static string SnapshotsModel_RowClass(Models.DeltaSentiment sentiment) => sentiment switch
+    {
+        Models.DeltaSentiment.Good => "snap-good",
+        Models.DeltaSentiment.Bad => "snap-bad",
+        _ => ""
+    };
+
+    static string SnapshotsModel_Change(Models.SnapshotComparisonRow row)
+    {
+        const string up = "<span class=\"snap-ind snap-ind-up\" aria-hidden=\"true\">&#9650;</span>";
+        const string down = "<span class=\"snap-ind snap-ind-down\" aria-hidden=\"true\">&#9660;</span>";
+        return row.Direction switch
+        {
+            Models.DeltaDirection.Added => "<span class=\"snap-ind-tag\">new</span>",
+            Models.DeltaDirection.Removed => "<span class=\"snap-ind-tag\">removed</span>",
+            Models.DeltaDirection.NoChange => "<span class=\"snap-ind snap-ind-flat\" title=\"No change\">&#8211;</span>",
+            Models.DeltaDirection.Increase => up + Math.Abs(row.Change),
+            Models.DeltaDirection.Decrease => down + Math.Abs(row.Change),
+            _ => "<span class=\"snap-ind snap-ind-flat\">&#8211;</span>"
+        };
+    }
+}

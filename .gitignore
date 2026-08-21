@@ -1,0 +1,14 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / IDE
+.vs/
+*.user
+
+# Runtime / local data
+App_Data/
+usersettings/
+
+# Local MCP config
+.mcp.json

@@ -1,0 +1,98 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@using ActiveRolesDashboard.Models
+
+@{
+    var computerKpis = KpiInfo.ForCategory(CategoryInfo.ComputersCategory);
+    var otherKeys = new HashSet<string> { "ServerOther", "ClientsOther" };
+
+    ComputerBreakdownSummary? GetBreakdown(string key) => key switch
+    {
+        "ComputerClients" => Model.Summary.ComputerClients,
+        "ComputerServers" => Model.Summary.ComputerServers,
+        "WinServer2008R2" => Model.Summary.WinServer2008R2,
+        "WinServer2012R2" => Model.Summary.WinServer2012R2,
+        "WinServer2016" => Model.Summary.WinServer2016,
+        "WinServer2019" => Model.Summary.WinServer2019,
+        "WinServer2022" => Model.Summary.WinServer2022,
+        "WinServer2025" => Model.Summary.WinServer2025,
+        "ServerOther" => Model.Summary.ServerOther,
+        "Win7" => Model.Summary.Win7,
+        "Win81" => Model.Summary.Win81,
+        "Win10_22H2" => Model.Summary.Win10_22H2,
+        "Win11_22H2" => Model.Summary.Win11_22H2,
+        "Win11_23H2" => Model.Summary.Win11_23H2,
+        "Win11Enterprise" => Model.Summary.Win11Enterprise,
+        "Win11Pro" => Model.Summary.Win11Pro,
+        "ClientsOther" => Model.Summary.ClientsOther,
+        "UnconstrainedComputers" => Model.Summary.UnconstrainedComputers,
+        _ => null
+    };
+}
+
+@foreach (var kpi in computerKpis)
+{
+    var breakdown = GetBreakdown(kpi.Key);
+    if (breakdown == null || !Model.KpiSettings.IsKpiEnabled("ComputersCategory", kpi.Key)) { continue; }
+    bool showFriendlyName = !otherKeys.Contains(kpi.Key);
+
+<div class="panel" id="panel-@kpi.SectionId">
+    <h2><span class="sec-icon">C</span> @kpi.DisplayName</h2>
+    <div class="panel-content">
+        @if (breakdown.Error != null)
+        {
+            <p class="muted">@breakdown.Error</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Domain</th>
+                        <th>Operating System</th>
+                        <th>OS Version</th>
+                        @if (showFriendlyName)
+                        {
+                            <th>Friendly OS Name</th>
+                        }
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var c in breakdown.Items)
+                {
+                    <tr>
+                        <td>@c.Name</td>
+                        <td>@c.Domain</td>
+                        <td>@c.OperatingSystem</td>
+                        <td>@c.OperatingSystemVersion</td>
+                        @if (showFriendlyName)
+                        {
+                            <td>@c.FriendlyOSName</td>
+                        }
+                        <td>
+                            @if (!string.IsNullOrEmpty(c.Dn) && !string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                            {
+                                <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(c.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </a>
+                            }
+                            else if (!string.IsNullOrEmpty(c.Dn))
+                            {
+                                <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!breakdown.Items.Any())
+                {
+                    <tr><td colspan="@(showFriendlyName ? 6 : 5)" class="empty-row">No computers found</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+}

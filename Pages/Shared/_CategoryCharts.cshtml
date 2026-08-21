@@ -1,0 +1,97 @@
+@using System.Text.Json
+@using ActiveRolesDashboard.Models
+@model (CategoryInfo Category, DashboardSummary Summary, KpiSettings Settings)
+@{
+    var charts = ChartInfo.ForCategory(Model.Category);
+    var showToggle = charts.Any(c => !c.DisableTypeToggle);
+}
+@if (charts.Count > 0)
+{
+    <div class="category-charts-wrap">
+        <div class="category-charts-toolbar">
+            @if (showToggle)
+            {
+            <button type="button" class="btn-chart-toggle" onclick="toggleCategoryChartType(this)"
+                    data-mode="original" title="Switch to 3-D column charts" aria-label="Switch to 3-D column charts">
+                <svg class="chart-toggle-icon icon-bar" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor"></rect>
+                    <rect x="10" y="7" width="4" height="13" rx="1" fill="currentColor"></rect>
+                    <rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor"></rect>
+                </svg>
+                <svg class="chart-toggle-icon icon-pie" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path d="M12 3a9 9 0 1 0 9 9h-9V3z" fill="currentColor"></path>
+                    <path d="M13 2a9 9 0 0 1 8 8h-8V2z" fill="currentColor" opacity=".55"></path>
+                </svg>
+            </button>
+            }
+        </div>
+    <div class="category-charts">
+        @foreach (var chart in charts)
+        {
+            var labels = new List<string>();
+            var values = new List<int>();
+            var colors = new List<string>();
+
+            if (!string.IsNullOrEmpty(chart.SourceSplitKpiKey))
+            {
+                // Source-split chart: split an Overview total by data source (AD vs Entra ID).
+                var kpi = KpiInfo.All.FirstOrDefault(k => k.Key == chart.SourceSplitKpiKey);
+                if (kpi is null || !Model.Settings.IsKpiEnabled(kpi.CategoryKey, kpi.Key)) { continue; }
+
+                var colorIndex = 0;
+                foreach (var part in Model.Summary.GetSourceSplit(chart.SourceSplitKpiKey))
+                {
+                    if (part.Count > 0)
+                    {
+                        labels.Add(part.Source);
+                        values.Add(part.Count);
+                        // Keep the established AD (first colour) / Entra ID (second colour)
+                        // mapping for the combined and AD single-source charts; for any other
+                        // source (e.g. per-tenant Entra slices) cycle the palette by position.
+                        string sourceColor;
+                        if (part.Source == "Active Directory")
+                            sourceColor = ChartInfo.SourceSplitColors[0];
+                        else if (part.Source == "Entra ID")
+                            sourceColor = ChartInfo.SourceSplitColors[1 % ChartInfo.SourceSplitColors.Count];
+                        else
+                            sourceColor = ChartInfo.SourceSplitColors[colorIndex % ChartInfo.SourceSplitColors.Count];
+                        colors.Add(sourceColor);
+                        colorIndex++;
+                    }
+                }
+            }
+            else
+            {
+                // KPI-series chart: one slice per referenced KPI; skip zero/error/disabled.
+                foreach (var item in chart.Series)
+                {
+                    var kpi = KpiInfo.All.FirstOrDefault(k => k.Key == item.KpiKey);
+                    if (kpi is null) { continue; }
+                    if (!Model.Settings.IsKpiEnabled(kpi.CategoryKey, kpi.Key)) { continue; }
+
+                    var result = Model.Summary.GetKpiResult(kpi.Key);
+                    if (result.Error is not null || result.Count <= 0) { continue; }
+
+                    labels.Add(string.IsNullOrEmpty(item.Label) ? kpi.Label : item.Label);
+                    values.Add(result.Count);
+                    colors.Add(string.IsNullOrEmpty(item.CssColor) ? kpi.CssColor : item.CssColor);
+                }
+            }
+
+            if (values.Count == 0) { continue; }
+
+            var chartTypeName = chart.Type.ToString().ToLowerInvariant();
+            <div class="category-chart">
+                <h3 class="category-chart-title">@chart.Title</h3>
+                <canvas class="dashboard-chart"
+                        data-chart-type="@chartTypeName"
+                        data-chart-notoggle="@(chart.DisableTypeToggle ? "true" : "false")"
+                        data-chart-offset="@chart.SliceOffset"
+                        data-chart-labels="@JsonSerializer.Serialize(labels)"
+                        data-chart-values="@JsonSerializer.Serialize(values)"
+                        data-chart-colors="@JsonSerializer.Serialize(colors)"></canvas>
+            </div>
+        }
+    </div>
+    </div>
+}

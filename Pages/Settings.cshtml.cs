@@ -1,0 +1,156 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using ActiveRolesDashboard.Models;
+using ActiveRolesDashboard.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
+
+namespace ActiveRolesDashboard.Pages;
+
+[Authorize]
+public class SettingsModel : PageModel
+{
+    private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
+    private readonly UserSettingsService _userSettingsService;
+    private readonly IWebHostEnvironment _env;
+
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env)
+    {
+        _arConfig = arConfig;
+        _userSettingsService = userSettingsService;
+        _env = env;
+    }
+
+    [BindProperty]
+    public string WebInterfaceUrl { get; set; } = string.Empty;
+
+    [BindProperty]
+    public int AutoRefreshMinutes { get; set; }
+
+    [BindProperty]
+    public int EntraLargeGroupMemberThreshold { get; set; }
+
+    [BindProperty]
+    public KpiSettings KpiSettings { get; set; } = new();
+
+    [BindProperty]
+    public string CustomNoGroupOwnerBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomNoManagerUserBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomNoManagerUserFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomNoManagerServiceAccountBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomNoManagerServiceAccountFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomUserAccountExpiredBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomUserAccountLockedOutBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
+    [BindProperty]
+    public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
+
+    public ActiveRolesConfig Defaults => _arConfig.CurrentValue;
+
+    public bool SettingsChanged { get; set; }
+    public bool IsActiveRolesAdmin { get; set; }
+
+    public string? Message { get; set; }
+
+    public void OnGet()
+    {
+        IsActiveRolesAdmin = bool.TryParse(HttpContext.Session.GetString("IsActiveRolesAdmin"), out var val) && val;
+        var config = _arConfig.CurrentValue;
+        WebInterfaceUrl = config.WebInterfaceUrl;
+
+        var username = User.Identity?.Name ?? "";
+        var userSettings = _userSettingsService.Load(username);
+
+        AutoRefreshMinutes = userSettings.AutoRefreshMinutes;
+        KpiSettings = userSettings.KpiSettings;
+
+        // Load KPI configuration from appsettings
+        CustomNoGroupOwnerBaseDn = config.CustomNoGroupOwnerBaseDn;
+        CustomNoManagerUserBaseDn = config.CustomNoManagerUserBaseDn;
+        CustomNoManagerUserFilter = config.CustomNoManagerUserFilter;
+        CustomNoManagerServiceAccountBaseDn = config.CustomNoManagerServiceAccountBaseDn;
+        CustomNoManagerServiceAccountFilter = config.CustomNoManagerServiceAccountFilter;
+        CustomUserAccountExpiredBaseDn = config.CustomUserAccountExpiredBaseDn;
+        CustomUserAccountLockedOutBaseDn = config.CustomUserAccountLockedOutBaseDn;
+        CustomEmptyGroupsBaseDn = config.CustomEmptyGroupsBaseDn;
+        CustomActiveRolesAdminsBaseDn = config.CustomActiveRolesAdminsBaseDn;
+        CustomActiveRolesAdminsFilter = config.CustomActiveRolesAdminsFilter;
+        EntraLargeGroupMemberThreshold = config.EntraLargeGroupMemberThreshold;
+    }
+
+    public IActionResult OnPost()
+    {
+        if (AutoRefreshMinutes < 0)
+            AutoRefreshMinutes = 0;
+
+        if (EntraLargeGroupMemberThreshold < 1)
+            EntraLargeGroupMemberThreshold = 1;
+
+        // Save visibility settings to user file
+        var username = User.Identity?.Name ?? "";
+        var userSettings = new UserSettings
+        {
+            AutoRefreshMinutes = AutoRefreshMinutes,
+            KpiSettings = KpiSettings
+        };
+        _userSettingsService.Save(username, userSettings);
+
+        // Persist KPI configuration and WebInterfaceUrl to appsettings.json
+        SaveAppSettings();
+
+        // Also store in session for the dashboard to pick up immediately
+        HttpContext.Session.SetInt32("AutoRefreshMinutes", AutoRefreshMinutes);
+        HttpContext.Session.SetString("KpiSettings", JsonSerializer.Serialize(KpiSettings));
+
+        // Clear cached dashboard data since settings changed
+        HttpContext.Session.Remove("DashboardSummary");
+
+        SettingsChanged = true;
+        Message = "Settings saved successfully.";
+
+        return Page();
+    }
+
+    private void SaveAppSettings()
+    {
+        var appSettingsPath = Path.Combine(_env.ContentRootPath, "appsettings.json");
+        var json = System.IO.File.ReadAllText(appSettingsPath);
+        var jsonNode = JsonNode.Parse(json, documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip });
+        if (jsonNode is JsonObject root)
+        {
+            var activeRoles = root["ActiveRoles"]?.AsObject();
+            if (activeRoles != null)
+            {
+                activeRoles["WebInterfaceUrl"] = WebInterfaceUrl?.Trim() ?? "";
+                activeRoles["CustomNoGroupOwnerBaseDn"] = CustomNoGroupOwnerBaseDn?.Trim() ?? "";
+                activeRoles["CustomNoManagerUserBaseDn"] = CustomNoManagerUserBaseDn?.Trim() ?? "";
+                activeRoles["CustomNoManagerUserFilter"] = CustomNoManagerUserFilter?.Trim() ?? "";
+                activeRoles["CustomNoManagerServiceAccountBaseDn"] = CustomNoManagerServiceAccountBaseDn?.Trim() ?? "";
+                activeRoles["CustomNoManagerServiceAccountFilter"] = CustomNoManagerServiceAccountFilter?.Trim() ?? "";
+                activeRoles["CustomUserAccountExpiredBaseDn"] = CustomUserAccountExpiredBaseDn?.Trim() ?? "";
+                activeRoles["CustomUserAccountLockedOutBaseDn"] = CustomUserAccountLockedOutBaseDn?.Trim() ?? "";
+                activeRoles["CustomEmptyGroupsBaseDn"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
+                activeRoles["CustomActiveRolesAdminsBaseDn"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
+                activeRoles["CustomActiveRolesAdminsFilter"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
+                activeRoles["EntraLargeGroupMemberThreshold"] = EntraLargeGroupMemberThreshold;
+            }
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+            System.IO.File.WriteAllText(appSettingsPath, jsonNode.ToJsonString(options));
+        }
+    }
+}

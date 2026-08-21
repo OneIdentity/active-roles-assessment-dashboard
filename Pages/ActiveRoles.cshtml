@@ -1,0 +1,614 @@
+@page
+@model ActiveRolesDashboard.Pages.ActiveRolesModel
+@{
+    ViewData["Title"] = "Active Roles";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Active Roles</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+</head>
+<body>
+<div class="loading-overlay active" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading Dashboard Data...</p>
+    </div>
+</div>
+<div class="page">
+    <div class="sticky-head">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
+            <div>
+                <h1>Active Roles</h1>
+                <p class="hdr-sub">Active Roles configuration KPIs</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            @{ ViewData["RefreshUrl"] = "/ActiveRoles"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "ActiveRoles"; }
+            @await Html.PartialAsync("_DashboardToolbar")
+        </div>
+    </header>
+
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+
+    @if (Model.IsActiveRolesAdmin && Model.KpiSettings.ARConfigurationEnabled)
+    {
+    <div class="kpi-category">
+        <h2 class="kpi-category-title"><span>@CategoryInfo.ARConfiguration.DisplayName</span><button type="button" class="btn-collapse" onclick="toggleCategory(this)" title="Collapse">&#9650;</button></h2>
+        <div class="kpi-grid">
+            @foreach (var kpi in KpiInfo.ForCategory(CategoryInfo.ARConfiguration))
+            {
+                if (!Model.KpiSettings.IsKpiEnabled(CategoryInfo.ARConfiguration.Key, kpi.Key)) { continue; }
+                var result = Model.Summary.GetKpiResult(kpi.Key);
+            <div class="kpi @kpi.CssColor" data-section="@kpi.SectionId">
+                <div class="lbl">@kpi.Label</div>
+                <div class="val">@(result.Error ?? result.Count.ToString())</div>
+            </div>
+            }
+        </div>
+        @await Html.PartialAsync("_CategoryCharts", (CategoryInfo.ARConfiguration, Model.Summary, Model.KpiSettings))
+    </div>
+    }
+
+    <hr class="kpi-separator" />
+
+    <!-- Drill-down panels -->
+    <div class="panel-grid">
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ActiveRolesAdmins"))
+        {
+        <div class="panel" id="panel-aradmins">
+            <h2><span class="sec-icon">R</span> Active Roles Admins
+                @if (Model.Summary.ActiveRolesAdmins.HasIndirectMembers && !string.IsNullOrEmpty(Model.Summary.ActiveRolesAdmins.GroupDn))
+                {
+                    <a href="GroupTree?Group=@(Uri.EscapeDataString(Model.Summary.ActiveRolesAdmins.GroupDn!))&return=panel-aradmins&returnPage=ActiveRoles" title="View nested membership" class="btn-manage sec-tree-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </a>
+                }
+                else
+                {
+                    <span class="btn-manage disabled sec-tree-btn" title="No indirect (nested) members">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                }
+            </h2>
+            <div class="panel-content">
+                @if (Model.Summary.ActiveRolesAdmins.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ActiveRolesAdmins.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+                        <tbody>
+                        @foreach (var m in Model.Summary.ActiveRolesAdmins.Items)
+                        {
+                            <tr>
+                                <td>@m.Name</td>
+                                <td class="dn-cell">@m.Dn</td>
+                                <td><span class="type-pill">@m.MembershipType</span></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(m.Dn))
+                                    {
+                                        @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                                        {
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.ActiveRolesAdmins.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">No members found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Domains"))
+        {
+        <div class="panel" id="panel-domains">
+            <h2><span class="sec-icon">D</span> Managed Domains</h2>
+            <div class="panel-content">
+                @if (Model.Summary.Domains.Error != null)
+                {
+                    <p class="muted">@Model.Summary.Domains.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>DNS Name</th><th>Distinguished Name</th><th>Use Override</th><th style="width:40px;"></th></tr></thead>
+                        <tbody>
+                        @foreach (var d in Model.Summary.Domains.Items)
+                        {
+                            <tr>
+                                <td>@d.Name</td>
+                                <td>@d.DnsName</td>
+                                <td>@d.Dn</td>
+                                <td>@d.UseOverride</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(d.Dn))
+                                    {
+                                        @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                                        {
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(d.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.Domains.Items.Any())
+                        {
+                            <tr><td colspan="5" class="empty-row">No domains found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Servers"))
+        {
+        <div class="panel" id="panel-servers">
+            <h2><span class="sec-icon">S</span> AR Servers</h2>
+            <div class="panel-content">
+                @if (Model.Summary.Servers.Error != null)
+                {
+                    <p class="muted">@Model.Summary.Servers.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Server Name</th><th>Version</th></tr></thead>
+                        <tbody>
+                        @foreach (var s in Model.Summary.Servers.Items)
+                        {
+                            <tr><td>@s.ServerName</td><td>@s.Version</td></tr>
+                        }
+                        @if (!Model.Summary.Servers.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">No servers found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroups"))
+        {
+        <div class="panel" id="panel-dynamicgroups">
+            <h2><span class="sec-icon">G</span> Dynamic Groups</h2>
+            <div class="panel-content">
+                @if (Model.Summary.DynamicGroups.Error != null)
+                {
+                    <p class="muted">@Model.Summary.DynamicGroups.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                        <tbody>
+                        @foreach (var g in Model.Summary.DynamicGroups.Items)
+                        {
+                            <tr>
+                                <td>@g.Name</td>
+                                <td class="dn-cell">@g.Dn</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(g.Dn))
+                                    {
+                                        @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                                        {
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.DynamicGroups.Items.Any())
+                        {
+                            <tr><td colspan="3" class="empty-row">No dynamic groups found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("ARConfiguration", "GroupFamilies"))
+        {
+        <div class="panel" id="panel-groupfamilies">
+            <h2><span class="sec-icon">G</span> Group Families</h2>
+            <div class="panel-content">
+                @if (Model.Summary.GroupFamilies.Error != null)
+                {
+                    <p class="muted">@Model.Summary.GroupFamilies.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th></tr></thead>
+                        <tbody>
+                        @foreach (var g in Model.Summary.GroupFamilies.Items)
+                        {
+                            <tr>
+                                <td>@g.Name</td>
+                                <td class="dn-cell">@g.Dn</td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.GroupFamilies.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">No group families found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ManagedUnits"))
+        {
+        <div class="panel" id="panel-managedunits">
+            <h2><span class="sec-icon">M</span> Managed Units</h2>
+            <div class="panel-content">
+                @if (Model.Summary.ManagedUnits.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ManagedUnits.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Rules</th><th style="width:40px;"></th></tr></thead>
+                        <tbody>
+                        @foreach (var m in Model.Summary.ManagedUnits.Items)
+                        {
+                            <tr>
+                                <td>@m.Name</td>
+                                <td class="dn-cell">@m.Dn</td>
+                                <td>@m.RuleCount</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(m.Dn))
+                                    {
+                                        @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
+                                        {
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                            </span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.ManagedUnits.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">No managed units found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Workflows"))
+        {
+        <div class="panel" id="panel-workflows">
+            <h2><span class="sec-icon">W</span> Workflows</h2>
+            <div class="panel-content">
+                @if (Model.Summary.Workflows.Error != null)
+                {
+                    <p class="muted">@Model.Summary.Workflows.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Enabled</th><th>Automation</th></tr></thead>
+                        <tbody>
+                        @foreach (var w in Model.Summary.Workflows.Items)
+                        {
+                            <tr><td>@w.Name</td><td class="dn-cell">@w.Dn</td><td>@w.IsEnabled</td><td>@w.IsAutomationWorkflow</td></tr>
+                        }
+                        @if (!Model.Summary.Workflows.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">No workflows found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "VirtualAttributes"))
+        {
+        <div class="panel" id="panel-virtualattrs">
+            <h2><span class="sec-icon">V</span> Virtual Attributes</h2>
+            <div class="panel-content">
+                @if (Model.Summary.VirtualAttributes.Error != null)
+                {
+                    <p class="muted">@Model.Summary.VirtualAttributes.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>LDAP Display Name</th><th>Multivalued</th></tr></thead>
+                        <tbody>
+                        @foreach (var v in Model.Summary.VirtualAttributes.Items)
+                        {
+                            <tr><td>@v.Name</td><td>@v.LdapDisplayName</td><td>@v.IsMultivalued</td></tr>
+                        }
+                        @if (!Model.Summary.VirtualAttributes.Items.Any())
+                        {
+                            <tr><td colspan="3" class="empty-row">No virtual attributes found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ConfigDatabases"))
+        {
+        <div class="panel" id="panel-configdatabases">
+            <h2><span class="sec-icon">C</span> Config Databases</h2>
+            <div class="panel-content">
+                @if (Model.Summary.ConfigDatabases.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ConfigDatabases.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>SQL Alias</th><th>Database Name</th><th>Database Type</th><th>Replication Support</th><th>Replication Role</th></tr></thead>
+                        <tbody>
+                        @foreach (var d in Model.Summary.ConfigDatabases.Items)
+                        {
+                            <tr><td>@d.SqlAlias</td><td>@d.DatabaseName</td><td>@d.DatabaseType</td><td>@d.ReplicationSupport</td><td>@d.ReplicationRole</td></tr>
+                        }
+                        @if (!Model.Summary.ConfigDatabases.Items.Any())
+                        {
+                            <tr><td colspan="5" class="empty-row">No config databases found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "HistoryDatabases"))
+        {
+        <div class="panel" id="panel-historydatabases">
+            <h2><span class="sec-icon">H</span> History Databases</h2>
+            <div class="panel-content">
+                @if (Model.Summary.HistoryDatabases.Error != null)
+                {
+                    <p class="muted">@Model.Summary.HistoryDatabases.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>SQL Alias</th><th>Database Name</th><th>Database Type</th><th>Replication Role</th></tr></thead>
+                        <tbody>
+                        @foreach (var d in Model.Summary.HistoryDatabases.Items)
+                        {
+                            <tr><td>@d.SqlAlias</td><td>@d.DatabaseName</td><td>@d.DatabaseType</td><td>@d.ReplicationRole</td></tr>
+                        }
+                        @if (!Model.Summary.HistoryDatabases.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">No history databases found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjects"))
+        {
+        <div class="panel" id="panel-policies">
+            <h2><span class="sec-icon">P</span> Policy Objects</h2>            <div class="panel-content">
+                @if (Model.Summary.PolicyObjects.Error != null)
+                {
+                    <p class="muted">@Model.Summary.PolicyObjects.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Rules</th></tr></thead>
+                        <tbody>
+                        @foreach (var p in Model.Summary.PolicyObjects.Items)
+                        {
+                            <tr><td>@p.Name</td><td class="dn-cell">@p.Dn</td><td>@p.RuleCount</td></tr>
+                        }
+                        @if (!Model.Summary.PolicyObjects.Items.Any())
+                        {
+                            <tr><td colspan="3" class="empty-row">No policy objects found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplates"))
+        {
+        <div class="panel" id="panel-accesstemplates">
+            <h2><span class="sec-icon">A</span> Access Templates</h2>
+            <div class="panel-content">
+                @if (Model.Summary.AccessTemplates.Error != null)
+                {
+                    <p class="muted">@Model.Summary.AccessTemplates.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Parent</th></tr></thead>
+                        <tbody>
+                        @foreach (var a in Model.Summary.AccessTemplates.Items)
+                        {
+                            <tr><td>@a.Name</td><td><span class="type-pill">@a.Parent</span></td></tr>
+                        }
+                        @if (!Model.Summary.AccessTemplates.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">No access templates found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplateLinks"))
+        {
+        <div class="panel" id="panel-atlinks">
+            <h2><span class="sec-icon">L</span> Access Template Links</h2>
+            <div class="panel-content">
+                @if (Model.Summary.AccessTemplateLinks.Error != null)
+                {
+                    <p class="muted">@Model.Summary.AccessTemplateLinks.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Trustee</th><th>Directory Object</th><th>Access Template</th></tr></thead>
+                        <tbody>
+                        @foreach (var l in Model.Summary.AccessTemplateLinks.Items)
+                        {
+                            <tr>
+                                <td>@l.Name</td>
+                                <td>@l.Trustee</td>
+                                <td>@l.DirectoryObject</td>
+                                <td>@l.AccessTemplate</td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.AccessTemplateLinks.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">No access template links found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectLinks"))
+        {
+        <div class="panel" id="panel-polinks">
+            <h2><span class="sec-icon">L</span> Policy Object Links</h2>
+            <div class="panel-content">
+                @if (Model.Summary.PolicyObjectLinks.Error != null)
+                {
+                    <p class="muted">@Model.Summary.PolicyObjectLinks.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>Name</th><th>Distinguished Name</th></tr></thead>
+                        <tbody>
+                        @foreach (var p in Model.Summary.PolicyObjectLinks.Items)
+                        {
+                            <tr>
+                                <td>@p.Name</td>
+                                <td class="dn-cell">@p.Dn</td>
+                            </tr>
+                        }
+                        @if (!Model.Summary.PolicyObjectLinks.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">No policy object links found</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+    </div>
+
+    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+</div>
+@await Html.PartialAsync("_EntraMembershipConfig")
+@await Html.PartialAsync("_ToastAndMembership")
+<script src="js/chart.umd.min.js" asp-append-version="true"></script>
+<script src="js/dashboard.js" asp-append-version="true"></script>
+@if (Model.AutoRefreshMinutes > 0)
+{
+<script>
+    setTimeout(function() { document.getElementById('loadingOverlay').classList.add('active'); window.location.reload(); }, @(Model.AutoRefreshMinutes * 60 * 1000));
+</script>
+}
+<script>
+    document.getElementById('loadingOverlay').classList.remove('active');
+    window.addEventListener('beforeunload', function() {
+        if (window.__isExporting) return;
+        document.getElementById('loadingOverlay').classList.add('active');
+    });
+    document.getElementById('btnRefresh').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('loadingOverlay').classList.add('active');
+        window.location.reload();
+    });
+    function openWebInterface(url) {
+        window.open(url, 'arWebInterface');
+    }
+    function toggleCategory(btn) {
+        var category = btn.closest('.kpi-category');
+        category.classList.toggle('collapsed');
+        btn.classList.toggle('collapsed');
+        btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+</script>
+</body>
+</html>

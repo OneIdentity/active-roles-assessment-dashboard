@@ -1,0 +1,114 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@{
+    string WebInterfaceUrl = Model.WebInterfaceUrl;
+    var entra = Model.Summary.EntraTotals;
+    var enabledUsers = entra.EntraUsers(enabled: true);
+    var disabledUsers = entra.EntraUsers(enabled: false);
+    var noManagerUsers = entra.EntraUsers(noManager: true);
+    var guestUsers = entra.GuestUsers();
+    var internalUsers = entra.EntraUsersByOrigin(external: false);
+    var externalUsers = entra.EntraUsersByOrigin(external: true);
+}
+@functions {
+    // Renders the shared "Open in Web Interface" action cell for an Entra user DN.
+    Microsoft.AspNetCore.Html.IHtmlContent WebLink(string dn, string webUrl)
+    {
+        var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"/><polyline points=\"15 3 21 3 21 9\"/><line x1=\"10\" y1=\"14\" x2=\"21\" y2=\"3\"/></svg>";
+        if (!string.IsNullOrEmpty(dn) && !string.IsNullOrEmpty(webUrl))
+        {
+            var href = $"{webUrl.TrimEnd('/')}/redirect.ashx?dn={Uri.EscapeDataString(dn)}";
+            return new Microsoft.AspNetCore.Html.HtmlString(
+                $"<a href=\"javascript:void(0)\" onclick=\"openWebInterface('{href}')\" title=\"Open in Web Interface\" class=\"btn-manage\">{svg}</a>");
+        }
+        if (!string.IsNullOrEmpty(dn))
+        {
+            return new Microsoft.AspNetCore.Html.HtmlString(
+                $"<span class=\"btn-manage disabled\" title=\"Configure Web Interface URL in Settings\">{svg}</span>");
+        }
+        return Microsoft.AspNetCore.Html.HtmlString.Empty;
+    }
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraEnabledUsers"))
+{
+<div class="panel" id="panel-entraenabledusers">
+    <h2><span class="sec-icon">E</span> Enabled Users</h2>
+    <div class="panel-content">
+        @if (enabledUsers.Error != null) { <p class="muted">@enabledUsers.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in enabledUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!enabledUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No enabled users found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraDisabledUsers"))
+{
+<div class="panel" id="panel-entradisabledusers">
+    <h2><span class="sec-icon">D</span> Disabled Users</h2>
+    <div class="panel-content">
+        @if (disabledUsers.Error != null) { <p class="muted">@disabledUsers.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in disabledUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!disabledUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No disabled users found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraNoManagerUser"))
+{
+<div class="panel" id="panel-entranomanageruser">
+    <h2><span class="sec-icon">M</span> No Manager (User)</h2>
+    <div class="panel-content">
+        @if (noManagerUsers.Error != null) { <p class="muted">@noManagerUsers.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in noManagerUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!noManagerUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No users without a manager found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraGuestUsers"))
+{
+<div class="panel" id="panel-entraguestusers">
+    <h2><span class="sec-icon">G</span> Guest Users</h2>
+    <div class="panel-content">
+        @if (guestUsers.Error != null) { <p class="muted">@guestUsers.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in guestUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!guestUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No guest users found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraInternalUsers"))
+{
+<div class="panel" id="panel-entrainternalusers">
+    <h2><span class="sec-icon">I</span> Internal Users</h2>
+    <div class="panel-content">
+        @if (internalUsers.Error != null) { <p class="muted">@internalUsers.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in internalUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!internalUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No internal users found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraExternalUsers"))
+{
+<div class="panel" id="panel-entraexternalusers">
+    <h2><span class="sec-icon">X</span> External Users</h2>
+    <div class="panel-content">
+        @if (externalUsers.Error != null) { <p class="muted">@externalUsers.Error</p> } else {
+        <table><thead><tr><th>Name</th><th>Tenant</th><th>Home Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in externalUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td>@u.HomeTenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!externalUsers.Items.Any()) { <tr><td colspan="6" class="empty-row">No external users found</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}

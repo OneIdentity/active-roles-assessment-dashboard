@@ -1,0 +1,141 @@
+@using ActiveRolesDashboard.Models
+@{
+    var dashboardKey = ViewData["DashboardKey"] as string ?? "";
+    var categories = CategoryInfo.ForExport(dashboardKey);
+    var isMain = dashboardKey == "Main";
+
+    string DashboardLabel(string key) => key == "Main"
+        ? "Main"
+        : DashboardInfo.All.FirstOrDefault(d => d.Key == key)?.Title ?? key;
+
+    // The ordered set of dashboard keys represented in the export (Main first, then the
+    // child dashboards in canonical order). Used to keep every dropdown in the same order.
+    var orderedKeys = categories
+        .Select(c => c.DashboardKey)
+        .Distinct()
+        .OrderBy(k => k == "Main" ? -1 : DashboardInfo.All.ToList().FindIndex(d => d.Key == k))
+        .ToList();
+
+    // On the aggregate main dashboard, offer each dashboard (Main + children) as an
+    // explicit "A dashboard" scope, in canonical order.
+    var subDashboards = orderedKeys
+        .Select(k => new { Key = k, Title = DashboardLabel(k) })
+        .ToList();
+    var showSubDashboards = isMain && subDashboards.Count > 0;
+
+    // "A category": group by owning dashboard so each category shows which dashboard it
+    // belongs to.
+    var categoryGroups = orderedKeys
+        .Select(k => new
+        {
+            Label = DashboardLabel(k),
+            Items = categories.Where(c => c.DashboardKey == k).ToList()
+        })
+        .Where(g => g.Items.Count > 0)
+        .ToList();
+
+    // "A single KPI": organise by Dashboard › Category so identical category names (e.g.
+    // several "Overview" categories) are unambiguous.
+    var kpiGroups = orderedKeys
+        .SelectMany(k => categories
+            .Where(c => c.DashboardKey == k)
+            .Select(c => new
+            {
+                Label = $"{DashboardLabel(k)} \u203a {c.DisplayName}",
+                Kpis = KpiInfo.ForCategory(c).ToList()
+            }))
+        .Where(g => g.Kpis.Count > 0)
+        .ToList();
+}
+
+<div class="export-modal-overlay" id="exportModalOverlay" hidden>
+    <div class="export-modal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+        <div class="export-modal-header">
+            <h2 id="exportModalTitle">Export</h2>
+            <button type="button" class="export-modal-close" id="exportModalClose" aria-label="Close">&times;</button>
+        </div>
+
+        <form id="exportForm" method="post" action="@(Context.Request.PathBase.Value)/Export">
+            <input type="hidden" name="DashboardKey" value="@dashboardKey" />
+            <input type="hidden" name="DownloadToken" id="exportDownloadToken" value="" />
+
+            <div class="export-field">
+                <label for="exportScope">What to export</label>
+                <select id="exportScope" name="Scope">
+                    <option value="Dashboard">Entire dashboard</option>
+                    @if (showSubDashboards)
+                    {
+                        <option value="SubDashboard">A dashboard</option>
+                    }
+                    <option value="Category">A category</option>
+                    <option value="Kpi">A single KPI</option>
+                </select>
+            </div>
+
+            @if (showSubDashboards)
+            {
+                <div class="export-field" id="exportSubDashboardField" hidden>
+                    <label for="exportSubDashboard">Dashboard</label>
+                    <select id="exportSubDashboard" name="SubDashboardKey">
+                        @foreach (var d in subDashboards)
+                        {
+                            <option value="@d.Key">@d.Title</option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <div class="export-field" id="exportCategoryField" hidden>
+                <label for="exportCategory">Category</label>
+                <select id="exportCategory" name="CategoryKey">
+                    @foreach (var group in categoryGroups)
+                    {
+                        <optgroup label="@group.Label">
+                            @foreach (var cat in group.Items)
+                            {
+                                <option value="@cat.Key">@cat.DisplayName</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+
+            <div class="export-field" id="exportKpiField" hidden>
+                <label for="exportKpi">KPI</label>
+                <select id="exportKpi" name="KpiKey">
+                    @foreach (var group in kpiGroups)
+                    {
+                        <optgroup label="@group.Label">
+                            @foreach (var kpi in group.Kpis)
+                            {
+                                <option value="@kpi.Key">@kpi.DisplayName</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+
+            <div class="export-field">
+                <label for="exportFormat">Format</label>
+                <select id="exportFormat" name="Format">
+                    <option value="Pdf">PDF</option>
+                    <option value="Word">Word</option>
+                    <option value="Excel">Excel</option>
+                </select>
+            </div>
+
+            <div class="export-field export-check">
+                <label>
+                    <input type="checkbox" id="exportIncludeDetails" checked />
+                    Include detail tables
+                </label>
+                <input type="hidden" name="IncludeDetails" id="exportIncludeDetailsValue" value="true" />
+            </div>
+
+            <div class="export-modal-actions">
+                <button type="button" class="btn-secondary" id="exportCancel">Cancel</button>
+                <button type="submit" class="btn-primary" id="exportSubmit">Export</button>
+            </div>
+        </form>
+    </div>
+</div>

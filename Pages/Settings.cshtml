@@ -1,0 +1,773 @@
+@page
+@model ActiveRolesDashboard.Pages.SettingsModel
+@{
+    ViewData["Title"] = "Settings";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Settings</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <style>
+        .settings-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); max-width: 600px; margin: 0 auto 24px; }
+        .settings-card h2 { font-size: 1.1rem; font-weight: 600; color: #111827; margin-bottom: 20px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-group input[type="number"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; }
+        .form-group input[type="number"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; }
+        .form-group input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
+        .btn-save { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+        .btn-save:hover { background: #1d4ed8; }
+        .msg { margin-top: 14px; padding: 10px 14px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: .82rem; color: #065f46; }
+        .back-link { display: inline-block; margin-bottom: 18px; font-size: .82rem; color: #2563eb; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .kpi-section { margin-bottom: 20px; }
+        .kpi-section h3 { font-size: .92rem; font-weight: 600; color: #374151; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-row .toggle-label { font-size: .84rem; color: #374151; }
+        .toggle-row .toggle-label.category-label { font-weight: 700; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; border-radius: 24px; transition: .2s; }
+        .toggle-slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+        .toggle-switch input:checked + .toggle-slider { background: #2563eb; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+        .kpi-items { padding-left: 20px; }
+
+        .section-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 0; }
+        .section-header h2 { margin-bottom: 0; }
+        .section-toggle { background: none; border: none; cursor: pointer; padding: 4px 8px; font-size: 1.2rem; color: #6b7280; transition: transform .2s; display: flex; align-items: center; }
+        .section-toggle svg { width: 20px; height: 20px; transition: transform .2s; }
+        .section-header.collapsed .section-toggle svg { transform: rotate(-90deg); }
+        .section-body { overflow: hidden; transition: max-height .3s ease, opacity .2s ease; max-height: 2000px; opacity: 1; }
+        .section-body.collapsed { max-height: 0; opacity: 0; margin-top: 0; }
+        .section-body:not(.collapsed) { margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="rpt-header">
+        <div class="hdr-left">
+            <span class="hdr-logo">AR</span>
+            <div>
+                <h1>Active Roles Dashboard</h1>
+                <p class="hdr-sub">Settings</p>
+            </div>
+        </div>
+        <div class="hdr-right">
+            <span class="hdr-user">@User.Identity?.Name</span>
+            <a href="@(HttpContext.Request.PathBase)/Logout" class="btn-logout">Sign Out</a>
+        </div>
+    </header>
+
+    <a href="@(HttpContext.Request.PathBase)/" class="back-link" id="backLink">&larr; Back to Dashboard</a>
+
+    <form method="post">
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>Active Roles Web Interface</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="WebInterfaceUrl">Base URL</label>
+                    <input type="text" id="WebInterfaceUrl" name="WebInterfaceUrl" value="@Model.WebInterfaceUrl" placeholder="https://server/arWebAdmin" />
+                    <p class="hint">Base URL of the Active Roles Web Interface. This setting applies to all users.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>Auto-Refresh</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="AutoRefreshMinutes">Refresh interval (minutes)</label>
+                    <input type="number" id="AutoRefreshMinutes" name="AutoRefreshMinutes" value="@Model.AutoRefreshMinutes" min="0" max="1440" />
+                    <p class="hint">Set to 0 to disable auto-refresh.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>KPI Configuration</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+
+            @if (Model.IsActiveRolesAdmin)
+            {
+            <div class="form-group">
+                <label for="CustomActiveRolesAdminsBaseDn">Active Roles Admins - Base DN</label>
+                <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomActiveRolesAdminsFilter">Active Roles Admins - LDAP Filter</label>
+                <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultActiveRolesAdminsFilter" />
+            </div>
+            }
+            <div class="form-group">
+                <label for="CustomNoGroupOwnerBaseDn">No Group Owner - Base DN</label>
+                <input type="text" id="CustomNoGroupOwnerBaseDn" name="CustomNoGroupOwnerBaseDn" value="@Model.CustomNoGroupOwnerBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerUserBaseDn">No Manager (User) - Base DN</label>
+                <input type="text" id="CustomNoManagerUserBaseDn" name="CustomNoManagerUserBaseDn" value="@Model.CustomNoManagerUserBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerUserFilter">No Manager (User) - LDAP Filter</label>
+                <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultNoManagerUserFilter" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerServiceAccountBaseDn">No Manager (Service Account) - Base DN</label>
+                <input type="text" id="CustomNoManagerServiceAccountBaseDn" name="CustomNoManagerServiceAccountBaseDn" value="@Model.CustomNoManagerServiceAccountBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerServiceAccountFilter">No Manager (Service Account) - LDAP Filter</label>
+                <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultNoManagerServiceAccountFilter" />
+            </div>
+            <div class="form-group">
+                <label for="CustomUserAccountLockedOutBaseDn">User Account Locked Out - Base DN</label>
+                <input type="text" id="CustomUserAccountLockedOutBaseDn" name="CustomUserAccountLockedOutBaseDn" value="@Model.CustomUserAccountLockedOutBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomEmptyGroupsBaseDn">Empty Groups - Base DN</label>
+                <input type="text" id="CustomEmptyGroupsBaseDn" name="CustomEmptyGroupsBaseDn" value="@Model.CustomEmptyGroupsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="EntraLargeGroupMemberThreshold">Large Groups - Member threshold</label>
+                <input type="number" id="EntraLargeGroupMemberThreshold" name="EntraLargeGroupMemberThreshold" value="@Model.EntraLargeGroupMemberThreshold" min="1" max="100000" />
+                <p class="hint">Entra groups with at least this many direct members are flagged by the Large Groups KPI. Default 100.</p>
+            </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>KPI Visibility</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.Overview.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.OverviewEnabled" value="true" @(Model.KpiSettings.OverviewEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.OverviewEnabled" value="false" />
+                </div>
+            </div>
+
+            @if (Model.IsActiveRolesAdmin)
+            {
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.ARConfiguration.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.ARConfigurationEnabled" value="true" @(Model.KpiSettings.ARConfigurationEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.ARConfigurationEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Active Roles Admins</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ActiveRolesAdminsEnabled" value="true" @(Model.KpiSettings.ActiveRolesAdminsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ActiveRolesAdminsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Managed Domains</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DomainsEnabled" value="true" @(Model.KpiSettings.DomainsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DomainsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">AR Servers</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ServersEnabled" value="true" @(Model.KpiSettings.ServersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ServersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Access Templates</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.AccessTemplatesEnabled" value="true" @(Model.KpiSettings.AccessTemplatesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.AccessTemplatesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Access Template Links</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.AccessTemplateLinksEnabled" value="true" @(Model.KpiSettings.AccessTemplateLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.AccessTemplateLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Dynamic Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DynamicGroupsEnabled" value="true" @(Model.KpiSettings.DynamicGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DynamicGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Group Families</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.GroupFamiliesEnabled" value="true" @(Model.KpiSettings.GroupFamiliesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.GroupFamiliesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Managed Units</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ManagedUnitsEnabled" value="true" @(Model.KpiSettings.ManagedUnitsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ManagedUnitsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Policy Object Links</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.PolicyObjectLinksEnabled" value="true" @(Model.KpiSettings.PolicyObjectLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.PolicyObjectLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Policy Objects</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.PolicyObjectsEnabled" value="true" @(Model.KpiSettings.PolicyObjectsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.PolicyObjectsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Virtual Attributes</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.VirtualAttributesEnabled" value="true" @(Model.KpiSettings.VirtualAttributesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.VirtualAttributesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Config Databases</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ConfigDatabasesEnabled" value="true" @(Model.KpiSettings.ConfigDatabasesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ConfigDatabasesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">History Databases</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.HistoryDatabasesEnabled" value="true" @(Model.KpiSettings.HistoryDatabasesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.HistoryDatabasesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Workflows</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.WorkflowsEnabled" value="true" @(Model.KpiSettings.WorkflowsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.WorkflowsEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+            }
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.ADGovernance.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.ADGovernanceEnabled" value="true" @(Model.KpiSettings.ADGovernanceEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.ADGovernanceEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">No Group Owner</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.NoGroupOwnerEnabled" value="true" @(Model.KpiSettings.NoGroupOwnerEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.NoGroupOwnerEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">No Manager (User)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.NoManagerUserEnabled" value="true" @(Model.KpiSettings.NoManagerUserEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.NoManagerUserEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">No Manager (Service Account)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.NoManagerServiceAccountEnabled" value="true" @(Model.KpiSettings.NoManagerServiceAccountEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.NoManagerServiceAccountEnabled" value="false" />
+                    </div>
+
+                    <div class="toggle-row">
+                        <span class="toggle-label">Service Accounts</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ServiceAccountsEnabled" value="true" @(Model.KpiSettings.ServiceAccountsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ServiceAccountsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">gMSA Service Accounts</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.GmsaServiceAccountsEnabled" value="true" @(Model.KpiSettings.GmsaServiceAccountsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.GmsaServiceAccountsEnabled" value="false" />
+                    </div>
+
+                    <div class="toggle-row">
+                        <span class="toggle-label">sMSA Service Accounts</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.SmsaServiceAccountsEnabled" value="true" @(Model.KpiSettings.SmsaServiceAccountsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.SmsaServiceAccountsEnabled" value="false" />
+                    </div>
+
+                    <div class="toggle-row">
+                        <span class="toggle-label">User Account Locked Out</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.UserAccountLockedOutEnabled" value="true" @(Model.KpiSettings.UserAccountLockedOutEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.UserAccountLockedOutEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Empty Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EmptyGroupsEnabled" value="true" @(Model.KpiSettings.EmptyGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EmptyGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Never Logged In</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.NeverLoggedInEnabled" value="true" @(Model.KpiSettings.NeverLoggedInEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.NeverLoggedInEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.EntraIDGovernance.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.EntraIDGovernanceEnabled" value="true" @(Model.KpiSettings.EntraIDGovernanceEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.EntraIDGovernanceEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <p class="muted" style="padding: 8px 0; font-size: .84rem;">No KPIs configured yet.</p>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.EntraUserAccounts.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.EntraUserAccountsEnabled" value="true" @(Model.KpiSettings.EntraUserAccountsEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.EntraUserAccountsEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Enabled Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraEnabledUsersEnabled" value="true" @(Model.KpiSettings.EntraEnabledUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraEnabledUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Disabled Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraDisabledUsersEnabled" value="true" @(Model.KpiSettings.EntraDisabledUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraDisabledUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">No Manager (User)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraNoManagerUserEnabled" value="true" @(Model.KpiSettings.EntraNoManagerUserEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraNoManagerUserEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Guest Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraGuestUsersEnabled" value="true" @(Model.KpiSettings.EntraGuestUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraGuestUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Internal Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraInternalUsersEnabled" value="true" @(Model.KpiSettings.EntraInternalUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraInternalUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">External Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraExternalUsersEnabled" value="true" @(Model.KpiSettings.EntraExternalUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraExternalUsersEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.EntraGroups.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.EntraGroupsEnabled" value="true" @(Model.KpiSettings.EntraGroupsEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.EntraGroupsEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Distribution Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraDistributionGroupsEnabled" value="true" @(Model.KpiSettings.EntraDistributionGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraDistributionGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Dynamic Distribution Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraDynamicDistributionGroupsEnabled" value="true" @(Model.KpiSettings.EntraDynamicDistributionGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraDynamicDistributionGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Microsoft 365 Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraMicrosoft365GroupsEnabled" value="true" @(Model.KpiSettings.EntraMicrosoft365GroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraMicrosoft365GroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Security Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraSecurityGroupsEnabled" value="true" @(Model.KpiSettings.EntraSecurityGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraSecurityGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Empty Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraEmptyGroupsEnabled" value="true" @(Model.KpiSettings.EntraEmptyGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraEmptyGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">No Group Owner</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraNoGroupOwnerEnabled" value="true" @(Model.KpiSettings.EntraNoGroupOwnerEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraNoGroupOwnerEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Guest-Containing Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraGuestContainingGroupsEnabled" value="true" @(Model.KpiSettings.EntraGuestContainingGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraGuestContainingGroupsEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.Licensing.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.LicensingEnabled" value="true" @(Model.KpiSettings.LicensingEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.LicensingEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Managed Objects</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ManagedObjectsEnabled" value="true" @(Model.KpiSettings.ManagedObjectsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ManagedObjectsEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.PrivilegedGroups.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.PrivilegedGroupsEnabled" value="true" @(Model.KpiSettings.PrivilegedGroupsEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.PrivilegedGroupsEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Account Operators</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.AccountOperatorsEnabled" value="true" @(Model.KpiSettings.AccountOperatorsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.AccountOperatorsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Administrators</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.AdministratorsEnabled" value="true" @(Model.KpiSettings.AdministratorsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.AdministratorsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Backup Operators</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.BackupOperatorsEnabled" value="true" @(Model.KpiSettings.BackupOperatorsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.BackupOperatorsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Domain Admins</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DomainAdminsEnabled" value="true" @(Model.KpiSettings.DomainAdminsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DomainAdminsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Server Operators</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ServerOperatorsEnabled" value="true" @(Model.KpiSettings.ServerOperatorsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ServerOperatorsEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.ADUserAccountsCategory.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.ADUserAccountsCategoryEnabled" value="true" @(Model.KpiSettings.ADUserAccountsCategoryEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.ADUserAccountsCategoryEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Enabled Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EnabledUsersEnabled" value="true" @(Model.KpiSettings.EnabledUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EnabledUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Disabled Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DisabledUsersEnabled" value="true" @(Model.KpiSettings.DisabledUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DisabledUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Expired Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ExpiredUsersEnabled" value="true" @(Model.KpiSettings.ExpiredUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ExpiredUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Expiring Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ExpiringUsersEnabled" value="true" @(Model.KpiSettings.ExpiringUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ExpiringUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Password Never Expires</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.PasswordNeverExpiresEnabled" value="true" @(Model.KpiSettings.PasswordNeverExpiresEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.PasswordNeverExpiresEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-section">
+                <div class="toggle-row">
+                    <span class="toggle-label category-label">@CategoryInfo.ADGroupsCategory.DisplayName</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="KpiSettings.ADGroupsCategoryEnabled" value="true" @(Model.KpiSettings.ADGroupsCategoryEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <input type="hidden" name="KpiSettings.ADGroupsCategoryEnabled" value="false" />
+                </div>
+                <div class="kpi-items">
+                    <div class="toggle-row">
+                        <span class="toggle-label">Distribution Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DistributionGroupsEnabled" value="true" @(Model.KpiSettings.DistributionGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DistributionGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Domain Local Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DomainLocalGroupsEnabled" value="true" @(Model.KpiSettings.DomainLocalGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DomainLocalGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Global Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.GlobalGroupsEnabled" value="true" @(Model.KpiSettings.GlobalGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.GlobalGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Mail Enabled Security Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.MailEnabledSecurityGroupsEnabled" value="true" @(Model.KpiSettings.MailEnabledSecurityGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.MailEnabledSecurityGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Security Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.SecurityGroupsEnabled" value="true" @(Model.KpiSettings.SecurityGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.SecurityGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Universal Groups</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.UniversalGroupsEnabled" value="true" @(Model.KpiSettings.UniversalGroupsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.UniversalGroupsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Circular Group Nesting</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.CircularGroupNestingEnabled" value="true" @(Model.KpiSettings.CircularGroupNestingEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.CircularGroupNestingEnabled" value="false" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <button type="submit" class="btn-save">Save Settings</button>
+            @if (Model.Message != null)
+            {
+                <div class="msg">@Model.Message</div>
+            }
+        </div>
+    </form>
+</div>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading Dashboard Data...</p>
+    </div>
+</div>
+<style>
+    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(243,244,246,.92); display: none; align-items: center; justify-content: center; z-index: 2000; }
+    .loading-overlay.active { display: flex; }
+    .loading-spinner { text-align: center; }
+    .loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: #374151; }
+    .spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+@await Html.PartialAsync("_AppBaseScript")
+<script>
+    var settingsChanged = @(Model.SettingsChanged ? "true" : "false");
+
+    document.getElementById('backLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (settingsChanged) {
+            document.getElementById('loadingOverlay').classList.add('active');
+            window.location.href = appBase + '/';
+        } else {
+            window.location.href = appBase + '/?cached=true';
+        }
+    });
+
+    function toggleSection(header) {
+        header.classList.toggle('collapsed');
+        var body = header.nextElementSibling;
+        body.classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>
