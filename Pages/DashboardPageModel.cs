@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ActiveRolesDashboard.Pages;
@@ -22,6 +23,13 @@ public abstract class DashboardPageModel : PageModel
         UserSettingsService = userSettingsService;
         ArConfig = arConfig;
     }
+
+    // Cross-cutting cache/permission infrastructure is resolved from the request container so the
+    // nine derived page-model constructors don't each have to thread these dependencies through.
+    protected DashboardCacheHolder Cache => HttpContext.RequestServices.GetRequiredService<DashboardCacheHolder>();
+    protected PerUserDashboardFilter PerUserFilter => HttpContext.RequestServices.GetRequiredService<PerUserDashboardFilter>();
+    protected ServiceAccountTokenProvider ServiceAccountTokens => HttpContext.RequestServices.GetRequiredService<ServiceAccountTokenProvider>();
+    protected ArPermissionModelService PermissionModelService => HttpContext.RequestServices.GetRequiredService<ArPermissionModelService>();
 
     public DashboardSummary Summary { get; set; } = new();
     public KpiSettings KpiSettings { get; set; } = new();
@@ -103,6 +111,39 @@ public abstract class DashboardPageModel : PageModel
     }
 
     protected string? GetAccessToken() => HttpContext.Session.GetString("AccessToken");
+
+    /// <summary>
+    /// Resolves the current viewer's SID set (own SID + nested group SIDs) used to filter the shared
+    /// superset per user. Resolved once via the SERVICE-ACCOUNT token (end-user tokens cannot read
+    /// this) and cached in session as a JSON SID array. Returns null for AR admins (who bypass
+    /// filtering) and when the permission model or service account is unavailable.
+    /// </summary>
+    protected async Task<UserSidSet?> GetViewerSidSetAsync(CancellationToken ct = default)
+    {
+        if (IsActiveRolesAdmin)
+            return null;
+
+        var username = User.Identity?.Name ?? string.Empty;
+        if (string.IsNullOrEmpty(username))
+            return null;
+
+        var cached = HttpContext.Session.GetString("ViewerSids");
+        if (cached != null)
+        {
+            var sids = JsonSerializer.Deserialize<string[]>(cached) ?? Array.Empty<string>();
+            var set = new UserSidSet { Username = username };
+            foreach (var sid in sids) set.Sids.Add(sid);
+            return set;
+        }
+
+        var serviceToken = await ServiceAccountTokens.GetTokenAsync(ct);
+        if (string.IsNullOrEmpty(serviceToken))
+            return null;
+
+        var resolved = await PermissionModelService.ResolveUserSidSetAsync(serviceToken, username, ct);
+        HttpContext.Session.SetString("ViewerSids", JsonSerializer.Serialize(resolved.Sids.ToArray()));
+        return resolved;
+    }
 
     /// <summary>
     /// Applies the session's active segment (domain/tenant) filter to <see cref="Summary"/>.
@@ -316,10 +357,26 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected async Task LoadFullSummaryAsync(string token)
     {
-        var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-        Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, userSettings);
+        var superset = Cache.Current?.Summary;
+        if (superset is null)
+        {
+            // Shared cache not yet ready: fall back to a direct per-user query so the page still
+            // renders (already correctly scoped by the caller's own Active Roles permissions).
+            var fallbackSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
+            Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, fallbackSettings);
+        }
+        else
+        {
+            // Serve from the shared service-account superset. Admins see the unfiltered data;
+            // everyone else sees a per-user projection scoped to their AR delegation.
+            var model = Cache.PermissionModel;
+            var viewer = IsActiveRolesAdmin ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
+            Summary = (viewer is not null && model is not null)
+                ? PerUserFilter.Filter(superset, viewer, model)
+                : superset;
+        }
 
-        // Cache the full (unfiltered) summary for export and sub-dashboard reuse.
+        // Cache the (already permission-scoped) summary for export and sub-dashboard reuse.
         CacheSummary();
 
         // Also cache the overview totals derived from the full summary so the main
@@ -419,9 +476,9 @@ public abstract class DashboardPageModel : PageModel
             }
         }
 
-        Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, UserSettingsService.Load(User.Identity?.Name ?? ""));
-        CacheSummary();
-        ApplyActiveSegmentFilter();
+        // Serve from the shared permission-scoped cache (falls back to a direct per-user query
+        // when the cache is not yet warm). LoadFullSummaryAsync also caches and segment-filters.
+        await LoadFullSummaryAsync(token);
 
         return Page();
     }

@@ -56,6 +56,8 @@ builder.Services.AddSingleton<MitreExposureService>();
 builder.Services.AddSingleton<DashboardCacheHolder>();
 builder.Services.AddSingleton<ServiceAccountTokenProvider>();
 builder.Services.AddSingleton<ArPermissionModelService>();
+builder.Services.AddSingleton<PerUserDashboardFilter>();
+builder.Services.AddSingleton<FilterValidationHarness>();
 builder.Services.AddSingleton<SupersetLoaderHostedService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SupersetLoaderHostedService>());
 
@@ -220,6 +222,36 @@ app.MapGet("/cache/status", (DashboardCacheHolder cache) => Results.Json(new
     collectedAtUtc = cache.CollectedAtUtc,
     error = cache.LastError
 })).AllowAnonymous();
+
+// Admin-only diagnostics: validate that the per-user filter matches an independently derived
+// ground truth for a given principal (soundness + completeness per KPI family). Guarded by the
+// authenticated session's IsActiveRolesAdmin flag; requires the shared cache to be ready.
+app.MapGet("/diagnostics/validate-filter", async (
+    string username,
+    HttpContext http,
+    FilterValidationHarness harness,
+    CancellationToken ct) =>
+{
+    if (http.User.Identity?.IsAuthenticated != true)
+        return Results.Unauthorized();
+
+    var isAdmin = bool.TryParse(http.Session.GetString("IsActiveRolesAdmin"), out var a) && a;
+    if (!isAdmin)
+        return Results.Forbid();
+
+    if (string.IsNullOrWhiteSpace(username))
+        return Results.BadRequest(new { error = "username is required" });
+
+    try
+    {
+        var result = await harness.ValidateAsync(username, ct);
+        return Results.Json(result);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.Json(new { error = ex.Message }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+}).RequireAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

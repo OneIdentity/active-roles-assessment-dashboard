@@ -24,6 +24,9 @@
   <data name="Refresh" xml:space="preserve">
 	<value>Aggiorna</value>
   </data>
+  <data name="RebuildCache" xml:space="preserve">
+	<value>Ricostruisci cache (solo amministratori)</value>
+  </data>
   <data name="Assessment" xml:space="preserve">
 	<value>Valutazione</value>
   </data>

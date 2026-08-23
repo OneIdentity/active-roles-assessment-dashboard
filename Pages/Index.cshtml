@@ -25,6 +25,7 @@
     @{
         ViewData["HeaderKey"] = "Index";
         ViewData["RefreshUrl"] = "/"; ViewData["ShowHome"] = false; ViewData["DashboardKey"] = "Main";
+        ViewData["ShowAdminRebuild"] = Model.IsActiveRolesAdmin;
     }
     <partial name="_DashboardHeader" />
 

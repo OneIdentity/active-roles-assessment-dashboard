@@ -85,7 +85,9 @@
 @await Html.PartialAsync("_AppBaseScript")
 <script>
     var loginI18n = {
-        loadingData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["LoadingData"].Value))
+        loadingData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["LoadingData"].Value)),
+        buildingCache: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["BuildingCache"].Value)),
+        filteringData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["FilteringData"].Value))
     };
     function setLanguage(select) {
         var opt = select.options[select.selectedIndex];
@@ -104,6 +106,32 @@
         var msg = document.getElementById('loadingMessage');
         overlay.classList.add('active');
         var form = this;
+
+        // Poll the shared cache status until it is Ready, keeping the user on the login overlay
+        // ("Building cache…") so they never land on an empty/partial dashboard. Once ready, show
+        // "Filtering data…" while the per-user projection is prepared, then redirect.
+        function waitForCacheThenRedirect(redirectUrl) {
+            var base = (appBase || '');
+            function poll() {
+                fetch(base + '/cache/status', { headers: { 'Accept': 'application/json' } })
+                    .then(function(r) { return r.json(); })
+                    .then(function(status) {
+                        if (status && status.ready) {
+                            msg.textContent = loginI18n.filteringData;
+                            window.location.href = redirectUrl;
+                        } else {
+                            msg.textContent = loginI18n.buildingCache;
+                            setTimeout(poll, 1500);
+                        }
+                    })
+                    .catch(function() {
+                        // Status endpoint unreachable: don't trap the user, just proceed.
+                        window.location.href = redirectUrl;
+                    });
+            }
+            poll();
+        }
+
         fetch(form.action || window.location.href, {
             method: 'POST',
             body: new FormData(form),
@@ -114,7 +142,8 @@
                 return response.json().then(function(data) {
                     // Message is localized server-side in the authenticated user's culture.
                     if (data && data.loadingMessage) msg.textContent = data.loadingMessage;
-                    window.location.href = (data && data.redirectUrl) ? data.redirectUrl : (appBase + '/');
+                    var redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : (appBase + '/');
+                    waitForCacheThenRedirect(redirectUrl);
                 });
             } else {
                 // Validation/authentication failure returns the re-rendered login page (HTML).

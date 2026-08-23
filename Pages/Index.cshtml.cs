@@ -2,6 +2,7 @@
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ActiveRolesDashboard.Pages;
@@ -44,5 +45,30 @@ public class IndexModel : DashboardPageModel
         await LoadFullSummaryAsync(token);
 
         return Page();
+    }
+
+    /// <summary>
+    /// Admin-only manual refresh of the shared service-account superset. Signals the background
+    /// loader to rebuild the cache, clears this session's cached summary so the next render reflects
+    /// fresh data, and redirects back to the main dashboard where the "Building cache…" state shows.
+    /// Other dashboards keep their existing (unchanged) refresh behaviour.
+    /// </summary>
+    public async Task<IActionResult> OnPostRefreshAsync()
+    {
+        var redirect = await InitializePageAsync();
+        if (redirect != null) return redirect;
+
+        if (!IsActiveRolesAdmin)
+            return Forbid();
+
+        HttpContext.RequestServices
+            .GetRequiredService<SupersetLoaderHostedService>()
+            .TriggerManualRefresh();
+
+        // Drop the per-session cached summary so the next load rebuilds from the refreshed cache.
+        HttpContext.Session.Remove("DashboardSummary");
+        HttpContext.Session.Remove("OverviewTotals");
+
+        return RedirectToPage("/Index");
     }
 }

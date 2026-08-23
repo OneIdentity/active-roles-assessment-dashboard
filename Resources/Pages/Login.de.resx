@@ -58,4 +58,6 @@
   <data name="SignIn" xml:space="preserve"><value>Anmelden</value></data>
   <data name="SigningIn" xml:space="preserve"><value>Anmeldung läuft...</value></data>
   <data name="LoadingData" xml:space="preserve"><value>Daten werden geladen...</value></data>
+  <data name="BuildingCache" xml:space="preserve"><value>Cache wird erstellt...</value></data>
+  <data name="FilteringData" xml:space="preserve"><value>Daten werden gefiltert...</value></data>
 </root>
