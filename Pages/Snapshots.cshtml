@@ -1,12 +1,13 @@
 @page
 @model ActiveRolesDashboard.Pages.SnapshotsModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Snapshots";
     Layout = null;
     var pathBase = HttpContext.Request.PathBase.Value ?? "";
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
@@ -18,26 +19,18 @@
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p id="loadingOverlayText">Capturing Snapshot...</p>
+        <p id="loadingOverlayText">@Localizer["CapturingSnapshot"]</p>
     </div>
 </div>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Snapshots</h1>
-                <p class="hdr-sub">Capture and compare KPI snapshots over time</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/Snapshots"; ViewData["ShowHome"] = true; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "Snapshots";
+        ViewData["RefreshUrl"] = "/Snapshots"; ViewData["ShowHome"] = true;
+    }
+    <partial name="_DashboardHeader" />
 
-    <a href="@(pathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    <a href="@(pathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.StatusMessage))
@@ -52,25 +45,25 @@
 
     <div class="snap-panels">
         <section class="snap-card">
-            <h2>Take a snapshot</h2>
-            <p class="snap-hint">Captures the current KPI counts across all dashboards. This queries Active Roles for fresh data.</p>
+            <h2>@Localizer["TakeSnapshot"]</h2>
+            <p class="snap-hint">@Localizer["TakeSnapshotHint"]</p>
             <form method="post" asp-page-handler="Capture" class="snap-capture-form" id="snapCaptureForm">
-                <input type="text" name="label" maxlength="80" placeholder="Optional label (e.g. Monthly review)" class="snap-input" />
-                <button type="submit" class="snap-btn snap-btn-primary">Capture snapshot</button>
+                <input type="text" name="label" maxlength="80" placeholder="@Localizer["OptionalLabelPlaceholder"]" class="snap-input" />
+                <button type="submit" class="snap-btn snap-btn-primary">@Localizer["CaptureSnapshot"]</button>
             </form>
         </section>
 
         <section class="snap-card">
-            <h2>Compare</h2>
+            <h2>@Localizer["Compare"]</h2>
             @if (Model.Snapshots.Count == 0)
             {
-                <p class="snap-hint">No snapshots yet. Capture one to enable comparison.</p>
+                <p class="snap-hint">@Localizer["NoSnapshotsForComparison"]</p>
             }
             else
             {
                 <form method="get" class="snap-compare-form" id="snapCompareForm">
                     <label>
-                        <span>Baseline</span>
+                        <span>@Localizer["Baseline"]</span>
                         <select name="FromId" class="snap-input" id="snapFromId">
                             @foreach (var h in Model.Snapshots)
                             {
@@ -79,36 +72,36 @@
                         </select>
                     </label>
                     <label>
-                        <span>Compare to</span>
+                        <span>@Localizer["CompareTo"]</span>
                         <select name="ToId" class="snap-input" id="snapToId">
-                            <option value="current" selected="@(string.Equals(Model.ToId, "current", StringComparison.OrdinalIgnoreCase))">Current (live)</option>
+                            <option value="current" selected="@(string.Equals(Model.ToId, "current", StringComparison.OrdinalIgnoreCase))">@Localizer["CurrentLive"]</option>
                             @foreach (var h in Model.Snapshots)
                             {
                                 <option value="@h.Id" selected="@(h.Id == Model.ToId)">@SnapshotsModel_Label(h)</option>
                             }
                         </select>
                     </label>
-                    <button type="submit" class="snap-btn snap-btn-primary" id="snapCompareBtn">Compare</button>
+                    <button type="submit" class="snap-btn snap-btn-primary" id="snapCompareBtn">@Localizer["Compare"]</button>
                 </form>
             }
         </section>
     </div>
 
     <section class="snap-card">
-        <h2>Saved snapshots</h2>
+        <h2>@Localizer["SavedSnapshots"]</h2>
         @if (Model.Snapshots.Count == 0)
         {
-            <p class="snap-hint">You haven't captured any snapshots yet.</p>
+            <p class="snap-hint">@Localizer["NoSnapshotsYet"]</p>
         }
         else
         {
             <table class="snap-table">
                 <thead>
                     <tr>
-                        <th>Label</th>
-                        <th>Captured (UTC)</th>
-                        <th>By</th>
-                        <th class="snap-num">KPIs</th>
+                        <th>@Localizer["Col_Label"]</th>
+                        <th>@Localizer["Col_CapturedUtc"]</th>
+                        <th>@Localizer["Col_By"]</th>
+                        <th class="snap-num">@Localizer["Col_Kpis"]</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -116,17 +109,17 @@
                     @foreach (var h in Model.Snapshots)
                     {
                         <tr>
-                            <td>@(string.IsNullOrWhiteSpace(h.Label) ? "(unlabelled)" : h.Label)</td>
+                            <td>@(string.IsNullOrWhiteSpace(h.Label) ? Localizer["Unlabelled"].Value : h.Label)</td>
                             <td>@h.CreatedUtc.ToString("yyyy-MM-dd HH:mm")</td>
                             <td>@(h.CreatedBy ?? "—")</td>
                             <td class="snap-num">@h.KpiCount</td>
                             <td class="snap-row-actions">
-                                <a href="@(pathBase)/Snapshots?FromId=@h.Id&ToId=current" class="snap-icon-btn snap-compare-link" title="Compare to current" aria-label="Compare to current">
+                                <a href="@(pathBase)/Snapshots?FromId=@h.Id&ToId=current" class="snap-icon-btn snap-compare-link" title="@Localizer["Tip_CompareToCurrent"]" aria-label="@Localizer["Tip_CompareToCurrent"]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                                 </a>
-                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('Delete this snapshot?');">
+                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["ConfirmDelete"].Value)));">
                                     <input type="hidden" name="id" value="@h.Id" />
-                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="Delete snapshot" aria-label="Delete snapshot">
+                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["Tip_DeleteSnapshot"]" aria-label="@Localizer["Tip_DeleteSnapshot"]">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                     </button>
                                 </form>
@@ -143,20 +136,20 @@
         var cmp = Model.Comparison;
         <section class="snap-card">
             <h2>
-                Comparison
+                @Localizer["Comparison"]
                 <span class="snap-cmp-caption">
                     @SnapshotsModel_Label(cmp.From)
                     &rarr;
-                    @(cmp.ToIsCurrent ? "Current (live)" : SnapshotsModel_Label(cmp.To))
+                    @(cmp.ToIsCurrent ? Localizer["CurrentLive"].Value : SnapshotsModel_Label(cmp.To))
                 </span>
             </h2>
 
             <div class="snap-summary">
-                <span class="snap-pill snap-pill-bad">@cmp.IncreaseCount increased</span>
-                <span class="snap-pill snap-pill-good">@cmp.DecreaseCount decreased</span>
-                <span class="snap-pill">@cmp.NoChangeCount unchanged</span>
-                @if (cmp.AddedCount > 0) { <span class="snap-pill">@cmp.AddedCount added</span> }
-                @if (cmp.RemovedCount > 0) { <span class="snap-pill">@cmp.RemovedCount removed</span> }
+                <span class="snap-pill snap-pill-bad">@Localizer["Pill_Increased", cmp.IncreaseCount]</span>
+                <span class="snap-pill snap-pill-good">@Localizer["Pill_Decreased", cmp.DecreaseCount]</span>
+                <span class="snap-pill">@Localizer["Pill_Unchanged", cmp.NoChangeCount]</span>
+                @if (cmp.AddedCount > 0) { <span class="snap-pill">@Localizer["Pill_Added", cmp.AddedCount]</span> }
+                @if (cmp.RemovedCount > 0) { <span class="snap-pill">@Localizer["Pill_Removed", cmp.RemovedCount]</span> }
             </div>
 
             @foreach (var dashboard in cmp.Dashboards)
@@ -174,10 +167,10 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>KPI</th>
-                                <th class="snap-num">Baseline</th>
-                                <th class="snap-num">@(cmp.ToIsCurrent ? "Current" : "Compare")</th>
-                                <th class="snap-num">Change</th>
+                                <th>@Localizer["Col_Kpi"]</th>
+                                <th class="snap-num">@Localizer["Col_Baseline"]</th>
+                                <th class="snap-num">@(cmp.ToIsCurrent ? Localizer["Col_Current"].Value : Localizer["Col_Compare"].Value)</th>
+                                <th class="snap-num">@Localizer["Col_Change"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -186,7 +179,7 @@
                                 <tr class="@SnapshotsModel_RowClass(row.Sentiment)">
                                     <td>
                                         @row.DisplayName
-                                        @if (row.IsRiskKpi) { <span class="snap-risk" title="Risk KPI">&#9888;</span> }
+                                        @if (row.IsRiskKpi) { <span class="snap-risk" title="@Localizer["RiskKpi"]">&#9888;</span> }
                                     </td>
                                     <td class="snap-num">@(row.FromCount?.ToString() ?? "—")</td>
                                     <td class="snap-num">@(row.ToCount?.ToString() ?? "—")</td>
@@ -203,22 +196,22 @@
     @if (Model.Trend.Labels.Count >= 2 && Model.Trend.Dashboards.Count > 0)
     {
         <section class="snap-card">
-            <h2>Trend</h2>
-            <p class="snap-hint">KPI counts across the last @Model.Trend.Labels.Count snapshots. Pick a dashboard and category, then tick one or more KPIs to plot.</p>
+            <h2>@Localizer["Trend"]</h2>
+            <p class="snap-hint">@Localizer["TrendHint", Model.Trend.Labels.Count]</p>
             <div class="snap-trend-filters">
                 <label>
-                    <span>Dashboard</span>
+                    <span>@Localizer["Filter_Dashboard"]</span>
                     <select id="trendDashboard" class="snap-input"></select>
                 </label>
                 <label>
-                    <span>Category</span>
+                    <span>@Localizer["Filter_Category"]</span>
                     <select id="trendCategory" class="snap-input"></select>
                 </label>
                 <label class="snap-trend-kpi-label">
-                    <span>KPIs</span>
+                    <span>@Localizer["Filter_Kpis"]</span>
                     <div class="snap-multi" id="trendKpiMulti">
                         <button type="button" class="snap-input snap-multi-toggle" id="trendKpiToggle" aria-haspopup="true" aria-expanded="false">
-                            <span class="snap-multi-summary" id="trendKpiSummary">Select KPIs</span>
+                            <span class="snap-multi-summary" id="trendKpiSummary">@Localizer["SelectKpis"]</span>
                             <svg class="snap-multi-caret" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
                         <div class="snap-multi-panel" id="trendKpiPanel" hidden></div>
@@ -236,6 +229,13 @@
 </div>
 <script src="js/chart.umd.min.js" asp-append-version="true"></script>
 <script>
+    var snapI18n = {
+        capturing: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["CapturingSnapshot"].Value)),
+        comparing: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Comparing"].Value)),
+        selectKpis: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["SelectKpis"].Value)),
+        allKpis: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["AllKpisFormat"].Value)),
+        kpisSelected: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["KpisSelectedFormat"].Value))
+    };
     (function () {
         // Show the loading overlay while a snapshot is being captured or compared.
         var captureForm = document.getElementById('snapCaptureForm');
@@ -248,7 +248,7 @@
         }
         if (captureForm && overlay) {
             captureForm.addEventListener('submit', function () {
-                showOverlay('Capturing Snapshot...');
+                showOverlay(snapI18n.capturing);
             });
         }
 
@@ -267,14 +267,14 @@
         }
         if (compareForm) {
             compareForm.addEventListener('submit', function () {
-                showOverlay('Comparing...');
+                showOverlay(snapI18n.comparing);
             });
         }
 
         // The per-row "Compare to current" links also run a comparison.
         Array.prototype.forEach.call(document.querySelectorAll('.snap-compare-link'), function (link) {
             link.addEventListener('click', function () {
-                showOverlay('Comparing...');
+                showOverlay(snapI18n.comparing);
             });
         });
 
@@ -337,14 +337,14 @@
                     var keys = selectedKpiKeys();
                     var boxes = kpiCheckboxes();
                     if (keys.length === 0) {
-                        kpiSummary.textContent = 'Select KPIs';
+                        kpiSummary.textContent = snapI18n.selectKpis;
                     } else if (keys.length === 1) {
                         var one = boxes.find(function (c) { return c.checked; });
                         kpiSummary.textContent = one.nextSibling.textContent;
                     } else if (keys.length === boxes.length) {
-                        kpiSummary.textContent = 'All KPIs (' + keys.length + ')';
+                        kpiSummary.textContent = snapI18n.allKpis.replace('{0}', keys.length);
                     } else {
-                        kpiSummary.textContent = keys.length + ' KPIs selected';
+                        kpiSummary.textContent = snapI18n.kpisSelected.replace('{0}', keys.length);
                     }
                 }
                 function currentDashboard() {

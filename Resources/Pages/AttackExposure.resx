@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
+  <data name="Level_High" xml:space="preserve"><value>High</value></data>
+  <data name="Level_Medium" xml:space="preserve"><value>Medium</value></data>
+  <data name="Level_Low" xml:space="preserve"><value>Low</value></data>
+  <data name="Level_None" xml:space="preserve"><value>None</value></data>
+  <data name="HighExposure" xml:space="preserve"><value>High Exposure</value></data>
+  <data name="MediumExposure" xml:space="preserve"><value>Medium Exposure</value></data>
+  <data name="LowExposure" xml:space="preserve"><value>Low Exposure</value></data>
+  <data name="TechniquesWithExposure" xml:space="preserve"><value>Techniques with Exposure</value></data>
+  <data name="IntroNote" xml:space="preserve"><value>Exposure reflects the presence of risky configurations in your environment mapped to MITRE ATT&amp;CK techniques. It is an indicative visibility view, not a compliance score.</value></data>
+  <data name="GeneratedAt" xml:space="preserve"><value>Generated at {0} UTC.</value></data>
+  <data name="CompareAndTrend" xml:space="preserve"><value>Compare &amp; Trend</value></data>
+  <data name="CompareNote" xml:space="preserve"><value>Exposure is not stored separately; historical exposure is recomputed from saved &lt;a href="{0}"&gt;snapshots&lt;/a&gt;. Pick a baseline to compare against another snapshot or the current live view.</value></data>
+  <data name="NoSnapshotsWarning" xml:space="preserve"><value>No snapshots have been saved yet. Capture a snapshot to enable exposure comparison and trend analysis.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Baseline</value></data>
+  <data name="SelectPlaceholder" xml:space="preserve"><value>&#8212; select &#8212;</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Compare to</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Current (live)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Compare</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} increased</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} decreased</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} unchanged</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} added</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} removed</value></data>
+  <data name="ComparingNote" xml:space="preserve"><value>Comparing &lt;strong&gt;{0}&lt;/strong&gt; &#8594; &lt;strong&gt;{1}&lt;/strong&gt;. A rising exposure level is worse (&#9650;), a falling level is better (&#9660;).</value></data>
+  <data name="Col_Technique" xml:space="preserve"><value>Technique</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Baseline</value></data>
+  <data name="Col_Compared" xml:space="preserve"><value>Compared</value></data>
+  <data name="ExposureTrend" xml:space="preserve"><value>Exposure trend</value></data>
+  <data name="TrendNote" xml:space="preserve"><value>High / Medium / Low exposed technique counts across {0} saved snapshots.</value></data>
+  <data name="TrendTooltip" xml:space="preserve"><value>High {0}, Medium {1}, Low {2}</value></data>
+  <data name="NotAvailable" xml:space="preserve"><value>n/a</value></data>
+  <data name="Mitigation" xml:space="preserve"><value>Mitigation</value></data>
+  <data name="Footer" xml:space="preserve"><value>Active Roles Dashboard &#8212; ATT&amp;CK Exposure generated at {0} UTC</value></data>
+</root>

@@ -86,13 +86,42 @@ builder.Services.AddSession(options =>
     options.Cookie.Path = "/";
 });
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.ConfigureFilter(new Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryTokenAttribute());
-});
+}).AddViewLocalization();
 builder.Services.AddControllers();
 
+// Localization: supported UI cultures. English only for now; add cultures here as
+// translations become available. The active culture is chosen per-user (see below).
+builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>(options =>
+{
+    var supported = ActiveRolesDashboard.Models.SupportedLanguage.All
+        .Select(l => new System.Globalization.CultureInfo(l.Code))
+        .ToList();
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(
+        ActiveRolesDashboard.Models.SupportedLanguage.DefaultCode);
+    options.SupportedCultures = supported;
+    options.SupportedUICultures = supported;
+
+    // Resolve culture from the authenticated user's saved language, then the
+    // configured default, before falling back to the built-in providers.
+    options.RequestCultureProviders.Insert(0,
+        new ActiveRolesDashboard.Services.UserSettingsRequestCultureProvider());
+});
+
 var app = builder.Build();
+
+// Wire the static KPI/category localizer so KpiInfo/CategoryInfo display names
+// (which are static readonly and cannot use DI) resolve from resources at read-time.
+ActiveRolesDashboard.Services.KpiLocalizer.Initialize(
+    app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizerFactory>());
+
+// Wire the static assessment localizer so persisted rule titles/recommendations/categories
+// (identified by RuleId) resolve from resources at render-time in the current UI culture.
+ActiveRolesDashboard.Services.AssessmentLocalizer.Initialize(
+    app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizerFactory>());
 
 // PathBase: set manually for reverse-proxy/Kestrel scenarios.
 // IIS in-process/out-of-process hosting sets PathBase automatically for sub-applications.
@@ -114,6 +143,9 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+// Must run after authentication so the culture provider can read the
+// authenticated user's saved language from their user settings.
+app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>>().Value);
 
 // First-run redirect: if ApiBaseUrl is not configured, send to Setup wizard
 app.Use(async (context, next) =>

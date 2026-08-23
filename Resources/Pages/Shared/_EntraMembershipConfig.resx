@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <!-- Empty-state rows -->
+  <data name="Empty_EmptyGroups" xml:space="preserve"><value>No empty groups found</value></data>
+  <data name="Empty_NoGroupOwner" xml:space="preserve"><value>No groups without an owner found</value></data>
+  <data name="Empty_GuestContaining" xml:space="preserve"><value>No guest-containing groups found</value></data>
+  <data name="Empty_SingleOwner" xml:space="preserve"><value>No single-owner groups found</value></data>
+  <data name="Empty_LargeGroups" xml:space="preserve"><value>No large groups found</value></data>
+  <!-- Inline failure -->
+  <data name="FailedToLoadMembership" xml:space="preserve"><value>Failed to load group membership.</value></data>
+  <!-- Toasts -->
+  <data name="Toast_MembershipLoaded" xml:space="preserve"><value>Group membership loaded</value></data>
+  <data name="Toast_MembershipFailed" xml:space="preserve"><value>Failed to load group membership</value></data>
+  <data name="Toast_MembershipLoading" xml:space="preserve"><value>Loading group memberships. This may take a while depending on the environment. Group based KPIs may not be accurate and details will not be available until loading is complete.</value></data>
+  <!-- Tooltips -->
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Open in Web Interface</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configure Web Interface URL in Settings</value></data>
+</root>

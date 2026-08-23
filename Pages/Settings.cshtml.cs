@@ -5,6 +5,7 @@ using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace ActiveRolesDashboard.Pages;
@@ -15,12 +16,14 @@ public class SettingsModel : PageModel
     private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
     private readonly UserSettingsService _userSettingsService;
     private readonly IWebHostEnvironment _env;
+    private readonly IStringLocalizer<SettingsModel> _localizer;
 
-    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env)
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer)
     {
         _arConfig = arConfig;
         _userSettingsService = userSettingsService;
         _env = env;
+        _localizer = localizer;
     }
 
     [BindProperty]
@@ -28,6 +31,14 @@ public class SettingsModel : PageModel
 
     [BindProperty]
     public int AutoRefreshMinutes { get; set; }
+
+    [BindProperty]
+    public string Language { get; set; } = SupportedLanguage.DefaultCode;
+
+    public IReadOnlyList<SupportedLanguage> Languages => SupportedLanguage.All;
+
+    public SupportedLanguage SelectedLanguage =>
+        SupportedLanguage.All.FirstOrDefault(l => l.Code == Language) ?? SupportedLanguage.All[0];
 
     [BindProperty]
     public int EntraLargeGroupMemberThreshold { get; set; }
@@ -74,6 +85,9 @@ public class SettingsModel : PageModel
 
         AutoRefreshMinutes = userSettings.AutoRefreshMinutes;
         KpiSettings = userSettings.KpiSettings;
+        Language = SupportedLanguage.All.Any(l => l.Code == userSettings.Language)
+            ? userSettings.Language
+            : SupportedLanguage.DefaultCode;
 
         // Load KPI configuration from appsettings
         CustomNoGroupOwnerBaseDn = config.CustomNoGroupOwnerBaseDn;
@@ -99,10 +113,14 @@ public class SettingsModel : PageModel
 
         // Save visibility settings to user file
         var username = User.Identity?.Name ?? "";
+        var selectedLanguage = SupportedLanguage.All.Any(l => l.Code == Language)
+            ? Language
+            : SupportedLanguage.DefaultCode;
         var userSettings = new UserSettings
         {
             AutoRefreshMinutes = AutoRefreshMinutes,
-            KpiSettings = KpiSettings
+            KpiSettings = KpiSettings,
+            Language = selectedLanguage
         };
         _userSettingsService.Save(username, userSettings);
 
@@ -117,7 +135,7 @@ public class SettingsModel : PageModel
         HttpContext.Session.Remove("DashboardSummary");
 
         SettingsChanged = true;
-        Message = "Settings saved successfully.";
+        Message = _localizer["SavedSuccessfully"];
 
         return Page();
     }

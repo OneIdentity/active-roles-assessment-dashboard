@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+    <data name="LoadingDashboardData" xml:space="preserve"><value>Cargando datos del panel...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Nombre</value></data>
+  <data name="Col_DistinguishedName" xml:space="preserve"><value>Nombre distintivo</value></data>
+  <data name="Col_Membership" xml:space="preserve"><value>Pertenencia</value></data>
+  <data name="Col_DnsName" xml:space="preserve"><value>Nombre DNS</value></data>
+  <data name="Col_UseOverride" xml:space="preserve"><value>Usar reemplazo</value></data>
+  <data name="Col_ServerName" xml:space="preserve"><value>Nombre del servidor</value></data>
+  <data name="Col_Version" xml:space="preserve"><value>Versión</value></data>
+  <data name="Col_Rules" xml:space="preserve"><value>Reglas</value></data>
+  <data name="Col_Enabled" xml:space="preserve"><value>Habilitado</value></data>
+  <data name="Col_Automation" xml:space="preserve"><value>Automatización</value></data>
+  <data name="Col_LdapDisplayName" xml:space="preserve"><value>Nombre para mostrar LDAP</value></data>
+  <data name="Col_Multivalued" xml:space="preserve"><value>Multivalor</value></data>
+  <data name="Col_SqlAlias" xml:space="preserve"><value>Alias SQL</value></data>
+  <data name="Col_DatabaseName" xml:space="preserve"><value>Nombre de la base de datos</value></data>
+  <data name="Col_DatabaseType" xml:space="preserve"><value>Tipo de base de datos</value></data>
+  <data name="Col_ReplicationSupport" xml:space="preserve"><value>Compatibilidad con replicación</value></data>
+  <data name="Col_ReplicationRole" xml:space="preserve"><value>Rol de replicación</value></data>
+  <data name="Col_Parent" xml:space="preserve"><value>Elemento primario</value></data>
+  <data name="Col_Trustee" xml:space="preserve"><value>Beneficiario</value></data>
+  <data name="Col_DirectoryObject" xml:space="preserve"><value>Objeto de directorio</value></data>
+  <data name="Col_AccessTemplate" xml:space="preserve"><value>Plantilla de acceso</value></data>
+  <data name="Empty_Members" xml:space="preserve"><value>No se encontraron miembros</value></data>
+  <data name="Empty_Domains" xml:space="preserve"><value>No se encontraron dominios</value></data>
+  <data name="Empty_Servers" xml:space="preserve"><value>No se encontraron servidores</value></data>
+  <data name="Empty_DynamicGroups" xml:space="preserve"><value>No se encontraron grupos dinámicos</value></data>
+  <data name="Empty_GroupFamilies" xml:space="preserve"><value>No se encontraron familias de grupos</value></data>
+  <data name="Empty_ManagedUnits" xml:space="preserve"><value>No se encontraron unidades gestionadas</value></data>
+  <data name="Empty_Workflows" xml:space="preserve"><value>No se encontraron flujos de trabajo</value></data>
+  <data name="Empty_VirtualAttributes" xml:space="preserve"><value>No se encontraron atributos virtuales</value></data>
+  <data name="Empty_ConfigDatabases" xml:space="preserve"><value>No se encontraron bases de datos de configuración</value></data>
+  <data name="Empty_HistoryDatabases" xml:space="preserve"><value>No se encontraron bases de datos de historial</value></data>
+  <data name="Empty_PolicyObjects" xml:space="preserve"><value>No se encontraron objetos de directiva</value></data>
+  <data name="Empty_AccessTemplates" xml:space="preserve"><value>No se encontraron plantillas de acceso</value></data>
+  <data name="Empty_AccessTemplateLinks" xml:space="preserve"><value>No se encontraron vínculos de plantillas de acceso</value></data>
+  <data name="Empty_PolicyObjectLinks" xml:space="preserve"><value>No se encontraron vínculos de objetos de directiva</value></data>
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Abrir en la interfaz web</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configurar la URL de la interfaz web en Configuración</value></data>
+  <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>Ver pertenencia anidada</value></data>
+  <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>Sin miembros indirectos (anidados)</value></data>
+</root>

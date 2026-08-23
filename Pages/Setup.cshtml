@@ -1,11 +1,12 @@
 @page
 @model ActiveRolesDashboard.Pages.SetupModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Setup";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -37,25 +38,27 @@
         .btn-next:hover { background: #1d4ed8; }
         .btn-finish { background: #059669; color: #fff; }
         .btn-finish:hover { background: #047857; }
+        .lang-select-wrap { display: flex; align-items: center; gap: 10px; }
+        .lang-flag { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.08); flex-shrink: 0; }
+        .lang-select { flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; }
+        .lang-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
     </style>
 </head>
 <body>
 <div class="page">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo">AR</span>
-            <div>
-                <h1>Active Roles Dashboard</h1>
-                <p class="hdr-sub">Initial Configuration</p>
-            </div>
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "Setup";
+        ViewData["HeaderLogo"] = "ar";
+        ViewData["HeaderRight"] = "none";
+    }
+    <partial name="_DashboardHeader" />
 
     <div class="setup-container">
         <div class="wizard-steps">
             <div class="step active" data-step="0"></div>
             <div class="step" data-step="1"></div>
             <div class="step" data-step="2"></div>
+            <div class="step" data-step="3"></div>
         </div>
 
         <div id="wizardError" class="error-msg" style="display:none;"></div>
@@ -69,90 +72,115 @@
             <!-- Page 1: REST API Configuration -->
             <div class="wizard-page active" data-page="0">
                 <div class="setup-card">
-                    <h2>REST API Configuration <span class="required">*</span></h2>
-                    <p class="subtitle">Configure the connection to the Active Roles REST API service.</p>
+                    <h2>@Localizer["RestApiConfig"] <span class="required">*</span></h2>
+                    <p class="subtitle">@Localizer["RestApiSubtitle"]</p>
                     <div class="form-group">
-                        <label for="ApiBaseUrl">REST API URL <span class="required">*</span></label>
+                        <label for="ApiBaseUrl">@Localizer["RestApiUrl"] <span class="required">*</span></label>
                         <input type="text" id="ApiBaseUrl" name="ApiBaseUrl" value="@Model.ApiBaseUrl" placeholder="https://server:5000/api/v1" />
-                        <p class="hint">The base URL of the Active Roles REST API. This setting is mandatory.</p>
+                        <p class="hint">@Localizer["RestApiUrlHint"]</p>
                     </div>
                     <div class="form-group">
-                        <label for="RstsUrl">RSTS Token URL <span class="required">*</span></label>
+                        <label for="RstsUrl">@Localizer["RstsUrl"] <span class="required">*</span></label>
                         <input type="text" id="RstsUrl" name="RstsUrl" value="@Model.RstsUrl" placeholder="https://server:443/rsts/oauth2/token" />
-                        <p class="hint">The RSTS OAuth2 token endpoint URL. This setting is mandatory.</p>
+                        <p class="hint">@Localizer["RstsUrlHint"]</p>
                     </div>
                 </div>
                 <div class="wizard-nav">
-                    <button type="button" class="btn-next" onclick="wizardNext()">Next</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
                 </div>
             </div>
 
             <!-- Page 2: Web Interface -->
             <div class="wizard-page" data-page="1">
                 <div class="setup-card">
-                    <h2>Web Interface</h2>
-                    <p class="subtitle">Optionally configure the Active Roles Web Interface URL for deep linking.</p>
+                    <h2>@Localizer["WebInterface"]</h2>
+                    <p class="subtitle">@Localizer["WebInterfaceSubtitle"]</p>
                     <div class="form-group">
-                        <label for="WebInterfaceUrl">Web Interface URL</label>
+                        <label for="WebInterfaceUrl">@Localizer["WebInterfaceUrl"]</label>
                         <input type="text" id="WebInterfaceUrl" name="WebInterfaceUrl" value="@Model.WebInterfaceUrl" placeholder="https://server/ARWebAdmin" />
-                        <p class="hint">Base URL of the Active Roles Web Interface. This setting is optional.</p>
+                        <p class="hint">@Localizer["WebInterfaceUrlHint"]</p>
                     </div>
                 </div>
                 <div class="wizard-nav">
-                    <button type="button" class="btn-back" onclick="wizardBack()">Back</button>
-                    <button type="button" class="btn-next" onclick="wizardNext()">Next</button>
+                    <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
                 </div>
             </div>
 
-            <!-- Page 3: KPI Configuration -->
+            <!-- Page 3: Language -->
             <div class="wizard-page" data-page="2">
                 <div class="setup-card">
-                    <h2>KPI Configuration</h2>
-                    <p class="subtitle">All KPI settings are optional. Leave blank to use defaults.</p>
+                    <h2>@Localizer["Language"]</h2>
+                    <p class="subtitle">@Localizer["LanguageSubtitle"]</p>
                     <div class="form-group">
-                        <label for="CustomActiveRolesAdminsBaseDn">Active Roles Admins - Base DN</label>
+                        <label for="Language">@Localizer["DisplayLanguage"]</label>
+                        <div class="lang-select-wrap">
+                            <img id="langFlag" class="lang-flag" src="@(HttpContext.Request.PathBase)/@(Model.SelectedLanguage.FlagImage)" alt="@Model.SelectedLanguage.DisplayName flag" />
+                            <select id="Language" name="Language" class="lang-select" onchange="updateLangFlag(this)">
+                                @foreach (var lang in Model.Languages)
+                                {
+                                    <option value="@lang.Code" data-flag="@(HttpContext.Request.PathBase)/@(lang.FlagImage)" selected="@(lang.Code == Model.Language)">@lang.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                        <p class="hint">@Localizer["LanguageHint"]</p>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
+                </div>
+            </div>
+
+            <!-- Page 4: KPI Configuration -->
+            <div class="wizard-page" data-page="3">
+                <div class="setup-card">
+                    <h2>@Localizer["KpiConfig"]</h2>
+                    <p class="subtitle">@Localizer["KpiSubtitle"]</p>
+                    <div class="form-group">
+                        <label for="CustomActiveRolesAdminsBaseDn">@Localizer["Lbl_ArAdminsBaseDn"]</label>
                         <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomActiveRolesAdminsFilter">Active Roles Admins - LDAP Filter</label>
+                        <label for="CustomActiveRolesAdminsFilter">@Localizer["Lbl_ArAdminsFilter"]</label>
                         <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultActiveRolesAdminsFilter" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomNoGroupOwnerBaseDn">No Group Owner - Base DN</label>
+                        <label for="CustomNoGroupOwnerBaseDn">@Localizer["Lbl_NoGroupOwnerBaseDn"]</label>
                         <input type="text" id="CustomNoGroupOwnerBaseDn" name="CustomNoGroupOwnerBaseDn" value="@Model.CustomNoGroupOwnerBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomNoManagerUserBaseDn">No Manager (User) - Base DN</label>
+                        <label for="CustomNoManagerUserBaseDn">@Localizer["Lbl_NoManagerUserBaseDn"]</label>
                         <input type="text" id="CustomNoManagerUserBaseDn" name="CustomNoManagerUserBaseDn" value="@Model.CustomNoManagerUserBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomNoManagerUserFilter">No Manager (User) - LDAP Filter</label>
+                        <label for="CustomNoManagerUserFilter">@Localizer["Lbl_NoManagerUserFilter"]</label>
                         <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultNoManagerUserFilter" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomNoManagerServiceAccountBaseDn">No Manager (Service Account) - Base DN</label>
+                        <label for="CustomNoManagerServiceAccountBaseDn">@Localizer["Lbl_NoManagerSaBaseDn"]</label>
                         <input type="text" id="CustomNoManagerServiceAccountBaseDn" name="CustomNoManagerServiceAccountBaseDn" value="@Model.CustomNoManagerServiceAccountBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomNoManagerServiceAccountFilter">No Manager (Service Account) - LDAP Filter</label>
+                        <label for="CustomNoManagerServiceAccountFilter">@Localizer["Lbl_NoManagerSaFilter"]</label>
                         <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultNoManagerServiceAccountFilter" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomUserAccountExpiredBaseDn">User Account Expired - Base DN</label>
+                        <label for="CustomUserAccountExpiredBaseDn">@Localizer["Lbl_UserExpiredBaseDn"]</label>
                         <input type="text" id="CustomUserAccountExpiredBaseDn" name="CustomUserAccountExpiredBaseDn" value="@Model.CustomUserAccountExpiredBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomUserAccountLockedOutBaseDn">User Account Locked Out - Base DN</label>
+                        <label for="CustomUserAccountLockedOutBaseDn">@Localizer["Lbl_UserLockedBaseDn"]</label>
                         <input type="text" id="CustomUserAccountLockedOutBaseDn" name="CustomUserAccountLockedOutBaseDn" value="@Model.CustomUserAccountLockedOutBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                     <div class="form-group">
-                        <label for="CustomEmptyGroupsBaseDn">Empty Groups - Base DN</label>
+                        <label for="CustomEmptyGroupsBaseDn">@Localizer["Lbl_EmptyGroupsBaseDn"]</label>
                         <input type="text" id="CustomEmptyGroupsBaseDn" name="CustomEmptyGroupsBaseDn" value="@Model.CustomEmptyGroupsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
                     </div>
                 </div>
                 <div class="wizard-nav">
-                    <button type="button" class="btn-back" onclick="wizardBack()">Back</button>
-                    <button type="submit" class="btn-finish">Finish Setup</button>
+                    <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
+                    <button type="submit" class="btn-finish">@Localizer["FinishSetup"]</button>
                 </div>
             </div>
         </form>
@@ -160,9 +188,13 @@
 </div>
 
 <script>
+    var setupI18n = {
+        apiUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_ApiUrlRequired"].Value)),
+        rstsUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_RstsUrlRequired"].Value))
+    };
     (function () {
         var currentPage = 0;
-        var totalPages = 3;
+        var totalPages = 4;
 
         function showPage(index) {
             var pages = document.querySelectorAll('.wizard-page');
@@ -193,8 +225,8 @@
             if (index === 0) {
                 var apiUrl = document.getElementById('ApiBaseUrl').value.trim();
                 var rstsUrl = document.getElementById('RstsUrl').value.trim();
-                if (!apiUrl) { showError('REST API URL is required.'); document.getElementById('ApiBaseUrl').focus(); return false; }
-                if (!rstsUrl) { showError('RSTS Token URL is required.'); document.getElementById('RstsUrl').focus(); return false; }
+                if (!apiUrl) { showError(setupI18n.apiUrlRequired); document.getElementById('ApiBaseUrl').focus(); return false; }
+                if (!rstsUrl) { showError(setupI18n.rstsUrlRequired); document.getElementById('RstsUrl').focus(); return false; }
             }
             return true;
         }
@@ -210,6 +242,12 @@
             if (currentPage > 0) {
                 showPage(currentPage - 1);
             }
+        };
+
+        window.updateLangFlag = function (select) {
+            var opt = select.options[select.selectedIndex];
+            var flag = opt.getAttribute('data-flag');
+            if (flag) document.getElementById('langFlag').src = flag;
         };
     })();
 </script>

@@ -1,5 +1,6 @@
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Reporting;
+using ActiveRolesDashboard.Services;
 
 namespace ActiveRolesDashboard.Services.Reporting;
 
@@ -57,10 +58,11 @@ public class AssessmentReportBuilder
         // One section per category with a table of its checks.
         foreach (var category in assessment.Categories)
         {
-            var section = new ReportSection { Heading = category.Name };
+            var categoryName = AssessmentLocalizer.Category(category.Name);
+            var section = new ReportSection { Heading = categoryName };
             var table = new ReportTable
             {
-                Title = category.Name,
+                Title = categoryName,
                 Columns = new List<string> { "Check", "Severity", "Count", "Status", "Recommendation" }
             };
 
@@ -70,11 +72,11 @@ public class AssessmentReportBuilder
                 var count = check.Error != null ? "\u2014" : check.Count.ToString();
                 var note = check.Error != null
                     ? check.Error
-                    : (check.Status == AssessmentStatus.Pass ? "No action required" : check.Recommendation);
+                    : (check.Status == AssessmentStatus.Pass ? "No action required" : AssessmentLocalizer.Recommendation(check.RuleId, check.Recommendation));
 
                 table.Rows.Add(new List<string>
                 {
-                    check.Title,
+                    AssessmentLocalizer.Title(check.RuleId, check.Title),
                     check.Severity.ToString(),
                     count,
                     status,

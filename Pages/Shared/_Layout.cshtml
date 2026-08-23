@@ -1,5 +1,6 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,10 +22,10 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">@Localizer["Nav_Home"]</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">@Localizer["Nav_Privacy"]</a>
                         </li>
                     </ul>
                     @* Persistent group-membership loading indicator, visible on every page. Shows a
@@ -52,7 +53,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - ActiveRolesDashboard - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2026 - ActiveRolesDashboard - <a asp-area="" asp-page="/Privacy">@Localizer["Footer_Privacy"]</a>
         </div>
     </footer>
 

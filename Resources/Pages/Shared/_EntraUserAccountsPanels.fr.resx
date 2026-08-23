@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Tip_OpenInWebInterface" xml:space="preserve"><value>Ouvrir dans l'interface Web</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configurer l'URL de l'interface Web dans les paramètres</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Nom</value></data>
+  <data name="Col_Tenant" xml:space="preserve"><value>Locataire</value></data>
+  <data name="Col_Dn" xml:space="preserve"><value>Nom unique</value></data>
+  <data name="Col_Enabled" xml:space="preserve"><value>Activé</value></data>
+  <data name="Col_HomeTenant" xml:space="preserve"><value>Locataire d'origine</value></data>
+  <data name="H_EnabledUsers" xml:space="preserve"><value>Utilisateurs activés</value></data>
+  <data name="H_DisabledUsers" xml:space="preserve"><value>Utilisateurs désactivés</value></data>
+  <data name="H_NoManagerUser" xml:space="preserve"><value>Sans responsable (utilisateur)</value></data>
+  <data name="H_GuestUsers" xml:space="preserve"><value>Utilisateurs invités</value></data>
+  <data name="H_InternalUsers" xml:space="preserve"><value>Utilisateurs internes</value></data>
+  <data name="H_ExternalUsers" xml:space="preserve"><value>Utilisateurs externes</value></data>
+  <data name="E_EnabledUsers" xml:space="preserve"><value>Aucun utilisateur activé trouvé</value></data>
+  <data name="E_DisabledUsers" xml:space="preserve"><value>Aucun utilisateur désactivé trouvé</value></data>
+  <data name="E_NoManagerUser" xml:space="preserve"><value>Aucun utilisateur sans responsable trouvé</value></data>
+  <data name="E_GuestUsers" xml:space="preserve"><value>Aucun utilisateur invité trouvé</value></data>
+  <data name="E_InternalUsers" xml:space="preserve"><value>Aucun utilisateur interne trouvé</value></data>
+  <data name="E_ExternalUsers" xml:space="preserve"><value>Aucun utilisateur externe trouvé</value></data>
+</root>

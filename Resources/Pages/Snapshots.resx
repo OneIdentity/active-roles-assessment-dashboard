@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CapturingSnapshot" xml:space="preserve"><value>Capturing Snapshot...</value></data>
+  <data name="Comparing" xml:space="preserve"><value>Comparing...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
+  <data name="TakeSnapshot" xml:space="preserve"><value>Take a snapshot</value></data>
+  <data name="TakeSnapshotHint" xml:space="preserve"><value>Captures the current KPI counts across all dashboards. This queries Active Roles for fresh data.</value></data>
+  <data name="OptionalLabelPlaceholder" xml:space="preserve"><value>Optional label (e.g. Monthly review)</value></data>
+  <data name="CaptureSnapshot" xml:space="preserve"><value>Capture snapshot</value></data>
+  <data name="Compare" xml:space="preserve"><value>Compare</value></data>
+  <data name="NoSnapshotsForComparison" xml:space="preserve"><value>No snapshots yet. Capture one to enable comparison.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Baseline</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Compare to</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Current (live)</value></data>
+  <data name="SavedSnapshots" xml:space="preserve"><value>Saved snapshots</value></data>
+  <data name="NoSnapshotsYet" xml:space="preserve"><value>You haven't captured any snapshots yet.</value></data>
+  <data name="Col_Label" xml:space="preserve"><value>Label</value></data>
+  <data name="Col_CapturedUtc" xml:space="preserve"><value>Captured (UTC)</value></data>
+  <data name="Col_By" xml:space="preserve"><value>By</value></data>
+  <data name="Col_Kpis" xml:space="preserve"><value>KPIs</value></data>
+  <data name="Unlabelled" xml:space="preserve"><value>(unlabelled)</value></data>
+  <data name="Tip_CompareToCurrent" xml:space="preserve"><value>Compare to current</value></data>
+  <data name="Tip_DeleteSnapshot" xml:space="preserve"><value>Delete snapshot</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Delete this snapshot?</value></data>
+  <data name="Comparison" xml:space="preserve"><value>Comparison</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} increased</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} decreased</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} unchanged</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} added</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} removed</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Baseline</value></data>
+  <data name="Col_Current" xml:space="preserve"><value>Current</value></data>
+  <data name="Col_Compare" xml:space="preserve"><value>Compare</value></data>
+  <data name="Col_Change" xml:space="preserve"><value>Change</value></data>
+  <data name="RiskKpi" xml:space="preserve"><value>Risk KPI</value></data>
+  <data name="Trend" xml:space="preserve"><value>Trend</value></data>
+  <data name="TrendHint" xml:space="preserve"><value>KPI counts across the last {0} snapshots. Pick a dashboard and category, then tick one or more KPIs to plot.</value></data>
+  <data name="Filter_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Filter_Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Filter_Kpis" xml:space="preserve"><value>KPIs</value></data>
+  <data name="SelectKpis" xml:space="preserve"><value>Select KPIs</value></data>
+  <data name="AllKpisFormat" xml:space="preserve"><value>All KPIs ({0})</value></data>
+  <data name="KpisSelectedFormat" xml:space="preserve"><value>{0} KPIs selected</value></data>
+</root>

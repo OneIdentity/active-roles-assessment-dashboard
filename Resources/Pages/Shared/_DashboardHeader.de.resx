@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title_Index" xml:space="preserve">
+	<value>Active Roles KPI-Dashboard</value>
+  </data>
+  <data name="Sub_Index" xml:space="preserve">
+	<value>KPIs für Active Roles und die verwalteten Ressourcen</value>
+  </data>
+  <data name="Title_ActiveDirectory" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="Sub_ActiveDirectory" xml:space="preserve">
+	<value>Active Directory-KPIs</value>
+  </data>
+  <data name="Title_ActiveRoles" xml:space="preserve">
+	<value>Active Roles</value>
+  </data>
+  <data name="Sub_ActiveRoles" xml:space="preserve">
+	<value>Active Roles-Konfigurations-KPIs</value>
+  </data>
+  <data name="Title_EntraId" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="Sub_EntraId" xml:space="preserve">
+	<value>Entra ID-KPIs</value>
+  </data>
+  <data name="Title_Licensing" xml:space="preserve">
+	<value>Lizenzierung</value>
+  </data>
+  <data name="Sub_Licensing" xml:space="preserve">
+	<value>KPIs zu Lizenzierung und Compliance</value>
+  </data>
+  <data name="Title_Snapshots" xml:space="preserve">
+	<value>Snapshots</value>
+  </data>
+  <data name="Sub_Snapshots" xml:space="preserve">
+	<value>KPI-Snapshots im Zeitverlauf erfassen und vergleichen</value>
+  </data>
+  <data name="Title_Assessments" xml:space="preserve">
+	<value>Sicherheitsbewertung</value>
+  </data>
+  <data name="Sub_Assessments" xml:space="preserve">
+	<value>Automatisierte Hygiene- und Sicherheitsprüfungen der aktuellen Daten</value>
+  </data>
+  <data name="Title_AttackExposure" xml:space="preserve">
+	<value>ATT&amp;CK-Gefährdung</value>
+  </data>
+  <data name="Sub_AttackExposure" xml:space="preserve">
+	<value>MITRE ATT&amp;CK-Techniken der aktuellen Verzeichnisgefährdung zugeordnet</value>
+  </data>
+  <data name="Title_GroupTree" xml:space="preserve">
+	<value>Gruppenmitgliedschaftsbaum</value>
+  </data>
+  <data name="Sub_GroupTree" xml:space="preserve">
+	<value>Verschachtelte Gruppenmitgliedschaft</value>
+  </data>
+  <data name="Title_Settings" xml:space="preserve">
+	<value>Active Roles-Dashboard</value>
+  </data>
+  <data name="Sub_Settings" xml:space="preserve">
+	<value>Einstellungen</value>
+  </data>
+  <data name="Title_Setup" xml:space="preserve">
+	<value>Active Roles-Dashboard</value>
+  </data>
+  <data name="Sub_Setup" xml:space="preserve">
+	<value>Erstkonfiguration</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+	<value>Abmelden</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+	<value>Startseite</value>
+  </data>
+  <data name="LoadingMembership" xml:space="preserve">
+	<value>Gruppenmitgliedschaft wird geladen</value>
+  </data>
+</root>

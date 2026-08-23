@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="LoadingDashboardData" xml:space="preserve"><value>Loading Dashboard Data...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
+  <!-- Column headers (shared) -->
+  <data name="Col_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Col_DistinguishedName" xml:space="preserve"><value>Distinguished Name</value></data>
+  <data name="Col_Membership" xml:space="preserve"><value>Membership</value></data>
+  <data name="Col_DnsName" xml:space="preserve"><value>DNS Name</value></data>
+  <data name="Col_UseOverride" xml:space="preserve"><value>Use Override</value></data>
+  <data name="Col_ServerName" xml:space="preserve"><value>Server Name</value></data>
+  <data name="Col_Version" xml:space="preserve"><value>Version</value></data>
+  <data name="Col_Rules" xml:space="preserve"><value>Rules</value></data>
+  <data name="Col_Enabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="Col_Automation" xml:space="preserve"><value>Automation</value></data>
+  <data name="Col_LdapDisplayName" xml:space="preserve"><value>LDAP Display Name</value></data>
+  <data name="Col_Multivalued" xml:space="preserve"><value>Multivalued</value></data>
+  <data name="Col_SqlAlias" xml:space="preserve"><value>SQL Alias</value></data>
+  <data name="Col_DatabaseName" xml:space="preserve"><value>Database Name</value></data>
+  <data name="Col_DatabaseType" xml:space="preserve"><value>Database Type</value></data>
+  <data name="Col_ReplicationSupport" xml:space="preserve"><value>Replication Support</value></data>
+  <data name="Col_ReplicationRole" xml:space="preserve"><value>Replication Role</value></data>
+  <data name="Col_Parent" xml:space="preserve"><value>Parent</value></data>
+  <data name="Col_Trustee" xml:space="preserve"><value>Trustee</value></data>
+  <data name="Col_DirectoryObject" xml:space="preserve"><value>Directory Object</value></data>
+  <data name="Col_AccessTemplate" xml:space="preserve"><value>Access Template</value></data>
+  <!-- Empty-state rows -->
+  <data name="Empty_Members" xml:space="preserve"><value>No members found</value></data>
+  <data name="Empty_Domains" xml:space="preserve"><value>No domains found</value></data>
+  <data name="Empty_Servers" xml:space="preserve"><value>No servers found</value></data>
+  <data name="Empty_DynamicGroups" xml:space="preserve"><value>No dynamic groups found</value></data>
+  <data name="Empty_GroupFamilies" xml:space="preserve"><value>No group families found</value></data>
+  <data name="Empty_ManagedUnits" xml:space="preserve"><value>No managed units found</value></data>
+  <data name="Empty_Workflows" xml:space="preserve"><value>No workflows found</value></data>
+  <data name="Empty_VirtualAttributes" xml:space="preserve"><value>No virtual attributes found</value></data>
+  <data name="Empty_ConfigDatabases" xml:space="preserve"><value>No config databases found</value></data>
+  <data name="Empty_HistoryDatabases" xml:space="preserve"><value>No history databases found</value></data>
+  <data name="Empty_PolicyObjects" xml:space="preserve"><value>No policy objects found</value></data>
+  <data name="Empty_AccessTemplates" xml:space="preserve"><value>No access templates found</value></data>
+  <data name="Empty_AccessTemplateLinks" xml:space="preserve"><value>No access template links found</value></data>
+  <data name="Empty_PolicyObjectLinks" xml:space="preserve"><value>No policy object links found</value></data>
+  <!-- Tooltips -->
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Open in Web Interface</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configure Web Interface URL in Settings</value></data>
+  <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>View nested membership</value></data>
+  <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>No indirect (nested) members</value></data>
+</root>

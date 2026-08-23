@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LoadingMembership" xml:space="preserve">
+	<value>Caricamento dell'appartenenza ai gruppi</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+	<value>Home</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+	<value>Esporta</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+	<value>Aggiorna</value>
+  </data>
+  <data name="Assessment" xml:space="preserve">
+	<value>Valutazione</value>
+  </data>
+  <data name="AttackExposure" xml:space="preserve">
+	<value>Esposizione ATT&amp;CK</value>
+  </data>
+  <data name="Snapshots" xml:space="preserve">
+	<value>Istantanee</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+	<value>Impostazioni</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+	<value>Disconnetti</value>
+  </data>
+</root>

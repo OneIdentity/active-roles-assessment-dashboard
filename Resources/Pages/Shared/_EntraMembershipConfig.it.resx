@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Empty_EmptyGroups" xml:space="preserve"><value>Nessun gruppo vuoto trovato</value></data>
+  <data name="Empty_NoGroupOwner" xml:space="preserve"><value>Nessun gruppo senza proprietario trovato</value></data>
+  <data name="Empty_GuestContaining" xml:space="preserve"><value>Nessun gruppo contenente ospiti trovato</value></data>
+  <data name="Empty_SingleOwner" xml:space="preserve"><value>Nessun gruppo con un solo proprietario trovato</value></data>
+  <data name="Empty_LargeGroups" xml:space="preserve"><value>Nessun gruppo di grandi dimensioni trovato</value></data>
+  <data name="FailedToLoadMembership" xml:space="preserve"><value>Impossibile caricare l'appartenenza ai gruppi.</value></data>
+  <data name="Toast_MembershipLoaded" xml:space="preserve"><value>Appartenenza ai gruppi caricata</value></data>
+  <data name="Toast_MembershipFailed" xml:space="preserve"><value>Impossibile caricare l'appartenenza ai gruppi</value></data>
+  <data name="Toast_MembershipLoading" xml:space="preserve"><value>Caricamento delle appartenenze ai gruppi. L'operazione potrebbe richiedere del tempo a seconda dell'ambiente. I KPI basati sui gruppi potrebbero non essere accurati e i dettagli non saranno disponibili fino al completamento del caricamento.</value></data>
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Apri nell'interfaccia Web</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configura l'URL dell'interfaccia Web nelle Impostazioni</value></data>
+</root>

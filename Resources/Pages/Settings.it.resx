@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LoadingDashboardData" xml:space="preserve">
+    <value>Caricamento dei dati della dashboard...</value>
+  </data>
+  <data name="Card_WebInterface" xml:space="preserve">
+	<value>Interfaccia Web di Active Roles</value>
+  </data>
+  <data name="Card_AutoRefresh" xml:space="preserve">
+	<value>Aggiornamento automatico</value>
+  </data>
+  <data name="Card_Language" xml:space="preserve">
+	<value>Lingua</value>
+  </data>
+  <data name="Card_KpiConfiguration" xml:space="preserve">
+	<value>Configurazione dei KPI</value>
+  </data>
+  <data name="Card_KpiVisibility" xml:space="preserve">
+	<value>Visibilità dei KPI</value>
+  </data>
+  <data name="Label_BaseUrl" xml:space="preserve">
+	<value>URL di base</value>
+  </data>
+  <data name="Hint_WebInterface" xml:space="preserve">
+	<value>URL di base dell'interfaccia Web di Active Roles. Questa impostazione si applica a tutti gli utenti.</value>
+  </data>
+  <data name="Label_RefreshInterval" xml:space="preserve">
+	<value>Intervallo di aggiornamento (minuti)</value>
+  </data>
+  <data name="Hint_AutoRefresh" xml:space="preserve">
+	<value>Imposta 0 per disabilitare l'aggiornamento automatico.</value>
+  </data>
+  <data name="Label_DisplayLanguage" xml:space="preserve">
+	<value>Lingua di visualizzazione</value>
+  </data>
+  <data name="Hint_Language" xml:space="preserve">
+	<value>Lingua utilizzata per l'interfaccia del dashboard. Ulteriori lingue verranno aggiunte nel tempo.</value>
+  </data>
+  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
+	<value>Amministratori di Active Roles - DN di base</value>
+  </data>
+  <data name="Label_ArAdminsFilter" xml:space="preserve">
+	<value>Amministratori di Active Roles - Filtro LDAP</value>
+  </data>
+  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
+	<value>Nessun proprietario del gruppo - DN di base</value>
+  </data>
+  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
+	<value>Nessun manager (utente) - DN di base</value>
+  </data>
+  <data name="Label_NoManagerUserFilter" xml:space="preserve">
+	<value>Nessun manager (utente) - Filtro LDAP</value>
+  </data>
+  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
+	<value>Nessun manager (account di servizio) - DN di base</value>
+  </data>
+  <data name="Label_NoManagerSvcFilter" xml:space="preserve">
+	<value>Nessun manager (account di servizio) - Filtro LDAP</value>
+  </data>
+  <data name="Label_LockedOutBaseDn" xml:space="preserve">
+	<value>Account utente bloccato - DN di base</value>
+  </data>
+  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
+	<value>Gruppi vuoti - DN di base</value>
+  </data>
+  <data name="Label_LargeGroupThreshold" xml:space="preserve">
+	<value>Gruppi grandi - Soglia membri</value>
+  </data>
+  <data name="Hint_LargeGroupThreshold" xml:space="preserve">
+	<value>I gruppi Entra con almeno questo numero di membri diretti vengono segnalati dal KPI Gruppi grandi. Predefinito 100.</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+	<value>Torna al dashboard</value>
+  </data>
+  <data name="SaveSettings" xml:space="preserve">
+	<value>Salva impostazioni</value>
+  </data>
+</root>

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using ActiveRolesDashboard.Models.Reporting;
+using ActiveRolesDashboard.Services;
 
 namespace ActiveRolesDashboard.Models;
 
@@ -65,8 +66,20 @@ public class DashboardInfo
 
 public class CategoryInfo
 {
+    private readonly string _displayName = string.Empty;
+
     public string Key { get; init; } = string.Empty;
-    public string DisplayName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Localized category name resolved at read-time (key <c>Cat_{Key}</c>) via
+    /// <see cref="KpiLocalizer"/>, falling back to the literal set at initialization.
+    /// </summary>
+    public string DisplayName
+    {
+        get => KpiLocalizer.Localize($"Cat_{Key}", _displayName);
+        init => _displayName = value;
+    }
+
     public string DashboardKey { get; init; } = string.Empty;
     public int SortOrder { get; init; }
     public CategorySortOrder KpiSortOrder { get; init; } = CategorySortOrder.Custom;
@@ -308,8 +321,20 @@ public class ChartSeriesItem
 /// </summary>
 public class ChartInfo
 {
+    private readonly string _title = string.Empty;
+
     public string Key { get; init; } = string.Empty;
-    public string Title { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Localized chart title resolved at read-time (key <c>Chart_{Key}</c>) via
+    /// <see cref="KpiLocalizer"/>, falling back to the literal set at initialization.
+    /// </summary>
+    public string Title
+    {
+        get => KpiLocalizer.Localize($"Chart_{Key}", _title);
+        init => _title = value;
+    }
+
     public string CategoryKey { get; init; } = string.Empty;
     public ChartType Type { get; init; } = ChartType.Doughnut;
     public int SortOrder { get; init; }
@@ -696,6 +721,9 @@ public class ActiveRolesConfig
     public string Resource { get; set; } = string.Empty;
     public bool IgnoreSslErrors { get; set; }
 
+    // Default UI language / culture code applied before a user selects their own in Settings.
+    public string DefaultLanguage { get; set; } = SupportedLanguage.DefaultCode;
+
     // Single default base DN for all KPI searches
     public string DefaultActiveDirectoryDN { get; set; } = "CN=Active Directory";
     public string DefaultARConfigurationDN { get; set; } = "CN=Configuration";
@@ -767,9 +795,31 @@ public class ActiveRolesConfig
 
 public class KpiInfo
 {
+    private readonly string _displayName = string.Empty;
+    private readonly string _tileLabel = string.Empty;
+
     public string Key { get; init; } = string.Empty;
-    public string DisplayName { get; init; } = string.Empty;
-    public string TileLabel { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Localized KPI name resolved at read-time (key <c>Kpi_{Key}</c>) via
+    /// <see cref="KpiLocalizer"/>, falling back to the literal set at initialization.
+    /// </summary>
+    public string DisplayName
+    {
+        get => KpiLocalizer.Localize($"Kpi_{Key}", _displayName);
+        init => _displayName = value;
+    }
+
+    /// <summary>
+    /// Localized short tile label resolved at read-time (key <c>KpiTile_{Key}</c>) via
+    /// <see cref="KpiLocalizer"/>, falling back to the literal set at initialization.
+    /// </summary>
+    public string TileLabel
+    {
+        get => KpiLocalizer.Localize($"KpiTile_{Key}", _tileLabel);
+        init => _tileLabel = value;
+    }
+
     public string CategoryKey { get; init; } = string.Empty;
     public string CssColor { get; init; } = string.Empty;
     public string SectionId { get; init; } = string.Empty;
@@ -1012,6 +1062,37 @@ public class UserSettings
 {
     public int AutoRefreshMinutes { get; set; }
     public KpiSettings KpiSettings { get; set; } = new();
+
+    /// <summary>
+    /// UI language / culture code (e.g. "en"). Defaults to English.
+    /// </summary>
+    public string Language { get; set; } = SupportedLanguage.DefaultCode;
+}
+
+/// <summary>
+/// Metadata describing a language available in the UI language selector.
+/// The flag is a static image under wwwroot/img/flags.
+/// </summary>
+public class SupportedLanguage
+{
+    public const string DefaultCode = "en";
+
+    public string Code { get; init; } = string.Empty;
+    public string DisplayName { get; init; } = string.Empty;
+    public string FlagImage { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Languages currently supported by the dashboard. English only for now;
+    /// additional entries can be added here as translations become available.
+    /// </summary>
+    public static readonly IReadOnlyList<SupportedLanguage> All = new List<SupportedLanguage>
+    {
+        new() { Code = "en", DisplayName = "English", FlagImage = "img/flags/en.svg" },
+        new() { Code = "fr", DisplayName = "Français", FlagImage = "img/flags/fr.svg" },
+        new() { Code = "it", DisplayName = "Italiano", FlagImage = "img/flags/it.svg" },
+        new() { Code = "es", DisplayName = "Español", FlagImage = "img/flags/es.svg" },
+        new() { Code = "de", DisplayName = "Deutsch", FlagImage = "img/flags/de.svg" }
+    };
 }
 
 public class KpiSettings

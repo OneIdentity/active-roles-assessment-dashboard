@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LoadingDashboardData" xml:space="preserve">
+    <value>Loading Dashboard Data...</value>
+  </data>
+  <data name="Card_WebInterface" xml:space="preserve">
+	<value>Active Roles Web Interface</value>
+  </data>
+  <data name="Card_AutoRefresh" xml:space="preserve">
+	<value>Auto-Refresh</value>
+  </data>
+  <data name="Card_Language" xml:space="preserve">
+	<value>Language</value>
+  </data>
+  <data name="Card_KpiConfiguration" xml:space="preserve">
+	<value>KPI Configuration</value>
+  </data>
+  <data name="Card_KpiVisibility" xml:space="preserve">
+	<value>KPI Visibility</value>
+  </data>
+  <data name="Label_BaseUrl" xml:space="preserve">
+	<value>Base URL</value>
+  </data>
+  <data name="Hint_WebInterface" xml:space="preserve">
+	<value>Base URL of the Active Roles Web Interface. This setting applies to all users.</value>
+  </data>
+  <data name="Label_RefreshInterval" xml:space="preserve">
+	<value>Refresh interval (minutes)</value>
+  </data>
+  <data name="Hint_AutoRefresh" xml:space="preserve">
+	<value>Set to 0 to disable auto-refresh.</value>
+  </data>
+  <data name="Label_DisplayLanguage" xml:space="preserve">
+	<value>Display language</value>
+  </data>
+  <data name="Hint_Language" xml:space="preserve">
+	<value>The language used for the dashboard interface. More languages will be added over time.</value>
+  </data>
+  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
+	<value>Active Roles Admins - Base DN</value>
+  </data>
+  <data name="Label_ArAdminsFilter" xml:space="preserve">
+	<value>Active Roles Admins - LDAP Filter</value>
+  </data>
+  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
+	<value>No Group Owner - Base DN</value>
+  </data>
+  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
+	<value>No Manager (User) - Base DN</value>
+  </data>
+  <data name="Label_NoManagerUserFilter" xml:space="preserve">
+	<value>No Manager (User) - LDAP Filter</value>
+  </data>
+  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
+	<value>No Manager (Service Account) - Base DN</value>
+  </data>
+  <data name="Label_NoManagerSvcFilter" xml:space="preserve">
+	<value>No Manager (Service Account) - LDAP Filter</value>
+  </data>
+  <data name="Label_LockedOutBaseDn" xml:space="preserve">
+	<value>User Account Locked Out - Base DN</value>
+  </data>
+  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
+	<value>Empty Groups - Base DN</value>
+  </data>
+  <data name="Label_LargeGroupThreshold" xml:space="preserve">
+	<value>Large Groups - Member threshold</value>
+  </data>
+  <data name="Hint_LargeGroupThreshold" xml:space="preserve">
+	<value>Entra groups with at least this many direct members are flagged by the Large Groups KPI. Default 100.</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+	<value>Back to Dashboard</value>
+  </data>
+  <data name="SaveSettings" xml:space="preserve">
+	<value>Save Settings</value>
+  </data>
+</root>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
+  <data name="Level_High" xml:space="preserve"><value>Alto</value></data>
+  <data name="Level_Medium" xml:space="preserve"><value>Medio</value></data>
+  <data name="Level_Low" xml:space="preserve"><value>Bajo</value></data>
+  <data name="Level_None" xml:space="preserve"><value>Ninguno</value></data>
+  <data name="HighExposure" xml:space="preserve"><value>Exposición alta</value></data>
+  <data name="MediumExposure" xml:space="preserve"><value>Exposición media</value></data>
+  <data name="LowExposure" xml:space="preserve"><value>Exposición baja</value></data>
+  <data name="TechniquesWithExposure" xml:space="preserve"><value>Técnicas con exposición</value></data>
+  <data name="IntroNote" xml:space="preserve"><value>La exposición refleja la presencia de configuraciones de riesgo en su entorno asignadas a técnicas MITRE ATT&amp;CK. Es una vista de visibilidad indicativa, no una puntuación de cumplimiento.</value></data>
+  <data name="GeneratedAt" xml:space="preserve"><value>Generado el {0} UTC.</value></data>
+  <data name="CompareAndTrend" xml:space="preserve"><value>Comparación y tendencia</value></data>
+  <data name="CompareNote" xml:space="preserve"><value>La exposición no se almacena por separado; la exposición histórica se recalcula a partir de las &lt;a href="{0}"&gt;instantáneas&lt;/a&gt; guardadas. Elija una referencia para comparar con otra instantánea o con la vista actual en vivo.</value></data>
+  <data name="NoSnapshotsWarning" xml:space="preserve"><value>Aún no se ha guardado ninguna instantánea. Capture una instantánea para habilitar la comparación de exposición y el análisis de tendencia.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Referencia</value></data>
+  <data name="SelectPlaceholder" xml:space="preserve"><value>&#8212; seleccionar &#8212;</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Comparar con</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Actual (en vivo)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Comparar</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} aumentaron</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} disminuyeron</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} sin cambios</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} añadidos</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} eliminados</value></data>
+  <data name="ComparingNote" xml:space="preserve"><value>Comparando &lt;strong&gt;{0}&lt;/strong&gt; &#8594; &lt;strong&gt;{1}&lt;/strong&gt;. Un nivel de exposición creciente es peor (&#9650;), un nivel decreciente es mejor (&#9660;).</value></data>
+  <data name="Col_Technique" xml:space="preserve"><value>Técnica</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Referencia</value></data>
+  <data name="Col_Compared" xml:space="preserve"><value>Comparado</value></data>
+  <data name="ExposureTrend" xml:space="preserve"><value>Tendencia de exposición</value></data>
+  <data name="TrendNote" xml:space="preserve"><value>Recuentos de técnicas expuestas Alto / Medio / Bajo en las últimas {0} instantáneas guardadas.</value></data>
+  <data name="TrendTooltip" xml:space="preserve"><value>Alto {0}, Medio {1}, Bajo {2}</value></data>
+  <data name="NotAvailable" xml:space="preserve"><value>n/d</value></data>
+  <data name="Mitigation" xml:space="preserve"><value>Mitigación</value></data>
+  <data name="Footer" xml:space="preserve"><value>Active Roles Dashboard &#8212; Exposición ATT&amp;CK generada el {0} UTC</value></data>
+</root>

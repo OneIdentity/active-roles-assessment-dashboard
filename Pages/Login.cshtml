@@ -1,5 +1,6 @@
 ﻿@page
 @model ActiveRolesDashboard.Pages.LoginModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Login";
     Layout = null;
@@ -10,11 +11,11 @@
     return;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Active Roles Dashboard - Login</title>
+    <title>@Localizer["PageTitle"]</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -30,33 +31,47 @@
         .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 10px 14px; border-radius: 8px; font-size: .84rem; margin-bottom: 18px; }
         .logo { text-align: center; margin-bottom: 24px; }
         .logo img { height: 40px; width: auto; }
+        .lang-switch { position: absolute; top: 16px; right: 16px; display: flex; align-items: center; gap: 6px; }
+        .lang-switch img { height: 16px; width: 22px; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.1); }
+        .lang-switch select { border: 1px solid #d1d5db; border-radius: 6px; background: #fff; font-size: .78rem; color: #374151; padding: 4px 6px; cursor: pointer; }
+        .lang-switch select:focus { outline: none; border-color: #1a1a2e; }
+        .login-card { position: relative; }
     </style>
 </head>
 <body>
     <div class="login-card">
+        <div class="lang-switch">
+            <img id="langFlag" src="@(HttpContext.Request.PathBase)/@(Model.SelectedLanguage.FlagImage)" alt="@Model.SelectedLanguage.DisplayName" />
+            <select id="langSelect" aria-label="Language" onchange="setLanguage(this)">
+                @foreach (var lang in Model.Languages)
+                {
+                    <option value="@lang.Code" data-flag="@(HttpContext.Request.PathBase)/@(lang.FlagImage)" selected="@(lang.Code == Model.SelectedLanguage.Code)">@lang.DisplayName</option>
+                }
+            </select>
+        </div>
         <div class="logo"><img src="@Url.Content("~/images/oneidentity-logo-v2.svg")" alt="One Identity" /></div>
-        <h1>Active Roles KPI Dashboard</h1>
-        <p class="sub">Sign in with your Active Roles credentials</p>
+        <h1>@Localizer["Heading"]</h1>
+        <p class="sub">@Localizer["Subtitle"]</p>
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
             <div class="error-msg">@Model.ErrorMessage</div>
         }
         <form method="post" id="loginForm">
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">@Localizer["Username"]</label>
                 <input type="text" id="username" name="Username" placeholder="domain\username" required autofocus />
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">@Localizer["Password"]</label>
                 <input type="password" id="password" name="Password" required />
             </div>
-            <button type="submit" class="btn-login">Sign In</button>
+            <button type="submit" class="btn-login">@Localizer["SignIn"]</button>
         </form>
     </div>
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <p id="loadingMessage">Signing in...</p>
+            <p id="loadingMessage">@Localizer["SigningIn"]</p>
         </div>
     </div>
 <style>
@@ -69,6 +84,20 @@
 </style>
 @await Html.PartialAsync("_AppBaseScript")
 <script>
+    var loginI18n = {
+        loadingData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["LoadingData"].Value))
+    };
+    function setLanguage(select) {
+        var opt = select.options[select.selectedIndex];
+        var flag = opt.getAttribute('data-flag');
+        if (flag) document.getElementById('langFlag').src = flag;
+        var code = select.value;
+        // Standard ASP.NET Core culture cookie format: c=<culture>|uic=<ui-culture>
+        var value = 'c=' + code + '|uic=' + code;
+        document.cookie = '.AspNetCore.Culture=' + encodeURIComponent(value) +
+            ';path=' + (appBase || '/') + ';max-age=31536000;samesite=lax';
+        window.location.reload();
+    }
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         var overlay = document.getElementById('loadingOverlay');
@@ -78,12 +107,17 @@
         fetch(form.action || window.location.href, {
             method: 'POST',
             body: new FormData(form),
-            redirect: 'manual'
+            headers: { 'Accept': 'application/json' }
         }).then(function(response) {
-            if (response.type === 'opaqueredirect' || response.status === 302 || response.status === 301 || response.ok) {
-                msg.textContent = 'Loading data...';
-                window.location.href = appBase + '/';
+            var ct = response.headers.get('content-type') || '';
+            if (response.ok && ct.indexOf('application/json') !== -1) {
+                return response.json().then(function(data) {
+                    // Message is localized server-side in the authenticated user's culture.
+                    if (data && data.loadingMessage) msg.textContent = data.loadingMessage;
+                    window.location.href = (data && data.redirectUrl) ? data.redirectUrl : (appBase + '/');
+                });
             } else {
+                // Validation/authentication failure returns the re-rendered login page (HTML).
                 return response.text().then(function(html) {
                     overlay.classList.remove('active');
                     document.open();

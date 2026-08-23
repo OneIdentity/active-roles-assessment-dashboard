@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Tip_OpenInWebInterface" xml:space="preserve"><value>Apri nell'interfaccia Web</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configura l'URL dell'interfaccia Web nelle impostazioni</value></data>
+  <data name="LoadingMembership" xml:space="preserve"><value>Caricamento dei membri del gruppo&#8230;</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Nome</value></data>
+  <data name="Col_Tenant" xml:space="preserve"><value>Tenant</value></data>
+  <data name="Col_Dn" xml:space="preserve"><value>Nome distinto</value></data>
+  <data name="H_DistributionGroups" xml:space="preserve"><value>Gruppi di distribuzione</value></data>
+  <data name="H_DynamicDistributionGroups" xml:space="preserve"><value>Gruppi di distribuzione dinamici</value></data>
+  <data name="H_Microsoft365Groups" xml:space="preserve"><value>Gruppi Microsoft 365</value></data>
+  <data name="H_SecurityGroups" xml:space="preserve"><value>Gruppi di sicurezza</value></data>
+  <data name="H_EmptyGroups" xml:space="preserve"><value>Gruppi vuoti</value></data>
+  <data name="H_NoGroupOwner" xml:space="preserve"><value>Senza proprietario del gruppo</value></data>
+  <data name="H_GuestContainingGroups" xml:space="preserve"><value>Gruppi contenenti guest</value></data>
+  <data name="H_PublicGroups" xml:space="preserve"><value>Gruppi M365 pubblici</value></data>
+  <data name="H_OnPremSyncedGroups" xml:space="preserve"><value>Gruppi sincronizzati on-premises</value></data>
+  <data name="H_SingleOwnerGroups" xml:space="preserve"><value>Gruppi con un solo proprietario</value></data>
+  <data name="H_LargeGroups" xml:space="preserve"><value>Gruppi grandi (&#8805;{0} membri)</value></data>
+  <data name="E_DistributionGroups" xml:space="preserve"><value>Nessun gruppo di distribuzione trovato</value></data>
+  <data name="E_DynamicDistributionGroups" xml:space="preserve"><value>Nessun gruppo di distribuzione dinamico trovato</value></data>
+  <data name="E_Microsoft365Groups" xml:space="preserve"><value>Nessun gruppo Microsoft 365 trovato</value></data>
+  <data name="E_SecurityGroups" xml:space="preserve"><value>Nessun gruppo di sicurezza trovato</value></data>
+  <data name="E_EmptyGroups" xml:space="preserve"><value>Nessun gruppo vuoto trovato</value></data>
+  <data name="E_NoGroupOwner" xml:space="preserve"><value>Nessun gruppo senza proprietario trovato</value></data>
+  <data name="E_GuestContainingGroups" xml:space="preserve"><value>Nessun gruppo contenente guest trovato</value></data>
+  <data name="E_PublicGroups" xml:space="preserve"><value>Nessun gruppo Microsoft 365 pubblico trovato</value></data>
+  <data name="E_OnPremSyncedGroups" xml:space="preserve"><value>Nessun gruppo sincronizzato on-premises trovato</value></data>
+  <data name="E_SingleOwnerGroups" xml:space="preserve"><value>Nessun gruppo con un solo proprietario trovato</value></data>
+  <data name="E_LargeGroups" xml:space="preserve"><value>Nessun gruppo grande trovato</value></data>
+</root>

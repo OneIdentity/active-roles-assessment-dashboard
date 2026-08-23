@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Col_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Col_DistinguishedName" xml:space="preserve"><value>Distinguished Name</value></data>
+  <data name="Col_LastLogon" xml:space="preserve"><value>Letzte Anmeldung</value></data>
+  <data name="Col_Description" xml:space="preserve"><value>Beschreibung</value></data>
+  <data name="Col_Domain" xml:space="preserve"><value>Domäne</value></data>
+  <data name="Col_Enabled" xml:space="preserve"><value>Aktiviert</value></data>
+  <data name="Col_NetBiosName" xml:space="preserve"><value>NetBIOS-Name</value></data>
+  <data name="Col_Site" xml:space="preserve"><value>Standort</value></data>
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>In Weboberfläche öffnen</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Weboberflächen-URL in den Einstellungen konfigurieren</value></data>
+  <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>Verschachtelte Mitgliedschaft anzeigen</value></data>
+  <data name="H_NoGroupOwner" xml:space="preserve"><value>Kein Gruppenbesitzer</value></data>
+  <data name="H_NoManagerUser" xml:space="preserve"><value>Kein Manager (Benutzer)</value></data>
+  <data name="H_NoManagerServiceAccount" xml:space="preserve"><value>Kein Manager (Dienstkonto)</value></data>
+  <data name="H_ServiceAccounts" xml:space="preserve"><value>Dienstkonten</value></data>
+  <data name="H_GmsaServiceAccounts" xml:space="preserve"><value>gMSA-Dienstkonten</value></data>
+  <data name="H_SmsaServiceAccounts" xml:space="preserve"><value>sMSA-Dienstkonten</value></data>
+  <data name="H_UserAccountLockedOut" xml:space="preserve"><value>Benutzerkonto gesperrt</value></data>
+  <data name="H_ReversibleEncryption" xml:space="preserve"><value>Umkehrbare Verschlüsselung</value></data>
+  <data name="H_MustChangePassword" xml:space="preserve"><value>Muss Kennwort ändern</value></data>
+  <data name="H_PasswordNotRequired" xml:space="preserve"><value>Kennwort nicht erforderlich</value></data>
+  <data name="H_SmartCardRequired" xml:space="preserve"><value>Smartcard erforderlich</value></data>
+  <data name="H_CannotChangePassword" xml:space="preserve"><value>Kann Kennwort nicht ändern</value></data>
+  <data name="H_TrustedForDelegation" xml:space="preserve"><value>Für Delegierung vertrauenswürdig</value></data>
+  <data name="H_ServiceAccountsSpn" xml:space="preserve"><value>Dienstkonten (SPN)</value></data>
+  <data name="H_StaleAccounts" xml:space="preserve"><value>Veraltete Konten (inaktiv &gt; {0} Tage)</value></data>
+  <data name="H_SensitiveCannotDelegate" xml:space="preserve"><value>Vertraulich - Nicht delegierbar</value></data>
+  <data name="H_UseDesEncryption" xml:space="preserve"><value>Verwenden DES-Verschlüsselung</value></data>
+  <data name="H_DeprovisionedUsers" xml:space="preserve"><value>Deprovisionierte Benutzer</value></data>
+  <data name="H_NoKerberosPreauth" xml:space="preserve"><value>Keine Kerberos-Vorauthentifizierung erforderlich</value></data>
+  <data name="H_EmptyGroups" xml:space="preserve"><value>Leere Gruppen</value></data>
+  <data name="H_CircularGroupNesting" xml:space="preserve"><value>Zirkuläre Gruppenverschachtelung</value></data>
+  <data name="H_NeverLoggedIn" xml:space="preserve"><value>Nie angemeldet</value></data>
+  <data name="H_AdminCount" xml:space="preserve"><value>Admin Count</value></data>
+  <data name="H_Sites" xml:space="preserve"><value>Standorte</value></data>
+  <data name="H_SiteLinks" xml:space="preserve"><value>Standortverknüpfungen</value></data>
+  <data name="H_Subnets" xml:space="preserve"><value>Subnetze</value></data>
+  <data name="H_OUs" xml:space="preserve"><value>Organisationseinheiten</value></data>
+  <data name="H_DomainControllers" xml:space="preserve"><value>Domänencontroller</value></data>
+  <data name="E_NoGroupOwner" xml:space="preserve"><value>Keine Gruppen ohne Besitzer gefunden</value></data>
+  <data name="E_NoManagerUser" xml:space="preserve"><value>Keine Benutzer ohne Manager gefunden</value></data>
+  <data name="E_NoManagerServiceAccount" xml:space="preserve"><value>Keine Dienstkonten ohne Manager gefunden</value></data>
+  <data name="E_ServiceAccounts" xml:space="preserve"><value>Keine Dienstkonten gefunden</value></data>
+  <data name="E_GmsaServiceAccounts" xml:space="preserve"><value>Keine gMSA-Dienstkonten gefunden</value></data>
+  <data name="E_SmsaServiceAccounts" xml:space="preserve"><value>Keine sMSA-Dienstkonten gefunden</value></data>
+  <data name="E_UserAccountLockedOut" xml:space="preserve"><value>Keine gesperrten Benutzerkonten gefunden</value></data>
+  <data name="E_ReversibleEncryption" xml:space="preserve"><value>Keine Konten mit umkehrbarer Verschlüsselung gefunden</value></data>
+  <data name="E_MustChangePassword" xml:space="preserve"><value>Keine Konten gefunden, die eine Kennwortänderung erfordern</value></data>
+  <data name="E_PasswordNotRequired" xml:space="preserve"><value>Keine Konten ohne erforderliches Kennwort gefunden</value></data>
+  <data name="E_SmartCardRequired" xml:space="preserve"><value>Keine Konten gefunden, die eine Smartcard erfordern</value></data>
+  <data name="E_CannotChangePassword" xml:space="preserve"><value>Keine Konten gefunden, die das Kennwort nicht ändern können</value></data>
+  <data name="E_TrustedForDelegation" xml:space="preserve"><value>Keine für Delegierung vertrauenswürdigen Konten gefunden</value></data>
+  <data name="E_ServiceAccountsSpn" xml:space="preserve"><value>Keine SPN-Dienstkonten gefunden</value></data>
+  <data name="E_StaleAccounts" xml:space="preserve"><value>Keine veralteten (inaktiven) Konten gefunden</value></data>
+  <data name="E_SensitiveCannotDelegate" xml:space="preserve"><value>Keine vertraulichen Konten gefunden</value></data>
+  <data name="E_UseDesEncryption" xml:space="preserve"><value>Keine Konten gefunden, die DES-Verschlüsselung verwenden</value></data>
+  <data name="E_DeprovisionedUsers" xml:space="preserve"><value>Keine deprovisionierten Benutzer gefunden</value></data>
+  <data name="E_NoKerberosPreauth" xml:space="preserve"><value>Keine Konten ohne Kerberos-Vorauthentifizierung gefunden</value></data>
+  <data name="E_EmptyGroups" xml:space="preserve"><value>Keine leeren Gruppen gefunden</value></data>
+  <data name="E_CircularGroupNesting" xml:space="preserve"><value>Keine zirkuläre Gruppenverschachtelung gefunden</value></data>
+  <data name="E_DomainControllers" xml:space="preserve"><value>Keine Domänencontroller gefunden</value></data>
+  <data name="E_NoUsers" xml:space="preserve"><value>Keine Benutzer gefunden</value></data>
+  <data name="E_NoItems" xml:space="preserve"><value>Keine Elemente gefunden</value></data>
+</root>

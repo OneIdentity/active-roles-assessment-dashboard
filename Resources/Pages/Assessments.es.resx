@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
+  <data name="RunningAssessment" xml:space="preserve"><value>Ejecutando evaluación...</value></data>
+  <data name="MembershipPendingWarning" xml:space="preserve"><value>La pertenencia a grupos de Entra aún se está cargando. Las evaluaciones que dependen de la precisión de la pertenencia a grupos de Entra (Entra ID y los marcos de cumplimiento que incluyen comprobaciones de gobernanza de grupos de Entra) están bloqueadas hasta que finalice la carga; las demás evaluaciones pueden ejecutarse ahora.</value></data>
+  <data name="RunAssessment" xml:space="preserve"><value>Ejecutar evaluación</value></data>
+  <data name="AssessmentType" xml:space="preserve"><value>Tipo de evaluación</value></data>
+  <data name="LabelOptional" xml:space="preserve"><value>Etiqueta (opcional)</value></data>
+  <data name="LabelPlaceholder" xml:space="preserve"><value>p. ej. Revisión trimestral</value></data>
+  <data name="RunAndSave" xml:space="preserve"><value>Ejecutar y guardar</value></data>
+  <data name="CompareRuns" xml:space="preserve"><value>Comparar ejecuciones {0}</value></data>
+  <data name="CompareHint" xml:space="preserve"><value>Guarde al menos dos evaluaciones {0} para habilitar la comparación.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Referencia</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Comparar con</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Actual (en vivo)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Comparar</value></data>
+  <data name="ScopeDisclaimer" xml:space="preserve"><value>Alcance y aviso:</value></data>
+  <data name="ScoreTrend" xml:space="preserve"><value>Tendencia de la puntuación {0}</value></data>
+  <data name="ScoreTrendHint" xml:space="preserve"><value>Puntuación (0-100) y comprobaciones fallidas en las últimas {0} evaluaciones guardadas. Las líneas discontinuas marcan los umbrales de calificación A/B/C/D.</value></data>
+  <data name="CheckComposition" xml:space="preserve"><value>Composición de comprobaciones {0}</value></data>
+  <data name="CheckCompositionHint" xml:space="preserve"><value>Recuentos de aprobadas / advertencias / fallidas a lo largo del tiempo, que muestran qué impulsa los cambios de puntuación.</value></data>
+  <data name="History" xml:space="preserve"><value>Historial {0}</value></data>
+  <data name="Col_WhenUtc" xml:space="preserve"><value>Cuándo (UTC)</value></data>
+  <data name="Col_Label" xml:space="preserve"><value>Etiqueta</value></data>
+  <data name="Col_By" xml:space="preserve"><value>Por</value></data>
+  <data name="Col_Grade" xml:space="preserve"><value>Calificación</value></data>
+  <data name="Col_Score" xml:space="preserve"><value>Puntuación</value></data>
+  <data name="Col_Fail" xml:space="preserve"><value>Fallidas</value></data>
+  <data name="Col_Warn" xml:space="preserve"><value>Advert.</value></data>
+  <data name="Unlabelled" xml:space="preserve"><value>(sin etiqueta)</value></data>
+  <data name="ViewAssessment" xml:space="preserve"><value>Ver evaluación</value></data>
+  <data name="CompareToCurrent" xml:space="preserve"><value>Comparar con la actual</value></data>
+  <data name="DeleteAssessment" xml:space="preserve"><value>Eliminar evaluación</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>¿Eliminar esta evaluación?</value></data>
+  <data name="Comparison" xml:space="preserve"><value>Comparación</value></data>
+  <data name="ScorePill" xml:space="preserve"><value>Puntuación</value></data>
+  <data name="Grade" xml:space="preserve"><value>calificación</value></data>
+  <data name="Improved" xml:space="preserve"><value>mejoradas</value></data>
+  <data name="Regressed" xml:space="preserve"><value>en regresión</value></data>
+  <data name="Unchanged" xml:space="preserve"><value>sin cambios</value></data>
+  <data name="Added" xml:space="preserve"><value>añadidas</value></data>
+  <data name="Removed" xml:space="preserve"><value>eliminadas</value></data>
+  <data name="Col_Check" xml:space="preserve"><value>Comprobación</value></data>
+  <data name="Current" xml:space="preserve"><value>Actual</value></data>
+  <data name="Col_Count" xml:space="preserve"><value>Recuento</value></data>
+  <data name="Col_Change" xml:space="preserve"><value>Cambio</value></data>
+  <data name="Delta_Improved" xml:space="preserve"><value>Mejorada</value></data>
+  <data name="Delta_Regressed" xml:space="preserve"><value>En regresión</value></data>
+  <data name="Delta_Added" xml:space="preserve"><value>Añadida</value></data>
+  <data name="Delta_Removed" xml:space="preserve"><value>Eliminada</value></data>
+  <data name="Delta_NoChange" xml:space="preserve"><value>Sin cambios</value></data>
+  <data name="Status_Pass" xml:space="preserve"><value>Aprobada</value></data>
+  <data name="Status_Warn" xml:space="preserve"><value>Advert.</value></data>
+  <data name="Status_Fail" xml:space="preserve"><value>Fallida</value></data>
+  <data name="Status_Na" xml:space="preserve"><value>n/d</value></data>
+  <data name="RunToSeeResults" xml:space="preserve"><value>Ejecute una evaluación arriba para ver los resultados, o consulte una guardada en el historial.</value></data>
+  <data name="ScoreCaption" xml:space="preserve"><value>{0} &#183; {1} comprobaciones &#183; generado {2} UTC</value></data>
+  <data name="Passed" xml:space="preserve"><value>aprobadas</value></data>
+  <data name="Warnings" xml:space="preserve"><value>advertencias</value></data>
+  <data name="Failed" xml:space="preserve"><value>fallidas</value></data>
+  <data name="NotApplicableShort" xml:space="preserve"><value>n/d</value></data>
+  <data name="SaveAsPdf" xml:space="preserve"><value>Guardar como PDF</value></data>
+  <data name="SaveAsWord" xml:space="preserve"><value>Guardar como Word</value></data>
+  <data name="Col_Severity" xml:space="preserve"><value>Gravedad</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Estado</value></data>
+  <data name="Col_Recommendation" xml:space="preserve"><value>Recomendación</value></data>
+  <data name="Tag_Fail" xml:space="preserve"><value>fallidas</value></data>
+  <data name="Tag_Warn" xml:space="preserve"><value>advert.</value></data>
+  <data name="Tag_Pass" xml:space="preserve"><value>aprobadas</value></data>
+  <data name="NoActionRequired" xml:space="preserve"><value>No se requiere ninguna acción</value></data>
+  <data name="RunBlockedTitle" xml:space="preserve"><value>Bloqueado: esta evaluación depende de la pertenencia a grupos de Entra, que aún se está cargando.</value></data>
+  <data name="Chart_Score" xml:space="preserve"><value>Puntuación</value></data>
+  <data name="Chart_FailingChecks" xml:space="preserve"><value>Comprobaciones fallidas</value></data>
+  <data name="Chart_Pass" xml:space="preserve"><value>Aprobada</value></data>
+  <data name="Chart_Warning" xml:space="preserve"><value>Advertencia</value></data>
+  <data name="Chart_Fail" xml:space="preserve"><value>Fallida</value></data>
+  <data name="Chart_Checks" xml:space="preserve"><value>Comprobaciones</value></data>
+</root>

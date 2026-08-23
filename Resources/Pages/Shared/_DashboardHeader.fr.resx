@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title_Index" xml:space="preserve">
+	<value>Tableau de bord des KPI Active Roles</value>
+  </data>
+  <data name="Sub_Index" xml:space="preserve">
+	<value>KPI d'Active Roles et des ressources qu'il gère</value>
+  </data>
+  <data name="Title_ActiveDirectory" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="Sub_ActiveDirectory" xml:space="preserve">
+	<value>KPI Active Directory</value>
+  </data>
+  <data name="Title_ActiveRoles" xml:space="preserve">
+	<value>Active Roles</value>
+  </data>
+  <data name="Sub_ActiveRoles" xml:space="preserve">
+	<value>KPI de configuration Active Roles</value>
+  </data>
+  <data name="Title_EntraId" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="Sub_EntraId" xml:space="preserve">
+	<value>KPI Entra ID</value>
+  </data>
+  <data name="Title_Licensing" xml:space="preserve">
+	<value>Licences</value>
+  </data>
+  <data name="Sub_Licensing" xml:space="preserve">
+	<value>KPI de licences et de conformité</value>
+  </data>
+  <data name="Title_Snapshots" xml:space="preserve">
+	<value>Instantanés</value>
+  </data>
+  <data name="Sub_Snapshots" xml:space="preserve">
+	<value>Capturer et comparer les instantanés de KPI dans le temps</value>
+  </data>
+  <data name="Title_Assessments" xml:space="preserve">
+	<value>Évaluation de sécurité</value>
+  </data>
+  <data name="Sub_Assessments" xml:space="preserve">
+	<value>Contrôles automatisés d'hygiène et de sécurité sur les données actuelles</value>
+  </data>
+  <data name="Title_AttackExposure" xml:space="preserve">
+	<value>Exposition ATT&amp;CK</value>
+  </data>
+  <data name="Sub_AttackExposure" xml:space="preserve">
+	<value>Techniques MITRE ATT&amp;CK mappées à l'exposition actuelle de l'annuaire</value>
+  </data>
+  <data name="Title_GroupTree" xml:space="preserve">
+	<value>Arborescence d'appartenance aux groupes</value>
+  </data>
+  <data name="Sub_GroupTree" xml:space="preserve">
+	<value>Appartenance imbriquée aux groupes</value>
+  </data>
+  <data name="Title_Settings" xml:space="preserve">
+	<value>Tableau de bord Active Roles</value>
+  </data>
+  <data name="Sub_Settings" xml:space="preserve">
+	<value>Paramètres</value>
+  </data>
+  <data name="Title_Setup" xml:space="preserve">
+	<value>Tableau de bord Active Roles</value>
+  </data>
+  <data name="Sub_Setup" xml:space="preserve">
+	<value>Configuration initiale</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+	<value>Se déconnecter</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+	<value>Accueil</value>
+  </data>
+  <data name="LoadingMembership" xml:space="preserve">
+	<value>Chargement de l'appartenance aux groupes</value>
+  </data>
+</root>

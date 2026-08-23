@@ -1,11 +1,12 @@
 @page
 @model ActiveRolesDashboard.Pages.LicensingModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Licensing & Compliance";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
@@ -18,26 +19,18 @@
 <div class="loading-overlay active" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Loading Dashboard Data...</p>
+        <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Licensing</h1>
-                <p class="hdr-sub">Licensing and compliance KPIs</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/Licensing"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "Licensing"; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "Licensing";
+        ViewData["RefreshUrl"] = "/Licensing"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "Licensing";
+    }
+    <partial name="_DashboardHeader" />
 
-    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
     @if (Model.KpiSettings.LicensingEnabled)
@@ -66,7 +59,7 @@
         @if (Model.KpiSettings.IsKpiEnabled("Licensing", "ManagedObjects"))
         {
         <div class="panel" id="panel-managedobjects">
-            <h2><span class="sec-icon">O</span> Managed Objects</h2>
+            <h2><span class="sec-icon">O</span> @Localizer["H_ManagedObjects"]</h2>
             <div class="panel-content">
                 @if (Model.Summary.ManagedObjects.Error != null)
                 {
@@ -74,7 +67,7 @@
                 }
                 else if (!Model.Summary.ManagedObjects.DataPoints.Any())
                 {
-                    <p class="muted">No managed object statistics found</p>
+                    <p class="muted">@Localizer["E_ManagedObjects"]</p>
                 }
                 else
                 {
@@ -133,8 +126,8 @@
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
             scales: {
-                x: { title: { display: true, text: 'Time' }, ticks: { maxRotation: 45, font: { size: 10 } } },
-                y: { title: { display: true, text: 'Object Count' }, beginAtZero: true }
+                x: { title: { display: true, text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_Time"].Value)) }, ticks: { maxRotation: 45, font: { size: 10 } } },
+                y: { title: { display: true, text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_ObjectCount"].Value)) }, beginAtZero: true }
             }
         }
     });

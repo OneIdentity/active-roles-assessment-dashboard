@@ -20,6 +20,7 @@
     <Compile Remove="GraphPerfTest\**\*.cs" />
     <Content Remove="GraphPerfTest\**\*" />
     <None Remove="GraphPerfTest\**\*" />
+    <None Include=".github\copilot-instructions.md" />
     <None Include="GraphPerfTest\GraphPerfTest.csproj" />
     <None Include="GraphPerfTest\appsettings.json" />
     <Compile Remove="_validate\**\*.cs" />

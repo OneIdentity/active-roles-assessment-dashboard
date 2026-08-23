@@ -1,11 +1,12 @@
 @page
 @model ActiveRolesDashboard.Pages.ActiveDirectoryModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Active Directory";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
@@ -17,26 +18,18 @@
 <div class="loading-overlay active" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Loading Dashboard Data...</p>
+        <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Active Directory</h1>
-                <p class="hdr-sub">Active Directory KPIs</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/ActiveDirectory"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "ActiveDirectory"; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "ActiveDirectory";
+        ViewData["RefreshUrl"] = "/ActiveDirectory"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "ActiveDirectory";
+    }
+    <partial name="_DashboardHeader" />
 
-    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
 

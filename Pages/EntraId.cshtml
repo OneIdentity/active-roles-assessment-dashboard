@@ -1,11 +1,12 @@
 @page
 @model ActiveRolesDashboard.Pages.EntraIdModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Entra ID";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
@@ -17,26 +18,18 @@
 <div class="loading-overlay active" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Loading Dashboard Data...</p>
+        <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Entra ID</h1>
-                <p class="hdr-sub">Entra ID KPIs</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/EntraId"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "EntraId"; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "EntraId";
+        ViewData["RefreshUrl"] = "/EntraId"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "EntraId";
+    }
+    <partial name="_DashboardHeader" />
 
-    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
     @{
@@ -56,7 +49,7 @@
         var expanded = category.IsOverviewCategory || category.IsRiskCategory;
         var collapsedClass = expanded ? "" : " collapsed";
         var btnCollapsedClass = expanded ? "" : " collapsed";
-        var btnTitle = expanded ? "Collapse" : "Expand";
+        var btnTitle = expanded ? Localizer["Collapse"].Value : Localizer["Expand"].Value;
         renderedCount++;
 
         var kpis = KpiInfo.ForCategory(category);
@@ -76,7 +69,7 @@
             }
             @if (!anyKpi)
             {
-                <p class="muted" style="padding: 12px;">No KPIs configured yet.</p>
+                <p class="muted" style="padding: 12px;">@Localizer["NoKpisConfigured"]</p>
             }
         </div>
         @await Html.PartialAsync("_CategoryCharts", (category, Model.Summary, Model.KpiSettings))
@@ -92,7 +85,7 @@
 
     @await Html.PartialAsync("_EntraMembershipConfig")
 
-    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+    <footer class="footer">@Localizer["Footer", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")]</footer>
 </div>
 @await Html.PartialAsync("_ToastAndMembership")
 <script src="js/chart.umd.min.js" asp-append-version="true"></script>
@@ -117,11 +110,13 @@
     function openWebInterface(url) {
         window.open(url, 'arWebInterface');
     }
+    var i18nExpand = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Expand"].Value));
+    var i18nCollapse = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Collapse"].Value));
     function toggleCategory(btn) {
         var category = btn.closest('.kpi-category');
         category.classList.toggle('collapsed');
         btn.classList.toggle('collapsed');
-        btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+        btn.title = category.classList.contains('collapsed') ? i18nExpand : i18nCollapse;
     }
 </script>
 </body>

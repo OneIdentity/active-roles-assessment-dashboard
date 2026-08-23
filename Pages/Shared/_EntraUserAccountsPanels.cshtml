@@ -1,4 +1,5 @@
 @model ActiveRolesDashboard.Pages.DashboardPageModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     string WebInterfaceUrl = Model.WebInterfaceUrl;
     var entra = Model.Summary.EntraTotals;
@@ -18,12 +19,12 @@
         {
             var href = $"{webUrl.TrimEnd('/')}/redirect.ashx?dn={Uri.EscapeDataString(dn)}";
             return new Microsoft.AspNetCore.Html.HtmlString(
-                $"<a href=\"javascript:void(0)\" onclick=\"openWebInterface('{href}')\" title=\"Open in Web Interface\" class=\"btn-manage\">{svg}</a>");
+                $"<a href=\"javascript:void(0)\" onclick=\"openWebInterface('{href}')\" title=\"{Localizer["Tip_OpenInWebInterface"].Value}\" class=\"btn-manage\">{svg}</a>");
         }
         if (!string.IsNullOrEmpty(dn))
         {
             return new Microsoft.AspNetCore.Html.HtmlString(
-                $"<span class=\"btn-manage disabled\" title=\"Configure Web Interface URL in Settings\">{svg}</span>");
+                $"<span class=\"btn-manage disabled\" title=\"{Localizer["Tip_ConfigureWebUrl"].Value}\">{svg}</span>");
         }
         return Microsoft.AspNetCore.Html.HtmlString.Empty;
     }
@@ -32,12 +33,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraEnabledUsers"))
 {
 <div class="panel" id="panel-entraenabledusers">
-    <h2><span class="sec-icon">E</span> Enabled Users</h2>
+    <h2><span class="sec-icon">E</span> @Localizer["H_EnabledUsers"]</h2>
     <div class="panel-content">
         @if (enabledUsers.Error != null) { <p class="muted">@enabledUsers.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in enabledUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!enabledUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No enabled users found</td></tr> }
+        @if (!enabledUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">@Localizer["E_EnabledUsers"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -46,12 +47,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraDisabledUsers"))
 {
 <div class="panel" id="panel-entradisabledusers">
-    <h2><span class="sec-icon">D</span> Disabled Users</h2>
+    <h2><span class="sec-icon">D</span> @Localizer["H_DisabledUsers"]</h2>
     <div class="panel-content">
         @if (disabledUsers.Error != null) { <p class="muted">@disabledUsers.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in disabledUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!disabledUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No disabled users found</td></tr> }
+        @if (!disabledUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">@Localizer["E_DisabledUsers"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -60,12 +61,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraNoManagerUser"))
 {
 <div class="panel" id="panel-entranomanageruser">
-    <h2><span class="sec-icon">M</span> No Manager (User)</h2>
+    <h2><span class="sec-icon">M</span> @Localizer["H_NoManagerUser"]</h2>
     <div class="panel-content">
         @if (noManagerUsers.Error != null) { <p class="muted">@noManagerUsers.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in noManagerUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!noManagerUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No users without a manager found</td></tr> }
+        @if (!noManagerUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">@Localizer["E_NoManagerUser"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -74,12 +75,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraGuestUsers"))
 {
 <div class="panel" id="panel-entraguestusers">
-    <h2><span class="sec-icon">G</span> Guest Users</h2>
+    <h2><span class="sec-icon">G</span> @Localizer["H_GuestUsers"]</h2>
     <div class="panel-content">
         @if (guestUsers.Error != null) { <p class="muted">@guestUsers.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in guestUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!guestUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No guest users found</td></tr> }
+        @if (!guestUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">@Localizer["E_GuestUsers"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -88,12 +89,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraInternalUsers"))
 {
 <div class="panel" id="panel-entrainternalusers">
-    <h2><span class="sec-icon">I</span> Internal Users</h2>
+    <h2><span class="sec-icon">I</span> @Localizer["H_InternalUsers"]</h2>
     <div class="panel-content">
         @if (internalUsers.Error != null) { <p class="muted">@internalUsers.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in internalUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!internalUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">No internal users found</td></tr> }
+        @if (!internalUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">@Localizer["E_InternalUsers"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -102,12 +103,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraExternalUsers"))
 {
 <div class="panel" id="panel-entraexternalusers">
-    <h2><span class="sec-icon">X</span> External Users</h2>
+    <h2><span class="sec-icon">X</span> @Localizer["H_ExternalUsers"]</h2>
     <div class="panel-content">
         @if (externalUsers.Error != null) { <p class="muted">@externalUsers.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Home Tenant</th><th>Distinguished Name</th><th>Enabled</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_HomeTenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in externalUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td>@u.HomeTenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!externalUsers.Items.Any()) { <tr><td colspan="6" class="empty-row">No external users found</td></tr> }
+        @if (!externalUsers.Items.Any()) { <tr><td colspan="6" class="empty-row">@Localizer["E_ExternalUsers"]</td></tr> }
         </tbody></table> }
     </div>
 </div>

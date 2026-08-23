@@ -1,12 +1,13 @@
 @page
 @model ActiveRolesDashboard.Pages.AssessmentsModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Assessment";
     Layout = null;
     var pathBase = HttpContext.Request.PathBase.Value ?? "";
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
@@ -18,26 +19,18 @@
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Running Assessment...</p>
+        <p>@Localizer["RunningAssessment"]</p>
     </div>
 </div>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Security Assessment</h1>
-                <p class="hdr-sub">Automated hygiene and security checks against current data</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/Assessments"; ViewData["ShowHome"] = true; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "Assessments";
+        ViewData["RefreshUrl"] = "/Assessments"; ViewData["ShowHome"] = true;
+    }
+    <partial name="_DashboardHeader" />
 
-    <a href="@(pathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    <a href="@(pathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.StatusMessage))
@@ -48,18 +41,16 @@
     @if (Model.EntraMembershipDataPending)
     {
         <div class="membership-warning" role="status">
-            Entra group membership is still loading. Assessments that rely on Entra group-membership accuracy
-            (Entra ID and the compliance frameworks that include Entra group-governance checks) are blocked
-            until loading completes; other assessments can run now.
+            @Localizer["MembershipPendingWarning"]
         </div>
     }
 
     <div class="snap-panels">
         <section class="asmt-card asmt-runbar">
-            <h2>Run assessment</h2>
+            <h2>@Localizer["RunAssessment"]</h2>
             <form method="post" asp-page-handler="Run" class="asmt-run-form" id="asmtRunForm">
                 <label class="asmt-run-field">
-                    <span>Assessment type</span>
+                    <span>@Localizer["AssessmentType"]</span>
                     <select name="Type" class="snap-input" id="asmtTypeSelect" data-base="@(pathBase)/Assessments" data-membership-pending="@(Model.EntraMembershipDataPending ? "true" : "false")">
                         @foreach (var t in Models.AssessmentTypeInfo.All.OrderBy(x => Models.AssessmentTypeInfo.DisplayName(x), StringComparer.OrdinalIgnoreCase))
                         {
@@ -68,43 +59,43 @@
                     </select>
                 </label>
                 <label class="asmt-run-field">
-                    <span>Label (optional)</span>
-                    <input type="text" name="label" maxlength="80" placeholder="e.g. Quarterly review" class="snap-input" />
+                    <span>@Localizer["LabelOptional"]</span>
+                    <input type="text" name="label" maxlength="80" placeholder="@Localizer["LabelPlaceholder"]" class="snap-input" />
                 </label>
-                <button type="submit" class="snap-btn snap-btn-primary" id="asmtRunBtn">Run &amp; save</button>
+                <button type="submit" class="snap-btn snap-btn-primary" id="asmtRunBtn">@Localizer["RunAndSave"]</button>
             </form>
         </section>
 
         <section class="asmt-card">
-            <h2>Compare @Models.AssessmentTypeInfo.DisplayName(Model.Type) runs</h2>
+            <h2>@Localizer["CompareRuns", Models.AssessmentTypeInfo.DisplayName(Model.Type)]</h2>
             @if (Model.History.Count < 2)
             {
-                <p class="snap-hint">Save at least two @Models.AssessmentTypeInfo.DisplayName(Model.Type) assessments to enable comparison.</p>
+                <p class="snap-hint">@Localizer["CompareHint", Models.AssessmentTypeInfo.DisplayName(Model.Type)]</p>
             }
             else
             {
                 <form method="get" class="snap-compare-form" id="asmtCompareForm">
                     <input type="hidden" name="Type" value="@Model.Type" />
                     <label>
-                        <span>Baseline</span>
+                        <span>@Localizer["Baseline"]</span>
                         <select name="FromId" class="snap-input" id="asmtFromId">
                             @foreach (var h in Model.History)
                             {
-                                <option value="@h.Id" selected="@(h.Id == Model.FromId)">@AssessmentsModel_Label(h)</option>
+                                <option value="@h.Id" selected="@(h.Id == Model.FromId)">@AssessmentsModel_Label(h, Localizer)</option>
                             }
                         </select>
                     </label>
                     <label>
-                        <span>Compare to</span>
+                        <span>@Localizer["CompareTo"]</span>
                         <select name="ToId" class="snap-input" id="asmtToId">
-                            <option value="current" selected="@(string.Equals(Model.ToId, "current", StringComparison.OrdinalIgnoreCase))">Current (live)</option>
+                            <option value="current" selected="@(string.Equals(Model.ToId, "current", StringComparison.OrdinalIgnoreCase))">@Localizer["CurrentLive"]</option>
                             @foreach (var h in Model.History)
                             {
-                                <option value="@h.Id" selected="@(h.Id == Model.ToId)">@AssessmentsModel_Label(h)</option>
+                                <option value="@h.Id" selected="@(h.Id == Model.ToId)">@AssessmentsModel_Label(h, Localizer)</option>
                             }
                         </select>
                     </label>
-                    <button type="submit" class="snap-btn snap-btn-primary" id="asmtCompareBtn">Compare</button>
+                    <button type="submit" class="snap-btn snap-btn-primary" id="asmtCompareBtn">@Localizer["Compare"]</button>
                 </form>
             }
         </section>
@@ -116,7 +107,7 @@
     @if (!string.IsNullOrWhiteSpace(asmtScopeNote))
     {
         <div class="asmt-scope-note" role="note">
-            <strong>Scope &amp; disclaimer:</strong> @asmtScopeNote
+            <strong>@Localizer["ScopeDisclaimer"]</strong> @asmtScopeNote
         </div>
     }
 
@@ -129,8 +120,8 @@
         var trendPass = System.Text.Json.JsonSerializer.Serialize(trend.Select(h => h.PassCount));
         var trendWarn = System.Text.Json.JsonSerializer.Serialize(trend.Select(h => h.WarnCount));
         <section class="asmt-card">
-            <h2>@Models.AssessmentTypeInfo.DisplayName(Model.Type) score trend</h2>
-            <p class="snap-hint">Score (0-100) and failing checks across the last @trend.Count saved assessments. Dashed guide lines mark the A/B/C/D grade thresholds.</p>
+            <h2>@Localizer["ScoreTrend", Models.AssessmentTypeInfo.DisplayName(Model.Type)]</h2>
+            <p class="snap-hint">@Localizer["ScoreTrendHint", trend.Count]</p>
             <div class="asmt-trend-wrap">
                 <canvas id="assessmentTrendChart"
                         data-labels="@trendLabels"
@@ -139,8 +130,8 @@
             </div>
         </section>
         <section class="asmt-card">
-            <h2>@Models.AssessmentTypeInfo.DisplayName(Model.Type) check composition</h2>
-            <p class="snap-hint">Pass / warning / fail counts over time, showing what drives score changes.</p>
+            <h2>@Localizer["CheckComposition", Models.AssessmentTypeInfo.DisplayName(Model.Type)]</h2>
+            <p class="snap-hint">@Localizer["CheckCompositionHint"]</p>
             <div class="asmt-trend-wrap">
                 <canvas id="assessmentCompositionChart"
                         data-labels="@trendLabels"
@@ -154,17 +145,17 @@
     @if (Model.History.Count > 0)
     {
         <section class="asmt-card">
-            <h2>@Models.AssessmentTypeInfo.DisplayName(Model.Type) history</h2>
+            <h2>@Localizer["History", Models.AssessmentTypeInfo.DisplayName(Model.Type)]</h2>
             <table class="snap-table">
                 <thead>
                     <tr>
-                        <th>When (UTC)</th>
-                        <th>Label</th>
-                        <th>By</th>
-                        <th>Grade</th>
-                        <th class="snap-num">Score</th>
-                        <th class="snap-num">Fail</th>
-                        <th class="snap-num">Warn</th>
+                        <th>@Localizer["Col_WhenUtc"]</th>
+                        <th>@Localizer["Col_Label"]</th>
+                        <th>@Localizer["Col_By"]</th>
+                        <th>@Localizer["Col_Grade"]</th>
+                        <th class="snap-num">@Localizer["Col_Score"]</th>
+                        <th class="snap-num">@Localizer["Col_Fail"]</th>
+                        <th class="snap-num">@Localizer["Col_Warn"]</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -173,23 +164,23 @@
                     {
                         <tr class="@(h.Id == Model.Id ? "asmt-hist-active" : "")">
                             <td>@h.GeneratedUtc.ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>@(string.IsNullOrWhiteSpace(h.Label) ? "(unlabelled)" : h.Label)</td>
+                            <td>@(string.IsNullOrWhiteSpace(h.Label) ? Localizer["Unlabelled"].Value : h.Label)</td>
                             <td>@(h.GeneratedBy ?? "—")</td>
                             <td><span class="asmt-grade-badge asmt-grade-@h.Grade.ToLowerInvariant()">@h.Grade</span></td>
                             <td class="snap-num">@h.Score</td>
                             <td class="snap-num">@h.FailCount</td>
                             <td class="snap-num">@h.WarnCount</td>
                             <td class="snap-row-actions">
-                                <a href="@(pathBase)/Assessments?Type=@Model.Type&Id=@h.Id" class="snap-icon-btn" title="View assessment" aria-label="View assessment">
+                                <a href="@(pathBase)/Assessments?Type=@Model.Type&Id=@h.Id" class="snap-icon-btn" title="@Localizer["ViewAssessment"]" aria-label="@Localizer["ViewAssessment"]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <a href="@(pathBase)/Assessments?Type=@Model.Type&FromId=@h.Id&ToId=current" class="snap-icon-btn asmt-compare-link" title="Compare to current" aria-label="Compare to current">
+                                <a href="@(pathBase)/Assessments?Type=@Model.Type&FromId=@h.Id&ToId=current" class="snap-icon-btn asmt-compare-link" title="@Localizer["CompareToCurrent"]" aria-label="@Localizer["CompareToCurrent"]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
                                 </a>
-                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('Delete this assessment?');">
+                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('@Localizer["ConfirmDelete"]');">
                                     <input type="hidden" name="id" value="@h.Id" />
                                     <input type="hidden" name="Type" value="@Model.Type" />
-                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="Delete assessment" aria-label="Delete assessment">
+                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["DeleteAssessment"]" aria-label="@Localizer["DeleteAssessment"]">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                     </button>
                                 </form>
@@ -206,61 +197,61 @@
         var cmp = Model.Comparison;
         <section class="asmt-card">
             <h2>
-                Comparison
+                @Localizer["Comparison"]
                 <span class="snap-cmp-caption">
-                    @AssessmentsModel_Label(cmp.From)
+                    @AssessmentsModel_Label(cmp.From, Localizer)
                     &rarr;
-                    @(cmp.ToIsCurrent ? "Current (live)" : AssessmentsModel_Label(cmp.To))
+                    @(cmp.ToIsCurrent ? Localizer["CurrentLive"].Value : AssessmentsModel_Label(cmp.To, Localizer))
                 </span>
             </h2>
 
             <div class="snap-summary">
                 <span class="snap-pill">
-                    Score @cmp.To.Score
+                    @Localizer["ScorePill"] @cmp.To.Score
                     @if (cmp.ScoreChange != 0)
                     {
                         <strong class="@(cmp.ScoreChange > 0 ? "snap-good" : "snap-bad")">(@(cmp.ScoreChange > 0 ? "+" : "")@cmp.ScoreChange)</strong>
                     }
-                    &middot; grade @cmp.From.Grade &rarr; @cmp.To.Grade
+                    &middot; @Localizer["Grade"] @cmp.From.Grade &rarr; @cmp.To.Grade
                 </span>
-                <span class="snap-pill snap-pill-good">@cmp.ImprovedCount improved</span>
-                <span class="snap-pill snap-pill-bad">@cmp.WorsenedCount regressed</span>
-                <span class="snap-pill">@cmp.UnchangedCount unchanged</span>
-                @if (cmp.AddedCount > 0) { <span class="snap-pill">@cmp.AddedCount added</span> }
-                @if (cmp.RemovedCount > 0) { <span class="snap-pill">@cmp.RemovedCount removed</span> }
+                <span class="snap-pill snap-pill-good">@cmp.ImprovedCount @Localizer["Improved"]</span>
+                <span class="snap-pill snap-pill-bad">@cmp.WorsenedCount @Localizer["Regressed"]</span>
+                <span class="snap-pill">@cmp.UnchangedCount @Localizer["Unchanged"]</span>
+                @if (cmp.AddedCount > 0) { <span class="snap-pill">@cmp.AddedCount @Localizer["Added"]</span> }
+                @if (cmp.RemovedCount > 0) { <span class="snap-pill">@cmp.RemovedCount @Localizer["Removed"]</span> }
             </div>
 
             @foreach (var category in cmp.Categories)
             {
-                <h4 class="snap-cmp-category">@category.Name</h4>
+                <h4 class="snap-cmp-category">@Services.AssessmentLocalizer.Category(category.Name)</h4>
                 <table class="snap-table snap-cmp-table">
                     <thead>
                         <tr>
-                            <th>Check</th>
-                            <th>Baseline</th>
-                            <th>@(cmp.ToIsCurrent ? "Current" : "Compare")</th>
-                            <th class="snap-num">Count</th>
-                            <th>Change</th>
+                            <th>@Localizer["Col_Check"]</th>
+                            <th>@Localizer["Baseline"]</th>
+                            <th>@(cmp.ToIsCurrent ? Localizer["Current"].Value : Localizer["Compare"].Value)</th>
+                            <th class="snap-num">@Localizer["Col_Count"]</th>
+                            <th>@Localizer["Col_Change"]</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var row in category.Rows)
                         {
                             <tr class="@AssessmentsModel_RowClass(row.Sentiment)">
-                                <td>@row.Title</td>
-                                <td><span class="asmt-status-badge @AssessmentsModel_StatusClass(row.FromStatus)">@AssessmentsModel_StatusText(row.FromStatus)</span></td>
-                                <td><span class="asmt-status-badge @AssessmentsModel_StatusClass(row.ToStatus)">@AssessmentsModel_StatusText(row.ToStatus)</span></td>
+                                <td>@Services.AssessmentLocalizer.Title(row.RuleId, row.Title)</td>
+                                <td><span class="asmt-status-badge @AssessmentsModel_StatusClass(row.FromStatus)">@AssessmentsModel_StatusText(row.FromStatus, Localizer)</span></td>
+                                <td><span class="asmt-status-badge @AssessmentsModel_StatusClass(row.ToStatus)">@AssessmentsModel_StatusText(row.ToStatus, Localizer)</span></td>
                                 <td class="snap-num">
                                     @(row.FromCount?.ToString() ?? "\u2014") &rarr; @(row.ToCount?.ToString() ?? "\u2014")
                                 </td>
                                 <td>
                                     @switch (row.Delta)
                                     {
-                                        case Models.CheckDelta.Improved: <span class="snap-good">Improved</span> break;
-                                        case Models.CheckDelta.Worsened: <span class="snap-bad">Regressed</span> break;
-                                        case Models.CheckDelta.Added: <span>Added</span> break;
-                                        case Models.CheckDelta.Removed: <span>Removed</span> break;
-                                        default: <span class="snap-muted">No change</span> break;
+                                        case Models.CheckDelta.Improved: <span class="snap-good">@Localizer["Delta_Improved"]</span> break;
+                                        case Models.CheckDelta.Worsened: <span class="snap-bad">@Localizer["Delta_Regressed"]</span> break;
+                                        case Models.CheckDelta.Added: <span>@Localizer["Delta_Added"]</span> break;
+                                        case Models.CheckDelta.Removed: <span>@Localizer["Delta_Removed"]</span> break;
+                                        default: <span class="snap-muted">@Localizer["Delta_NoChange"]</span> break;
                                     }
                                 </td>
                             </tr>
@@ -273,7 +264,7 @@
 
     @if (Model.Assessment == null)
     {
-        <div class="asmt-card"><p class="snap-hint">Run an assessment above to see results, or view a saved one from the history.</p></div>
+        <div class="asmt-card"><p class="snap-hint">@Localizer["RunToSeeResults"]</p></div>
     }
     else
     {
@@ -282,12 +273,12 @@
             <div class="asmt-grade asmt-grade-@a.Grade.ToLowerInvariant()">@a.Grade</div>
             <div class="asmt-score-body">
                 <div class="asmt-score-line"><span class="asmt-score-num">@a.Score</span><span class="asmt-score-max">/ 100</span></div>
-                <div class="asmt-score-caption">@Models.AssessmentTypeInfo.DisplayName(a.Type) &middot; @a.TotalChecks checks &middot; generated @a.GeneratedUtc.ToString("yyyy-MM-dd HH:mm") UTC</div>
+                <div class="asmt-score-caption">@Localizer["ScoreCaption", Models.AssessmentTypeInfo.DisplayName(a.Type), a.TotalChecks, a.GeneratedUtc.ToString("yyyy-MM-dd HH:mm")]</div>
                 <div class="snap-summary">
-                    <span class="snap-pill snap-pill-good">@a.PassCount passed</span>
-                    <span class="asmt-pill asmt-pill-warn">@a.WarnCount warnings</span>
-                    <span class="snap-pill snap-pill-bad">@a.FailCount failed</span>
-                    @if (a.NotApplicableCount > 0) { <span class="snap-pill">@a.NotApplicableCount n/a</span> }
+                    <span class="snap-pill snap-pill-good">@a.PassCount @Localizer["Passed"]</span>
+                    <span class="asmt-pill asmt-pill-warn">@a.WarnCount @Localizer["Warnings"]</span>
+                    <span class="snap-pill snap-pill-bad">@a.FailCount @Localizer["Failed"]</span>
+                    @if (a.NotApplicableCount > 0) { <span class="snap-pill">@a.NotApplicableCount @Localizer["NotApplicableShort"]</span> }
                 </div>
             </div>
             <div class="asmt-export">
@@ -295,7 +286,7 @@
                     <input type="hidden" name="id" value="@a.Id" />
                     <input type="hidden" name="Type" value="@a.Type" />
                     <input type="hidden" name="format" value="Pdf" />
-                    <button type="submit" class="snap-icon-btn" title="Save as PDF" aria-label="Save as PDF">
+                    <button type="submit" class="snap-icon-btn" title="@Localizer["SaveAsPdf"]" aria-label="@Localizer["SaveAsPdf"]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         <span class="asmt-export-label">PDF</span>
                     </button>
@@ -304,7 +295,7 @@
                     <input type="hidden" name="id" value="@a.Id" />
                     <input type="hidden" name="Type" value="@a.Type" />
                     <input type="hidden" name="format" value="Word" />
-                    <button type="submit" class="snap-icon-btn" title="Save as Word" aria-label="Save as Word">
+                    <button type="submit" class="snap-icon-btn" title="@Localizer["SaveAsWord"]" aria-label="@Localizer["SaveAsWord"]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
                         <span class="asmt-export-label">Word</span>
                     </button>
@@ -316,11 +307,11 @@
         {
             <section class="asmt-card">
                 <h2 class="asmt-cat-title">
-                    @category.Name
+                    @Services.AssessmentLocalizer.Category(category.Name)
                     <span class="asmt-cat-counts">
-                        @if (category.FailCount > 0) { <span class="asmt-tag asmt-tag-fail">@category.FailCount fail</span> }
-                        @if (category.WarnCount > 0) { <span class="asmt-tag asmt-tag-warn">@category.WarnCount warn</span> }
-                        <span class="asmt-tag asmt-tag-pass">@category.PassCount pass</span>
+                        @if (category.FailCount > 0) { <span class="asmt-tag asmt-tag-fail">@category.FailCount @Localizer["Tag_Fail"]</span> }
+                        @if (category.WarnCount > 0) { <span class="asmt-tag asmt-tag-warn">@category.WarnCount @Localizer["Tag_Warn"]</span> }
+                        <span class="asmt-tag asmt-tag-pass">@category.PassCount @Localizer["Tag_Pass"]</span>
                     </span>
                 </h2>
                 <table class="snap-table asmt-table">
@@ -333,23 +324,23 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th>Check</th>
-                            <th>Severity</th>
-                            <th class="snap-num">Count</th>
-                            <th>Status</th>
-                            <th>Recommendation</th>
+                            <th>@Localizer["Col_Check"]</th>
+                            <th>@Localizer["Col_Severity"]</th>
+                            <th class="snap-num">@Localizer["Col_Count"]</th>
+                            <th>@Localizer["Col_Status"]</th>
+                            <th>@Localizer["Col_Recommendation"]</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var c in category.Checks)
                         {
                             <tr class="asmt-row asmt-row-@c.Status.ToString().ToLowerInvariant()">
-                                <td>@c.Title</td>
+                                <td>@Services.AssessmentLocalizer.Title(c.RuleId, c.Title)</td>
                                 <td><span class="asmt-sev asmt-sev-@c.Severity.ToString().ToLowerInvariant()">@c.Severity</span></td>
                                 <td class="snap-num">@(c.Error != null ? "—" : c.Count.ToString())</td>
                                 <td>
                                     <span class="asmt-status asmt-status-@c.Status.ToString().ToLowerInvariant()">
-                                        @(c.Status == Models.AssessmentStatus.NotApplicable ? "N/A" : c.Status.ToString())
+                                        @(c.Status == Models.AssessmentStatus.NotApplicable ? Localizer["Status_Na"].Value : c.Status.ToString())
                                     </span>
                                 </td>
                                 <td class="asmt-reco">
@@ -359,11 +350,11 @@
                                     }
                                     else if (c.Status != Models.AssessmentStatus.Pass)
                                     {
-                                        @c.Recommendation
+                                        @Services.AssessmentLocalizer.Recommendation(c.RuleId, c.Recommendation)
                                     }
                                     else
                                     {
-                                        <span class="asmt-ok">No action required</span>
+                                        <span class="asmt-ok">@Localizer["NoActionRequired"]</span>
                                     }
                                 </td>
                             </tr>
@@ -375,9 +366,34 @@
     }
     @await Html.PartialAsync("_EntraMembershipConfig")
 </div>
+<div id="assessments-i18n"
+     data-run-blocked="@Localizer["RunBlockedTitle"]"
+     data-chart-score="@Localizer["Chart_Score"]"
+     data-chart-failing="@Localizer["Chart_FailingChecks"]"
+     data-chart-pass="@Localizer["Chart_Pass"]"
+     data-chart-warning="@Localizer["Chart_Warning"]"
+     data-chart-fail="@Localizer["Chart_Fail"]"
+     data-chart-checks="@Localizer["Chart_Checks"]"
+     hidden></div>
 <script src="js/chart.umd.min.js" asp-append-version="true"></script>
 <script>
     (function () {
+        // Localized strings emitted by the #assessments-i18n element (English fallbacks kept).
+        var i18nEl = document.getElementById('assessments-i18n');
+        function t(attr, fallback) {
+            var v = i18nEl && i18nEl.getAttribute(attr);
+            return (v !== null && v !== undefined && v !== '') ? v : fallback;
+        }
+        var i18n = {
+            runBlocked: t('data-run-blocked', 'Blocked: this assessment depends on Entra group membership, which is still loading.'),
+            chartScore: t('data-chart-score', 'Score'),
+            chartFailing: t('data-chart-failing', 'Failing checks'),
+            chartPass: t('data-chart-pass', 'Pass'),
+            chartWarning: t('data-chart-warning', 'Warning'),
+            chartFail: t('data-chart-fail', 'Fail'),
+            chartChecks: t('data-chart-checks', 'Checks')
+        };
+
         // Show the loading overlay while an assessment is running.
         var runForm = document.getElementById('asmtRunForm');
         var overlay = document.getElementById('loadingOverlay');
@@ -439,7 +455,7 @@
                 var blocked = isRunBlocked();
                 runBtn.disabled = blocked;
                 runBtn.title = blocked
-                    ? 'Blocked: this assessment depends on Entra group membership, which is still loading.'
+                    ? i18n.runBlocked
                     : '';
             }
             syncRunButton();
@@ -475,7 +491,7 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Score',
+                        label: i18n.chartScore,
                         data: scores,
                         yAxisID: 'yScore',
                         borderColor: '#2563eb',
@@ -485,7 +501,7 @@
                         pointRadius: 3
                     },
                     {
-                        label: 'Failing checks',
+                        label: i18n.chartFailing,
                         data: fails,
                         yAxisID: 'yFails',
                         borderColor: '#dc2626',
@@ -524,13 +540,13 @@
                         position: 'left',
                         min: 0,
                         max: 100,
-                        title: { display: true, text: 'Score' }
+                        title: { display: true, text: i18n.chartScore }
                     },
                     yFails: {
                         type: 'linear',
                         position: 'right',
                         min: 0,
-                        title: { display: true, text: 'Failing checks' },
+                        title: { display: true, text: i18n.chartFailing },
                         grid: { drawOnChartArea: false },
                         ticks: { precision: 0 }
                     }
@@ -551,7 +567,7 @@
                     labels: compLabels,
                     datasets: [
                         {
-                            label: 'Pass',
+                            label: i18n.chartPass,
                             data: passData,
                             borderColor: '#059669',
                             backgroundColor: 'rgba(5, 150, 105, 0.35)',
@@ -560,7 +576,7 @@
                             pointRadius: 2
                         },
                         {
-                            label: 'Warning',
+                            label: i18n.chartWarning,
                             data: warnData,
                             borderColor: '#d97706',
                             backgroundColor: 'rgba(217, 119, 6, 0.35)',
@@ -569,7 +585,7 @@
                             pointRadius: 2
                         },
                         {
-                            label: 'Fail',
+                            label: i18n.chartFail,
                             data: failData,
                             borderColor: '#dc2626',
                             backgroundColor: 'rgba(220, 38, 38, 0.35)',
@@ -588,7 +604,7 @@
                         y: {
                             stacked: true,
                             min: 0,
-                            title: { display: true, text: 'Checks' },
+                            title: { display: true, text: i18n.chartChecks },
                             ticks: { precision: 0 }
                         }
                     }
@@ -603,9 +619,9 @@
 </html>
 
 @functions {
-    static string AssessmentsModel_Label(Models.AssessmentHeader h)
+    static string AssessmentsModel_Label(Models.AssessmentHeader h, Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer loc)
     {
-        var label = string.IsNullOrWhiteSpace(h.Label) ? "(unlabelled)" : h.Label;
+        var label = string.IsNullOrWhiteSpace(h.Label) ? loc["Unlabelled"].Value : h.Label;
         return $"{label} \u2014 {h.GeneratedUtc:yyyy-MM-dd HH:mm}";
     }
 
@@ -616,12 +632,12 @@
         _ => ""
     };
 
-    static string AssessmentsModel_StatusText(Models.AssessmentStatus? status) => status switch
+    static string AssessmentsModel_StatusText(Models.AssessmentStatus? status, Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer loc) => status switch
     {
-        Models.AssessmentStatus.Pass => "Pass",
-        Models.AssessmentStatus.Warning => "Warn",
-        Models.AssessmentStatus.Fail => "Fail",
-        Models.AssessmentStatus.NotApplicable => "n/a",
+        Models.AssessmentStatus.Pass => loc["Status_Pass"].Value,
+        Models.AssessmentStatus.Warning => loc["Status_Warn"].Value,
+        Models.AssessmentStatus.Fail => loc["Status_Fail"].Value,
+        Models.AssessmentStatus.NotApplicable => loc["Status_Na"].Value,
         _ => "\u2014"
     };
 

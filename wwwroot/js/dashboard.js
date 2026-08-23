@@ -636,7 +636,7 @@ initCategoryCharts();
             clearCookie('exportDownload');
 
             if (overlay) {
-                if (message) message.textContent = 'Exporting data...';
+                if (message) message.textContent = form.getAttribute('data-exporting-text') || 'Exporting data...';
                 overlay.classList.add('active');
             }
 
@@ -761,6 +761,26 @@ initCategoryCharts();
     if (!endpoint && !batchEndpoint) return;
     var webUrl = (config.getAttribute('data-web-url') || '').replace(/\/+$/, '');
 
+    // Localized strings emitted by _EntraMembershipConfig.cshtml. English literals are kept as
+    // fallbacks so the loader still works if a page renders the config element without them.
+    function loc(attr, fallback) {
+        var v = config.getAttribute(attr);
+        return (v !== null && v !== '') ? v : fallback;
+    }
+    var strings = {
+        emptyEmptyGroups: loc('data-i18n-empty-emptygroups', 'No empty groups found'),
+        emptyNoGroupOwner: loc('data-i18n-empty-nogroupowner', 'No groups without an owner found'),
+        emptyGuestContaining: loc('data-i18n-empty-guestcontaining', 'No guest-containing groups found'),
+        emptySingleOwner: loc('data-i18n-empty-singleowner', 'No single-owner groups found'),
+        emptyLargeGroups: loc('data-i18n-empty-largegroups', 'No large groups found'),
+        failedMembership: loc('data-i18n-failed-membership', 'Failed to load group membership.'),
+        toastLoaded: loc('data-i18n-toast-loaded', 'Group membership loaded'),
+        toastFailed: loc('data-i18n-toast-failed', 'Failed to load group membership'),
+        toastLoading: loc('data-i18n-toast-loading', 'Loading group memberships. This may take a while depending on the environment. Group based KPIs may not be accurate and details will not be available until loading is complete.'),
+        tipOpenWeb: loc('data-i18n-tip-openweb', 'Open in Web Interface'),
+        tipConfigureWeb: loc('data-i18n-tip-configureweb', 'Configure Web Interface URL in Settings')
+    };
+
     // Batched loading configuration (server-provided, admin-configurable).
     var totalGroups = parseInt(config.getAttribute('data-total-groups'), 10) || 0;
     var alreadyLoaded = parseInt(config.getAttribute('data-loaded-count'), 10) || 0;
@@ -774,11 +794,11 @@ initCategoryCharts();
 
     // Maps the JSON payload keys to the panel/KPI section id suffix and an empty-state message.
     var kpiMap = {
-        emptyGroups: { section: 'entraemptygroups', empty: 'No empty groups found' },
-        noGroupOwner: { section: 'entranogroupowner', empty: 'No groups without an owner found' },
-        guestContaining: { section: 'entraguestcontaininggroups', empty: 'No guest-containing groups found' },
-        singleOwner: { section: 'entrasingleownergroups', empty: 'No single-owner groups found' },
-        largeGroups: { section: 'entralargegroups', empty: 'No large groups found' }
+        emptyGroups: { section: 'entraemptygroups', empty: strings.emptyEmptyGroups },
+        noGroupOwner: { section: 'entranogroupowner', empty: strings.emptyNoGroupOwner },
+        guestContaining: { section: 'entraguestcontaininggroups', empty: strings.emptyGuestContaining },
+        singleOwner: { section: 'entrasingleownergroups', empty: strings.emptySingleOwner },
+        largeGroups: { section: 'entralargegroups', empty: strings.emptyLargeGroups }
     };
 
     var linkSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
@@ -795,9 +815,9 @@ initCategoryCharts();
         if (webUrl) {
             var href = webUrl + '/redirect.ashx?dn=' + encodeURIComponent(dn);
             return '<td><a href="javascript:void(0)" onclick="openWebInterface(\'' + href.replace(/'/g, "\\'") +
-                '\')" title="Open in Web Interface" class="btn-manage">' + linkSvg + '</a></td>';
+                '\')" title="' + strings.tipOpenWeb + '" class="btn-manage">' + linkSvg + '</a></td>';
         }
-        return '<td><span class="btn-manage disabled" title="Configure Web Interface URL in Settings">' + linkSvg + '</span></td>';
+        return '<td><span class="btn-manage disabled" title="' + strings.tipConfigureWeb + '">' + linkSvg + '</span></td>';
     }
 
     function renderRows(kpiKey, payload) {
@@ -837,7 +857,7 @@ initCategoryCharts();
             var spinner = document.querySelector('[data-membership-spinner="' + kpiKey + '"]');
             var container = document.querySelector('[data-lazy-membership="' + kpiKey + '"]');
             if (spinner) spinner.style.display = 'none';
-            if (container) container.innerHTML = '<p class="muted">Failed to load group membership.</p>';
+            if (container) container.innerHTML = '<p class="muted">' + escapeHtml(strings.failedMembership) + '</p>';
         });
     }
 
@@ -854,11 +874,11 @@ initCategoryCharts();
                 renderRows('guestContaining', data.guestContaining);
                 renderRows('singleOwner', data.singleOwner);
                 renderRows('largeGroups', data.largeGroups);
-                if (window.showToast) window.showToast('Group membership loaded', 'success');
+                if (window.showToast) window.showToast(strings.toastLoaded, 'success');
             })
             .catch(function (err) {
                 showFailure();
-                if (window.showToast) window.showToast('Failed to load group membership', 'error');
+                if (window.showToast) window.showToast(strings.toastFailed, 'error');
                 console.error('Entra membership lazy load failed:', err);
             });
         return;
@@ -883,7 +903,7 @@ initCategoryCharts();
     if (window.showToast && remainingAtStart > 0) {
         startToastTimer = setTimeout(function () {
             startToastShown = true;
-            window.showToast('Loading group memberships. This may take a while depending on the environment. Group based KPIs may not be accurate and details will not be available until loading is complete.', 'info');
+            window.showToast(strings.toastLoading, 'info');
         }, toastDelayMs);
     }
 
@@ -918,7 +938,7 @@ initCategoryCharts();
                 if (data.done || remaining <= 0) {
                     cancelStartToast();
                     if (window.membershipBadge) window.membershipBadge.hide();
-                    if (window.showToast) window.showToast('Group membership loaded', 'success');
+                    if (window.showToast) window.showToast(strings.toastLoaded, 'success');
                     return;
                 }
                 loadBatch(loaded);
@@ -927,7 +947,7 @@ initCategoryCharts();
                 cancelStartToast();
                 showFailure();
                 if (window.membershipBadge) window.membershipBadge.hide();
-                if (window.showToast) window.showToast('Failed to load group membership', 'error');
+                if (window.showToast) window.showToast(strings.toastFailed, 'error');
                 console.error('Entra membership batch load failed:', err);
             });
     }

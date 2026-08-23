@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CapturingSnapshot" xml:space="preserve"><value>Capturando instantánea...</value></data>
+  <data name="Comparing" xml:space="preserve"><value>Comparando...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
+  <data name="TakeSnapshot" xml:space="preserve"><value>Tomar una instantánea</value></data>
+  <data name="TakeSnapshotHint" xml:space="preserve"><value>Captura los recuentos de KPI actuales de todos los paneles. Esta acción consulta Active Roles para obtener datos actualizados.</value></data>
+  <data name="OptionalLabelPlaceholder" xml:space="preserve"><value>Etiqueta opcional (p. ej. Revisión mensual)</value></data>
+  <data name="CaptureSnapshot" xml:space="preserve"><value>Capturar instantánea</value></data>
+  <data name="Compare" xml:space="preserve"><value>Comparar</value></data>
+  <data name="NoSnapshotsForComparison" xml:space="preserve"><value>Aún no hay instantáneas. Capture una para habilitar la comparación.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Referencia</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Comparar con</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Actual (en vivo)</value></data>
+  <data name="SavedSnapshots" xml:space="preserve"><value>Instantáneas guardadas</value></data>
+  <data name="NoSnapshotsYet" xml:space="preserve"><value>Aún no ha capturado ninguna instantánea.</value></data>
+  <data name="Col_Label" xml:space="preserve"><value>Etiqueta</value></data>
+  <data name="Col_CapturedUtc" xml:space="preserve"><value>Capturada (UTC)</value></data>
+  <data name="Col_By" xml:space="preserve"><value>Por</value></data>
+  <data name="Col_Kpis" xml:space="preserve"><value>KPI</value></data>
+  <data name="Unlabelled" xml:space="preserve"><value>(sin etiqueta)</value></data>
+  <data name="Tip_CompareToCurrent" xml:space="preserve"><value>Comparar con actual</value></data>
+  <data name="Tip_DeleteSnapshot" xml:space="preserve"><value>Eliminar instantánea</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>¿Eliminar esta instantánea?</value></data>
+  <data name="Comparison" xml:space="preserve"><value>Comparación</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} aumentaron</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} disminuyeron</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} sin cambios</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} añadidos</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} eliminados</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Referencia</value></data>
+  <data name="Col_Current" xml:space="preserve"><value>Actual</value></data>
+  <data name="Col_Compare" xml:space="preserve"><value>Comparar</value></data>
+  <data name="Col_Change" xml:space="preserve"><value>Cambio</value></data>
+  <data name="RiskKpi" xml:space="preserve"><value>KPI de riesgo</value></data>
+  <data name="Trend" xml:space="preserve"><value>Tendencia</value></data>
+  <data name="TrendHint" xml:space="preserve"><value>Recuentos de KPI en las últimas {0} instantáneas. Elija un panel y una categoría, luego marque uno o más KPI para trazar.</value></data>
+  <data name="Filter_Dashboard" xml:space="preserve"><value>Panel</value></data>
+  <data name="Filter_Category" xml:space="preserve"><value>Categoría</value></data>
+  <data name="Filter_Kpis" xml:space="preserve"><value>KPI</value></data>
+  <data name="SelectKpis" xml:space="preserve"><value>Seleccionar KPI</value></data>
+  <data name="AllKpisFormat" xml:space="preserve"><value>Todos los KPI ({0})</value></data>
+  <data name="KpisSelectedFormat" xml:space="preserve"><value>{0} KPI seleccionados</value></data>
+</root>

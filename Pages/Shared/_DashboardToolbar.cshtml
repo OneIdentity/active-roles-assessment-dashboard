@@ -4,6 +4,7 @@
      - "ShowHome": if true, shows the Home button and Back to Dashboard link. Defaults to false.
      - "DashboardKey": the current dashboard key (e.g., "ActiveDirectory"). When set, shows the Export button.
 *@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     var appBase = Context.Request.PathBase.Value ?? "";
     var refreshUrl = ViewData["RefreshUrl"] as string ?? "/";
@@ -14,38 +15,38 @@
     <span class="hdr-user">@User.Identity?.Name</span>
     @* Group-membership loading indicator: people icon with a remaining-count badge. Hidden
        while idle; driven by window.membershipBadge (see _ToastAndMembership partial). *@
-    <span id="membership-indicator" class="btn-icon membership-indicator" hidden style="display:none" title="Loading group membership" aria-live="polite">
+    <span id="membership-indicator" class="btn-icon membership-indicator" hidden style="display:none" title="@Localizer["LoadingMembership"]" aria-live="polite">
         <svg class="membership-indicator-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         <span class="membership-indicator-badge" id="membership-indicator-badge">0</span>
     </span>
     @if (showHome)
     {
-        <a href="@(appBase)/?cached=true" class="btn-icon" title="Home">
+        <a href="@(appBase)/?cached=true" class="btn-icon" title="@Localizer["Home"]">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </a>
     }
     @if (!string.IsNullOrEmpty(dashboardKey))
     {
-        <button type="button" class="btn-icon" title="Export" id="btnExport">
+        <button type="button" class="btn-icon" title="@Localizer["Export"]" id="btnExport">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
     }
-    <a href="@(appBase)@(refreshUrl)" class="btn-icon" title="Refresh" id="btnRefresh">
+    <a href="@(appBase)@(refreshUrl)" class="btn-icon" title="@Localizer["Refresh"]" id="btnRefresh">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
     </a>
-    <a href="@(appBase)/Assessments" class="btn-icon" title="Assessment">
+    <a href="@(appBase)/Assessments" class="btn-icon" title="@Localizer["Assessment"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
     </a>
-    <a href="@(appBase)/AttackExposure" class="btn-icon" title="ATT&CK Exposure">
+    <a href="@(appBase)/AttackExposure" class="btn-icon" title="@Localizer["AttackExposure"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
     </a>
-    <a href="@(appBase)/Snapshots" class="btn-icon" title="Snapshots">
+    <a href="@(appBase)/Snapshots" class="btn-icon" title="@Localizer["Snapshots"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </a>
-    <a href="@(appBase)/Settings" class="btn-icon" title="Settings">
+    <a href="@(appBase)/Settings" class="btn-icon" title="@Localizer["Settings"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
     </a>
-    <a href="@(appBase)/Logout" class="btn-icon" title="Sign Out">
+    <a href="@(appBase)/Logout" class="btn-icon" title="@Localizer["SignOut"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </a>
 </div>

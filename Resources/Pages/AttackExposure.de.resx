@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Zurück zum Dashboard</value></data>
+  <data name="Level_High" xml:space="preserve"><value>Hoch</value></data>
+  <data name="Level_Medium" xml:space="preserve"><value>Mittel</value></data>
+  <data name="Level_Low" xml:space="preserve"><value>Niedrig</value></data>
+  <data name="Level_None" xml:space="preserve"><value>Keine</value></data>
+  <data name="HighExposure" xml:space="preserve"><value>Hohe Gefährdung</value></data>
+  <data name="MediumExposure" xml:space="preserve"><value>Mittlere Gefährdung</value></data>
+  <data name="LowExposure" xml:space="preserve"><value>Geringe Gefährdung</value></data>
+  <data name="TechniquesWithExposure" xml:space="preserve"><value>Techniken mit Gefährdung</value></data>
+  <data name="IntroNote" xml:space="preserve"><value>Die Gefährdung spiegelt das Vorhandensein riskanter Konfigurationen in Ihrer Umgebung wider, die MITRE-ATT&amp;CK-Techniken zugeordnet sind. Es handelt sich um eine indikative Sichtbarkeitsansicht, nicht um eine Compliance-Bewertung.</value></data>
+  <data name="GeneratedAt" xml:space="preserve"><value>Erstellt am {0} UTC.</value></data>
+  <data name="CompareAndTrend" xml:space="preserve"><value>Vergleich &amp; Trend</value></data>
+  <data name="CompareNote" xml:space="preserve"><value>Die Gefährdung wird nicht separat gespeichert; die historische Gefährdung wird aus gespeicherten &lt;a href="{0}"&gt;Momentaufnahmen&lt;/a&gt; neu berechnet. Wählen Sie eine Basislinie zum Vergleich mit einer anderen Momentaufnahme oder der aktuellen Live-Ansicht.</value></data>
+  <data name="NoSnapshotsWarning" xml:space="preserve"><value>Es wurden noch keine Momentaufnahmen gespeichert. Erstellen Sie eine Momentaufnahme, um den Gefährdungsvergleich und die Trendanalyse zu aktivieren.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Basislinie</value></data>
+  <data name="SelectPlaceholder" xml:space="preserve"><value>&#8212; auswählen &#8212;</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Vergleichen mit</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Aktuell (live)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Vergleichen</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} gestiegen</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} gesunken</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} unverändert</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} hinzugefügt</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} entfernt</value></data>
+  <data name="ComparingNote" xml:space="preserve"><value>Vergleich von &lt;strong&gt;{0}&lt;/strong&gt; &#8594; &lt;strong&gt;{1}&lt;/strong&gt;. Ein steigendes Gefährdungsniveau ist schlechter (&#9650;), ein sinkendes Niveau ist besser (&#9660;).</value></data>
+  <data name="Col_Technique" xml:space="preserve"><value>Technik</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Basislinie</value></data>
+  <data name="Col_Compared" xml:space="preserve"><value>Verglichen</value></data>
+  <data name="ExposureTrend" xml:space="preserve"><value>Gefährdungstrend</value></data>
+  <data name="TrendNote" xml:space="preserve"><value>Anzahl der gefährdeten Techniken Hoch / Mittel / Niedrig über die letzten {0} gespeicherten Momentaufnahmen.</value></data>
+  <data name="TrendTooltip" xml:space="preserve"><value>Hoch {0}, Mittel {1}, Niedrig {2}</value></data>
+  <data name="NotAvailable" xml:space="preserve"><value>k. A.</value></data>
+  <data name="Mitigation" xml:space="preserve"><value>Gegenmaßnahme</value></data>
+  <data name="Footer" xml:space="preserve"><value>Active Roles Dashboard &#8212; ATT&amp;CK-Gefährdung erstellt am {0} UTC</value></data>
+</root>

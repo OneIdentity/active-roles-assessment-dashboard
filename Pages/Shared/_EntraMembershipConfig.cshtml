@@ -1,4 +1,5 @@
 @model ActiveRolesDashboard.Pages.DashboardPageModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     // Config for the client-side lazy membership loader (dashboard.js) and the global header
     // progress badge. Emitted on every dashboard page that pre-warms Entra totals (main
@@ -28,4 +29,15 @@
      data-loaded-count="@membershipAlreadyLoaded"
      data-batch-size="@Model.MembershipBatchSize"
      data-toast-delay="@Model.MembershipToastDelayMs"
+     data-i18n-empty-emptygroups="@Localizer["Empty_EmptyGroups"]"
+     data-i18n-empty-nogroupowner="@Localizer["Empty_NoGroupOwner"]"
+     data-i18n-empty-guestcontaining="@Localizer["Empty_GuestContaining"]"
+     data-i18n-empty-singleowner="@Localizer["Empty_SingleOwner"]"
+     data-i18n-empty-largegroups="@Localizer["Empty_LargeGroups"]"
+     data-i18n-failed-membership="@Localizer["FailedToLoadMembership"]"
+     data-i18n-toast-loaded="@Localizer["Toast_MembershipLoaded"]"
+     data-i18n-toast-failed="@Localizer["Toast_MembershipFailed"]"
+     data-i18n-toast-loading="@Localizer["Toast_MembershipLoading"]"
+     data-i18n-tip-openweb="@Localizer["Tip_OpenWebInterface"]"
+     data-i18n-tip-configureweb="@Localizer["Tip_ConfigureWebUrl"]"
      hidden></div>

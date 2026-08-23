@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:element name="root" msdata:IsDataSet="true">
+	  <xsd:complexType>
+		<xsd:choice maxOccurs="unbounded">
+		  <xsd:element name="metadata">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" use="required" type="xsd:string" />
+			  <xsd:attribute name="type" type="xsd:string" />
+			  <xsd:attribute name="mimetype" type="xsd:string" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="assembly">
+			<xsd:complexType>
+			  <xsd:attribute name="alias" type="xsd:string" />
+			  <xsd:attribute name="name" type="xsd:string" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="data">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+				<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+			  <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+			  <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="resheader">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" />
+			</xsd:complexType>
+		  </xsd:element>
+		</xsd:choice>
+	  </xsd:complexType>
+	</xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="RestApiConfig" xml:space="preserve"><value>REST-API-Konfiguration</value></data>
+  <data name="RestApiSubtitle" xml:space="preserve"><value>Konfigurieren Sie die Verbindung zum Active Roles REST-API-Dienst.</value></data>
+  <data name="RestApiUrl" xml:space="preserve"><value>REST-API-URL</value></data>
+  <data name="RestApiUrlHint" xml:space="preserve"><value>Die Basis-URL der Active Roles REST-API. Diese Einstellung ist erforderlich.</value></data>
+  <data name="RstsUrl" xml:space="preserve"><value>RSTS-Token-URL</value></data>
+  <data name="RstsUrlHint" xml:space="preserve"><value>Die URL des RSTS-OAuth2-Token-Endpunkts. Diese Einstellung ist erforderlich.</value></data>
+  <data name="WebInterface" xml:space="preserve"><value>Weboberfläche</value></data>
+  <data name="WebInterfaceSubtitle" xml:space="preserve"><value>Konfigurieren Sie optional die URL der Active Roles-Weboberfläche für Deep-Linking.</value></data>
+  <data name="WebInterfaceUrl" xml:space="preserve"><value>URL der Weboberfläche</value></data>
+  <data name="WebInterfaceUrlHint" xml:space="preserve"><value>Basis-URL der Active Roles-Weboberfläche. Diese Einstellung ist optional.</value></data>
+  <data name="Language" xml:space="preserve"><value>Sprache</value></data>
+  <data name="LanguageSubtitle" xml:space="preserve"><value>Wählen Sie die Anzeigesprache für die Dashboard-Oberfläche.</value></data>
+  <data name="DisplayLanguage" xml:space="preserve"><value>Anzeigesprache</value></data>
+  <data name="LanguageHint" xml:space="preserve"><value>Im Laufe der Zeit werden weitere Sprachen hinzugefügt. Sie können dies später in den Einstellungen ändern.</value></data>
+  <data name="KpiConfig" xml:space="preserve"><value>KPI-Konfiguration</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Alle KPI-Einstellungen sind optional. Leer lassen, um Standardwerte zu verwenden.</value></data>
+  <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Active Roles-Administratoren - Basis-DN</value></data>
+  <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Active Roles-Administratoren - LDAP-Filter</value></data>
+  <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Ohne Gruppenbesitzer - Basis-DN</value></data>
+  <data name="Lbl_NoManagerUserBaseDn" xml:space="preserve"><value>Ohne Vorgesetzten (Benutzer) - Basis-DN</value></data>
+  <data name="Lbl_NoManagerUserFilter" xml:space="preserve"><value>Ohne Vorgesetzten (Benutzer) - LDAP-Filter</value></data>
+  <data name="Lbl_NoManagerSaBaseDn" xml:space="preserve"><value>Ohne Vorgesetzten (Dienstkonto) - Basis-DN</value></data>
+  <data name="Lbl_NoManagerSaFilter" xml:space="preserve"><value>Ohne Vorgesetzten (Dienstkonto) - LDAP-Filter</value></data>
+  <data name="Lbl_UserExpiredBaseDn" xml:space="preserve"><value>Abgelaufenes Benutzerkonto - Basis-DN</value></data>
+  <data name="Lbl_UserLockedBaseDn" xml:space="preserve"><value>Gesperrtes Benutzerkonto - Basis-DN</value></data>
+  <data name="Lbl_EmptyGroupsBaseDn" xml:space="preserve"><value>Leere Gruppen - Basis-DN</value></data>
+  <data name="Next" xml:space="preserve"><value>Weiter</value></data>
+  <data name="Back" xml:space="preserve"><value>Zurück</value></data>
+  <data name="FinishSetup" xml:space="preserve"><value>Einrichtung abschließen</value></data>
+  <data name="Err_ApiUrlRequired" xml:space="preserve"><value>Die REST-API-URL ist erforderlich.</value></data>
+  <data name="Err_RstsUrlRequired" xml:space="preserve"><value>Die RSTS-Token-URL ist erforderlich.</value></data>
+</root>

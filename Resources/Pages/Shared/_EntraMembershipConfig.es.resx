@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Empty_EmptyGroups" xml:space="preserve"><value>No se encontraron grupos vacíos</value></data>
+  <data name="Empty_NoGroupOwner" xml:space="preserve"><value>No se encontraron grupos sin propietario</value></data>
+  <data name="Empty_GuestContaining" xml:space="preserve"><value>No se encontraron grupos que contengan invitados</value></data>
+  <data name="Empty_SingleOwner" xml:space="preserve"><value>No se encontraron grupos con un solo propietario</value></data>
+  <data name="Empty_LargeGroups" xml:space="preserve"><value>No se encontraron grupos grandes</value></data>
+  <data name="FailedToLoadMembership" xml:space="preserve"><value>Error al cargar la pertenencia a grupos.</value></data>
+  <data name="Toast_MembershipLoaded" xml:space="preserve"><value>Pertenencia a grupos cargada</value></data>
+  <data name="Toast_MembershipFailed" xml:space="preserve"><value>Error al cargar la pertenencia a grupos</value></data>
+  <data name="Toast_MembershipLoading" xml:space="preserve"><value>Cargando las pertenencias a grupos. Esto puede tardar un tiempo según el entorno. Los KPI basados en grupos pueden no ser precisos y los detalles no estarán disponibles hasta que finalice la carga.</value></data>
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Abrir en la interfaz web</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configure la URL de la interfaz web en Configuración</value></data>
+</root>

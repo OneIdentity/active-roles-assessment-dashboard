@@ -1,0 +1,4 @@
+# Copilot Instructions
+
+## Project Guidelines
+- In this ASP.NET Core Razor Pages project, static localization bridges (e.g., KpiLocalizer, AssessmentLocalizer) must bind a System.Resources.ResourceManager directly to the explicit compiled resource base name (e.g., "ActiveRolesDashboard.Resources.AssessmentResources") and resolve against CultureInfo.CurrentUICulture, rather than using IStringLocalizerFactory.Create(typeof(markerType)). The factory's namespace/ResourcesPath-based base-name derivation does not match the hand-authored .resx locations and fails silently by returning the English fallback.

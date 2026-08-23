@@ -1,11 +1,12 @@
 @page
 @model ActiveRolesDashboard.Pages.ActiveRolesModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Active Roles";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
@@ -17,26 +18,18 @@
 <div class="loading-overlay active" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Loading Dashboard Data...</p>
+        <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Active Roles</h1>
-                <p class="hdr-sub">Active Roles configuration KPIs</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/ActiveRoles"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "ActiveRoles"; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "ActiveRoles";
+        ViewData["RefreshUrl"] = "/ActiveRoles"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "ActiveRoles";
+    }
+    <partial name="_DashboardHeader" />
 
-    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; Back to Dashboard</a>
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
     @if (Model.IsActiveRolesAdmin && Model.KpiSettings.ARConfigurationEnabled)
@@ -65,16 +58,16 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ActiveRolesAdmins"))
         {
         <div class="panel" id="panel-aradmins">
-            <h2><span class="sec-icon">R</span> Active Roles Admins
+            <h2><span class="sec-icon">R</span> @KpiInfo.ActiveRolesAdmins.DisplayName
                 @if (Model.Summary.ActiveRolesAdmins.HasIndirectMembers && !string.IsNullOrEmpty(Model.Summary.ActiveRolesAdmins.GroupDn))
                 {
-                    <a href="GroupTree?Group=@(Uri.EscapeDataString(Model.Summary.ActiveRolesAdmins.GroupDn!))&return=panel-aradmins&returnPage=ActiveRoles" title="View nested membership" class="btn-manage sec-tree-btn">
+                    <a href="GroupTree?Group=@(Uri.EscapeDataString(Model.Summary.ActiveRolesAdmins.GroupDn!))&return=panel-aradmins&returnPage=ActiveRoles" title="@Localizer["Tip_ViewNestedMembership"]" class="btn-manage sec-tree-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </a>
                 }
                 else
                 {
-                    <span class="btn-manage disabled sec-tree-btn" title="No indirect (nested) members">
+                    <span class="btn-manage disabled sec-tree-btn" title="@Localizer["Tip_NoIndirectMembers"]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </span>
                 }
@@ -87,7 +80,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Membership</th><th style="width:40px;"></th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Membership"]</th><th style="width:40px;"></th></tr></thead>
                         <tbody>
                         @foreach (var m in Model.Summary.ActiveRolesAdmins.Items)
                         {
@@ -100,13 +93,13 @@
                                     {
                                         @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
                                         {
-                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="@Localizer["Tip_OpenWebInterface"]" class="btn-manage">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </a>
                                         }
                                         else
                                         {
-                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                            <span class="btn-manage disabled" title="@Localizer["Tip_ConfigureWebUrl"]">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </span>
                                         }
@@ -116,7 +109,7 @@
                         }
                         @if (!Model.Summary.ActiveRolesAdmins.Items.Any())
                         {
-                            <tr><td colspan="4" class="empty-row">No members found</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_Members"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -128,7 +121,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Domains"))
         {
         <div class="panel" id="panel-domains">
-            <h2><span class="sec-icon">D</span> Managed Domains</h2>
+            <h2><span class="sec-icon">D</span> @KpiInfo.Domains.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.Domains.Error != null)
                 {
@@ -137,7 +130,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>DNS Name</th><th>Distinguished Name</th><th>Use Override</th><th style="width:40px;"></th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DnsName"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_UseOverride"]</th><th style="width:40px;"></th></tr></thead>
                         <tbody>
                         @foreach (var d in Model.Summary.Domains.Items)
                         {
@@ -151,13 +144,13 @@
                                     {
                                         @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
                                         {
-                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(d.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(d.Dn))')" title="@Localizer["Tip_OpenWebInterface"]" class="btn-manage">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </a>
                                         }
                                         else
                                         {
-                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                            <span class="btn-manage disabled" title="@Localizer["Tip_ConfigureWebUrl"]">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </span>
                                         }
@@ -167,7 +160,7 @@
                         }
                         @if (!Model.Summary.Domains.Items.Any())
                         {
-                            <tr><td colspan="5" class="empty-row">No domains found</td></tr>
+                            <tr><td colspan="5" class="empty-row">@Localizer["Empty_Domains"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -179,7 +172,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Servers"))
         {
         <div class="panel" id="panel-servers">
-            <h2><span class="sec-icon">S</span> AR Servers</h2>
+            <h2><span class="sec-icon">S</span> @KpiInfo.Servers.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.Servers.Error != null)
                 {
@@ -188,7 +181,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Server Name</th><th>Version</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_ServerName"]</th><th>@Localizer["Col_Version"]</th></tr></thead>
                         <tbody>
                         @foreach (var s in Model.Summary.Servers.Items)
                         {
@@ -196,7 +189,7 @@
                         }
                         @if (!Model.Summary.Servers.Items.Any())
                         {
-                            <tr><td colspan="2" class="empty-row">No servers found</td></tr>
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_Servers"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -208,7 +201,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroups"))
         {
         <div class="panel" id="panel-dynamicgroups">
-            <h2><span class="sec-icon">G</span> Dynamic Groups</h2>
+            <h2><span class="sec-icon">G</span> @KpiInfo.DynamicGroups.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.DynamicGroups.Error != null)
                 {
@@ -217,7 +210,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th style="width:40px;"></th></tr></thead>
                         <tbody>
                         @foreach (var g in Model.Summary.DynamicGroups.Items)
                         {
@@ -229,13 +222,13 @@
                                     {
                                         @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
                                         {
-                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(g.Dn))')" title="@Localizer["Tip_OpenWebInterface"]" class="btn-manage">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </a>
                                         }
                                         else
                                         {
-                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                            <span class="btn-manage disabled" title="@Localizer["Tip_ConfigureWebUrl"]">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </span>
                                         }
@@ -245,7 +238,7 @@
                         }
                         @if (!Model.Summary.DynamicGroups.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">No dynamic groups found</td></tr>
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_DynamicGroups"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -257,7 +250,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("ARConfiguration", "GroupFamilies"))
         {
         <div class="panel" id="panel-groupfamilies">
-            <h2><span class="sec-icon">G</span> Group Families</h2>
+            <h2><span class="sec-icon">G</span> @KpiInfo.GroupFamilies.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.GroupFamilies.Error != null)
                 {
@@ -266,7 +259,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
                         <tbody>
                         @foreach (var g in Model.Summary.GroupFamilies.Items)
                         {
@@ -277,7 +270,7 @@
                         }
                         @if (!Model.Summary.GroupFamilies.Items.Any())
                         {
-                            <tr><td colspan="2" class="empty-row">No group families found</td></tr>
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_GroupFamilies"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -289,7 +282,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ManagedUnits"))
         {
         <div class="panel" id="panel-managedunits">
-            <h2><span class="sec-icon">M</span> Managed Units</h2>
+            <h2><span class="sec-icon">M</span> @KpiInfo.ManagedUnits.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.ManagedUnits.Error != null)
                 {
@@ -298,7 +291,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Rules</th><th style="width:40px;"></th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Rules"]</th><th style="width:40px;"></th></tr></thead>
                         <tbody>
                         @foreach (var m in Model.Summary.ManagedUnits.Items)
                         {
@@ -311,13 +304,13 @@
                                     {
                                         @if (!string.IsNullOrEmpty(Model.WebInterfaceUrl))
                                         {
-                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="Open in Web Interface" class="btn-manage">
+                                            <a href="javascript:void(0)" onclick="openWebInterface('@(Model.WebInterfaceUrl.TrimEnd('/'))/redirect.ashx?dn=@(Uri.EscapeDataString(m.Dn))')" title="@Localizer["Tip_OpenWebInterface"]" class="btn-manage">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </a>
                                         }
                                         else
                                         {
-                                            <span class="btn-manage disabled" title="Configure Web Interface URL in Settings">
+                                            <span class="btn-manage disabled" title="@Localizer["Tip_ConfigureWebUrl"]">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                                             </span>
                                         }
@@ -327,7 +320,7 @@
                         }
                         @if (!Model.Summary.ManagedUnits.Items.Any())
                         {
-                            <tr><td colspan="4" class="empty-row">No managed units found</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_ManagedUnits"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -339,7 +332,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Workflows"))
         {
         <div class="panel" id="panel-workflows">
-            <h2><span class="sec-icon">W</span> Workflows</h2>
+            <h2><span class="sec-icon">W</span> @KpiInfo.Workflows.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.Workflows.Error != null)
                 {
@@ -348,7 +341,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Enabled</th><th>Automation</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Enabled"]</th><th>@Localizer["Col_Automation"]</th></tr></thead>
                         <tbody>
                         @foreach (var w in Model.Summary.Workflows.Items)
                         {
@@ -356,7 +349,7 @@
                         }
                         @if (!Model.Summary.Workflows.Items.Any())
                         {
-                            <tr><td colspan="4" class="empty-row">No workflows found</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_Workflows"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -368,7 +361,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "VirtualAttributes"))
         {
         <div class="panel" id="panel-virtualattrs">
-            <h2><span class="sec-icon">V</span> Virtual Attributes</h2>
+            <h2><span class="sec-icon">V</span> @KpiInfo.VirtualAttributes.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.VirtualAttributes.Error != null)
                 {
@@ -377,7 +370,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>LDAP Display Name</th><th>Multivalued</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_LdapDisplayName"]</th><th>@Localizer["Col_Multivalued"]</th></tr></thead>
                         <tbody>
                         @foreach (var v in Model.Summary.VirtualAttributes.Items)
                         {
@@ -385,7 +378,7 @@
                         }
                         @if (!Model.Summary.VirtualAttributes.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">No virtual attributes found</td></tr>
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_VirtualAttributes"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -397,7 +390,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ConfigDatabases"))
         {
         <div class="panel" id="panel-configdatabases">
-            <h2><span class="sec-icon">C</span> Config Databases</h2>
+            <h2><span class="sec-icon">C</span> @KpiInfo.ConfigDatabases.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.ConfigDatabases.Error != null)
                 {
@@ -406,7 +399,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>SQL Alias</th><th>Database Name</th><th>Database Type</th><th>Replication Support</th><th>Replication Role</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_SqlAlias"]</th><th>@Localizer["Col_DatabaseName"]</th><th>@Localizer["Col_DatabaseType"]</th><th>@Localizer["Col_ReplicationSupport"]</th><th>@Localizer["Col_ReplicationRole"]</th></tr></thead>
                         <tbody>
                         @foreach (var d in Model.Summary.ConfigDatabases.Items)
                         {
@@ -414,7 +407,7 @@
                         }
                         @if (!Model.Summary.ConfigDatabases.Items.Any())
                         {
-                            <tr><td colspan="5" class="empty-row">No config databases found</td></tr>
+                            <tr><td colspan="5" class="empty-row">@Localizer["Empty_ConfigDatabases"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -426,7 +419,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "HistoryDatabases"))
         {
         <div class="panel" id="panel-historydatabases">
-            <h2><span class="sec-icon">H</span> History Databases</h2>
+            <h2><span class="sec-icon">H</span> @KpiInfo.HistoryDatabases.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.HistoryDatabases.Error != null)
                 {
@@ -435,7 +428,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>SQL Alias</th><th>Database Name</th><th>Database Type</th><th>Replication Role</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_SqlAlias"]</th><th>@Localizer["Col_DatabaseName"]</th><th>@Localizer["Col_DatabaseType"]</th><th>@Localizer["Col_ReplicationRole"]</th></tr></thead>
                         <tbody>
                         @foreach (var d in Model.Summary.HistoryDatabases.Items)
                         {
@@ -443,7 +436,7 @@
                         }
                         @if (!Model.Summary.HistoryDatabases.Items.Any())
                         {
-                            <tr><td colspan="4" class="empty-row">No history databases found</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_HistoryDatabases"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -455,7 +448,8 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjects"))
         {
         <div class="panel" id="panel-policies">
-            <h2><span class="sec-icon">P</span> Policy Objects</h2>            <div class="panel-content">
+            <h2><span class="sec-icon">P</span> @KpiInfo.PolicyObjects.DisplayName</h2>
+            <div class="panel-content">
                 @if (Model.Summary.PolicyObjects.Error != null)
                 {
                     <p class="muted">@Model.Summary.PolicyObjects.Error</p>
@@ -463,7 +457,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th><th>Rules</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Rules"]</th></tr></thead>
                         <tbody>
                         @foreach (var p in Model.Summary.PolicyObjects.Items)
                         {
@@ -471,7 +465,7 @@
                         }
                         @if (!Model.Summary.PolicyObjects.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">No policy objects found</td></tr>
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_PolicyObjects"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -483,7 +477,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplates"))
         {
         <div class="panel" id="panel-accesstemplates">
-            <h2><span class="sec-icon">A</span> Access Templates</h2>
+            <h2><span class="sec-icon">A</span> @KpiInfo.AccessTemplates.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.AccessTemplates.Error != null)
                 {
@@ -492,7 +486,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Parent</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Parent"]</th></tr></thead>
                         <tbody>
                         @foreach (var a in Model.Summary.AccessTemplates.Items)
                         {
@@ -500,7 +494,7 @@
                         }
                         @if (!Model.Summary.AccessTemplates.Items.Any())
                         {
-                            <tr><td colspan="2" class="empty-row">No access templates found</td></tr>
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_AccessTemplates"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -512,7 +506,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplateLinks"))
         {
         <div class="panel" id="panel-atlinks">
-            <h2><span class="sec-icon">L</span> Access Template Links</h2>
+            <h2><span class="sec-icon">L</span> @KpiInfo.AccessTemplateLinks.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.AccessTemplateLinks.Error != null)
                 {
@@ -521,7 +515,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Trustee</th><th>Directory Object</th><th>Access Template</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Trustee"]</th><th>@Localizer["Col_DirectoryObject"]</th><th>@Localizer["Col_AccessTemplate"]</th></tr></thead>
                         <tbody>
                         @foreach (var l in Model.Summary.AccessTemplateLinks.Items)
                         {
@@ -534,7 +528,7 @@
                         }
                         @if (!Model.Summary.AccessTemplateLinks.Items.Any())
                         {
-                            <tr><td colspan="4" class="empty-row">No access template links found</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_AccessTemplateLinks"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -546,7 +540,7 @@
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectLinks"))
         {
         <div class="panel" id="panel-polinks">
-            <h2><span class="sec-icon">L</span> Policy Object Links</h2>
+            <h2><span class="sec-icon">L</span> @KpiInfo.PolicyObjectLinks.DisplayName</h2>
             <div class="panel-content">
                 @if (Model.Summary.PolicyObjectLinks.Error != null)
                 {
@@ -555,7 +549,7 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>Name</th><th>Distinguished Name</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
                         <tbody>
                         @foreach (var p in Model.Summary.PolicyObjectLinks.Items)
                         {
@@ -566,7 +560,7 @@
                         }
                         @if (!Model.Summary.PolicyObjectLinks.Items.Any())
                         {
-                            <tr><td colspan="2" class="empty-row">No policy object links found</td></tr>
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_PolicyObjectLinks"]</td></tr>
                         }
                         </tbody>
                     </table>

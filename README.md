@@ -162,6 +162,7 @@ Feature reference documents live under [`docs/`](docs/):
 - [Assessments.md](docs/Assessments.md) — assessment types, rules, scoring, and compare.
 - [Exposure.md](docs/Exposure.md) — MITRE ATT&CK technique-to-KPI mappings and exposure scoring.
 - [ConfigSettings.md](docs/ConfigSettings.md) — full reference for every `appsettings.json` configuration setting.
+- [Localization.md](docs/Localization.md) — localization architecture, resource conventions, and how to add languages or translations.
 
 ## Technology
 

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:element name="root" msdata:IsDataSet="true">
+	  <xsd:complexType>
+		<xsd:choice maxOccurs="unbounded">
+		  <xsd:element name="metadata">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" use="required" type="xsd:string" />
+			  <xsd:attribute name="type" type="xsd:string" />
+			  <xsd:attribute name="mimetype" type="xsd:string" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="assembly">
+			<xsd:complexType>
+			  <xsd:attribute name="alias" type="xsd:string" />
+			  <xsd:attribute name="name" type="xsd:string" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="data">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+				<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+			  <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+			  <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="resheader">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" />
+			</xsd:complexType>
+		  </xsd:element>
+		</xsd:choice>
+	  </xsd:complexType>
+	</xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- ===== Category names ===== -->
+  <data name="Cat_AccountSecurity" xml:space="preserve"><value>Sécurité des comptes</value></data>
+  <data name="Cat_AccountHygiene" xml:space="preserve"><value>Hygiène des comptes</value></data>
+  <data name="Cat_GroupGovernance" xml:space="preserve"><value>Gouvernance des groupes</value></data>
+  <data name="Cat_EntraIdentityGovernance" xml:space="preserve"><value>Gouvernance des identités Entra</value></data>
+  <data name="Cat_SecureConfiguration" xml:space="preserve"><value>Configuration sécurisée</value></data>
+  <data name="Cat_PrivilegedAccess" xml:space="preserve"><value>Accès privilégié</value></data>
+  <data name="Cat_StrongAuthentication" xml:space="preserve"><value>Authentification forte</value></data>
+  <data name="Cat_DelegationProtection" xml:space="preserve"><value>Protection contre la délégation</value></data>
+  <data name="Cat_ActiveRolesConfiguration" xml:space="preserve"><value>Configuration Active Roles</value></data>
+  <data name="Cat_Delegation" xml:space="preserve"><value>Délégation</value></data>
+  <data name="Cat_WeakCryptography" xml:space="preserve"><value>Cryptographie faible</value></data>
+  <data name="Cat_GDPRAccountability" xml:space="preserve"><value>Responsabilité RGPD</value></data>
+  <data name="Cat_DORAResilience" xml:space="preserve"><value>Résilience DORA</value></data>
+  <data name="Cat_AuthenticationCredentialLifecycle" xml:space="preserve"><value>Authentification et cycle de vie des identifiants</value></data>
+  <data name="Cat_SOXITGeneralControls" xml:space="preserve"><value>Contrôles généraux informatiques SOX</value></data>
+  <data name="Cat_TSAManagementPlane" xml:space="preserve"><value>Plan de gestion TSA</value></data>
+  <data name="Cat_CAFB2IdentityAccessControl" xml:space="preserve"><value>CAF B2 Identité et contrôle d'accès</value></data>
+  <data name="Cat_CyberEssentialsUserAccessControl" xml:space="preserve"><value>Contrôle d'accès utilisateur Cyber Essentials</value></data>
+  <data name="Cat_DSPTManagingDataAccess" xml:space="preserve"><value>DSPT Gestion de l'accès aux données</value></data>
+  <data name="Cat_DfEAccountAccessManagement" xml:space="preserve"><value>DfE Gestion des comptes et des accès</value></data>
+  <!-- ===== Rule titles ===== -->
+  <data name="RuleTitle_SEC-ReversibleEncryption" xml:space="preserve"><value>Utilisateurs avec chiffrement de mot de passe réversible</value></data>
+  <data name="RuleTitle_SEC-PasswordNotRequired" xml:space="preserve"><value>Utilisateurs pour lesquels aucun mot de passe n'est requis</value></data>
+  <data name="RuleTitle_SEC-NoKerberosPreauth" xml:space="preserve"><value>Comptes ne nécessitant pas la pré-authentification Kerberos</value></data>
+  <data name="RuleTitle_SEC-UseDesEncryption" xml:space="preserve"><value>Comptes utilisant le chiffrement DES</value></data>
+  <data name="RuleTitle_SEC-TrustedForDelegation" xml:space="preserve"><value>Comptes approuvés pour la délégation non contrainte</value></data>
+  <data name="RuleTitle_SEC-SpnUserAccounts" xml:space="preserve"><value>Comptes utilisateur avec un nom principal de service (Kerberoastable)</value></data>
+  <data name="RuleTitle_SEC-UnconstrainedComputers" xml:space="preserve"><value>Ordinateurs configurés pour la délégation non contrainte</value></data>
+  <data name="RuleTitle_SEC-PasswordNeverExpires" xml:space="preserve"><value>Utilisateurs dont le mot de passe n'expire jamais</value></data>
+  <data name="RuleTitle_HYG-ExpiredUsers" xml:space="preserve"><value>Comptes utilisateur expirés toujours présents</value></data>
+  <data name="RuleTitle_HYG-NeverLoggedIn" xml:space="preserve"><value>Comptes ne s'étant jamais connectés</value></data>
+  <data name="RuleTitle_HYG-UserAccountLockedOut" xml:space="preserve"><value>Comptes utilisateur actuellement verrouillés</value></data>
+  <data name="RuleTitle_HYG-NoManagerUser" xml:space="preserve"><value>Comptes utilisateur sans responsable</value></data>
+  <data name="RuleTitle_HYG-NoManagerServiceAccount" xml:space="preserve"><value>Comptes de service sans responsable</value></data>
+  <data name="RuleTitle_GRP-NoGroupOwner" xml:space="preserve"><value>Groupes sans propriétaire</value></data>
+  <data name="RuleTitle_GRP-EmptyGroups" xml:space="preserve"><value>Groupes vides</value></data>
+  <data name="RuleTitle_ENT-NoGroupOwner" xml:space="preserve"><value>Groupes Entra sans propriétaire</value></data>
+  <data name="RuleTitle_ENT-GuestContainingGroups" xml:space="preserve"><value>Groupes Entra contenant des membres invités (externes)</value></data>
+  <data name="RuleTitle_ENT-SingleOwnerGroups" xml:space="preserve"><value>Groupes Entra avec un seul propriétaire</value></data>
+  <data name="RuleTitle_ENT-GuestUsers" xml:space="preserve"><value>Comptes utilisateur invités (externes) Entra</value></data>
+  <data name="RuleTitle_ENT-NoManagerUser" xml:space="preserve"><value>Comptes utilisateur Entra sans responsable</value></data>
+  <data name="RuleTitle_CFG-UnsupportedServerOs" xml:space="preserve"><value>Serveurs exécutant des systèmes d'exploitation non pris en charge</value></data>
+  <data name="RuleTitle_CFG-UnsupportedClientOs" xml:space="preserve"><value>Clients exécutant des systèmes d'exploitation non pris en charge</value></data>
+  <data name="RuleTitle_CFG-StaleComputers" xml:space="preserve"><value>Comptes d'ordinateur obsolètes (inactifs)</value></data>
+  <data name="RuleTitle_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>Âge du mot de passe krbtgt (jours)</value></data>
+  <data name="RuleTitle_CFG-WeakPasswordLength" xml:space="preserve"><value>Longueur minimale du mot de passe inférieure à 12 caractères</value></data>
+  <data name="RuleTitle_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Complexité du mot de passe désactivée</value></data>
+  <data name="RuleTitle_CFG-NoAccountLockout" xml:space="preserve"><value>Aucun seuil de verrouillage de compte configuré</value></data>
+  <data name="RuleTitle_CFG-PasswordMaxAge" xml:space="preserve"><value>Âge maximal du mot de passe (jours)</value></data>
+  <data name="RuleTitle_PRIV-AdminCountAccounts" xml:space="preserve"><value>Comptes marqués avec adminCount=1</value></data>
+  <data name="RuleTitle_PRIV-DomainAdmins" xml:space="preserve"><value>Taille du groupe Admins du domaine</value></data>
+  <data name="RuleTitle_PRIV-EnterpriseAdmins" xml:space="preserve"><value>Taille du groupe Administrateurs de l'entreprise</value></data>
+  <data name="RuleTitle_PRIV-SchemaAdmins" xml:space="preserve"><value>Taille du groupe Administrateurs du schéma</value></data>
+  <data name="RuleTitle_PRIV-Administrators" xml:space="preserve"><value>Taille du groupe Administrateurs intégré</value></data>
+  <data name="RuleTitle_AUTH-SmartCardAdoption" xml:space="preserve"><value>Comptes imposant l'authentification par carte à puce (forte)</value></data>
+  <data name="RuleTitle_HYG-StaleAccounts" xml:space="preserve"><value>Comptes activés obsolètes (inactifs)</value></data>
+  <data name="RuleTitle_SEC-CannotChangePassword" xml:space="preserve"><value>Utilisateurs ne pouvant pas modifier leur propre mot de passe</value></data>
+  <data name="RuleTitle_SEC-MustChangePassword" xml:space="preserve"><value>Utilisateurs devant modifier leur mot de passe à la prochaine connexion</value></data>
+  <data name="RuleTitle_SEC-SensitiveCannotDelegateAdoption" xml:space="preserve"><value>Comptes privilégiés protégés contre la délégation</value></data>
+  <data name="RuleTitle_HYG-DeprovisionedUsers" xml:space="preserve"><value>Comptes déprovisionnés toujours présents</value></data>
+  <data name="RuleTitle_PRIV-AccountOperators" xml:space="preserve"><value>Taille du groupe Opérateurs de compte</value></data>
+  <data name="RuleTitle_PRIV-ServerOperators" xml:space="preserve"><value>Taille du groupe Opérateurs de serveur</value></data>
+  <data name="RuleTitle_PRIV-BackupOperators" xml:space="preserve"><value>Taille du groupe Opérateurs de sauvegarde</value></data>
+  <data name="RuleTitle_AR-DisabledWorkflows" xml:space="preserve"><value>Workflows Active Roles désactivés</value></data>
+  <data name="RuleTitle_AR-BroadDelegationLinks" xml:space="preserve"><value>Liens de modèle d'accès délégués à des principaux trop larges</value></data>
+  <data name="RuleTitle_AR-ConfigDatabaseResilience" xml:space="preserve"><value>La base de données de configuration est un point de défaillance unique</value></data>
+  <data name="RuleTitle_AR-HistoryDatabaseResilience" xml:space="preserve"><value>La base de données d'historique de gestion est un point de défaillance unique</value></data>
+  <data name="RuleTitle_GDPR-CannotChangePassword" xml:space="preserve"><value>Utilisateurs ne pouvant pas modifier leur propre mot de passe</value></data>
+  <data name="RuleTitle_GDPR-DeprovisionedResidue" xml:space="preserve"><value>Comptes déprovisionnés conservant un accès à l'annuaire</value></data>
+  <data name="RuleTitle_DORA-StrongAuthAdoption" xml:space="preserve"><value>Comptes imposant une authentification forte (carte à puce)</value></data>
+  <data name="RuleTitle_DORA-DelegationProtectionAdoption" xml:space="preserve"><value>Comptes privilégiés protégés contre la délégation</value></data>
+  <data name="RuleTitle_HIPAA-CannotChangePassword" xml:space="preserve"><value>Utilisateurs ne pouvant pas modifier leur propre mot de passe</value></data>
+  <data name="RuleTitle_HIPAA-ProvisioningBacklog" xml:space="preserve"><value>Comptes devant modifier leur mot de passe à la prochaine connexion</value></data>
+  <data name="RuleTitle_SOX-AccountOperators" xml:space="preserve"><value>Appartenance aux Opérateurs de compte (indicateur SoD / accès privilégié)</value></data>
+  <data name="RuleTitle_SOX-ServerOperators" xml:space="preserve"><value>Appartenance aux Opérateurs de serveur (indicateur SoD / accès privilégié)</value></data>
+  <data name="RuleTitle_TSA-PrivilegedStrongAuth" xml:space="preserve"><value>Comptes du plan de gestion imposant une authentification forte (carte à puce)</value></data>
+  <data name="RuleTitle_TSA-PrivilegedDelegationProtection" xml:space="preserve"><value>Comptes privilégiés du plan de gestion protégés contre la délégation</value></data>
+  <data name="RuleTitle_CAF-B2-StrongAuthAdoption" xml:space="preserve"><value>Comptes imposant une authentification forte (carte à puce)</value></data>
+  <data name="RuleTitle_CAF-B2-PrivilegedDelegationProtection" xml:space="preserve"><value>Comptes privilégiés protégés contre la délégation</value></data>
+  <data name="RuleTitle_CE-UAC-AdminAccountCount" xml:space="preserve"><value>Taille du groupe Admins du domaine</value></data>
+  <data name="RuleTitle_CE-UAC-StaleAccounts" xml:space="preserve"><value>Comptes activés obsolètes / inactifs</value></data>
+  <data name="RuleTitle_DSPT-S4-PrivilegedAccessMinimisation" xml:space="preserve"><value>Taille du groupe Admins du domaine</value></data>
+  <data name="RuleTitle_DSPT-S4-LeaverStaleAccounts" xml:space="preserve"><value>Comptes activés obsolètes / inactifs</value></data>
+  <data name="RuleTitle_DFE-AAM-LeastPrivilege" xml:space="preserve"><value>Taille du groupe Admins du domaine</value></data>
+  <data name="RuleTitle_DFE-AAM-StrongAuthAdoption" xml:space="preserve"><value>Comptes imposant une authentification forte (carte à puce)</value></data>
+  <data name="RuleTitle_DFE-AAM-LeaverStaleAccounts" xml:space="preserve"><value>Comptes activés obsolètes / inactifs</value></data>
+  <!-- ===== Rule recommendations ===== -->
+  <data name="RuleRec_SEC-ReversibleEncryption" xml:space="preserve"><value>Désactivez le chiffrement réversible sur tous les comptes utilisateur ; il stocke les mots de passe sous une forme récupérable.</value></data>
+  <data name="RuleRec_SEC-PasswordNotRequired" xml:space="preserve"><value>Effacez l'indicateur PASSWD_NOTREQD afin que tous les comptes exigent un mot de passe.</value></data>
+  <data name="RuleRec_SEC-NoKerberosPreauth" xml:space="preserve"><value>Exigez la pré-authentification Kerberos pour réduire l'exposition au AS-REP roasting.</value></data>
+  <data name="RuleRec_SEC-UseDesEncryption" xml:space="preserve"><value>Désactivez DES ; il est cryptographiquement faible. Utilisez plutôt les types de chiffrement AES.</value></data>
+  <data name="RuleRec_SEC-TrustedForDelegation" xml:space="preserve"><value>Examinez la délégation non contrainte ; préférez la délégation contrainte ou basée sur les ressources.</value></data>
+  <data name="RuleRec_SEC-SpnUserAccounts" xml:space="preserve"><value>Réduisez le nombre de comptes utilisateur portant un SPN ; imposez des mots de passe longs et complexes ou migrez vers des comptes de service gérés de groupe (gMSA) pour réduire l'exposition au Kerberoasting.</value></data>
+  <data name="RuleRec_SEC-UnconstrainedComputers" xml:space="preserve"><value>Supprimez la délégation non contrainte des comptes d'ordinateur (à l'exception des contrôleurs de domaine) ; utilisez la délégation contrainte ou basée sur les ressources pour empêcher le vol d'identifiants et l'élévation de privilèges.</value></data>
+  <data name="RuleRec_SEC-PasswordNeverExpires" xml:space="preserve"><value>Limitez les mots de passe sans expiration aux comptes de service approuvés avec des secrets forts.</value></data>
+  <data name="RuleRec_HYG-ExpiredUsers" xml:space="preserve"><value>Désactivez ou supprimez les comptes expirés pour réduire la surface d'attaque.</value></data>
+  <data name="RuleRec_HYG-NeverLoggedIn" xml:space="preserve"><value>Examinez les comptes jamais utilisés ; supprimez le provisionnement obsolète qui n'est plus nécessaire.</value></data>
+  <data name="RuleRec_HYG-UserAccountLockedOut" xml:space="preserve"><value>Enquêtez sur les verrouillages répétés ; ils peuvent indiquer une mauvaise configuration ou une activité de force brute.</value></data>
+  <data name="RuleRec_HYG-NoManagerUser" xml:space="preserve"><value>Attribuez un responsable pour faciliter les revues d'accès et la responsabilisation de la propriété.</value></data>
+  <data name="RuleRec_HYG-NoManagerServiceAccount" xml:space="preserve"><value>Attribuez un propriétaire responsable à chaque compte de service.</value></data>
+  <data name="RuleRec_GRP-NoGroupOwner" xml:space="preserve"><value>Attribuez un propriétaire (managedBy ou propriétaire secondaire) à chaque groupe pour la revue d'accès.</value></data>
+  <data name="RuleRec_GRP-EmptyGroups" xml:space="preserve"><value>Supprimez ou réaffectez les groupes vides pour réduire l'encombrement et les abus potentiels.</value></data>
+  <data name="RuleRec_ENT-NoGroupOwner" xml:space="preserve"><value>Attribuez un propriétaire à chaque groupe Entra afin que l'appartenance puisse être régulièrement révisée et que l'accès reste responsabilisé. Les groupes sans propriétaire n'ont personne pour attester qui devrait avoir accès.</value></data>
+  <data name="RuleRec_ENT-GuestContainingGroups" xml:space="preserve"><value>Examinez les groupes incluant des membres invités/externes et confirmez que l'accès externe est toujours nécessaire et correctement délimité. Les invités dans les groupes peuvent hériter d'un accès aux ressources ; supprimez les invités obsolètes et privilégiez un accès géré par droits, limité dans le temps, pour la collaboration externe.</value></data>
+  <data name="RuleRec_ENT-SingleOwnerGroups" xml:space="preserve"><value>Attribuez au moins deux propriétaires à chaque groupe Entra pour éviter un point de défaillance unique lors des revues d'accès et des modifications d'appartenance lorsque l'unique propriétaire est indisponible ou quitte l'organisation.</value></data>
+  <data name="RuleRec_ENT-GuestUsers" xml:space="preserve"><value>Examinez périodiquement les comptes invités/externes et supprimez ceux qui ne sont plus nécessaires. Appliquez des revues d'accès invités, une expiration et un cadrage au moindre privilège afin que les identités externes n'accumulent pas d'accès permanents aux ressources internes.</value></data>
+  <data name="RuleRec_ENT-NoManagerUser" xml:space="preserve"><value>Renseignez l'attribut responsable sur les comptes utilisateur Entra pour faciliter les revues d'accès, les processus d'arrivée/mutation/départ et la responsabilisation de la propriété pour les approbations déléguées.</value></data>
+  <data name="RuleRec_CFG-UnsupportedServerOs" xml:space="preserve"><value>Windows Server 2008 R2 et 2012 R2 ne sont plus pris en charge et ne reçoivent plus de mises à jour de sécurité. Mettez à niveau ou décommissionnez ces serveurs, ou isolez-les et placez-les sous un contrat de support étendu, pour réduire l'exposition aux vulnérabilités non corrigées.</value></data>
+  <data name="RuleRec_CFG-UnsupportedClientOs" xml:space="preserve"><value>Windows 7, 8.1 et Windows 10 22H2 sont en fin de support (ou l'atteignent). Mettez à niveau les clients concernés vers une version Windows prise en charge afin qu'ils continuent à recevoir des mises à jour de sécurité, ou retirez-les de l'environnement.</value></data>
+  <data name="RuleRec_CFG-StaleComputers" xml:space="preserve"><value>Les comptes d'ordinateur qui ne se sont pas authentifiés depuis longtemps sont probablement décommissionnés ou orphelins. Désactivez et supprimez les comptes d'ordinateur obsolètes pour réduire la surface d'attaque et maintenir un annuaire exact.</value></data>
+  <data name="RuleRec_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>Un mot de passe du compte krbtgt rarement renouvelé augmente l'exposition aux attaques Golden Ticket Kerberos. Renouvelez le mot de passe krbtgt selon un calendrier régulier (deux fois, avec un délai entre les renouvellements) afin que les tickets falsifiés ne restent pas valides indéfiniment.</value></data>
+  <data name="RuleRec_CFG-WeakPasswordLength" xml:space="preserve"><value>La longueur minimale du mot de passe du domaine par défaut est inférieure à 12 caractères. Augmentez la longueur minimale (12 ou plus recommandé) pour renforcer la résistance aux attaques par devinette et au cassage hors ligne.</value></data>
+  <data name="RuleRec_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>La complexité des mots de passe est désactivée dans la stratégie de domaine par défaut. Activez la complexité afin que les mots de passe doivent inclure un mélange de types de caractères, réduisant le risque de mots de passe faibles et faciles à deviner.</value></data>
+  <data name="RuleRec_CFG-NoAccountLockout" xml:space="preserve"><value>Le seuil de verrouillage de compte est à zéro, de sorte que les comptes ne sont jamais verrouillés après des échecs de connexion répétés. Configurez un seuil de verrouillage pour ralentir les attaques par devinette et par force brute en ligne.</value></data>
+  <data name="RuleRec_CFG-PasswordMaxAge" xml:space="preserve"><value>L'âge maximal du mot de passe est très long (ou les mots de passe n'expirent jamais). Alignez l'âge maximal du mot de passe sur votre stratégie ; lorsque des mots de passe à longue durée de vie sont utilisés, assurez-vous qu'ils sont longs, uniques et protégés par une MFA résistante au phishing.</value></data>
+  <data name="RuleRec_PRIV-AdminCountAccounts" xml:space="preserve"><value>Les comptes avec adminCount=1 sont (ou étaient) membres de groupes privilégiés protégés et sont régis par AdminSDHolder. Un nombre élevé ou croissant peut indiquer une prolifération de privilèges ou une protection orpheline. Examinez ces comptes, supprimez l'appartenance inutile aux groupes privilégiés et réinitialisez adminCount/la protection obsolète le cas échéant.</value></data>
+  <data name="RuleRec_PRIV-DomainAdmins" xml:space="preserve"><value>Limitez les Admins du domaine à un petit ensemble nommé de comptes. Supprimez l'appartenance permanente, utilisez l'élévation juste-à-temps et révisez régulièrement.</value></data>
+  <data name="RuleRec_PRIV-EnterpriseAdmins" xml:space="preserve"><value>Les Administrateurs de l'entreprise devraient normalement être vides sauf lors de modifications à l'échelle de la forêt. Supprimez les membres permanents et élevez juste-à-temps.</value></data>
+  <data name="RuleRec_PRIV-SchemaAdmins" xml:space="preserve"><value>Les Administrateurs du schéma devraient être vides en dehors des fenêtres de modification du schéma. Supprimez l'appartenance permanente et ajoutez temporairement uniquement en cas de besoin.</value></data>
+  <data name="RuleRec_PRIV-Administrators" xml:space="preserve"><value>Limitez le groupe Administrateurs intégré aux comptes essentiels. Préférez la délégation basée sur les rôles à une large appartenance administrative.</value></data>
+  <data name="RuleRec_AUTH-SmartCardAdoption" xml:space="preserve"><value>Imposez une MFA par carte à puce / résistante au phishing pour la connexion interactive, en priorité pour les comptes administratifs et à privilèges élevés. Un nombre de zéro indique que l'authentification forte n'est imposée nulle part.</value></data>
+  <data name="RuleRec_HYG-StaleAccounts" xml:space="preserve"><value>Examinez les comptes activés sans connexion interactive au cours des {StaleThresholdDays} derniers jours. Désactivez ou déprovisionnez les comptes inutilisés pour réduire la surface d'attaque et respecter les exigences de moindre privilège / cycle de vie.</value></data>
+  <data name="RuleRec_SEC-CannotChangePassword" xml:space="preserve"><value>Limitez l'indicateur « l'utilisateur ne peut pas modifier le mot de passe » aux comptes de service approuvés ; il empêche la rotation des identifiants compromis.</value></data>
+  <data name="RuleRec_SEC-MustChangePassword" xml:space="preserve"><value>Un grand arriéré de comptes « doit modifier le mot de passe à la prochaine connexion » peut indiquer une intégration bloquée ou un provisionnement dormant ; examinez et faites le suivi.</value></data>
+  <data name="RuleRec_SEC-SensitiveCannotDelegateAdoption" xml:space="preserve"><value>Marquez les comptes administratifs et de grande valeur comme « sensibles et ne pouvant pas être délégués » (ou ajoutez-les au groupe Utilisateurs protégés) afin que leurs identifiants ne puissent pas être transmis par délégation. Un nombre de zéro indique que cette protection n'est appliquée nulle part.</value></data>
+  <data name="RuleRec_HYG-DeprovisionedUsers" xml:space="preserve"><value>Terminez le cycle de déprovisionnement : supprimez ou archivez les comptes laissés dans un état déprovisionné afin qu'ils ne puissent pas être réactivés ou détournés.</value></data>
+  <data name="RuleRec_PRIV-AccountOperators" xml:space="preserve"><value>Opérateurs de compte est un groupe hérité puissant qui peut gérer la plupart des objets utilisateur et groupe. Gardez-le vide et déléguez plutôt des autorisations spécifiques.</value></data>
+  <data name="RuleRec_PRIV-ServerOperators" xml:space="preserve"><value>Les Opérateurs de serveur peuvent se connecter aux contrôleurs de domaine et les contrôler. Gardez ce groupe hérité vide et utilisez une délégation ciblée à la place.</value></data>
+  <data name="RuleRec_PRIV-BackupOperators" xml:space="preserve"><value>Les Opérateurs de sauvegarde peuvent lire et restaurer n'importe quel fichier (un chemin connu d'élévation de privilèges). Limitez l'appartenance à des comptes de service de sauvegarde dédiés.</value></data>
+  <data name="RuleRec_AR-DisabledWorkflows" xml:space="preserve"><value>Les workflows désactivés n'appliquent plus leur logique d'approbation, de provisionnement ou de notification. Examinez les workflows désactivés et réactivez-les ou supprimez-les afin que les contrôles de changement restent en vigueur.</value></data>
+  <data name="RuleRec_AR-BroadDelegationLinks" xml:space="preserve"><value>Les liens de modèle d'accès attribués à Tout le monde, Utilisateurs authentifiés ou Utilisateurs du domaine accordent des droits d'administration délégués à toute la population. Recadrez ces liens sur des groupes spécifiques au moindre privilège.</value></data>
+  <data name="RuleRec_AR-ConfigDatabaseResilience" xml:space="preserve"><value>Une seule base de données de configuration Active Roles est présente, ce qui en fait un point de défaillance unique. Ajoutez des bases de données de configuration supplémentaires et configurez la réplication SQL afin que la configuration reste disponible en cas de défaillance d'une base de données.</value></data>
+  <data name="RuleRec_AR-HistoryDatabaseResilience" xml:space="preserve"><value>Une seule base de données d'historique de gestion Active Roles est présente, ce qui en fait un point de défaillance unique. Ajoutez des bases de données d'historique supplémentaires et configurez la réplication afin que les données d'historique de changement restent disponibles en cas de défaillance d'une base de données.</value></data>
+  <data name="RuleRec_GDPR-CannotChangePassword" xml:space="preserve"><value>Les comptes ne pouvant pas modifier leur propre mot de passe empêchent une rotation rapide des identifiants après une compromission suspectée, affaiblissant la sécurité du traitement attendue au titre de l'article 32 du RGPD. Limitez cet indicateur aux comptes de service approuvés.</value></data>
+  <data name="RuleRec_GDPR-DeprovisionedResidue" xml:space="preserve"><value>Les comptes laissés dans un état déprovisionné peuvent conserver un accès résiduel aux systèmes traitant des données personnelles. Terminez le cycle arrivée-mutation-départ pour soutenir la limitation de conservation et la responsabilité de gouvernance des accès au titre des articles 5(2) et 24 du RGPD.</value></data>
+  <data name="RuleRec_DORA-StrongAuthAdoption" xml:space="preserve"><value>La protection TIC de DORA (art. 9) exige une authentification forte et des contrôles d'accès pour protéger la confidentialité et l'intégrité des actifs informationnels. Imposez une MFA par carte à puce / résistante au phishing, en priorité pour les comptes administratifs et à privilèges élevés ; un nombre de zéro indique que l'authentification forte n'est imposée nulle part.</value></data>
+  <data name="RuleRec_DORA-DelegationProtectionAdoption" xml:space="preserve"><value>Protéger les comptes privilégiés contre la délégation d'identifiants limite le rayon d'impact d'une compromission, soutenant la résilience TIC et les contrôles d'accès au moindre privilège au titre de l'art. 9 de DORA. Marquez les comptes administratifs comme « sensibles et ne pouvant pas être délégués » ou ajoutez-les au groupe Utilisateurs protégés ; un nombre de zéro indique que cette protection n'est appliquée nulle part.</value></data>
+  <data name="RuleRec_HIPAA-CannotChangePassword" xml:space="preserve"><value>Les comptes ne pouvant pas modifier leur propre mot de passe empêchent une rotation rapide des identifiants après une compromission suspectée, affaiblissant l'authentification des personnes/entités et les contrôles d'accès attendus par la HIPAA Security Rule (45 CFR 164.312(a),(d)), les contrôles d'authentification et de gestion des identifiants de l'exigence 8 de PCI DSS (notamment 8.3), et l'identification et l'authentification NIST SP 800-171 (3.5). Limitez cet indicateur aux comptes de service approuvés.</value></data>
+  <data name="RuleRec_HIPAA-ProvisioningBacklog" xml:space="preserve"><value>Un grand arriéré de comptes « doit modifier le mot de passe à la prochaine connexion » peut indiquer une intégration bloquée ou un provisionnement dormant, ce qui compromet l'établissement et la modification disciplinés des accès du personnel au titre de la HIPAA 45 CFR 164.308(a)(3)-(4), les attentes de provisionnement et de cycle de vie des comptes de l'exigence 8 de PCI DSS (8.1-8.2), et la gestion des comptes NIST SP 800-171 au titre du contrôle d'accès (3.1) et de l'identification et de l'authentification (3.5). Examinez et faites le suivi de ces comptes.</value></data>
+  <data name="RuleRec_SOX-AccountOperators" xml:space="preserve"><value>Opérateurs de compte est un groupe hérité puissant qui peut gérer la plupart des objets utilisateur et groupe, créant des préoccupations de séparation des tâches et de moindre privilège pour l'ITGC « accès aux programmes et aux données ». Gardez-le vide et déléguez plutôt des autorisations spécifiques et vérifiables.</value></data>
+  <data name="RuleRec_SOX-ServerOperators" xml:space="preserve"><value>Les Opérateurs de serveur peuvent se connecter aux contrôleurs de domaine et les contrôler, une concentration de privilèges qui affaiblit la séparation des tâches sur l'infrastructure financièrement pertinente. Gardez ce groupe hérité vide et utilisez une délégation ciblée et vérifiable.</value></data>
+  <data name="RuleRec_TSA-PrivilegedStrongAuth" xml:space="preserve"><value>Le Code de pratique TSA attend que l'accès privilégié au plan de gestion soit fortement protégé. Imposez une MFA par carte à puce / résistante au phishing pour les comptes administratifs et à privilèges élevés qui gèrent le plan d'administration de l'identité et du réseau ; un nombre de zéro indique que l'authentification forte n'est imposée nulle part.</value></data>
+  <data name="RuleRec_TSA-PrivilegedDelegationProtection" xml:space="preserve"><value>Protéger les comptes privilégiés du plan d'administration contre la délégation d'identifiants limite le déplacement latéral vers les systèmes de gestion pertinents pour la sécurité, soutenant les attentes de protection des accès privilégiés de la TSA. Marquez les comptes administratifs comme « sensibles et ne pouvant pas être délégués » ou ajoutez-les au groupe Utilisateurs protégés ; un nombre de zéro indique que cette protection n'est appliquée nulle part.</value></data>
+  <data name="RuleRec_CAF-B2-StrongAuthAdoption" xml:space="preserve"><value>Le principe B2 du CAF attend une vérification et une authentification robustes de l'identité, en particulier pour l'accès privilégié. Imposez une MFA par carte à puce / résistante au phishing, en priorité pour les comptes administratifs et à privilèges élevés ; un nombre de zéro indique que l'authentification forte n'est imposée nulle part.</value></data>
+  <data name="RuleRec_CAF-B2-PrivilegedDelegationProtection" xml:space="preserve"><value>Le principe B2 du CAF attend que l'accès privilégié soit étroitement géré et protégé. Marquez les comptes administratifs comme « sensibles et ne pouvant pas être délégués » ou ajoutez-les au groupe Utilisateurs protégés afin que leurs identifiants ne puissent pas être transmis par délégation ; un nombre de zéro indique que cette protection n'est appliquée nulle part.</value></data>
+  <data name="RuleRec_CE-UAC-AdminAccountCount" xml:space="preserve"><value>Le « Contrôle d'accès utilisateur » de Cyber Essentials exige que les comptes administratifs soient réduits au minimum et utilisés uniquement en cas de nécessité. Limitez les Admins du domaine à un petit ensemble nommé, supprimez les droits d'administration permanents lorsqu'ils ne sont pas nécessaires, et utilisez des comptes distincts pour les tâches administratives.</value></data>
+  <data name="RuleRec_CE-UAC-StaleAccounts" xml:space="preserve"><value>Le « Contrôle d'accès utilisateur » de Cyber Essentials exige que les comptes utilisateur soient supprimés ou désactivés lorsqu'ils ne sont plus nécessaires. Désactivez ou déprovisionnez les comptes inactifs au-delà de votre seuil défini, en particulier pour les partants, pour réduire la surface d'attaque.</value></data>
+  <data name="RuleRec_DSPT-S4-PrivilegedAccessMinimisation" xml:space="preserve"><value>La norme 4 du DSPT (Gestion de l'accès aux données) attend que l'accès soit limité à ceux qui en ont besoin. Limitez les Admins du domaine à un petit ensemble nommé de comptes, supprimez l'appartenance permanente et révisez régulièrement l'accès privilégié.</value></data>
+  <data name="RuleRec_DSPT-S4-LeaverStaleAccounts" xml:space="preserve"><value>La norme 4 du DSPT (Gestion de l'accès aux données) attend que l'accès soit supprimé rapidement lorsqu'il n'est plus nécessaire. Désactivez ou déprovisionnez les comptes inactifs au-delà de votre seuil défini, en particulier pour les partants, afin que l'accès aux données personnelles confidentielles ne soit pas conservé inutilement.</value></data>
+  <data name="RuleRec_DFE-AAM-LeastPrivilege" xml:space="preserve"><value>Les normes cyber du DfE attendent que les comptes utilisent le moins d'accès nécessaire et que les comptes administrateurs soient utilisés uniquement pour les tâches d'administration. Limitez les Admins du domaine à un petit ensemble nommé, supprimez l'appartenance permanente et utilisez des comptes distincts pour le travail administratif.</value></data>
+  <data name="RuleRec_DFE-AAM-StrongAuthAdoption" xml:space="preserve"><value>Les normes cyber du DfE attendent une authentification multifacteur pour les comptes ayant accès à des données sensibles ou personnelles, et particulièrement pour les administrateurs. Imposez une MFA par carte à puce / résistante au phishing, en priorité pour les comptes administratifs et à privilèges élevés ; un nombre de zéro indique que l'authentification forte n'est imposée nulle part.</value></data>
+  <data name="RuleRec_DFE-AAM-LeaverStaleAccounts" xml:space="preserve"><value>Les normes cyber du DfE attendent que les comptes soient supprimés ou désactivés lorsqu'ils ne sont plus nécessaires. Désactivez ou déprovisionnez les comptes inactifs au-delà de votre seuil défini, en particulier pour les partants, pour réduire la surface d'attaque.</value></data>
+</root>

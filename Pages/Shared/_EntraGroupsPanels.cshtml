@@ -1,4 +1,5 @@
 @model ActiveRolesDashboard.Pages.DashboardPageModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     string WebInterfaceUrl = Model.WebInterfaceUrl;
     var entra = Model.Summary.EntraTotals;
@@ -33,12 +34,12 @@
         {
             var href = $"{webUrl.TrimEnd('/')}/redirect.ashx?dn={Uri.EscapeDataString(dn)}";
             return new Microsoft.AspNetCore.Html.HtmlString(
-                $"<a href=\"javascript:void(0)\" onclick=\"openWebInterface('{href}')\" title=\"Open in Web Interface\" class=\"btn-manage\">{svg}</a>");
+                $"<a href=\"javascript:void(0)\" onclick=\"openWebInterface('{href}')\" title=\"{Localizer["Tip_OpenInWebInterface"].Value}\" class=\"btn-manage\">{svg}</a>");
         }
         if (!string.IsNullOrEmpty(dn))
         {
             return new Microsoft.AspNetCore.Html.HtmlString(
-                $"<span class=\"btn-manage disabled\" title=\"Configure Web Interface URL in Settings\">{svg}</span>");
+                $"<span class=\"btn-manage disabled\" title=\"{Localizer["Tip_ConfigureWebUrl"].Value}\">{svg}</span>");
         }
         return Microsoft.AspNetCore.Html.HtmlString.Empty;
     }
@@ -58,10 +59,10 @@
             {
                 <div class="membership-loading" data-membership-spinner="@kpiKey" style="@(summary == null ? "" : "display:none;")">
                     <span class="spinner" aria-hidden="true"></span>
-                    <span class="muted">Loading group membership&hellip;</span>
+                    <span class="muted">@Localizer["LoadingMembership"]</span>
                 </div>
                 <table style="@(summary == null ? "display:none;" : "")" data-membership-table="@kpiKey">
-                    <thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead>
+                    <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead>
                     <tbody data-membership-body="@kpiKey">
                         @if (summary != null)
                         {
@@ -84,12 +85,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraDistributionGroups"))
 {
 <div class="panel" id="panel-entradistributiongroups">
-    <h2><span class="sec-icon">D</span> Distribution Groups</h2>
+    <h2><span class="sec-icon">D</span> @Localizer["H_DistributionGroups"]</h2>
     <div class="panel-content">
         @if (distributionGroups.Error != null) { <p class="muted">@distributionGroups.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var g in distributionGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!distributionGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No distribution groups found</td></tr> }
+        @if (!distributionGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">@Localizer["E_DistributionGroups"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -98,12 +99,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraDynamicDistributionGroups"))
 {
 <div class="panel" id="panel-entradynamicdistributiongroups">
-    <h2><span class="sec-icon">Y</span> Dynamic Distribution Groups</h2>
+    <h2><span class="sec-icon">Y</span> @Localizer["H_DynamicDistributionGroups"]</h2>
     <div class="panel-content">
         @if (dynamicDistributionGroups.Error != null) { <p class="muted">@dynamicDistributionGroups.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var g in dynamicDistributionGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!dynamicDistributionGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No dynamic distribution groups found</td></tr> }
+        @if (!dynamicDistributionGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">@Localizer["E_DynamicDistributionGroups"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -112,12 +113,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraMicrosoft365Groups"))
 {
 <div class="panel" id="panel-entramicrosoft365groups">
-    <h2><span class="sec-icon">M</span> Microsoft 365 Groups</h2>
+    <h2><span class="sec-icon">M</span> @Localizer["H_Microsoft365Groups"]</h2>
     <div class="panel-content">
         @if (microsoft365Groups.Error != null) { <p class="muted">@microsoft365Groups.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var g in microsoft365Groups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!microsoft365Groups.Items.Any()) { <tr><td colspan="4" class="empty-row">No Microsoft 365 groups found</td></tr> }
+        @if (!microsoft365Groups.Items.Any()) { <tr><td colspan="4" class="empty-row">@Localizer["E_Microsoft365Groups"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -126,12 +127,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraSecurityGroups"))
 {
 <div class="panel" id="panel-entrasecuritygroups">
-    <h2><span class="sec-icon">S</span> Security Groups</h2>
+    <h2><span class="sec-icon">S</span> @Localizer["H_SecurityGroups"]</h2>
     <div class="panel-content">
         @if (securityGroups.Error != null) { <p class="muted">@securityGroups.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var g in securityGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!securityGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No security groups found</td></tr> }
+        @if (!securityGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">@Localizer["E_SecurityGroups"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -140,36 +141,36 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraEmptyGroups"))
 {
 <div class="panel" id="panel-entraemptygroups">
-    <h2><span class="sec-icon">E</span> Empty Groups</h2>
-    @{ RenderLazyMembershipPanel("emptyGroups", "No empty groups found", emptyGroups); }
+    <h2><span class="sec-icon">E</span> @Localizer["H_EmptyGroups"]</h2>
+    @{ RenderLazyMembershipPanel("emptyGroups", Localizer["E_EmptyGroups"].Value, emptyGroups); }
 </div>
 }
 
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraNoGroupOwner"))
 {
 <div class="panel" id="panel-entranogroupowner">
-    <h2><span class="sec-icon">O</span> No Group Owner</h2>
-    @{ RenderLazyMembershipPanel("noGroupOwner", "No groups without an owner found", noOwnerGroups); }
+    <h2><span class="sec-icon">O</span> @Localizer["H_NoGroupOwner"]</h2>
+    @{ RenderLazyMembershipPanel("noGroupOwner", Localizer["E_NoGroupOwner"].Value, noOwnerGroups); }
 </div>
 }
 
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraGuestContainingGroups"))
 {
 <div class="panel" id="panel-entraguestcontaininggroups">
-    <h2><span class="sec-icon">G</span> Guest-Containing Groups</h2>
-    @{ RenderLazyMembershipPanel("guestContaining", "No guest-containing groups found", guestGroups); }
+    <h2><span class="sec-icon">G</span> @Localizer["H_GuestContainingGroups"]</h2>
+    @{ RenderLazyMembershipPanel("guestContaining", Localizer["E_GuestContainingGroups"].Value, guestGroups); }
 </div>
 }
 
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraPublicGroups"))
 {
 <div class="panel" id="panel-entrapublicgroups">
-    <h2><span class="sec-icon">P</span> Public M365 Groups</h2>
+    <h2><span class="sec-icon">P</span> @Localizer["H_PublicGroups"]</h2>
     <div class="panel-content">
         @if (publicGroups.Error != null) { <p class="muted">@publicGroups.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var g in publicGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!publicGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No public Microsoft 365 groups found</td></tr> }
+        @if (!publicGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">@Localizer["E_PublicGroups"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -178,12 +179,12 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraOnPremSyncedGroups"))
 {
 <div class="panel" id="panel-entraonpremsyncedgroups">
-    <h2><span class="sec-icon">H</span> On-Premises Synced Groups</h2>
+    <h2><span class="sec-icon">H</span> @Localizer["H_OnPremSyncedGroups"]</h2>
     <div class="panel-content">
         @if (onPremSyncedGroups.Error != null) { <p class="muted">@onPremSyncedGroups.Error</p> } else {
-        <table><thead><tr><th>Name</th><th>Tenant</th><th>Distinguished Name</th><th style="width:40px;"></th></tr></thead><tbody>
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var g in onPremSyncedGroups.Items) { <tr><td>@g.Name</td><td>@g.Tenant</td><td class="dn-cell">@g.Dn</td><td>@WebLink(g.Dn, WebInterfaceUrl)</td></tr> }
-        @if (!onPremSyncedGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">No on-premises synced groups found</td></tr> }
+        @if (!onPremSyncedGroups.Items.Any()) { <tr><td colspan="4" class="empty-row">@Localizer["E_OnPremSyncedGroups"]</td></tr> }
         </tbody></table> }
     </div>
 </div>
@@ -192,15 +193,15 @@
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraSingleOwnerGroups"))
 {
 <div class="panel" id="panel-entrasingleownergroups">
-    <h2><span class="sec-icon">1</span> Single-Owner Groups</h2>
-    @{ RenderLazyMembershipPanel("singleOwner", "No single-owner groups found", singleOwnerGroups); }
+    <h2><span class="sec-icon">1</span> @Localizer["H_SingleOwnerGroups"]</h2>
+    @{ RenderLazyMembershipPanel("singleOwner", Localizer["E_SingleOwnerGroups"].Value, singleOwnerGroups); }
 </div>
 }
 
 @if (Model.KpiSettings.IsKpiEnabled("EntraGroups", "EntraLargeGroups"))
 {
 <div class="panel" id="panel-entralargegroups">
-    <h2><span class="sec-icon">L</span> Large Groups (&ge;@Model.LargeGroupMemberThreshold members)</h2>
-    @{ RenderLazyMembershipPanel("largeGroups", "No large groups found", largeGroups); }
+    <h2><span class="sec-icon">L</span> @Localizer["H_LargeGroups", Model.LargeGroupMemberThreshold]</h2>
+    @{ RenderLazyMembershipPanel("largeGroups", Localizer["E_LargeGroups"].Value, largeGroups); }
 </div>
 }

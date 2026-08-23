@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Cat_Overview" xml:space="preserve"><value>Resumen</value></data>
+  <data name="Chart_ComputerOsBreakdown" xml:space="preserve"><value>Equipos por sistema operativo</value></data>
+  <data name="Chart_GroupTypeBreakdown" xml:space="preserve"><value>Grupos por tipo</value></data>
+  <data name="Chart_UserAccountStateBreakdown" xml:space="preserve"><value>Usuarios por estado de cuenta</value></data>
+  <data name="Chart_UserPasswordControlBreakdown" xml:space="preserve"><value>Control de cambio de contraseña</value></data>
+  <data name="Chart_UserDelegationBreakdown" xml:space="preserve"><value>Control de delegación</value></data>
+  <data name="Chart_UserAccountOptions" xml:space="preserve"><value>Opciones de cuenta</value></data>
+  <data name="Chart_OverviewUsersBySource" xml:space="preserve"><value>Usuarios por origen</value></data>
+  <data name="Chart_OverviewGroupsBySource" xml:space="preserve"><value>Grupos por origen</value></data>
+  <data name="Chart_OverviewComputersBySource" xml:space="preserve"><value>Equipos / Dispositivos por origen</value></data>
+  <data name="Chart_AdOverviewUsersChart" xml:space="preserve"><value>Usuarios por origen</value></data>
+  <data name="Chart_AdOverviewGroupsChart" xml:space="preserve"><value>Grupos por origen</value></data>
+  <data name="Chart_AdOverviewComputersChart" xml:space="preserve"><value>Equipos / Dispositivos por origen</value></data>
+  <data name="Chart_EntraOverviewUsersChart" xml:space="preserve"><value>Usuarios por origen</value></data>
+  <data name="Chart_EntraOverviewGroupsChart" xml:space="preserve"><value>Grupos por origen</value></data>
+  <data name="Chart_EntraUserAccountStateBreakdown" xml:space="preserve"><value>Usuarios por estado de cuenta</value></data>
+  <data name="Chart_EntraUserOriginBreakdown" xml:space="preserve"><value>Usuarios por procedencia</value></data>
+  <data name="Chart_EntraGroupTypeBreakdown" xml:space="preserve"><value>Grupos por tipo</value></data>
+  <data name="Cat_ADOverview" xml:space="preserve"><value>Resumen</value></data>
+  <data name="Cat_EntraOverview" xml:space="preserve"><value>Resumen</value></data>
+  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuración de Active Roles</value></data>
+  <data name="Cat_ADGovernance" xml:space="preserve"><value>Gobernanza y riesgos</value></data>
+  <data name="Cat_PrivilegedGroups" xml:space="preserve"><value>Grupos con privilegios</value></data>
+  <data name="Cat_ADUserAccountsCategory" xml:space="preserve"><value>Cuentas de usuario</value></data>
+  <data name="Cat_ADGroupsCategory" xml:space="preserve"><value>Grupos</value></data>
+  <data name="Cat_PrivilegedUsers" xml:space="preserve"><value>Usuarios con privilegios</value></data>
+  <data name="Cat_Infrastructure" xml:space="preserve"><value>Infraestructura</value></data>
+  <data name="Cat_ComputersCategory" xml:space="preserve"><value>Equipos</value></data>
+  <data name="Cat_NHIs" xml:space="preserve"><value>Identidades no humanas</value></data>
+  <data name="Cat_EntraIDGovernance" xml:space="preserve"><value>Gobernanza y riesgos</value></data>
+  <data name="Cat_EntraUserAccounts" xml:space="preserve"><value>Cuentas de usuario</value></data>
+  <data name="Cat_EntraGroups" xml:space="preserve"><value>Grupos</value></data>
+  <data name="Cat_Licensing" xml:space="preserve"><value>Licencias</value></data>
+  <data name="Kpi_ADUserAccounts" xml:space="preserve"><value>Total de usuarios</value></data>
+  <data name="Kpi_ADGroups" xml:space="preserve"><value>Total de grupos</value></data>
+  <data name="Kpi_Computers" xml:space="preserve"><value>Total de equipos</value></data>
+  <data name="Kpi_AdOverviewUsers" xml:space="preserve"><value>Total de usuarios</value></data>
+  <data name="Kpi_AdOverviewGroups" xml:space="preserve"><value>Total de grupos</value></data>
+  <data name="Kpi_AdOverviewComputers" xml:space="preserve"><value>Total de equipos</value></data>
+  <data name="Kpi_EntraOverviewUsers" xml:space="preserve"><value>Total de usuarios</value></data>
+  <data name="Kpi_EntraOverviewGroups" xml:space="preserve"><value>Total de grupos</value></data>
+  <data name="Kpi_EntraEnabledUsers" xml:space="preserve"><value>Usuarios habilitados</value></data>
+  <data name="Kpi_EntraDisabledUsers" xml:space="preserve"><value>Usuarios deshabilitados</value></data>
+  <data name="Kpi_EntraNoManagerUser" xml:space="preserve"><value>Sin responsable (usuario)</value></data>
+  <data name="Kpi_EntraGuestUsers" xml:space="preserve"><value>Usuarios invitados</value></data>
+  <data name="Kpi_EntraInternalUsers" xml:space="preserve"><value>Usuarios internos</value></data>
+  <data name="Kpi_EntraExternalUsers" xml:space="preserve"><value>Usuarios externos</value></data>
+  <data name="Kpi_EntraDistributionGroups" xml:space="preserve"><value>Grupos de distribución</value></data>
+  <data name="Kpi_EntraDynamicDistributionGroups" xml:space="preserve"><value>Grupos de distribución dinámicos</value></data>
+  <data name="Kpi_EntraMicrosoft365Groups" xml:space="preserve"><value>Grupos de Microsoft 365</value></data>
+  <data name="Kpi_EntraSecurityGroups" xml:space="preserve"><value>Grupos de seguridad</value></data>
+  <data name="Kpi_EntraEmptyGroups" xml:space="preserve"><value>Grupos vacíos</value></data>
+  <data name="Kpi_EntraNoGroupOwner" xml:space="preserve"><value>Sin propietario de grupo</value></data>
+  <data name="Kpi_EntraGuestContainingGroups" xml:space="preserve"><value>Grupos con invitados</value></data>
+  <data name="Kpi_EntraPublicGroups" xml:space="preserve"><value>Grupos M365 públicos</value></data>
+  <data name="Kpi_EntraOnPremSyncedGroups" xml:space="preserve"><value>Grupos sincronizados localmente</value></data>
+  <data name="Kpi_EntraSingleOwnerGroups" xml:space="preserve"><value>Grupos con un solo propietario</value></data>
+  <data name="Kpi_EntraLargeGroups" xml:space="preserve"><value>Grupos grandes</value></data>
+  <data name="Kpi_ActiveRolesAdmins" xml:space="preserve"><value>Administradores de Active Roles</value></data>
+  <data name="KpiTile_ActiveRolesAdmins" xml:space="preserve"><value>Admins AR</value></data>
+  <data name="Kpi_Servers" xml:space="preserve"><value>Servidores AR</value></data>
+  <data name="Kpi_Domains" xml:space="preserve"><value>Dominios gestionados</value></data>
+  <data name="Kpi_AccessTemplateLinks" xml:space="preserve"><value>Vínculos de plantillas de acceso</value></data>
+  <data name="Kpi_AccessTemplates" xml:space="preserve"><value>Plantillas de acceso</value></data>
+  <data name="Kpi_DynamicGroups" xml:space="preserve"><value>Grupos dinámicos</value></data>
+  <data name="Kpi_GroupFamilies" xml:space="preserve"><value>Familias de grupos</value></data>
+  <data name="Kpi_ManagedUnits" xml:space="preserve"><value>Unidades gestionadas</value></data>
+  <data name="Kpi_PolicyObjectLinks" xml:space="preserve"><value>Vínculos de objetos de directiva</value></data>
+  <data name="Kpi_PolicyObjects" xml:space="preserve"><value>Objetos de directiva</value></data>
+  <data name="Kpi_VirtualAttributes" xml:space="preserve"><value>Atributos virtuales</value></data>
+  <data name="Kpi_Workflows" xml:space="preserve"><value>Flujos de trabajo</value></data>
+  <data name="Kpi_ConfigDatabases" xml:space="preserve"><value>Bases de datos de configuración</value></data>
+  <data name="Kpi_HistoryDatabases" xml:space="preserve"><value>Bases de datos de historial</value></data>
+  <data name="Kpi_NoGroupOwner" xml:space="preserve"><value>Sin propietario de grupo</value></data>
+  <data name="Kpi_NoManagerUser" xml:space="preserve"><value>Sin responsable (usuario)</value></data>
+  <data name="Kpi_NoManagerServiceAccount" xml:space="preserve"><value>Sin responsable (cuenta de servicio)</value></data>
+  <data name="Kpi_UserAccountLockedOut" xml:space="preserve"><value>Cuenta de usuario bloqueada</value></data>
+  <data name="Kpi_EmptyGroups" xml:space="preserve"><value>Grupos vacíos</value></data>
+  <data name="Kpi_NeverLoggedIn" xml:space="preserve"><value>Nunca inició sesión</value></data>
+  <data name="Kpi_ExpiredUsers" xml:space="preserve"><value>Usuarios caducados</value></data>
+  <data name="Kpi_ReversibleEncryption" xml:space="preserve"><value>Cifrado reversible</value></data>
+  <data name="Kpi_AccountOperators" xml:space="preserve"><value>Operadores de cuentas</value></data>
+  <data name="Kpi_Administrators" xml:space="preserve"><value>Administradores</value></data>
+  <data name="Kpi_BackupOperators" xml:space="preserve"><value>Operadores de copia de seguridad</value></data>
+  <data name="Kpi_DomainAdmins" xml:space="preserve"><value>Admins del dominio</value></data>
+  <data name="Kpi_ServerOperators" xml:space="preserve"><value>Operadores de servidores</value></data>
+  <data name="Kpi_EnterpriseAdmins" xml:space="preserve"><value>Admins de empresa</value></data>
+  <data name="Kpi_SchemaAdmins" xml:space="preserve"><value>Admins del esquema</value></data>
+  <data name="Kpi_CannotChangePassword" xml:space="preserve"><value>No puede cambiar la contraseña</value></data>
+  <data name="Kpi_DisabledUsers" xml:space="preserve"><value>Usuarios deshabilitados</value></data>
+  <data name="Kpi_NoKerberosPreauth" xml:space="preserve"><value>No requiere preautenticación Kerberos</value></data>
+  <data name="Kpi_EnabledUsers" xml:space="preserve"><value>Usuarios habilitados</value></data>
+  <data name="Kpi_ExpiringUsers" xml:space="preserve"><value>Usuarios por caducar</value></data>
+  <data name="Kpi_MustChangePassword" xml:space="preserve"><value>Debe cambiar la contraseña</value></data>
+  <data name="Kpi_PasswordNeverExpires" xml:space="preserve"><value>La contraseña nunca caduca</value></data>
+  <data name="Kpi_PasswordNotRequired" xml:space="preserve"><value>Contraseña no requerida</value></data>
+  <data name="Kpi_UserReversibleEncryption" xml:space="preserve"><value>Cifrado reversible</value></data>
+  <data name="Kpi_SensitiveCannotDelegate" xml:space="preserve"><value>Sensible - No se puede delegar</value></data>
+  <data name="Kpi_SmartCardRequired" xml:space="preserve"><value>Tarjeta inteligente requerida</value></data>
+  <data name="Kpi_TrustedForDelegation" xml:space="preserve"><value>De confianza para la delegación</value></data>
+  <data name="Kpi_UseDesEncryption" xml:space="preserve"><value>Usa cifrado DES</value></data>
+  <data name="Kpi_DeprovisionedUsers" xml:space="preserve"><value>Usuarios desaprovisionados</value></data>
+  <data name="Kpi_SpnUserAccounts" xml:space="preserve"><value>Cuentas de servicio (SPN)</value></data>
+  <data name="Kpi_StaleUsers" xml:space="preserve"><value>Cuentas obsoletas (inactivas)</value></data>
+  <data name="Kpi_ServiceAccounts" xml:space="preserve"><value>Cuentas de servicio</value></data>
+  <data name="Kpi_GmsaServiceAccounts" xml:space="preserve"><value>Cuentas de servicio gMSA</value></data>
+  <data name="Kpi_SmsaServiceAccounts" xml:space="preserve"><value>Cuentas de servicio sMSA</value></data>
+  <data name="Kpi_DistributionGroups" xml:space="preserve"><value>Grupos de distribución</value></data>
+  <data name="Kpi_AdminCount" xml:space="preserve"><value>Recuento de administradores</value></data>
+  <data name="Kpi_Sites" xml:space="preserve"><value>Sitios</value></data>
+  <data name="Kpi_SiteLinks" xml:space="preserve"><value>Vínculos de sitios</value></data>
+  <data name="Kpi_Subnets" xml:space="preserve"><value>Subredes</value></data>
+  <data name="Kpi_OUs" xml:space="preserve"><value>UO</value></data>
+  <data name="Kpi_DomainControllers" xml:space="preserve"><value>Controladores de dominio</value></data>
+  <data name="Kpi_DomainLocalGroups" xml:space="preserve"><value>Grupos locales de dominio</value></data>
+  <data name="Kpi_GlobalGroups" xml:space="preserve"><value>Grupos globales</value></data>
+  <data name="Kpi_MailEnabledSecurityGroups" xml:space="preserve"><value>Grupos de seguridad con correo</value></data>
+  <data name="Kpi_SecurityGroups" xml:space="preserve"><value>Grupos de seguridad</value></data>
+  <data name="Kpi_UniversalGroups" xml:space="preserve"><value>Grupos universales</value></data>
+  <data name="Kpi_CircularGroupNesting" xml:space="preserve"><value>Anidamiento circular de grupos</value></data>
+  <data name="Kpi_ComputerClients" xml:space="preserve"><value>Clientes</value></data>
+  <data name="Kpi_ComputerServers" xml:space="preserve"><value>Servidores</value></data>
+  <data name="Kpi_WinServer2008R2" xml:space="preserve"><value>Windows Server 2008 R2</value></data>
+  <data name="Kpi_WinServer2012R2" xml:space="preserve"><value>Windows Server 2012 R2</value></data>
+  <data name="Kpi_WinServer2016" xml:space="preserve"><value>Windows Server 2016</value></data>
+  <data name="Kpi_WinServer2019" xml:space="preserve"><value>Windows Server 2019</value></data>
+  <data name="Kpi_WinServer2022" xml:space="preserve"><value>Windows Server 2022</value></data>
+  <data name="Kpi_WinServer2025" xml:space="preserve"><value>Windows Server 2025</value></data>
+  <data name="Kpi_ServerOther" xml:space="preserve"><value>Servidor (otro)</value></data>
+  <data name="Kpi_Win7" xml:space="preserve"><value>Windows 7</value></data>
+  <data name="Kpi_Win81" xml:space="preserve"><value>Windows 8.1</value></data>
+  <data name="Kpi_Win10_22H2" xml:space="preserve"><value>Windows 10 22H2</value></data>
+  <data name="Kpi_Win11_22H2" xml:space="preserve"><value>Windows 11 22H2</value></data>
+  <data name="Kpi_Win11_23H2" xml:space="preserve"><value>Windows 11 23H2</value></data>
+  <data name="Kpi_Win11Enterprise" xml:space="preserve"><value>Windows 11 Enterprise</value></data>
+  <data name="Kpi_Win11Pro" xml:space="preserve"><value>Windows 11 Pro</value></data>
+  <data name="Kpi_ClientsOther" xml:space="preserve"><value>Clientes (otro)</value></data>
+  <data name="Kpi_UnconstrainedComputers" xml:space="preserve"><value>Delegación no restringida</value></data>
+  <data name="Kpi_ManagedObjects" xml:space="preserve"><value>Objetos gestionados</value></data>
+</root>

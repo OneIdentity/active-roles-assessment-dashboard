@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Empty_EmptyGroups" xml:space="preserve"><value>Aucun groupe vide trouvé</value></data>
+  <data name="Empty_NoGroupOwner" xml:space="preserve"><value>Aucun groupe sans propriétaire trouvé</value></data>
+  <data name="Empty_GuestContaining" xml:space="preserve"><value>Aucun groupe contenant des invités trouvé</value></data>
+  <data name="Empty_SingleOwner" xml:space="preserve"><value>Aucun groupe à propriétaire unique trouvé</value></data>
+  <data name="Empty_LargeGroups" xml:space="preserve"><value>Aucun grand groupe trouvé</value></data>
+  <data name="FailedToLoadMembership" xml:space="preserve"><value>Échec du chargement de l'appartenance aux groupes.</value></data>
+  <data name="Toast_MembershipLoaded" xml:space="preserve"><value>Appartenance aux groupes chargée</value></data>
+  <data name="Toast_MembershipFailed" xml:space="preserve"><value>Échec du chargement de l'appartenance aux groupes</value></data>
+  <data name="Toast_MembershipLoading" xml:space="preserve"><value>Chargement des appartenances aux groupes. Cela peut prendre un certain temps selon l'environnement. Les indicateurs basés sur les groupes peuvent être inexacts et les détails ne seront pas disponibles avant la fin du chargement.</value></data>
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Ouvrir dans l'interface Web</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configurez l'URL de l'interface Web dans les Paramètres</value></data>
+</root>

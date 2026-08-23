@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
+  <data name="RunningAssessment" xml:space="preserve"><value>Running Assessment...</value></data>
+  <data name="MembershipPendingWarning" xml:space="preserve"><value>Entra group membership is still loading. Assessments that rely on Entra group-membership accuracy (Entra ID and the compliance frameworks that include Entra group-governance checks) are blocked until loading completes; other assessments can run now.</value></data>
+  <!-- Run bar -->
+  <data name="RunAssessment" xml:space="preserve"><value>Run assessment</value></data>
+  <data name="AssessmentType" xml:space="preserve"><value>Assessment type</value></data>
+  <data name="LabelOptional" xml:space="preserve"><value>Label (optional)</value></data>
+  <data name="LabelPlaceholder" xml:space="preserve"><value>e.g. Quarterly review</value></data>
+  <data name="RunAndSave" xml:space="preserve"><value>Run &amp; save</value></data>
+  <!-- Compare -->
+  <data name="CompareRuns" xml:space="preserve"><value>Compare {0} runs</value></data>
+  <data name="CompareHint" xml:space="preserve"><value>Save at least two {0} assessments to enable comparison.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Baseline</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Compare to</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Current (live)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Compare</value></data>
+  <!-- Scope note -->
+  <data name="ScopeDisclaimer" xml:space="preserve"><value>Scope &amp; disclaimer:</value></data>
+  <!-- Trend -->
+  <data name="ScoreTrend" xml:space="preserve"><value>{0} score trend</value></data>
+  <data name="ScoreTrendHint" xml:space="preserve"><value>Score (0-100) and failing checks across the last {0} saved assessments. Dashed guide lines mark the A/B/C/D grade thresholds.</value></data>
+  <data name="CheckComposition" xml:space="preserve"><value>{0} check composition</value></data>
+  <data name="CheckCompositionHint" xml:space="preserve"><value>Pass / warning / fail counts over time, showing what drives score changes.</value></data>
+  <!-- History -->
+  <data name="History" xml:space="preserve"><value>{0} history</value></data>
+  <data name="Col_WhenUtc" xml:space="preserve"><value>When (UTC)</value></data>
+  <data name="Col_Label" xml:space="preserve"><value>Label</value></data>
+  <data name="Col_By" xml:space="preserve"><value>By</value></data>
+  <data name="Col_Grade" xml:space="preserve"><value>Grade</value></data>
+  <data name="Col_Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Col_Fail" xml:space="preserve"><value>Fail</value></data>
+  <data name="Col_Warn" xml:space="preserve"><value>Warn</value></data>
+  <data name="Unlabelled" xml:space="preserve"><value>(unlabelled)</value></data>
+  <data name="ViewAssessment" xml:space="preserve"><value>View assessment</value></data>
+  <data name="CompareToCurrent" xml:space="preserve"><value>Compare to current</value></data>
+  <data name="DeleteAssessment" xml:space="preserve"><value>Delete assessment</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Delete this assessment?</value></data>
+  <!-- Comparison -->
+  <data name="Comparison" xml:space="preserve"><value>Comparison</value></data>
+  <data name="ScorePill" xml:space="preserve"><value>Score</value></data>
+  <data name="Grade" xml:space="preserve"><value>grade</value></data>
+  <data name="Improved" xml:space="preserve"><value>improved</value></data>
+  <data name="Regressed" xml:space="preserve"><value>regressed</value></data>
+  <data name="Unchanged" xml:space="preserve"><value>unchanged</value></data>
+  <data name="Added" xml:space="preserve"><value>added</value></data>
+  <data name="Removed" xml:space="preserve"><value>removed</value></data>
+  <data name="Col_Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Current" xml:space="preserve"><value>Current</value></data>
+  <data name="Col_Count" xml:space="preserve"><value>Count</value></data>
+  <data name="Col_Change" xml:space="preserve"><value>Change</value></data>
+  <data name="Delta_Improved" xml:space="preserve"><value>Improved</value></data>
+  <data name="Delta_Regressed" xml:space="preserve"><value>Regressed</value></data>
+  <data name="Delta_Added" xml:space="preserve"><value>Added</value></data>
+  <data name="Delta_Removed" xml:space="preserve"><value>Removed</value></data>
+  <data name="Delta_NoChange" xml:space="preserve"><value>No change</value></data>
+  <!-- Status words -->
+  <data name="Status_Pass" xml:space="preserve"><value>Pass</value></data>
+  <data name="Status_Warn" xml:space="preserve"><value>Warn</value></data>
+  <data name="Status_Fail" xml:space="preserve"><value>Fail</value></data>
+  <data name="Status_Na" xml:space="preserve"><value>n/a</value></data>
+  <!-- Empty / scorecard -->
+  <data name="RunToSeeResults" xml:space="preserve"><value>Run an assessment above to see results, or view a saved one from the history.</value></data>
+  <data name="ScoreCaption" xml:space="preserve"><value>{0} &#183; {1} checks &#183; generated {2} UTC</value></data>
+  <data name="Passed" xml:space="preserve"><value>passed</value></data>
+  <data name="Warnings" xml:space="preserve"><value>warnings</value></data>
+  <data name="Failed" xml:space="preserve"><value>failed</value></data>
+  <data name="NotApplicableShort" xml:space="preserve"><value>n/a</value></data>
+  <data name="SaveAsPdf" xml:space="preserve"><value>Save as PDF</value></data>
+  <data name="SaveAsWord" xml:space="preserve"><value>Save as Word</value></data>
+  <!-- Detail table -->
+  <data name="Col_Severity" xml:space="preserve"><value>Severity</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Col_Recommendation" xml:space="preserve"><value>Recommendation</value></data>
+  <data name="Tag_Fail" xml:space="preserve"><value>fail</value></data>
+  <data name="Tag_Warn" xml:space="preserve"><value>warn</value></data>
+  <data name="Tag_Pass" xml:space="preserve"><value>pass</value></data>
+  <data name="NoActionRequired" xml:space="preserve"><value>No action required</value></data>
+  <!-- Script / chart -->
+  <data name="RunBlockedTitle" xml:space="preserve"><value>Blocked: this assessment depends on Entra group membership, which is still loading.</value></data>
+  <data name="Chart_Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Chart_FailingChecks" xml:space="preserve"><value>Failing checks</value></data>
+  <data name="Chart_Pass" xml:space="preserve"><value>Pass</value></data>
+  <data name="Chart_Warning" xml:space="preserve"><value>Warning</value></data>
+  <data name="Chart_Fail" xml:space="preserve"><value>Fail</value></data>
+  <data name="Chart_Checks" xml:space="preserve"><value>Checks</value></data>
+</root>

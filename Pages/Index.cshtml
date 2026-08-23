@@ -1,5 +1,6 @@
 @page
 @model ActiveRolesDashboard.Pages.IndexModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Dashboard";
     Layout = null;
@@ -17,23 +18,15 @@
 <div class="loading-overlay active" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Loading Dashboard Data...</p>
+        <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
 <div class="page">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Active Roles KPI Dashboard</h1>
-                <p class="hdr-sub">KPIs for Active Roles and the resources it manages</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @{ ViewData["RefreshUrl"] = "/"; ViewData["ShowHome"] = false; ViewData["DashboardKey"] = "Main"; }
-            @await Html.PartialAsync("_DashboardToolbar")
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "Index";
+        ViewData["RefreshUrl"] = "/"; ViewData["ShowHome"] = false; ViewData["DashboardKey"] = "Main";
+    }
+    <partial name="_DashboardHeader" />
 
     @if (Model.KpiSettings.OverviewEnabled)
     {

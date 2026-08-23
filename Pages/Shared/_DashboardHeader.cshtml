@@ -1,0 +1,81 @@
+@*
+    Shared dashboard header (rpt-header).
+    Parameters (via ViewData):
+      - "HeaderTitle": the <h1> title text. Defaults to "Active Roles Dashboard".
+      - "HeaderSubtitle": optional sub-heading text under the title.
+      - "HeaderLogo": "oneidentity" (default) renders the One Identity logo image;
+                      "ar" renders the "AR" text badge.
+      - "HeaderRight": chooses the right-hand content:
+            "toolbar"    (default) - the shared _DashboardToolbar (reads its own
+                                      "RefreshUrl"/"ShowHome"/"DashboardKey" ViewData).
+            "signout"    - signed-in user name + Home and Sign Out icon buttons.
+            "membership" - group-membership loading indicator only.
+            "none"       - no right-hand content.
+      - "SignOutText": label for the Sign Out link in the "signout" variant. Defaults to "Sign Out".
+*@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    var headerKey = ViewData["HeaderKey"] as string;
+    var headerTitle = headerKey != null
+        ? Localizer[$"Title_{headerKey}"].Value
+        : ViewData["HeaderTitle"] as string ?? "Active Roles Dashboard";
+    var headerSubtitle = headerKey != null
+        ? Localizer[$"Sub_{headerKey}"].Value
+        : ViewData["HeaderSubtitle"] as string;
+    var headerLogo = ViewData["HeaderLogo"] as string ?? "oneidentity";
+    var headerRight = ViewData["HeaderRight"] as string ?? "toolbar";
+    var signOutText = ViewData["SignOutText"] as string ?? Localizer["SignOut"].Value;
+    var homeText = Localizer["Home"].Value;
+    var membershipText = Localizer["LoadingMembership"].Value;
+    var appBase = Context.Request.PathBase.Value ?? "";
+}
+<header class="rpt-header">
+    <div class="hdr-left">
+        <span class="hdr-logo">
+            @if (headerLogo == "ar")
+            {
+                @:AR
+            }
+            else
+            {
+                <img src="images/oneidentity-logo-v2.svg" alt="One Identity" />
+            }
+        </span>
+        <div>
+            <h1>@headerTitle</h1>
+            @if (!string.IsNullOrEmpty(headerSubtitle))
+            {
+                <p class="hdr-sub">@headerSubtitle</p>
+            }
+        </div>
+    </div>
+    @if (headerRight == "toolbar")
+    {
+        <div class="hdr-right">
+            @await Html.PartialAsync("_DashboardToolbar")
+        </div>
+    }
+    else if (headerRight == "signout")
+    {
+        <div class="hdr-right">
+            <span class="hdr-user">@User.Identity?.Name</span>
+            <a href="@(appBase)/?cached=true" class="btn-icon" title="@homeText">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="@(appBase)/Logout" class="btn-icon" title="@signOutText">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </a>
+        </div>
+    }
+    else if (headerRight == "membership")
+    {
+        <div class="hdr-right">
+            @* Group-membership loading indicator: people icon with a remaining-count badge.
+               Hidden while idle; driven by window.membershipBadge (see _ToastAndMembership partial). *@
+            <span id="membership-indicator" class="btn-icon membership-indicator" hidden style="display:none" title="@membershipText" aria-live="polite">
+                <svg class="membership-indicator-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span class="membership-indicator-badge" id="membership-indicator-badge">0</span>
+            </span>
+        </div>
+    }
+</header>

@@ -27,6 +27,14 @@ public class SetupModel : PageModel
     public string ApiBaseUrl { get; set; } = string.Empty;
 
     [BindProperty]
+    public string Language { get; set; } = SupportedLanguage.DefaultCode;
+
+    public IReadOnlyList<SupportedLanguage> Languages => SupportedLanguage.All;
+
+    public SupportedLanguage SelectedLanguage =>
+        SupportedLanguage.All.FirstOrDefault(l => l.Code == Language) ?? SupportedLanguage.All[0];
+
+    [BindProperty]
     public string RstsUrl { get; set; } = string.Empty;
 
     [BindProperty]
@@ -63,6 +71,10 @@ public class SetupModel : PageModel
         // If already configured, redirect to login
         if (!string.IsNullOrWhiteSpace(_arConfig.CurrentValue.ApiBaseUrl))
             return RedirectToPage("/Login");
+
+        Language = SupportedLanguage.All.Any(l => l.Code == _arConfig.CurrentValue.DefaultLanguage)
+            ? _arConfig.CurrentValue.DefaultLanguage
+            : SupportedLanguage.DefaultCode;
 
         return Page();
     }
@@ -108,6 +120,9 @@ public class SetupModel : PageModel
                 activeRoles["CustomEmptyGroupsBaseDn"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsBaseDn"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsFilter"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
+                activeRoles["DefaultLanguage"] = SupportedLanguage.All.Any(l => l.Code == Language)
+                    ? Language
+                    : SupportedLanguage.DefaultCode;
             }
             var options = new JsonSerializerOptions
             {

@@ -40,23 +40,11 @@
 <body>
 <div class="page">
     <div class="sticky-head">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Group Membership Tree</h1>
-                <p class="hdr-sub">Nested group membership</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            @* Group-membership loading indicator: people icon with a remaining-count badge.
-               Hidden while idle; driven by window.membershipBadge (see _ToastAndMembership partial). *@
-            <span id="membership-indicator" class="btn-icon membership-indicator" hidden style="display:none" title="Loading group membership" aria-live="polite">
-                <svg class="membership-indicator-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                <span class="membership-indicator-badge" id="membership-indicator-badge">0</span>
-            </span>
-        </div>
-    </header>
+    @{
+        ViewData["HeaderKey"] = "GroupTree";
+        ViewData["HeaderRight"] = "membership";
+    }
+    <partial name="_DashboardHeader" />
     <a class="back-link" href="@returnPage@(returnAnchor)">&larr; Back to Dashboard</a>
     </div>
 

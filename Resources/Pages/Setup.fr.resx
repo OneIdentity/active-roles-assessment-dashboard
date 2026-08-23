@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:element name="root" msdata:IsDataSet="true">
+	  <xsd:complexType>
+		<xsd:choice maxOccurs="unbounded">
+		  <xsd:element name="metadata">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" use="required" type="xsd:string" />
+			  <xsd:attribute name="type" type="xsd:string" />
+			  <xsd:attribute name="mimetype" type="xsd:string" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="assembly">
+			<xsd:complexType>
+			  <xsd:attribute name="alias" type="xsd:string" />
+			  <xsd:attribute name="name" type="xsd:string" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="data">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+				<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+			  <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+			  <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="resheader">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" />
+			</xsd:complexType>
+		  </xsd:element>
+		</xsd:choice>
+	  </xsd:complexType>
+	</xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="RestApiConfig" xml:space="preserve"><value>Configuration de l'API REST</value></data>
+  <data name="RestApiSubtitle" xml:space="preserve"><value>Configurez la connexion au service d'API REST Active Roles.</value></data>
+  <data name="RestApiUrl" xml:space="preserve"><value>URL de l'API REST</value></data>
+  <data name="RestApiUrlHint" xml:space="preserve"><value>URL de base de l'API REST Active Roles. Ce paramètre est obligatoire.</value></data>
+  <data name="RstsUrl" xml:space="preserve"><value>URL du jeton RSTS</value></data>
+  <data name="RstsUrlHint" xml:space="preserve"><value>URL du point de terminaison du jeton OAuth2 RSTS. Ce paramètre est obligatoire.</value></data>
+  <data name="WebInterface" xml:space="preserve"><value>Interface Web</value></data>
+  <data name="WebInterfaceSubtitle" xml:space="preserve"><value>Configurez éventuellement l'URL de l'interface Web Active Roles pour les liens directs.</value></data>
+  <data name="WebInterfaceUrl" xml:space="preserve"><value>URL de l'interface Web</value></data>
+  <data name="WebInterfaceUrlHint" xml:space="preserve"><value>URL de base de l'interface Web Active Roles. Ce paramètre est facultatif.</value></data>
+  <data name="Language" xml:space="preserve"><value>Langue</value></data>
+  <data name="LanguageSubtitle" xml:space="preserve"><value>Choisissez la langue d'affichage de l'interface du tableau de bord.</value></data>
+  <data name="DisplayLanguage" xml:space="preserve"><value>Langue d'affichage</value></data>
+  <data name="LanguageHint" xml:space="preserve"><value>D'autres langues seront ajoutées au fil du temps. Vous pouvez modifier ce paramètre ultérieurement dans les Paramètres.</value></data>
+  <data name="KpiConfig" xml:space="preserve"><value>Configuration des KPI</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Tous les paramètres KPI sont facultatifs. Laissez vide pour utiliser les valeurs par défaut.</value></data>
+  <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Administrateurs Active Roles - DN de base</value></data>
+  <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Administrateurs Active Roles - Filtre LDAP</value></data>
+  <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Sans propriétaire de groupe - DN de base</value></data>
+  <data name="Lbl_NoManagerUserBaseDn" xml:space="preserve"><value>Sans responsable (Utilisateur) - DN de base</value></data>
+  <data name="Lbl_NoManagerUserFilter" xml:space="preserve"><value>Sans responsable (Utilisateur) - Filtre LDAP</value></data>
+  <data name="Lbl_NoManagerSaBaseDn" xml:space="preserve"><value>Sans responsable (Compte de service) - DN de base</value></data>
+  <data name="Lbl_NoManagerSaFilter" xml:space="preserve"><value>Sans responsable (Compte de service) - Filtre LDAP</value></data>
+  <data name="Lbl_UserExpiredBaseDn" xml:space="preserve"><value>Compte utilisateur expiré - DN de base</value></data>
+  <data name="Lbl_UserLockedBaseDn" xml:space="preserve"><value>Compte utilisateur verrouillé - DN de base</value></data>
+  <data name="Lbl_EmptyGroupsBaseDn" xml:space="preserve"><value>Groupes vides - DN de base</value></data>
+  <data name="Next" xml:space="preserve"><value>Suivant</value></data>
+  <data name="Back" xml:space="preserve"><value>Précédent</value></data>
+  <data name="FinishSetup" xml:space="preserve"><value>Terminer la configuration</value></data>
+  <data name="Err_ApiUrlRequired" xml:space="preserve"><value>L'URL de l'API REST est requise.</value></data>
+  <data name="Err_RstsUrlRequired" xml:space="preserve"><value>L'URL du jeton RSTS est requise.</value></data>
+</root>
