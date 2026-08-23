@@ -1068,7 +1068,170 @@ public class ActiveRolesService
         // and never abort the overall risk summary.
         await PopulateSecurityHealthAsync(token, summary);
 
+        // Stamp per-object permission-scope (effective AT-Link GUIDs + object class) onto the typed
+        // user drilldown lists so the shared superset can be filtered per viewer. The typed items are
+        // Stamp per-object permission-scope (effective AT-Link GUIDs + object class) onto the typed
+        // drilldown lists so the shared superset can be filtered per viewer. Typed items are derived
+        // from raw JsonElement sources that carry edsvaATLinksEffective/objectClass (requested
+        // centrally in BuildAttributesQuery); we build a global DN->scope map and copy it across.
+        StampObjectScopes(summary);
+
         return summary;
+    }
+
+    /// <summary>
+    /// Copies each raw directory object's effective Access Template Link GUIDs and object class onto
+    /// every typed <see cref="IPermissionScoped"/> drilldown derived from it, keyed by DN, across all
+    /// KPI families. Also records the visible-domain context for scalar security-health signals.
+    /// Enables per-user visibility filtering without re-querying Active Roles.
+    /// </summary>
+    private static void StampObjectScopes(DashboardSummary summary)
+    {
+        var scopeByDn = new Dictionary<string, (IReadOnlyCollection<string> Links, string Class)>(StringComparer.OrdinalIgnoreCase);
+
+        void Index(IEnumerable<JsonElement>? rawItems)
+        {
+            if (rawItems == null) return;
+            foreach (var raw in rawItems)
+            {
+                var dn = GetAttr(raw, "distinguishedName");
+                if (string.IsNullOrEmpty(dn) || scopeByDn.ContainsKey(dn))
+                    continue;
+                scopeByDn[dn] = (SegmentAttributes.EffectiveLinksOf(raw).ToArray(), SegmentAttributes.ClassOf(raw));
+            }
+        }
+
+        // Raw JsonElement sources carry the authoritative scope attributes.
+        Index(summary.ADUserAccounts?.Items);
+        Index(summary.ADGroups?.Items);
+        Index(summary.Computers?.Items);
+
+        void Stamp(IEnumerable<IPermissionScoped>? items)
+        {
+            if (items == null) return;
+            foreach (var item in items)
+            {
+                if (item == null) continue;
+                var dn = DnOf(item);
+                if (!string.IsNullOrEmpty(dn) && scopeByDn.TryGetValue(dn, out var s))
+                    SetScope(item, s.Links, s.Class);
+            }
+        }
+
+        // User drilldowns (all derived from ADUserAccounts / ExpiringUsers).
+        Stamp(summary.StaleUsers?.Items);
+        Stamp(summary.NeverLoggedIn?.Items);
+        Stamp(summary.AdminCount?.Items);
+        Stamp(summary.EnabledUsers?.Items);
+        Stamp(summary.DisabledUsers?.Items);
+        Stamp(summary.ExpiredUsers?.Items);
+        Stamp(summary.PasswordNeverExpires?.Items);
+        Stamp(summary.DeprovisionedUsers?.Items);
+        Stamp(summary.MustChangePassword?.Items);
+        Stamp(summary.PasswordNotRequired?.Items);
+        Stamp(summary.SmartCardRequired?.Items);
+        Stamp(summary.CannotChangePassword?.Items);
+        Stamp(summary.UserReversibleEncryption?.Items);
+        Stamp(summary.TrustedForDelegation?.Items);
+        Stamp(summary.SpnUserAccounts?.Items);
+        Stamp(summary.SensitiveCannotDelegate?.Items);
+        Stamp(summary.UseDesEncryption?.Items);
+        Stamp(summary.NoKerberosPreauth?.Items);
+        Stamp(summary.ExpiringUsers?.Items);
+
+        // Group detail drilldowns (derived from ADGroups).
+        Stamp(summary.DistributionGroups?.Items);
+        Stamp(summary.DomainLocalGroups?.Items);
+        Stamp(summary.GlobalGroups?.Items);
+        Stamp(summary.MailEnabledSecurityGroups?.Items);
+        Stamp(summary.SecurityGroups?.Items);
+        Stamp(summary.UniversalGroups?.Items);
+
+        // Computer breakdown drilldowns (derived from Computers).
+        Stamp(summary.ComputerClients?.Items);
+        Stamp(summary.ComputerServers?.Items);
+        Stamp(summary.UnconstrainedComputers?.Items);
+        Stamp(summary.WinServer2008R2?.Items);
+        Stamp(summary.WinServer2012R2?.Items);
+        Stamp(summary.WinServer2016?.Items);
+        Stamp(summary.WinServer2019?.Items);
+        Stamp(summary.WinServer2022?.Items);
+        Stamp(summary.WinServer2025?.Items);
+        Stamp(summary.ServerOther?.Items);
+        Stamp(summary.Win7?.Items);
+        Stamp(summary.Win81?.Items);
+        Stamp(summary.Win10_22H2?.Items);
+        Stamp(summary.Win11_22H2?.Items);
+        Stamp(summary.Win11_23H2?.Items);
+        Stamp(summary.Win11Enterprise?.Items);
+        Stamp(summary.Win11Pro?.Items);
+        Stamp(summary.ClientsOther?.Items);
+        Stamp(summary.StaleComputers?.Items);
+        Stamp(summary.DomainControllers?.Items);
+
+        // Privileged group members.
+        Stamp(summary.AccountOperators?.Items);
+        Stamp(summary.Administrators?.Items);
+        Stamp(summary.BackupOperators?.Items);
+        Stamp(summary.DomainAdmins?.Items);
+        Stamp(summary.ServerOperators?.Items);
+        Stamp(summary.EnterpriseAdmins?.Items);
+        Stamp(summary.SchemaAdmins?.Items);
+        Stamp(summary.ActiveRolesAdmins?.Items);
+
+        // Governance KPI drilldowns.
+        Stamp(summary.NoManagerUser?.Items);
+        Stamp(summary.NoManagerServiceAccount?.Items);
+        Stamp(summary.ServiceAccounts?.Items);
+        Stamp(summary.GmsaServiceAccounts?.Items);
+        Stamp(summary.SmsaServiceAccounts?.Items);
+        Stamp(summary.UserAccountLockedOut?.Items);
+        Stamp(summary.ReversibleEncryption?.Items);
+        Stamp(summary.EmptyGroups?.Items);
+        Stamp(summary.CircularGroupNesting?.Items);
+        Stamp(summary.Sites?.Items);
+        Stamp(summary.SiteLinks?.Items);
+        Stamp(summary.Subnets?.Items);
+        Stamp(summary.OUs?.Items);
+        Stamp(summary.NoGroupOwner?.Items);
+
+        // Domain / server infra objects.
+        Stamp(summary.Domains?.Items);
+        Stamp(summary.Servers?.Items);
+    }
+
+    /// <summary>Reads the DN of a typed permission-scoped item (property names vary by type).</summary>
+    private static string DnOf(IPermissionScoped item) => item switch
+    {
+        ADUserAccountDetailInfo u => u.Dn,
+        ExpiringUserInfo e => e.Dn,
+        ADGroupDetailInfo g => g.Dn,
+        ComputerBreakdownInfo c => c.Dn,
+        PrivilegedGroupMemberInfo p => p.Dn,
+        GovernanceKpiInfo k => k.Dn,
+        NoGroupOwnerInfo n => n.Dn,
+        DomainInfo d => d.Dn,
+        ServerInfo => string.Empty, // ServerInfo has no DN; scope stays empty (admin-only visibility)
+        DomainControllerInfo dc => dc.Dn,
+        _ => string.Empty
+    };
+
+    /// <summary>Writes scope onto a typed permission-scoped item (setters are type-specific).</summary>
+    private static void SetScope(IPermissionScoped item, IReadOnlyCollection<string> links, string objectClass)
+    {
+        switch (item)
+        {
+            case ADUserAccountDetailInfo u: u.EffectiveLinkGuids = links; u.ObjectClass = objectClass; break;
+            case ExpiringUserInfo e: e.EffectiveLinkGuids = links; e.ObjectClass = objectClass; break;
+            case ADGroupDetailInfo g: g.EffectiveLinkGuids = links; g.ObjectClass = objectClass; break;
+            case ComputerBreakdownInfo c: c.EffectiveLinkGuids = links; c.ObjectClass = objectClass; break;
+            case PrivilegedGroupMemberInfo p: p.EffectiveLinkGuids = links; p.ObjectClass = objectClass; break;
+            case GovernanceKpiInfo k: k.EffectiveLinkGuids = links; k.ObjectClass = objectClass; break;
+            case NoGroupOwnerInfo n: n.EffectiveLinkGuids = links; n.ObjectClass = objectClass; break;
+            case DomainInfo d: d.EffectiveLinkGuids = links; d.ObjectClass = objectClass; break;
+            case ServerInfo s: s.EffectiveLinkGuids = links; s.ObjectClass = objectClass; break;
+            case DomainControllerInfo dc: dc.EffectiveLinkGuids = links; dc.ObjectClass = objectClass; break;
+        }
     }
 
     private static string ResolveValue(string userValue, string defaultValue)
@@ -1090,13 +1253,15 @@ public class ActiveRolesService
         // A rarely-rotated krbtgt password increases exposure to Golden Ticket attacks.
         try
         {
-            var items = await SearchObjectsAsync(token, baseDn, "(sAMAccountName=krbtgt)", "sub", "pwdLastSet,distinguishedName");
-            var raw = items.Select(i => GetAttr(i, "pwdLastSet")).FirstOrDefault(v => !string.IsNullOrEmpty(v) && v != "0");
+            var items = await SearchObjectsAsync(token, baseDn, "(sAMAccountName=krbtgt)", "sub", "pwdLastSet,distinguishedName,edsaDomainNetbiosName");
+            var krbtgtItem = items.FirstOrDefault(i => !string.IsNullOrEmpty(GetAttr(i, "pwdLastSet")) && GetAttr(i, "pwdLastSet") != "0");
+            var krbtgtDomain = items.Select(i => GetAttr(i, "edsaDomainNetbiosName")).FirstOrDefault(d => !string.IsNullOrEmpty(d)) ?? string.Empty;
+            var raw = krbtgtItem.ValueKind == JsonValueKind.Object ? GetAttr(krbtgtItem, "pwdLastSet") : null;
             if (raw != null && long.TryParse(raw, out var val) && val > 0)
             {
                 var lastSet = DateTime.FromFileTimeUtc(val);
                 var ageDays = (int)Math.Max(0, (DateTime.UtcNow - lastSet).TotalDays);
-                summary.KrbtgtPasswordAge = new SecurityHealthSummary { Value = ageDays };
+                summary.KrbtgtPasswordAge = new SecurityHealthSummary { Value = ageDays, Domain = krbtgtDomain };
             }
             else
             {
@@ -1116,10 +1281,11 @@ public class ActiveRolesService
         {
             var items = await SearchObjectsAsync(token, baseDn,
                 "(objectClass=domainDNS)", "base",
-                "minPwdLength,maxPwdAge,pwdProperties,lockoutThreshold");
+                "minPwdLength,maxPwdAge,pwdProperties,lockoutThreshold,edsaDomainNetbiosName");
             if (items.Count > 0)
             {
                 var domain = items[0];
+                var domainName = GetAttr(domain, "edsaDomainNetbiosName");
                 var minLen = int.TryParse(GetAttr(domain, "minPwdLength"), out var ml) ? ml : -1;
                 var pwdProps = long.TryParse(GetAttr(domain, "pwdProperties"), out var pp) ? pp : 0;
                 var lockoutThreshold = int.TryParse(GetAttr(domain, "lockoutThreshold"), out var lt) ? lt : -1;
@@ -1135,10 +1301,10 @@ public class ActiveRolesService
                     maxAgeDays = (int)Math.Round(TimeSpan.FromTicks(Math.Abs(maxPwdAge)).TotalDays);
                 }
 
-                summary.WeakPasswordLength = new SecurityHealthSummary { Value = (minLen >= 0 && minLen < 12) ? 1 : 0 };
-                summary.PasswordComplexityDisabled = new SecurityHealthSummary { Value = complexityEnabled ? 0 : 1 };
-                summary.NoAccountLockout = new SecurityHealthSummary { Value = (lockoutThreshold == 0) ? 1 : 0 };
-                summary.PasswordMaxAgeDays = new SecurityHealthSummary { Value = maxAgeDays };
+                summary.WeakPasswordLength = new SecurityHealthSummary { Value = (minLen >= 0 && minLen < 12) ? 1 : 0, Domain = domainName };
+                summary.PasswordComplexityDisabled = new SecurityHealthSummary { Value = complexityEnabled ? 0 : 1, Domain = domainName };
+                summary.NoAccountLockout = new SecurityHealthSummary { Value = (lockoutThreshold == 0) ? 1 : 0, Domain = domainName };
+                summary.PasswordMaxAgeDays = new SecurityHealthSummary { Value = maxAgeDays, Domain = domainName };
             }
             else
             {
@@ -2827,7 +2993,19 @@ public class ActiveRolesService
 
     private static string BuildAttributesQuery(string attributes)
     {
-        var attrs = attributes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var attrs = attributes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+
+        // Always request the per-object permission-scoping attributes so every collected item
+        // carries its effective Access Template Link GUIDs and structural class for the per-user
+        // visibility gate (PermissionScope.IsVisibleTo). Deduped case-insensitively so callers that
+        // already ask for them don't produce duplicate query params.
+        foreach (var scoped in new[] { SegmentAttributes.EffectiveLinksAttribute, SegmentAttributes.ClassAttribute })
+        {
+            if (!attrs.Any(a => string.Equals(a, scoped, StringComparison.OrdinalIgnoreCase)))
+                attrs.Add(scoped);
+        }
+
         return string.Join("&", attrs.Select(a => $"attributes={EscapeAmpersand(a)}"));
     }
 

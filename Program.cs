@@ -4,6 +4,7 @@ using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Services.Reporting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
 
@@ -13,6 +14,18 @@ QuestPDF.Settings.License = LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<ActiveRolesConfig>(builder.Configuration.GetSection("ActiveRoles"));
+
+// Data Protection: persist the key ring under the content root so the encrypted
+// service-account secret can be decrypted across restarts and deployments. The service
+// account password is stored encrypted in appsettings (never plaintext) and unprotected
+// at runtime via ServiceAccountSecretProtector.
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys");
+Directory.CreateDirectory(dataProtectionKeysPath);
+builder.Services.AddDataProtection()
+    .SetApplicationName("ActiveRolesDashboard")
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+
+builder.Services.AddSingleton<ActiveRolesDashboard.Services.ServiceAccountSecretProtector>();
 
 var arConfig = builder.Configuration.GetSection("ActiveRoles").Get<ActiveRolesConfig>()!;
 
@@ -38,6 +51,13 @@ builder.Services.AddSingleton<UserSettingsService>();
 builder.Services.AddSingleton<SnapshotService>();
 builder.Services.AddSingleton<AssessmentService>();
 builder.Services.AddSingleton<MitreExposureService>();
+
+// Shared-superset cache, service-account collection, and per-user AR permission filtering.
+builder.Services.AddSingleton<DashboardCacheHolder>();
+builder.Services.AddSingleton<ServiceAccountTokenProvider>();
+builder.Services.AddSingleton<ArPermissionModelService>();
+builder.Services.AddSingleton<SupersetLoaderHostedService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<SupersetLoaderHostedService>());
 
 // Reporting / export services.
 builder.Services.AddSingleton<ReportBuilder>();
@@ -113,6 +133,36 @@ builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptio
 
 var app = builder.Build();
 
+// One-time secret protection utility:
+//   dotnet run -- --protect-secret [plaintext]
+// Encrypts the given service-account password using Data Protection and prints the value
+// to paste into appsettings under ActiveRoles:ServiceAccount:ProtectedPassword. Exits without
+// starting the web host so the plaintext is never served or logged by the running app.
+if (args.Contains("--protect-secret", StringComparer.OrdinalIgnoreCase))
+{
+    var protector = app.Services.GetRequiredService<ActiveRolesDashboard.Services.ServiceAccountSecretProtector>();
+
+    var idx = Array.FindIndex(args, a => string.Equals(a, "--protect-secret", StringComparison.OrdinalIgnoreCase));
+    var plaintext = idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : null;
+    if (string.IsNullOrEmpty(plaintext))
+    {
+        Console.Write("Enter service-account password to protect: ");
+        plaintext = Console.ReadLine();
+    }
+
+    if (string.IsNullOrEmpty(plaintext))
+    {
+        Console.Error.WriteLine("No password provided. Nothing to protect.");
+        return;
+    }
+
+    var encrypted = protector.Protect(plaintext);
+    Console.WriteLine();
+    Console.WriteLine("Protected password (copy into appsettings ActiveRoles:ServiceAccount:ProtectedPassword):");
+    Console.WriteLine(encrypted);
+    return;
+}
+
 // Wire the static KPI/category localizer so KpiInfo/CategoryInfo display names
 // (which are static readonly and cannot use DI) resolve from resources at read-time.
 ActiveRolesDashboard.Services.KpiLocalizer.Initialize(
@@ -159,6 +209,17 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+// Cache readiness endpoint: polled by the login/wait screen while the shared superset is
+// being built at startup. Returns the current cache state so the UI can show "Building cache…"
+// until Ready. Anonymous by design (no user data is exposed, only lifecycle status).
+app.MapGet("/cache/status", (DashboardCacheHolder cache) => Results.Json(new
+{
+    state = cache.State.ToString(),
+    ready = cache.IsReady,
+    collectedAtUtc = cache.CollectedAtUtc,
+    error = cache.LastError
+})).AllowAnonymous();
 
 app.MapRazorPages();
 app.MapControllers();

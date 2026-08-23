@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
 
@@ -791,6 +792,39 @@ public class ActiveRolesConfig
     public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
     public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
     public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
+
+    // Service account used to collect the shared dashboard superset at application startup
+    // and on scheduled/manual refresh. End-user tokens cannot read AR configuration
+    // (Access Templates / AT Links), so a dedicated service account performs collection and
+    // the per-user permission filtering is derived from its view.
+    public ServiceAccountConfig ServiceAccount { get; set; } = new();
+}
+
+/// <summary>
+/// Configuration for the background collection service account and the shared-superset refresh schedule.
+/// </summary>
+public class ServiceAccountConfig
+{
+    /// <summary>Service-account username (e.g. "PROD\\svc_ars") used to acquire an RSTS token for collection.</summary>
+    public string Username { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The service-account password, stored ENCRYPTED via ASP.NET Core Data Protection.
+    /// Decrypted at runtime through <c>IDataProtector</c>. Never store plaintext here.
+    /// Use the one-time protect utility to produce this value.
+    /// </summary>
+    public string ProtectedPassword { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Local time of day (HH:mm, 24-hour) at which the shared superset is refreshed daily.
+    /// The main dashboard also exposes a manual refresh for Active Roles admins.
+    /// </summary>
+    public string DailyRefreshTime { get; set; } = "02:00";
+
+    /// <summary>
+    /// Whether the superset should be (re)loaded automatically at application startup.
+    /// </summary>
+    public bool LoadOnStartup { get; set; } = true;
 }
 
 public class KpiInfo
@@ -2062,13 +2096,16 @@ public class GroupMemberNode
     public bool DepthLimitReached { get; set; }
 }
 
-public class ADUserAccountDetailInfo
+public class ADUserAccountDetailInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public bool Enabled { get; set; }
     public string Description { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class ExpiringUsersSummary
@@ -2078,13 +2115,16 @@ public class ExpiringUsersSummary
     public string? Error { get; set; }
 }
 
-public class ExpiringUserInfo
+public class ExpiringUserInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public DateTime ExpiryDate { get; set; }
     public int DaysUntilExpiry { get; set; }
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class ADGroupsSummary
@@ -2128,12 +2168,15 @@ public class ADGroupDetailSummary
     public string? Error { get; set; }
 }
 
-public class ADGroupDetailInfo
+public class ADGroupDetailInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public int DirectMembers { get; set; }
     public int IndirectMembers { get; set; }
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class DomainSummary
@@ -2143,13 +2186,16 @@ public class DomainSummary
     public string? Error { get; set; }
 }
 
-public class DomainInfo
+public class DomainInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string DnsName { get; set; } = string.Empty;
     public bool UseOverride { get; set; } = false;
     public string Dn { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class ServerSummary
@@ -2159,11 +2205,14 @@ public class ServerSummary
     public string? Error { get; set; }
 }
 
-public class ServerInfo
+public class ServerInfo : IPermissionScoped
 {
     public string ServerName { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class DynamicGroupSummary
@@ -2329,11 +2378,14 @@ public class NoGroupOwnerSummary
     public string? Error { get; set; }
 }
 
-public class NoGroupOwnerInfo
+public class NoGroupOwnerInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class GovernanceKpiSummary
@@ -2343,12 +2395,15 @@ public class GovernanceKpiSummary
     public string? Error { get; set; }
 }
 
-public class GovernanceKpiInfo
+public class GovernanceKpiInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class PrivilegedGroupSummary
@@ -2365,13 +2420,16 @@ public class PrivilegedGroupSummary
     public bool HasIndirectMembers => Items.Any(m => string.Equals(m.MembershipType, "Indirect", StringComparison.OrdinalIgnoreCase));
 }
 
-public class PrivilegedGroupMemberInfo
+public class PrivilegedGroupMemberInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string MembershipType { get; set; } = string.Empty; // "Direct" or "Indirect"
     public bool IsGroup { get; set; }
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class AccessTemplateLinkSummary
@@ -2424,12 +2482,15 @@ public class DomainControllersSummary
     public string? Error { get; set; }
 }
 
-public class DomainControllerInfo
+public class DomainControllerInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string SiteName { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -2727,6 +2788,83 @@ public static class SegmentAttributes
 
         return string.Empty;
     }
+
+    /// <summary>
+    /// The Active Roles attribute carrying, per object, the DNs of the Access Template Links
+    /// that are effective on it. Each DN has the form
+    /// <c>CN=&lt;LinkGuid&gt;,CN=AT Links,CN=Configuration</c>; the link GUID is the join key
+    /// into <see cref="Services.ArPermissionModel.LinksByGuid"/>.
+    /// </summary>
+    public const string EffectiveLinksAttribute = "edsvaATLinksEffective";
+
+    /// <summary>The Active Roles / AD attribute carrying an object's structural class.</summary>
+    public const string ClassAttribute = "objectClass";
+
+    /// <summary>
+    /// Extracts the Access Template Link GUIDs effective on a raw AD item by reading
+    /// <see cref="EffectiveLinksAttribute"/> and pulling the CN=&lt;guid&gt; component out of
+    /// each link DN. Returns an empty sequence when the attribute is absent.
+    /// </summary>
+    public static IEnumerable<string> EffectiveLinksOf(JsonElement element)
+    {
+        foreach (var dn in MultiAttrOf(element, EffectiveLinksAttribute))
+        {
+            var guid = LinkGuidFromDn(dn);
+            if (!string.IsNullOrEmpty(guid))
+                yield return guid;
+        }
+    }
+
+    /// <summary>
+    /// Reads an object's structural class (last value of <see cref="ClassAttribute"/>, e.g.
+    /// <c>user</c> / <c>group</c>), lowercased; empty string when absent.
+    /// </summary>
+    public static string ClassOf(JsonElement element)
+    {
+        string? last = null;
+        foreach (var c in MultiAttrOf(element, ClassAttribute))
+            last = c;
+        return last?.ToLowerInvariant() ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Pulls the link GUID out of an <see cref="EffectiveLinksAttribute"/> DN
+    /// (<c>CN=&lt;guid&gt;,CN=AT Links,...</c>). Returns empty when the DN is not in that shape.
+    /// </summary>
+    public static string LinkGuidFromDn(string? dn)
+    {
+        if (string.IsNullOrWhiteSpace(dn))
+            return string.Empty;
+
+        var trimmed = dn.TrimStart();
+        const string cnPrefix = "CN=";
+        if (!trimmed.StartsWith(cnPrefix, StringComparison.OrdinalIgnoreCase))
+            return string.Empty;
+
+        var start = cnPrefix.Length;
+        var comma = trimmed.IndexOf(',', start);
+        var value = comma < 0 ? trimmed[start..] : trimmed[start..comma];
+        return value.Trim().Trim('{', '}');
+    }
+}
+
+/// <summary>
+/// Implemented by dashboard item types that represent an underlying directory object and can be
+/// permission-scoped per user. Carries the object's effective Access Template Link GUIDs and its
+/// structural class so the shared, service-account-collected superset can be filtered per viewer
+/// without re-querying Active Roles. Populated during collection (see the enrichment step); items
+/// that are pure aggregates (no underlying object) do not implement this.
+/// </summary>
+public interface IPermissionScoped
+{
+    /// <summary>
+    /// The Access Template Link GUIDs effective on this object (join key into
+    /// <see cref="Services.ArPermissionModel.LinksByGuid"/>). Kept out of serialized output.
+    /// </summary>
+    IReadOnlyCollection<string> EffectiveLinkGuids { get; }
+
+    /// <summary>The object's structural class (e.g. <c>user</c>, <c>group</c>), lowercased.</summary>
+    string ObjectClass { get; }
 }
 
 /// <summary>
@@ -3214,7 +3352,7 @@ public class ComputerBreakdownSummary
     public string? Error { get; set; }
 }
 
-public class ComputerBreakdownInfo
+public class ComputerBreakdownInfo : IPermissionScoped
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
@@ -3222,6 +3360,9 @@ public class ComputerBreakdownInfo
     public string OperatingSystemVersion { get; set; } = string.Empty;
     public string FriendlyOSName { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
+
+    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
+    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -3233,4 +3374,10 @@ public class SecurityHealthSummary
 {
     public int Value { get; set; }
     public string? Error { get; set; }
+
+    /// <summary>
+    /// The NetBIOS domain this signal was measured against (e.g. krbtgt / password policy live
+    /// per domain). Used to scope the signal by domain visibility for non-admin viewers.
+    /// </summary>
+    public string Domain { get; set; } = string.Empty;
 }
