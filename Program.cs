@@ -5,8 +5,59 @@ using ActiveRolesDashboard.Services.Reporting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
+
+// One-time secret protection utility (handled BEFORE the web host is built so it can
+// never fall through to app.Run()):
+//   dotnet ActiveRolesDashboard.dll --protect-secret "<password>"
+// Encrypts the given service-account password with the SAME Data Protection key ring
+// (application name + App_Data\DataProtectionKeys path) the app uses at runtime, then
+// prints the value to paste into ActiveRoles:ServiceAccount:ProtectedPassword and exits.
+if (args.Contains("--protect-secret", StringComparer.OrdinalIgnoreCase))
+{
+    var idx = Array.FindIndex(args, a => string.Equals(a, "--protect-secret", StringComparison.OrdinalIgnoreCase));
+    var plaintext = idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : null;
+    if (string.IsNullOrEmpty(plaintext))
+    {
+        if (Console.IsInputRedirected)
+        {
+            Console.Error.WriteLine("No interactive console detected. Pass the password as an argument:");
+            Console.Error.WriteLine("    dotnet ActiveRolesDashboard.dll --protect-secret \"<password>\"");
+            return;
+        }
+
+        Console.Write("Enter service-account password to protect: ");
+        plaintext = Console.ReadLine();
+    }
+
+    if (string.IsNullOrEmpty(plaintext))
+    {
+        Console.Error.WriteLine("No password provided. Nothing to protect.");
+        Console.Error.WriteLine("Usage: dotnet ActiveRolesDashboard.dll --protect-secret \"<password>\"");
+        return;
+    }
+
+    // Build a minimal DataProtection provider matching the app's runtime configuration.
+    var keysPath = Path.Combine(AppContext.BaseDirectory, "App_Data", "DataProtectionKeys");
+    Directory.CreateDirectory(keysPath);
+    using var dpServices = new ServiceCollection()
+        .AddDataProtection()
+        .SetApplicationName("ActiveRolesDashboard")
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+        .Services
+        .BuildServiceProvider();
+
+    var protector = new ServiceAccountSecretProtector(
+        dpServices.GetRequiredService<IDataProtectionProvider>());
+
+    var encrypted = protector.Protect(plaintext);
+    Console.WriteLine();
+    Console.WriteLine("Protected password (copy into appsettings ActiveRoles:ServiceAccount:ProtectedPassword):");
+    Console.WriteLine(encrypted);
+    return;
+}
 
 // QuestPDF Community license (free for organizations under the revenue threshold).
 QuestPDF.Settings.License = LicenseType.Community;
@@ -134,48 +185,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptio
 });
 
 var app = builder.Build();
-
-// One-time secret protection utility:
-//   dotnet run -- --protect-secret [plaintext]
-// Encrypts the given service-account password using Data Protection and prints the value
-// to paste into appsettings under ActiveRoles:ServiceAccount:ProtectedPassword. Exits without
-// starting the web host so the plaintext is never served or logged by the running app.
-if (args.Contains("--protect-secret", StringComparer.OrdinalIgnoreCase))
-{
-    var protector = app.Services.GetRequiredService<ActiveRolesDashboard.Services.ServiceAccountSecretProtector>();
-
-    var idx = Array.FindIndex(args, a => string.Equals(a, "--protect-secret", StringComparison.OrdinalIgnoreCase));
-    var plaintext = idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : null;
-    if (string.IsNullOrEmpty(plaintext))
-    {
-        // Only prompt when a console is actually attached and stdin is interactive.
-        // Under redirected input (e.g. some IIS/service shells) Console.ReadLine()
-        // returns null immediately and would silently produce "nothing to protect",
-        // so instruct the caller to pass the password as an argument instead.
-        if (Console.IsInputRedirected)
-        {
-            Console.Error.WriteLine("No interactive console detected. Pass the password as an argument:");
-            Console.Error.WriteLine("    dotnet ActiveRolesDashboard.dll --protect-secret \"<password>\"");
-            return;
-        }
-
-        Console.Write("Enter service-account password to protect: ");
-        plaintext = Console.ReadLine();
-    }
-
-    if (string.IsNullOrEmpty(plaintext))
-    {
-        Console.Error.WriteLine("No password provided. Nothing to protect.");
-        Console.Error.WriteLine("Usage: dotnet ActiveRolesDashboard.dll --protect-secret \"<password>\"");
-        return;
-    }
-
-    var encrypted = protector.Protect(plaintext);
-    Console.WriteLine();
-    Console.WriteLine("Protected password (copy into appsettings ActiveRoles:ServiceAccount:ProtectedPassword):");
-    Console.WriteLine(encrypted);
-    return;
-}
 
 // Wire the static KPI/category localizer so KpiInfo/CategoryInfo display names
 // (which are static readonly and cannot use DI) resolve from resources at read-time.

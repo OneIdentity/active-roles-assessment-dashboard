@@ -25,7 +25,7 @@
 
 .PARAMETER RemotePath
 	UNC path to the site folder on the target.
-	Default: \\<Target>\C$\inetpub\ActiveRolesDashboard
+	Default: \\<Target>\C$\inetpub\wwwroot\ActiveRolesDashboard
 
 .PARAMETER AppPool
 	IIS application pool name to stop/start on the target (mandatory).
@@ -63,7 +63,7 @@ $project    = Join-Path $repoRoot "ActiveRolesDashboard.csproj"
 $publishDir = Join-Path $repoRoot "publish\$Target"
 
 if (-not $RemotePath) {
-	$RemotePath = "\\$Target\C$\inetpub\ActiveRolesDashboard"
+	$RemotePath = "\\$Target\C$\inetpub\wwwroot\ActiveRolesDashboard"
 }
 
 Write-Host "==> Publishing (Release, framework-dependent)..." -ForegroundColor Cyan
@@ -90,19 +90,32 @@ if (-not (Test-Path $RemotePath)) {
 }
 
 Write-Host "==> Copying to $RemotePath (preserving target config + keys)..." -ForegroundColor Cyan
-# /MIR mirrors the tree but we exclude machine-specific state so redeploys don't
-# clobber the target's protected secret or Data Protection key ring.
-$exclDirs  = @("App_Data")
-$exclFiles = @()
-if (-not $IncludeAppSettings) { $exclFiles += "appsettings.json" }
-
-$robocopyArgs = @($publishDir, $RemotePath, "/MIR", "/R:2", "/W:2", "/NFL", "/NDL", "/NP")
-if ($exclDirs.Count  -gt 0) { $robocopyArgs += "/XD"; $robocopyArgs += $exclDirs }
-if ($exclFiles.Count -gt 0) { $robocopyArgs += "/XF"; $robocopyArgs += $exclFiles }
+# /MIR mirrors the tree but we ALWAYS exclude machine-specific state from the mirror so
+# redeploys don't clobber the target's protected secret or Data Protection key ring:
+#   - App_Data\        (Data Protection key ring)
+#   - appsettings.json (target's service-account config + machine-encrypted password)
+# When -IncludeAppSettings is set we copy appsettings.json explicitly AFTERWARDS, so the
+# mirror's /XF exclusion and the intentional seed can't conflict.
+$robocopyArgs = @($publishDir, $RemotePath, "/MIR", "/R:2", "/W:2", "/NFL", "/NDL", "/NP",
+                  "/XD", "App_Data", "/XF", "appsettings.json")
 
 robocopy @robocopyArgs
 # Robocopy exit codes 0-7 are success (8+ are failures).
 if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit code $LASTEXITCODE." }
+
+if ($IncludeAppSettings) {
+    $srcAppSettings = Join-Path $publishDir "appsettings.json"
+    $dstAppSettings = Join-Path $RemotePath "appsettings.json"
+    Copy-Item -Path $srcAppSettings -Destination $dstAppSettings -Force
+    Write-Host "==> Seeded appsettings.json on the target." -ForegroundColor Cyan
+    Write-Host "    IMPORTANT: the ProtectedPassword in it (if any) was encrypted on THIS machine" -ForegroundColor Yellow
+    Write-Host "    and will NOT decrypt on $Target. Regenerate it there:" -ForegroundColor Yellow
+    Write-Host "        dotnet ActiveRolesDashboard.dll --protect-secret `"<password>`"" -ForegroundColor Yellow
+}
+else {
+    Write-Host "==> Preserved the target's existing appsettings.json (not overwritten)." -ForegroundColor DarkGray
+    Write-Host "    Re-run with -IncludeAppSettings to seed it on a fresh machine." -ForegroundColor DarkGray
+}
 
 Write-Host "==> Starting app pool '$AppPool' on $Target..." -ForegroundColor Cyan
 try {
@@ -118,6 +131,6 @@ try {
 Write-Host "==> Deploy complete." -ForegroundColor Green
 if ($IncludeAppSettings) {
 	Write-Host "    NOTE: appsettings.json was copied. On the target, set ServiceAccount:Username and" -ForegroundColor Yellow
-	Write-Host "    a ProtectedPassword generated ON THE TARGET:" -ForegroundColor Yellow
-	Write-Host "        dotnet ActiveRolesDashboard.dll --protect-secret" -ForegroundColor Yellow
+	Write-Host "    a ProtectedPassword generated ON THE TARGET (pass the password as an argument):" -ForegroundColor Yellow
+	Write-Host "        dotnet ActiveRolesDashboard.dll --protect-secret `"<password>`"" -ForegroundColor Yellow
 }
