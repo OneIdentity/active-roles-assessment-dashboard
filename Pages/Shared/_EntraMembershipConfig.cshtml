@@ -20,6 +20,8 @@
     // resume batched loading after page navigation instead of restarting from zero.
     var membershipAlreadyLoaded = Math.Min(totalGroupsToLoad, Math.Max(0, entra.MembershipLoadedCount));
 }
+@if (Model.Summary.EntraVisible)
+{
 <div id="entra-membership-config"
      data-endpoint="@Url.Page(null, "EntraMembership")"
      data-batch-endpoint="@Url.Page(null, "EntraMembershipBatch")"
@@ -41,3 +43,4 @@
      data-i18n-tip-openweb="@Localizer["Tip_OpenWebInterface"]"
      data-i18n-tip-configureweb="@Localizer["Tip_ConfigureWebUrl"]"
      hidden></div>
+}

@@ -35,8 +35,12 @@ public sealed class PerUserDashboardFilter
         s.Computers = FilterRaw(superset.Computers, user, model,
             items => new ComputersSummary { Items = items, TotalCount = items.Count });
 
-        // Entra objects are not AR-delegated here; carry the superset through unchanged.
-        s.EntraTotals = superset.EntraTotals;
+        // Entra objects are not AR-delegated (they come from Azure configuration the service
+        // account reads, not per-object AT Links). A non-admin viewer reaching this filter has no
+        // Entra delegation, so Entra must NOT be shown to them; expose an empty Entra summary so
+        // EntraVisible resolves false and the Entra tile/toast/badge stay hidden. Admins bypass this
+        // filter entirely and keep the full superset.
+        s.EntraTotals = new EntraTotalsSummary();
 
         // --- Typed user-account detail drilldowns ----------------------------
         s.NeverLoggedIn = FilterDetail(superset.NeverLoggedIn, user, model);

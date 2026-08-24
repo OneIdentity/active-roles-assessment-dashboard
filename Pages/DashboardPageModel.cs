@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ActiveRolesDashboard.Pages;
@@ -371,6 +372,7 @@ public abstract class DashboardPageModel : PageModel
             // everyone else sees a per-user projection scoped to their AR delegation.
             var model = Cache.PermissionModel;
             var viewer = IsActiveRolesAdmin ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
+
             Summary = (viewer is not null && model is not null)
                 ? PerUserFilter.Filter(superset, viewer, model)
                 : superset;
