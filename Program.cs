@@ -148,6 +148,17 @@ if (args.Contains("--protect-secret", StringComparer.OrdinalIgnoreCase))
     var plaintext = idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : null;
     if (string.IsNullOrEmpty(plaintext))
     {
+        // Only prompt when a console is actually attached and stdin is interactive.
+        // Under redirected input (e.g. some IIS/service shells) Console.ReadLine()
+        // returns null immediately and would silently produce "nothing to protect",
+        // so instruct the caller to pass the password as an argument instead.
+        if (Console.IsInputRedirected)
+        {
+            Console.Error.WriteLine("No interactive console detected. Pass the password as an argument:");
+            Console.Error.WriteLine("    dotnet ActiveRolesDashboard.dll --protect-secret \"<password>\"");
+            return;
+        }
+
         Console.Write("Enter service-account password to protect: ");
         plaintext = Console.ReadLine();
     }
@@ -155,6 +166,7 @@ if (args.Contains("--protect-secret", StringComparer.OrdinalIgnoreCase))
     if (string.IsNullOrEmpty(plaintext))
     {
         Console.Error.WriteLine("No password provided. Nothing to protect.");
+        Console.Error.WriteLine("Usage: dotnet ActiveRolesDashboard.dll --protect-secret \"<password>\"");
         return;
     }
 

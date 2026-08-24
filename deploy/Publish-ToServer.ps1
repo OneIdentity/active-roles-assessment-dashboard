@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
-	Publishes the Active Roles Dashboard and deploys it to a target IIS server
-	(default: winemeaapp04), preserving machine-specific configuration and keys.
+	Publishes the Active Roles Dashboard and deploys it to a target IIS server,
+	preserving machine-specific configuration and keys.
 
 .DESCRIPTION
 	Repeatable deploy for multi-user testing. Steps:
@@ -21,14 +21,14 @@
 	--protect-secret ON THE TARGET to generate a value valid for its keys).
 
 .PARAMETER Target
-	Target machine name. Default: winemeaapp04.
+	Target machine name (mandatory), e.g. winemeaapp04.
 
 .PARAMETER RemotePath
 	UNC path to the site folder on the target.
 	Default: \\<Target>\C$\inetpub\ActiveRolesDashboard
 
 .PARAMETER AppPool
-	IIS application pool name to stop/start on the target. Default: ActiveRolesDashboard.
+	IIS application pool name to stop/start on the target (mandatory).
 
 .PARAMETER IncludeAppSettings
 	Also copy appsettings.json (use only on first deploy / when intentionally
@@ -36,17 +36,22 @@
 
 .EXAMPLE
 	# Normal repeat deploy (preserves target config + keys):
-	.\deploy\Publish-ToWinemeaapp04.ps1
+	.\deploy\Publish-ToServer.ps1 -Target winemeaapp04 -AppPool ActiveRolesDashboard
 
 .EXAMPLE
 	# First-time deploy, seeding appsettings.json:
-	.\deploy\Publish-ToWinemeaapp04.ps1 -IncludeAppSettings
+	.\deploy\Publish-ToServer.ps1 -Target winemeaapp04 -AppPool ActiveRolesDashboard -IncludeAppSettings
 #>
 [CmdletBinding()]
 param(
-	[string]$Target = "winemeaapp04",
+	[Parameter(Mandatory = $true)]
+	[string]$Target,
+
 	[string]$RemotePath,
-	[string]$AppPool = "ActiveRolesDashboard",
+
+	[Parameter(Mandatory = $true)]
+	[string]$AppPool,
+
 	[switch]$IncludeAppSettings
 )
 
@@ -55,7 +60,7 @@ $ErrorActionPreference = "Stop"
 # Resolve paths relative to this script (repo\deploy\ -> repo root).
 $repoRoot   = Split-Path -Parent $PSScriptRoot
 $project    = Join-Path $repoRoot "ActiveRolesDashboard.csproj"
-$publishDir = Join-Path $repoRoot "publish\winemeaapp04"
+$publishDir = Join-Path $repoRoot "publish\$Target"
 
 if (-not $RemotePath) {
 	$RemotePath = "\\$Target\C$\inetpub\ActiveRolesDashboard"
