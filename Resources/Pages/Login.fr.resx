@@ -59,5 +59,6 @@
   <data name="SigningIn" xml:space="preserve"><value>Connexion en cours...</value></data>
   <data name="LoadingData" xml:space="preserve"><value>Chargement des données...</value></data>
   <data name="BuildingCache" xml:space="preserve"><value>Création du cache...</value></data>
+  <data name="CacheError" xml:space="preserve"><value>Le cache de données n'a pas pu être créé. Veuillez contacter un administrateur.</value></data>
   <data name="FilteringData" xml:space="preserve"><value>Filtrage des données...</value></data>
 </root>

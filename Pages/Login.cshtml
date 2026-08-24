@@ -87,7 +87,8 @@
     var loginI18n = {
         loadingData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["LoadingData"].Value)),
         buildingCache: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["BuildingCache"].Value)),
-        filteringData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["FilteringData"].Value))
+        filteringData: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["FilteringData"].Value)),
+        cacheError: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["CacheError"].Value))
     };
     function setLanguage(select) {
         var opt = select.options[select.selectedIndex];
@@ -119,6 +120,12 @@
                         if (status && status.ready) {
                             msg.textContent = loginI18n.filteringData;
                             window.location.href = redirectUrl;
+                        } else if (status && status.state === 'Faulted') {
+                            // Cache build failed (e.g. service-account auth error). Stop polling and
+                            // surface the fault instead of trapping the user on "Building cache…".
+                            overlay.classList.remove('active');
+                            var detail = (status.error ? (' (' + status.error + ')') : '');
+                            alert(loginI18n.cacheError + detail);
                         } else {
                             msg.textContent = loginI18n.buildingCache;
                             setTimeout(poll, 1500);
