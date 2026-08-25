@@ -48,6 +48,20 @@ public abstract class DashboardPageModel : PageModel
     public int LargeGroupMemberThreshold => Math.Max(1, ArConfig.CurrentValue.EntraLargeGroupMemberThreshold);
 
     /// <summary>
+    /// True when the shared superset collector is actively loading Entra group membership. When
+    /// this is set, the header badge should reflect the server-side collection progress and the
+    /// client-side batch loader must stay idle (the server is doing the loading). Consumed by
+    /// _EntraMembershipConfig.cshtml / dashboard.js.
+    /// </summary>
+    public bool ServerMembershipLoading => Cache.MembershipLoading;
+
+    /// <summary>Total Entra groups in the in-progress server-side membership collection.</summary>
+    public int ServerMembershipTotal => Cache.MembershipTotalCount;
+
+    /// <summary>Groups whose membership the server-side collection has loaded so far.</summary>
+    public int ServerMembershipLoaded => Math.Min(Cache.MembershipTotalCount, Cache.MembershipLoadedCount);
+
+    /// <summary>
     /// Shared guard surfaced to views: true when <see cref="Summary"/>'s Entra group membership
     /// is still loading, so membership-dependent Entra Groups KPIs may be inaccurate. Used by the
     /// Snapshots, Assessments, and MITRE Exposure pages to render a staleness warning.
@@ -221,6 +235,31 @@ public abstract class DashboardPageModel : PageModel
             guestContaining = ToKpiPayload(totals.EntraGuestContainingGroups()),
             singleOwner = ToKpiPayload(totals.EntraSingleOwnerGroups()),
             largeGroups = ToKpiPayload(totals.EntraLargeGroups(ArConfig.CurrentValue.EntraLargeGroupMemberThreshold))
+        });
+    }
+
+    /// <summary>
+    /// Reports live server-side Entra membership-collection progress from the shared superset
+    /// collector, so the client can render a real countdown badge when a user logs in WHILE the
+    /// superset is still loading membership (before the atomic snapshot publish). Only meaningful
+    /// for viewers who can see Entra; non-admins never render the badge. Returns whether the
+    /// collector is actively loading, the total group count, how many are loaded, and how many
+    /// remain.
+    /// </summary>
+    public IActionResult OnGetEntraMembershipProgress()
+    {
+        var loading = Cache.MembershipLoading;
+        var total = Cache.MembershipTotalCount;
+        var loaded = Math.Min(total, Cache.MembershipLoadedCount);
+        var remaining = Math.Max(0, total - loaded);
+
+        return new JsonResult(new
+        {
+            serverLoading = loading,
+            totalGroups = total,
+            loadedCount = loaded,
+            remaining,
+            done = !loading && remaining == 0
         });
     }
 

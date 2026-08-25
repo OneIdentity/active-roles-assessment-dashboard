@@ -19,12 +19,25 @@
     // How many groups already have membership loaded (persisted in session). Lets the client
     // resume batched loading after page navigation instead of restarting from zero.
     var membershipAlreadyLoaded = Math.Min(totalGroupsToLoad, Math.Max(0, entra.MembershipLoadedCount));
+
+    // When the shared superset collector is actively loading membership (a user logged in
+    // mid-collection), the badge should reflect the SERVER's progress and the client batch loader
+    // must stay idle - the server is doing the work. In that case the group total/loaded counts
+    // come from the collector's live progress, not this per-user summary snapshot.
+    var serverLoading = Model.ServerMembershipLoading;
+    if (serverLoading)
+    {
+        totalGroupsToLoad = Model.ServerMembershipTotal;
+        membershipAlreadyLoaded = Model.ServerMembershipLoaded;
+    }
 }
 @if (Model.Summary.EntraVisible)
 {
 <div id="entra-membership-config"
      data-endpoint="@Url.Page(null, "EntraMembership")"
      data-batch-endpoint="@Url.Page(null, "EntraMembershipBatch")"
+     data-progress-endpoint="@Url.Page(null, "EntraMembershipProgress")"
+     data-server-loading="@(serverLoading ? "true" : "false")"
      data-web-url="@Model.WebInterfaceUrl"
      data-loaded="@(membershipLoaded ? "true" : "false")"
      data-total-groups="@totalGroupsToLoad"

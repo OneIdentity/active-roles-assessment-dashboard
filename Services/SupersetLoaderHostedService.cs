@@ -91,10 +91,53 @@ public class SupersetLoaderHostedService : BackgroundService
             // Capture the permission model (AT links + template read grants) from the same view.
             var permissionModel = await _permissionModelService.BuildAsync(token, ct).ConfigureAwait(false);
 
+            // Publish the base superset FIRST - BEFORE loading Entra group membership - so the
+            // "Building cache..." overlay clears and the dashboard renders as soon as the core data
+            // is ready. Membership is the dominant collection cost; blocking the publish on it would
+            // keep users waiting on the overlay for the entire membership load. The snapshot's
+            // summary object is the same reference held by the cache, so enriching its EntraTotals
+            // in place below progressively updates what admins/Entra-visible viewers see, and the
+            // membership progress badge counts down live.
             var snapshot = new DashboardSupersetSnapshot(summary, DateTimeOffset.UtcNow);
             _cache.Publish(snapshot, permissionModel);
+            _logger.LogInformation("Superset published at {Time:o} (Entra membership loading next).", snapshot.CollectedAtUtc);
 
-            _logger.LogInformation("Superset published at {Time:o}.", snapshot.CollectedAtUtc);
+            // Enrich Entra group membership once, into the already-published shared superset, so it
+            // is computed a single time at startup/refresh rather than lazily per user session. This
+            // eventually sets EntraTotals.MembershipLoaded = true so viewers see membership fully
+            // available (badge shows nothing remaining) and the client-side batch loader is a no-op.
+            //
+            // Loading is done in slices so live progress can be reported to the cache holder. That
+            // lets a user who logs in WHILE membership is still loading see a real server-side
+            // countdown (groups remaining) instead of falling back to per-session client loading.
+            var entra = summary.EntraTotals;
+            var groupCount = entra.Items.Count(i => ActiveRolesService.IsEntraGroupType(i.ObjectType));
+            if (groupCount > 0)
+            {
+                _logger.LogInformation("Loading Entra group membership into superset ({Count} groups).", groupCount);
+                _cache.BeginMembershipLoading(groupCount);
+                try
+                {
+                    var sliceSize = Math.Max(1, _config.CurrentValue.EntraMembershipBatchSize);
+                    for (var skip = 0; skip < groupCount; skip += sliceSize)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        await _arService
+                            .LoadEntraGroupMembershipAsync(token, entra, skip, sliceSize)
+                            .ConfigureAwait(false);
+                        _cache.ReportMembershipProgress(entra.MembershipLoadedCount);
+                    }
+                }
+                finally
+                {
+                    _cache.EndMembershipLoading();
+                }
+                _logger.LogInformation(
+                    "Entra group membership loaded into superset ({Count} groups).",
+                    entra.MembershipLoadedCount);
+            }
+
+            _logger.LogInformation("Superset collection fully complete at {Time:o}.", DateTimeOffset.UtcNow);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {

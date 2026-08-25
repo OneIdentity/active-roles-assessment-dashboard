@@ -58,6 +58,15 @@ public sealed class DashboardCacheHolder
     private volatile string? _lastError;
     private volatile ArPermissionModel _permissionModel = ArPermissionModel.Empty;
 
+    // Live Entra membership-collection progress, observable while the superset is still being
+    // built (before the atomic snapshot publish). Lets the login/badge path show a real
+    // server-side countdown instead of falling back to per-session client loading. Written only
+    // by the background collector; read by request threads. Ints are updated via Volatile to keep
+    // reads consistent without locking.
+    private volatile bool _membershipLoading;
+    private int _membershipLoadedCount;
+    private int _membershipTotalCount;
+
     /// <summary>The most recently published snapshot, or null if none has been published yet.</summary>
     public DashboardSupersetSnapshot? Current => _current;
 
@@ -75,6 +84,40 @@ public sealed class DashboardCacheHolder
 
     /// <summary>UTC time the current snapshot was collected, if a snapshot exists.</summary>
     public DateTimeOffset? CollectedAtUtc => _current?.CollectedAtUtc;
+
+    /// <summary>True while the background collector is actively loading Entra group membership.</summary>
+    public bool MembershipLoading => _membershipLoading;
+
+    /// <summary>Number of Entra groups whose membership has been loaded so far in the current collection.</summary>
+    public int MembershipLoadedCount => Volatile.Read(ref _membershipLoadedCount);
+
+    /// <summary>Total number of Entra groups whose membership will be loaded in the current collection.</summary>
+    public int MembershipTotalCount => Volatile.Read(ref _membershipTotalCount);
+
+    /// <summary>
+    /// Marks the start of an Entra membership-loading pass with the given total group count. Resets
+    /// the loaded counter to zero. Called by the background collector before it begins loading.
+    /// </summary>
+    public void BeginMembershipLoading(int totalGroups)
+    {
+        Volatile.Write(ref _membershipTotalCount, Math.Max(0, totalGroups));
+        Volatile.Write(ref _membershipLoadedCount, 0);
+        _membershipLoading = true;
+    }
+
+    /// <summary>Reports incremental membership-loading progress (monotonic high-water mark).</summary>
+    public void ReportMembershipProgress(int loadedCount)
+    {
+        var current = Volatile.Read(ref _membershipLoadedCount);
+        if (loadedCount > current)
+            Volatile.Write(ref _membershipLoadedCount, loadedCount);
+    }
+
+    /// <summary>Marks the membership-loading pass complete (collector finished or failed).</summary>
+    public void EndMembershipLoading()
+    {
+        _membershipLoading = false;
+    }
 
     /// <summary>Transitions to <see cref="CacheState.Loading"/> or <see cref="CacheState.Refreshing"/>.</summary>
     public void MarkLoading()

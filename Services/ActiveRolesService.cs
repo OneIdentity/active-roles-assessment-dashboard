@@ -1430,7 +1430,7 @@ public class ActiveRolesService
     /// Identifies the Entra object types that are groups, so group-specific attributes
     /// (such as edsaMember for the Empty Groups KPI) are only requested for those types.
     /// </summary>
-    private static bool IsEntraGroupType(EntraObjectType type) =>
+    public static bool IsEntraGroupType(EntraObjectType type) =>
         type is EntraObjectType.DistributionGroup
             or EntraObjectType.DynamicDistributionGroup
             or EntraObjectType.Microsoft365Group

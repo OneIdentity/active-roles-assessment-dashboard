@@ -102,6 +102,37 @@ value into the target's `appsettings.json`:
 | `DailyRefreshTime` | 24-hour `HH:mm` time for the daily superset cache refresh. |
 | `LoadOnStartup` | When `true`, the shared cache is built at application startup. |
 
+## Startup cache warm-up and Entra group membership
+
+The shared superset is collected once by a background service using the service
+account, then refreshed daily at `DailyRefreshTime` (and on-demand when an Active
+Roles admin triggers a manual refresh). It is served to every user and projected
+per-user according to their Active Roles delegation, so the expensive collection
+runs once rather than on every login.
+
+Collection happens in two phases:
+
+1. **Base superset** (AD/Entra totals, KPIs, permission model). As soon as this is
+   published the "Building cache…" overlay clears and the dashboard renders. This
+   is the minimum time a user waits on first sign-in after a restart.
+2. **Entra group membership enrichment** (one Active Roles search per group; this
+   is the dominant cost). It runs in the background *after* the base superset is
+   published, loading in batches of `ActiveRoles:EntraMembershipBatchSize` groups.
+
+Because membership loads after the dashboard is already visible:
+
+- A user who signs in **after** membership finishes sees group-based Entra KPIs and
+  drilldowns immediately, with no progress badge.
+- A user who signs in **while** membership is still loading sees the dashboard right
+  away plus a header progress badge that counts down as the server loads membership.
+  The page refreshes automatically once loading completes. No per-session loading is
+  performed — the shared collection drives the badge.
+
+> The first collection after a restart takes longer than base-data-only did in
+> earlier builds, because membership is now pre-loaded once into the shared cache
+> instead of lazily per session. The overlay still only blocks on the base superset,
+> not on membership.
+
 ## First-time deploy checklist
 
 1. Ensure the ASP.NET Core 9 Hosting Bundle is installed on the target.
@@ -140,5 +171,6 @@ Protection keys are preserved:
 | Files on the target are not updated | `-RemotePath` points to the wrong folder | Confirm the site path (e.g. `inetpub\wwwroot\ActiveRolesDashboard`) and pass `-RemotePath` if needed. |
 | `--protect-secret` starts the web host instead of prompting | Running an older binary that predates the fix | Redeploy the current build; the switch is handled before the host starts. |
 | Cache never becomes ready / auth fails | `ProtectedPassword` was generated on a different machine | Regenerate it **on the target** with `--protect-secret` and update `appsettings.json`. |
+| Entra group KPIs empty / progress badge stays up for a while after a restart | Membership is still loading in the background into the shared cache | Expected on first collection; the badge counts down and the page refreshes when done. Increase `ActiveRoles:EntraMembershipBatchSize` to load in larger batches. |
 | App pool cannot be stopped/started remotely | WinRM not enabled or insufficient rights | Enable remote PowerShell on the target or stop/start the pool manually. |
 | Robocopy fails (exit code 8+) | Locked files or share/permission issues | Ensure the app pool is stopped and you have admin access to `\\<Target>\C$`. |

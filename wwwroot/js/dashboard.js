@@ -760,7 +760,6 @@ initCategoryCharts();
     var batchEndpoint = config.getAttribute('data-batch-endpoint');
     if (!endpoint && !batchEndpoint) return;
     var webUrl = (config.getAttribute('data-web-url') || '').replace(/\/+$/, '');
-
     // Localized strings emitted by _EntraMembershipConfig.cshtml. English literals are kept as
     // fallbacks so the loader still works if a page renders the config element without them.
     function loc(attr, fallback) {
@@ -859,6 +858,45 @@ initCategoryCharts();
             if (spinner) spinner.style.display = 'none';
             if (container) container.innerHTML = '<p class="muted">' + escapeHtml(strings.failedMembership) + '</p>';
         });
+    }
+
+    // --- Server-side collection in progress (user logged in mid-collection) ---------------
+    // The shared superset collector is actively loading Entra group membership. The client must
+    // NOT batch-load (the server owns loading); instead poll the progress endpoint, decrement the
+    // badge to reflect the server's real progress, and reload once the server finishes so the
+    // freshly-published superset (with membership) renders fully.
+    var serverLoading = config.getAttribute('data-server-loading') === 'true';
+    var progressEndpoint = config.getAttribute('data-progress-endpoint');
+    if (serverLoading && progressEndpoint) {
+        if (window.membershipBadge && remainingAtStart > 0) window.membershipBadge.set(remainingAtStart);
+        if (window.showToast) window.showToast(strings.toastLoading, 'info');
+
+        var pollProgress = function () {
+            fetch(progressEndpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (resp) {
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    return resp.json();
+                })
+                .then(function (data) {
+                    var remaining = (typeof data.remaining === 'number') ? data.remaining : 0;
+                    if (window.membershipBadge) window.membershipBadge.set(remaining);
+
+                    // Server finished loading: reload to render the published superset membership.
+                    if (data.done || !data.serverLoading) {
+                        if (window.membershipBadge) window.membershipBadge.hide();
+                        if (window.showToast) window.showToast(strings.toastLoaded, 'success');
+                        window.location.reload();
+                        return;
+                    }
+                    setTimeout(pollProgress, 2000);
+                })
+                .catch(function (err) {
+                    // Stop polling on error; leave whatever is rendered in place.
+                    console.error('Entra membership progress poll failed:', err);
+                });
+        };
+        pollProgress();
+        return;
     }
 
     // If the (single) batch endpoint isn't available, fall back to the original one-shot load.

@@ -36,8 +36,9 @@ public class GroupTreeModel : DashboardPageModel
 
         // Populate Summary so the shared group-membership loading badge/toast (driven by the
         // _EntraMembershipConfig partial + dashboard.js) can render and resume background
-        // loading here too. Prefer the session-cached dashboard summary to avoid re-querying
-        // Active Roles; only fetch fresh when no cache exists.
+        // loading here too. Prefer the session-cached (already per-user-scoped) dashboard summary
+        // to avoid re-querying Active Roles; otherwise build it via the shared superset projection
+        // so the same per-user visibility model as the main dashboard applies here.
         var cachedJson = HttpContext.Session.GetString("DashboardSummary");
         if (!string.IsNullOrEmpty(cachedJson))
         {
@@ -46,9 +47,7 @@ public class GroupTreeModel : DashboardPageModel
         else
         {
             var summaryToken = GetAccessToken()!;
-            var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-            Summary = await ArService.GetDashboardSummaryAsync(summaryToken, KpiSettings, userSettings);
-            CacheSummary();
+            await LoadFullSummaryAsync(summaryToken);
         }
 
         if (!string.IsNullOrWhiteSpace(Group))
