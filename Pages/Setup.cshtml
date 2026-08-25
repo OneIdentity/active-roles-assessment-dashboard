@@ -59,6 +59,7 @@
             <div class="step" data-step="1"></div>
             <div class="step" data-step="2"></div>
             <div class="step" data-step="3"></div>
+            <div class="step" data-step="4"></div>
         </div>
 
         <div id="wizardError" class="error-msg" style="display:none;"></div>
@@ -180,6 +181,39 @@
                 </div>
                 <div class="wizard-nav">
                     <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
+                </div>
+            </div>
+
+            <!-- Page 5: Licensing Thresholds -->
+            <div class="wizard-page" data-page="4">
+                <div class="setup-card">
+                    <h2>@Localizer["LicensingThresholds"]</h2>
+                    <p class="subtitle">@Localizer["LicensingThresholdsSubtitle"]</p>
+                    <div class="form-group">
+                        <label for="LicensedDomainObjects">@Localizer["Lbl_LicensedDomainObjects"]</label>
+                        <input type="text" inputmode="numeric" id="LicensedDomainObjects" name="LicensedDomainObjects" value="@Model.LicensedDomainObjects" placeholder="0" />
+                    </div>
+                    <div class="form-group">
+                        <label for="LicensedPartitionObjects">@Localizer["Lbl_LicensedPartitionObjects"]</label>
+                        <input type="text" inputmode="numeric" id="LicensedPartitionObjects" name="LicensedPartitionObjects" value="@Model.LicensedPartitionObjects" placeholder="0" />
+                    </div>
+                    <div class="form-group">
+                        <label for="LicensedAzureObjects">@Localizer["Lbl_LicensedAzureObjects"]</label>
+                        <input type="text" inputmode="numeric" id="LicensedAzureObjects" name="LicensedAzureObjects" value="@Model.LicensedAzureObjects" placeholder="0" />
+                    </div>
+                    <div class="form-group">
+                        <label for="LicensedSaasObjects">@Localizer["Lbl_LicensedSaasObjects"]</label>
+                        <input type="text" inputmode="numeric" id="LicensedSaasObjects" name="LicensedSaasObjects" value="@Model.LicensedSaasObjects" placeholder="0" />
+                    </div>
+                    <div class="form-group">
+                        <label for="LicensedTotalObjects">@Localizer["Lbl_LicensedTotalObjects"]</label>
+                        <input type="text" inputmode="numeric" id="LicensedTotalObjects" name="LicensedTotalObjects" value="@Model.LicensedTotalObjects" placeholder="0" />
+                        <p class="hint">@Localizer["LicensedThresholdsHint"]</p>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
                     <button type="submit" class="btn-finish">@Localizer["FinishSetup"]</button>
                 </div>
             </div>
@@ -194,7 +228,7 @@
     };
     (function () {
         var currentPage = 0;
-        var totalPages = 4;
+        var totalPages = 5;
 
         function showPage(index) {
             var pages = document.querySelectorAll('.wizard-page');

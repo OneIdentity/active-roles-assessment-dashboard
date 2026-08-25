@@ -10,4 +10,13 @@
   <data name="E_ManagedObjects" xml:space="preserve"><value>Nessuna statistica sugli oggetti gestiti trovata</value></data>
   <data name="Chart_Time" xml:space="preserve"><value>Ora</value></data>
   <data name="Chart_ObjectCount" xml:space="preserve"><value>Numero di oggetti</value></data>
+  <data name="H_LicensingThresholds" xml:space="preserve"><value>Totali vs diritti concessi in licenza</value></data>
+  <data name="Badge_OverEntitlement" xml:space="preserve"><value>Oltre il diritto</value></data>
+  <data name="Chart_Actual" xml:space="preserve"><value>Effettivo</value></data>
+  <data name="Chart_Entitlement" xml:space="preserve"><value>Diritto</value></data>
+  <data name="Cat_Domain" xml:space="preserve"><value>Dominio</value></data>
+  <data name="Cat_Partition" xml:space="preserve"><value>Partizione</value></data>
+  <data name="Cat_Azure" xml:space="preserve"><value>Azure</value></data>
+  <data name="Cat_Saas" xml:space="preserve"><value>SaaS</value></data>
+  <data name="Cat_GrandTotal" xml:space="preserve"><value>Totale complessivo</value></data>
 </root>

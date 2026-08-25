@@ -161,6 +161,26 @@ public abstract class DashboardPageModel : PageModel
     }
 
     /// <summary>
+    /// Determines whether the current viewer may see the Licensing dashboard: Active Roles admins
+    /// always may; any other viewer must be granted read (List Object + Read objectClass, or Read
+    /// all properties) on <c>edsManagedObjectStatisticsData</c> in the Active Roles permission
+    /// model. Falls back to <c>true</c> when the shared permission model / SID set is unavailable
+    /// (cache-cold direct queries are already scoped by the caller's own AR permissions).
+    /// </summary>
+    protected async Task<bool> CanViewLicensingAsync(CancellationToken ct = default)
+    {
+        if (IsActiveRolesAdmin)
+            return true;
+
+        var model = Cache.PermissionModel;
+        if (model is null)
+            return true;
+
+        var viewer = await GetViewerSidSetAsync(ct);
+        return viewer is null || model.GrantsLicensingVisibility(viewer);
+    }
+
+    /// <summary>
     /// Applies the session's active segment (domain/tenant) filter to <see cref="Summary"/>.
     /// Call this AFTER caching the unfiltered summary so the cache can be re-filtered when
     /// the selection changes without re-querying Active Roles. Rendering, export, and any
@@ -415,6 +435,11 @@ public abstract class DashboardPageModel : PageModel
             Summary = (viewer is not null && model is not null)
                 ? PerUserFilter.Filter(superset, viewer, model)
                 : superset;
+
+            // The Licensing dashboard is gated on read access to edsManagedObjectStatisticsData.
+            // Admins (and the cache-cold fallback above) keep the default true; a non-admin viewer
+            // must be granted List Object + Read objectClass (or Read all properties) on that class.
+            Summary.LicensingVisible = viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
         }
 
         // Cache the (already permission-scoped) summary for export and sub-dashboard reuse.

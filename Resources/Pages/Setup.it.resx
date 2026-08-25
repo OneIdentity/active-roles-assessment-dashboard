@@ -81,4 +81,12 @@
   <data name="FinishSetup" xml:space="preserve"><value>Completa configurazione</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>L'URL dell'API REST è obbligatorio.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>L'URL del token RSTS è obbligatorio.</value></data>
+  <data name="LicensingThresholds" xml:space="preserve"><value>Soglie di licenza</value></data>
+  <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Diritti facoltativi di oggetti concessi in licenza usati dalla dashboard delle licenze. Lasciare 0 per disabilitare una soglia.</value></data>
+  <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Oggetti dominio concessi in licenza</value></data>
+  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve"><value>Oggetti partizione concessi in licenza</value></data>
+  <data name="Lbl_LicensedAzureObjects" xml:space="preserve"><value>Oggetti Azure concessi in licenza</value></data>
+  <data name="Lbl_LicensedSaasObjects" xml:space="preserve"><value>Oggetti SaaS concessi in licenza</value></data>
+  <data name="Lbl_LicensedTotalObjects" xml:space="preserve"><value>Oggetti totali concessi in licenza (totale complessivo)</value></data>
+  <data name="LicensedThresholdsHint" xml:space="preserve"><value>Un valore di 0 indica che la soglia non è configurata e non verrà mostrata.</value></data>
 </root>

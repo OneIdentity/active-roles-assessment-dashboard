@@ -60,6 +60,9 @@
             // tile when no tenant is selected (empty selection resolves to "none").
             if (dash.Key == "ActiveDirectory" && !Model.Summary.AdVisible) { continue; }
             if (dash.Key == "EntraId" && !Model.Summary.EntraVisible) { continue; }
+            // Hide the Licensing tile from viewers without read access to
+            // edsManagedObjectStatisticsData (admins always keep it).
+            if (dash.Key == "Licensing" && !Model.Summary.LicensingVisible) { continue; }
             <a href="@(HttpContext.Request.PathBase)@dash.Url" class="dashboard-tile">
                 <img src="@dash.Image" alt="@dash.Title" />
                 <h3>@dash.Title</h3>

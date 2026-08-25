@@ -81,4 +81,12 @@
   <data name="FinishSetup" xml:space="preserve"><value>Finalizar configuración</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>La URL de la API REST es obligatoria.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>La URL del token RSTS es obligatoria.</value></data>
+  <data name="LicensingThresholds" xml:space="preserve"><value>Umbrales de licencia</value></data>
+  <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Derechos de objetos con licencia opcionales que usa el panel de licencias. Deje 0 para desactivar un umbral.</value></data>
+  <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Objetos de dominio con licencia</value></data>
+  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve"><value>Objetos de partición con licencia</value></data>
+  <data name="Lbl_LicensedAzureObjects" xml:space="preserve"><value>Objetos de Azure con licencia</value></data>
+  <data name="Lbl_LicensedSaasObjects" xml:space="preserve"><value>Objetos SaaS con licencia</value></data>
+  <data name="Lbl_LicensedTotalObjects" xml:space="preserve"><value>Total de objetos con licencia (total general)</value></data>
+  <data name="LicensedThresholdsHint" xml:space="preserve"><value>Un valor de 0 significa que el umbral no está configurado y no se mostrará.</value></data>
 </root>

@@ -781,6 +781,16 @@ public class ActiveRolesConfig
     // 'member' attribute, so it does not add per-group lookup latency.
     public int EntraLargeGroupMemberThreshold { get; set; } = 100;
 
+    // Licensed entitlement thresholds for the Managed Objects (Licensing) KPI. Each value is the
+    // number of licensed managed objects for a category; the Licensing dashboard compares the latest
+    // observed totals against these. A value of 0 means "not configured" (no threshold line / no
+    // breach styling). LicensedTotalObjects is the grand-total entitlement across all categories.
+    public int LicensedDomainObjects { get; set; }
+    public int LicensedPartitionObjects { get; set; }
+    public int LicensedAzureObjects { get; set; }
+    public int LicensedSaasObjects { get; set; }
+    public int LicensedTotalObjects { get; set; }
+
     // Custom overrides (blank = use default)
     public string CustomNoGroupOwnerBaseDn { get; set; } = string.Empty;
     public string CustomNoManagerUserBaseDn { get; set; } = string.Empty;
@@ -1579,6 +1589,15 @@ public class DashboardSummary
     /// is applied. Set by <see cref="ApplySegmentFilter"/>.
     /// </summary>
     public bool EntraVisible { get; private set; } = true;
+
+    /// <summary>
+    /// True when the viewer is permitted to see the Licensing dashboard, i.e. they can read
+    /// <c>edsManagedObjectStatisticsData</c> objects (List Object + Read objectClass, or Read all
+    /// properties). Defaults to true (admins / cache-cold direct queries see it); the per-user
+    /// projection sets it from the Active Roles permission model. Used to hide the Licensing tile
+    /// and dashboard for viewers without that delegated read access.
+    /// </summary>
+    public bool LicensingVisible { get; set; } = true;
 
     /// <summary>
     /// Applies both dimensions of a persisted <see cref="SegmentFilterState"/> to this

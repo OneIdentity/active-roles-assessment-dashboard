@@ -61,6 +61,17 @@ public class SetupModel : PageModel
     [BindProperty]
     public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
 
+    [BindProperty]
+    public int LicensedDomainObjects { get; set; }
+    [BindProperty]
+    public int LicensedPartitionObjects { get; set; }
+    [BindProperty]
+    public int LicensedAzureObjects { get; set; }
+    [BindProperty]
+    public int LicensedSaasObjects { get; set; }
+    [BindProperty]
+    public int LicensedTotalObjects { get; set; }
+
     public ActiveRolesConfig Defaults => _arConfig.CurrentValue;
 
     public string? ErrorMessage { get; set; }
@@ -120,6 +131,11 @@ public class SetupModel : PageModel
                 activeRoles["CustomEmptyGroupsBaseDn"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsBaseDn"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsFilter"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
+                activeRoles["LicensedDomainObjects"] = Math.Max(0, LicensedDomainObjects);
+                activeRoles["LicensedPartitionObjects"] = Math.Max(0, LicensedPartitionObjects);
+                activeRoles["LicensedAzureObjects"] = Math.Max(0, LicensedAzureObjects);
+                activeRoles["LicensedSaasObjects"] = Math.Max(0, LicensedSaasObjects);
+                activeRoles["LicensedTotalObjects"] = Math.Max(0, LicensedTotalObjects);
                 activeRoles["DefaultLanguage"] = SupportedLanguage.All.Any(l => l.Code == Language)
                     ? Language
                     : SupportedLanguage.DefaultCode;

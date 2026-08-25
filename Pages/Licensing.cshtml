@@ -4,6 +4,44 @@
 @{
     ViewData["Title"] = "Licensing & Compliance";
     Layout = null;
+
+    // Precompute licensing threshold data so the @if blocks below contain only markup
+    // (declaring locals/lambdas directly inside an @if{} body can suppress following markup).
+    var licHasData = Model.HasLicensingThresholds
+        && Model.Summary.ManagedObjects.Error == null
+        && Model.Summary.ManagedObjects.DataPoints.Any();
+    var licShowPanel = licHasData && Model.KpiSettings.IsKpiEnabled("Licensing", "ManagedObjects");
+
+    var licOverThreshold = false;
+    object[] licCategories = System.Array.Empty<object>();
+    if (licHasData)
+    {
+        var licRun = Model.Summary.ManagedObjects.DataPoints.Last();
+        System.Func<string, int> licTotal = cat => licRun.Items
+            .Where(i => string.Equals(i.Category, cat, StringComparison.OrdinalIgnoreCase))
+            .Sum(i => i.Count);
+        var licDomain = licTotal("Domain");
+        var licPartition = licTotal("Partition");
+        var licAzure = licTotal("Azure");
+        var licSaas = licTotal("SAAS");
+        var licGrand = licRun.Items.Sum(i => i.Count);
+
+        licOverThreshold =
+            (Model.LicensedDomainObjects > 0 && licDomain > Model.LicensedDomainObjects)
+            || (Model.LicensedPartitionObjects > 0 && licPartition > Model.LicensedPartitionObjects)
+            || (Model.LicensedAzureObjects > 0 && licAzure > Model.LicensedAzureObjects)
+            || (Model.LicensedSaasObjects > 0 && licSaas > Model.LicensedSaasObjects)
+            || (Model.LicensedTotalObjects > 0 && licGrand > Model.LicensedTotalObjects);
+
+        licCategories = new object[]
+        {
+            new { key = "Domain", label = Localizer["Cat_Domain"].Value, total = licDomain, threshold = Model.LicensedDomainObjects },
+            new { key = "Partition", label = Localizer["Cat_Partition"].Value, total = licPartition, threshold = Model.LicensedPartitionObjects },
+            new { key = "Azure", label = Localizer["Cat_Azure"].Value, total = licAzure, threshold = Model.LicensedAzureObjects },
+            new { key = "SAAS", label = Localizer["Cat_Saas"].Value, total = licSaas, threshold = Model.LicensedSaasObjects },
+            new { key = "Total", label = Localizer["Cat_GrandTotal"].Value, total = licGrand, threshold = Model.LicensedTotalObjects }
+        };
+    }
 }
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
@@ -13,7 +51,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Roles Dashboard - Licensing &amp; Compliance</title>
     <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
 <div class="loading-overlay active" id="loadingOverlay">
@@ -78,6 +115,21 @@
             </div>
         </div>
         }
+
+        @if (licShowPanel)
+        {
+            <div class="panel panel-static" id="panel-licensingthresholds">
+            <h2>
+                <span class="sec-icon">L</span> @Localizer["H_LicensingThresholds"]
+                <span style="margin-left:8px; padding:2px 8px; border-radius:9999px; background:#fef2f2; color:#991b1b; border:1px solid #fecaca; font-size:.72rem; font-weight:600; @(licOverThreshold ? "" : "display:none;")">@Localizer["Badge_OverEntitlement"]</span>
+            </h2>
+            <div class="panel-content">
+                <div style="position:relative; height:350px;">
+                    <canvas id="licensingThresholdsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        }
     </div>
 
     <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
@@ -134,6 +186,106 @@
 })();
 </script>
 }
+@if (licHasData)
+{
+    <script>
+(function() {
+    var canvas = document.getElementById('licensingThresholdsChart');
+    if (!canvas || typeof Chart === 'undefined') { return; }
+    var cats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(licCategories));
+    var labels = cats.map(function(c) { return c.label; });
+    var breachColor = '#dc2626';
+    var entitlementColor = '#111827';
+
+    // Per-category colours matching the Managed Objects chart palette;
+    // Grand Total gets its own distinct colour.
+    var categoryColors = {
+        'Domain': '#2563eb',
+        'Partition': '#16a34a',
+        'Azure': '#d97706',
+        'SAAS': '#7c3aed',
+        'Total': '#475569'
+    };
+    function colorFor(key) { return categoryColors[key] || '#2563eb'; }
+
+    var barData = cats.map(function(c) { return c.total; });
+    var barColors = cats.map(function(c) {
+        return (c.threshold > 0 && c.total > c.threshold) ? breachColor : colorFor(c.key);
+    });
+
+    // Threshold overlay: an independent per-category marker (no connecting line),
+    // shown only where an entitlement is configured, sitting above each bar.
+    var thresholdData = cats.map(function(c) { return c.threshold > 0 ? c.threshold : null; });
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_Actual"].Value)),
+                    data: barData,
+                    backgroundColor: barColors,
+                    borderColor: barColors,
+                    borderWidth: 1,
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_Entitlement"].Value)),
+                    data: thresholdData,
+                    borderColor: entitlementColor,
+                    backgroundColor: entitlementColor,
+                    pointRadius: 11,
+                    pointStyle: 'line',
+                    pointBorderWidth: 3,
+                    showLine: false,
+                    spanGaps: false,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12, font: { size: 11 }, usePointStyle: true,
+                        generateLabels: function(chart) {
+                            var out = cats.map(function(c) {
+                                var breached = (c.threshold > 0 && c.total > c.threshold);
+                                return {
+                                    text: c.label,
+                                    fillStyle: breached ? breachColor : colorFor(c.key),
+                                    strokeStyle: breached ? breachColor : colorFor(c.key),
+                                    pointStyle: 'rectRounded',
+                                    hidden: false
+                                };
+                            });
+                            out.push({
+                                text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_Entitlement"].Value)),
+                                fillStyle: entitlementColor,
+                                strokeStyle: entitlementColor,
+                                pointStyle: 'line',
+                                lineWidth: 3,
+                                hidden: false
+                            });
+                            return out;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { font: { size: 11 } } },
+                y: { title: { display: true, text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_ObjectCount"].Value)) }, beginAtZero: true }
+            }
+        }
+    });
+})();
+</script>
+}
 @if (Model.AutoRefreshMinutes > 0)
 {
 <script>
@@ -157,6 +309,15 @@
         btn.classList.toggle('collapsed');
         btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
     }
+
+    // Licensing has a single KPI (Managed Objects); select it by default so its
+    // drill-down chart is shown alongside the entitlements chart on load.
+    (function selectDefaultLicensingKpi() {
+        if (window.location.hash && window.location.hash.indexOf('#panel-') === 0) return;
+        if (typeof openDashboardSection === 'function') {
+            openDashboardSection('managedobjects', false);
+        }
+    })();
 </script>
 </body>
 </html>

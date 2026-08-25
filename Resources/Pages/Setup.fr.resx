@@ -81,4 +81,12 @@
   <data name="FinishSetup" xml:space="preserve"><value>Terminer la configuration</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>L'URL de l'API REST est requise.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>L'URL du jeton RSTS est requise.</value></data>
+  <data name="LicensingThresholds" xml:space="preserve"><value>Seuils de licence</value></data>
+  <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Droits d'objets sous licence facultatifs utilisés par le tableau de bord des licences. Laissez 0 pour désactiver un seuil.</value></data>
+  <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Objets de domaine sous licence</value></data>
+  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve"><value>Objets de partition sous licence</value></data>
+  <data name="Lbl_LicensedAzureObjects" xml:space="preserve"><value>Objets Azure sous licence</value></data>
+  <data name="Lbl_LicensedSaasObjects" xml:space="preserve"><value>Objets SaaS sous licence</value></data>
+  <data name="Lbl_LicensedTotalObjects" xml:space="preserve"><value>Total d'objets sous licence (total général)</value></data>
+  <data name="LicensedThresholdsHint" xml:space="preserve"><value>Une valeur de 0 signifie que le seuil n'est pas configuré et ne sera pas affiché.</value></data>
 </root>

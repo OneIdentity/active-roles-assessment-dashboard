@@ -52,6 +52,7 @@ public class ReportBuilder
         // segments, omit the whole dashboard section from the export.
         if (dashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) return;
         if (dashboardKey == DashboardInfo.EntraId.Key && !summary.EntraVisible) return;
+        if (dashboardKey == DashboardInfo.Licensing.Key && !summary.LicensingVisible) return;
 
         // The main dashboard is an aggregate hub: export its own Overview plus the
         // Active Directory and Entra ID dashboards. Other dashboards export only their own
@@ -66,6 +67,7 @@ public class ReportBuilder
             // categories when their source resolves to no selected segments.
             if (category.DashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) continue;
             if (category.DashboardKey == DashboardInfo.EntraId.Key && !summary.EntraVisible) continue;
+            if (category.DashboardKey == DashboardInfo.Licensing.Key && !summary.LicensingVisible) continue;
 
             if (!settings.IsCategoryEnabled(category.Key)) continue;
             var section = BuildCategorySection(category, summary, settings, model.IncludeDetails);

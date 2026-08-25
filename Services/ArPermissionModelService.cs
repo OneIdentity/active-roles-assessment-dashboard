@@ -54,6 +54,15 @@ public sealed class ArPermissionModel
     public required IReadOnlyDictionary<string, AccessTemplateLinkModel> LinksByGuid { get; init; }
     public DateTimeOffset BuiltAtUtc { get; init; } = DateTimeOffset.UtcNow;
 
+    /// <summary>
+    /// A single real <c>edsManagedObjectStatisticsData</c> object captured with the service account,
+    /// reduced to the two things the visibility engine needs: the Access Template Link GUIDs
+    /// effective on it and its structural class. Used to decide whether a viewer may see the
+    /// Licensing dashboard (they must have List Object + Read objectClass, or Read all properties,
+    /// on that class). Null when no statistics object exists / could be read.
+    /// </summary>
+    public LicensingVisibilityProbe? LicensingProbe { get; init; }
+
     public static ArPermissionModel Empty { get; } = new()
     {
         LinksByGuid = new Dictionary<string, AccessTemplateLinkModel>(StringComparer.OrdinalIgnoreCase)
@@ -64,6 +73,27 @@ public sealed class ArPermissionModel
 
     /// <summary>True when the enriched typed item is visible to <paramref name="user"/> under this model.</summary>
     public bool IsVisible(IPermissionScoped item, UserSidSet user) => PermissionScope.IsVisibleTo(item, user, this);
+
+    /// <summary>
+    /// True when <paramref name="user"/> is permitted to see the Licensing dashboard: they must be
+    /// able to read a <c>edsManagedObjectStatisticsData</c> object (List Object + Read objectClass,
+    /// or Read all properties). Evaluated with the same Allow/Deny link engine used for AD objects
+    /// against the captured <see cref="LicensingProbe"/>. Returns false when no probe was captured
+    /// (least-privilege default).
+    /// </summary>
+    public bool GrantsLicensingVisibility(UserSidSet user)
+        => LicensingProbe is { } probe
+           && PermissionScope.IsVisibleTo(probe.EffectiveLinkGuids, probe.ObjectClass, user, this);
+}
+
+/// <summary>
+/// Minimal snapshot of a real <c>edsManagedObjectStatisticsData</c> object needed to evaluate
+/// Licensing-dashboard visibility: the effective AT Link GUIDs on it plus its structural class.
+/// </summary>
+public sealed class LicensingVisibilityProbe
+{
+    public required IReadOnlyList<string> EffectiveLinkGuids { get; init; }
+    public required string ObjectClass { get; init; }
 }
 
 /// <summary>
@@ -184,7 +214,55 @@ public class ArPermissionModelService
         _logger.LogInformation("Built AR permission model: {LinkCount} AT links, {TemplateCount} templates.",
             linksByGuid.Count, templateCache.Count);
 
-        return new ArPermissionModel { LinksByGuid = linksByGuid };
+        var licensingProbe = await BuildLicensingProbeAsync(serviceToken, ct);
+
+        return new ArPermissionModel { LinksByGuid = linksByGuid, LicensingProbe = licensingProbe };
+    }
+
+    // Base DN under which Active Roles keeps the per-run managed-object-statistics data. The class
+    // 'edsManagedObjectStatisticsData' is what a user must be able to read to see the Licensing
+    // dashboard, so we probe a real instance and evaluate its effective AT Links per viewer.
+    private const string ManagedObjectStatisticsBaseDn =
+        "CN=Managed Object Statistics,CN=Server Configuration,CN=Configuration";
+
+    /// <summary>
+    /// Captures one real <c>edsManagedObjectStatisticsData</c> object (with its effective AT Links
+    /// and structural class) so the per-user filter can decide Licensing-dashboard visibility using
+    /// the same Allow/Deny engine that governs AD objects. Returns null when no statistics object
+    /// exists or the search fails, in which case non-admins are denied the dashboard.
+    /// </summary>
+    private async Task<LicensingVisibilityProbe?> BuildLicensingProbeAsync(string serviceToken, CancellationToken ct)
+    {
+        try
+        {
+            var items = await SearchAsync(
+                serviceToken, ManagedObjectStatisticsBaseDn,
+                "(objectClass=edsManagedObjectStatisticsData)", "sub",
+                new[] { "name", "objectClass", SegmentAttributes.EffectiveLinksAttribute }, ct);
+
+            if (items.Count == 0)
+            {
+                _logger.LogInformation("Licensing visibility probe: no edsManagedObjectStatisticsData object found.");
+                return null;
+            }
+
+            var probeItem = items[0];
+            var probe = new LicensingVisibilityProbe
+            {
+                EffectiveLinkGuids = SegmentAttributes.EffectiveLinksOf(probeItem).ToList(),
+                ObjectClass = SegmentAttributes.ClassOf(probeItem)
+            };
+
+            _logger.LogInformation(
+                "Licensing visibility probe: captured 1 statistics object with {LinkCount} effective AT links (class '{Class}').",
+                probe.EffectiveLinkGuids.Count, probe.ObjectClass);
+            return probe;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Licensing visibility probe failed; Licensing dashboard will be hidden from non-admins.");
+            return null;
+        }
     }
 
     /// <summary>

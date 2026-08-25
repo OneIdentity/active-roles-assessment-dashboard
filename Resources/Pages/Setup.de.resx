@@ -81,4 +81,12 @@
   <data name="FinishSetup" xml:space="preserve"><value>Einrichtung abschließen</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>Die REST-API-URL ist erforderlich.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>Die RSTS-Token-URL ist erforderlich.</value></data>
+  <data name="LicensingThresholds" xml:space="preserve"><value>Lizenzschwellenwerte</value></data>
+  <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Optionale lizenzierte Objektkontingente für das Lizenz-Dashboard. 0 lassen, um einen Schwellenwert zu deaktivieren.</value></data>
+  <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Lizenzierte Domänenobjekte</value></data>
+  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve"><value>Lizenzierte Partitionsobjekte</value></data>
+  <data name="Lbl_LicensedAzureObjects" xml:space="preserve"><value>Lizenzierte Azure-Objekte</value></data>
+  <data name="Lbl_LicensedSaasObjects" xml:space="preserve"><value>Lizenzierte SaaS-Objekte</value></data>
+  <data name="Lbl_LicensedTotalObjects" xml:space="preserve"><value>Lizenzierte Gesamtobjekte (Gesamtsumme)</value></data>
+  <data name="LicensedThresholdsHint" xml:space="preserve"><value>Der Wert 0 bedeutet, dass der Schwellenwert nicht konfiguriert ist und nicht angezeigt wird.</value></data>
 </root>
