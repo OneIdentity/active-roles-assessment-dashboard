@@ -96,7 +96,7 @@
     <section class="exp-history">
         <h2 class="exp-h2">@Localizer["CompareAndTrend"]</h2>
         <p class="atk-note">
-            @Html.Raw(Localizer["CompareNote", $"{pathBase}/Snapshots"])
+            @Localizer["CompareNote", $"{pathBase}/Snapshots"]
         </p>
 
         @if (!Model.Snapshots.Any())
