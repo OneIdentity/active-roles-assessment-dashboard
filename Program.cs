@@ -40,7 +40,11 @@ if (args.Contains("--protect-secret", StringComparer.OrdinalIgnoreCase))
     }
 
     // Build a minimal DataProtection provider matching the app's runtime configuration.
-    var keysPath = Path.Combine(AppContext.BaseDirectory, "App_Data", "DataProtectionKeys");
+    // Use the content root (current working directory) rather than AppContext.BaseDirectory
+    // so this utility shares the SAME key ring the web app uses at runtime
+    // (see the runtime AddDataProtection() configuration below). Otherwise a value protected
+    // here (under bin\...) could not be decrypted by the running app (under the content root).
+    var keysPath = Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "DataProtectionKeys");
     Directory.CreateDirectory(keysPath);
     using var dpServices = new ServiceCollection()
         .AddDataProtection()
