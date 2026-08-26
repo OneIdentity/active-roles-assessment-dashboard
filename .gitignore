@@ -13,3 +13,6 @@ usersettings/
 
 # Local MCP config
 .mcp.json
+
+# Local development configuration (kept locally, not tracked)
+appsettings.Development.json
