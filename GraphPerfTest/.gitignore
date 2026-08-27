@@ -1,5 +1,0 @@
-# Certificates and secrets - never commit private keys
-certs/
-*.pfx
-*.pem
-*.key
