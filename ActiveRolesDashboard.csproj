@@ -13,15 +13,8 @@
     <PackageReference Include="QuestPDF" Version="2026.7.2" />
   </ItemGroup>
 
-  <!-- Exclude the standalone console/validation sub-projects from the web project's
-       default source globbing so their files (and generated obj artifacts) are not
-       compiled into this assembly. They build as their own projects in the solution. -->
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
-    <Compile Remove="_validate\**\*.cs" />
-    <Content Remove="_validate\**\*" />
-    <None Remove="_validate\**\*" />
-    <None Include="_validate\_validate.csproj" />
   </ItemGroup>
 
 </Project>
