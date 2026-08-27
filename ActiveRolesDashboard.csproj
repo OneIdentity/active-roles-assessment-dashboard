@@ -18,9 +18,6 @@
        compiled into this assembly. They build as their own projects in the solution. -->
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
-    <Compile Remove="GraphPerfTest\**\*.cs" />
-    <Content Remove="GraphPerfTest\**\*" />
-    <None Remove="GraphPerfTest\**\*" />
     <Compile Remove="_validate\**\*.cs" />
     <Content Remove="_validate\**\*" />
     <None Remove="_validate\**\*" />
