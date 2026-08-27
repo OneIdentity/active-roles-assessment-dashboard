@@ -31,6 +31,39 @@ public class ActiveRolesService
         return client;
     }
 
+    /// <summary>
+    /// Lightweight preflight that verifies the Active Roles REST API is reachable before running
+    /// the full (expensive) superset collection. Issues a single short-timeout GET against the API
+    /// root. Any HTTP response (including 401/404) means the service is up and answering; only a
+    /// transport-level failure (connection refused, DNS, TLS, timeout) is treated as unreachable.
+    /// Returns null on success, or a short human-readable reason on failure.
+    /// </summary>
+    public async Task<string?> TestConnectionAsync(string token, CancellationToken ct = default)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(TimeSpan.FromSeconds(10));
+        try
+        {
+            var client = CreateClient(token);
+            using var response = await client
+                .GetAsync(BaseUrl, HttpCompletionOption.ResponseHeadersRead, timeout.Token)
+                .ConfigureAwait(false);
+            // Reaching here means the server responded at the HTTP layer -> it is up.
+            return null;
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogWarning("Active Roles connectivity preflight timed out against {BaseUrl}.", BaseUrl);
+            return $"Active Roles REST API did not respond within the timeout ({BaseUrl}).";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Active Roles connectivity preflight failed against {BaseUrl}.", BaseUrl);
+            return $"Active Roles REST API is unreachable ({BaseUrl}): {ex.Message}";
+        }
+    }
+
+
     public async Task<DashboardSummary> GetDashboardSummaryAsync(string token, KpiSettings? kpiSettings = null, UserSettings? userSettings = null, bool skipOverviewTotals = false, OverviewTotalsCache? cachedTotals = null)
     {
         var settings = kpiSettings ?? new KpiSettings();

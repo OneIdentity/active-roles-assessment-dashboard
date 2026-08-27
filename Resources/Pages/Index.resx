@@ -7,4 +7,6 @@
   <data name="LoadingDashboardData" xml:space="preserve"><value>Loading Dashboard Data...</value></data>
   <data name="RebuildCache" xml:space="preserve"><value>Rebuild cache</value></data>
   <data name="RebuildCacheTitle" xml:space="preserve"><value>Rebuild the shared data cache from Active Roles (admins only)</value></data>
+  <data name="RefreshSucceeded" xml:space="preserve"><value>Dashboard data cache refreshed successfully.</value></data>
+  <data name="RefreshFailed" xml:space="preserve"><value>Dashboard data cache refresh failed. The previous data is still shown.</value></data>
 </root>

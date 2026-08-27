@@ -16,12 +16,14 @@ public class LoginModel : PageModel
     private readonly RstsAuthService _authService;
     private readonly IStringLocalizer<LoginModel> _localizer;
     private readonly UserSettingsService _userSettings;
+    private readonly DashboardCacheHolder _cache;
 
-    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings)
+    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings, DashboardCacheHolder cache)
     {
         _authService = authService;
         _localizer = localizer;
         _userSettings = userSettings;
+        _cache = cache;
     }
 
     [BindProperty]
@@ -32,13 +34,23 @@ public class LoginModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
+    /// <summary>
+    /// True when the shared data cache could not be built (e.g. Active Roles unreachable at
+    /// startup). Surfaced on page load so the user sees the outage and Sign In is disabled,
+    /// rather than only discovering the fault after attempting to log in.
+    /// </summary>
+    public bool CacheFaulted { get; private set; }
+
     public IReadOnlyList<SupportedLanguage> Languages { get; } = SupportedLanguage.All;
 
     public SupportedLanguage SelectedLanguage =>
         Languages.FirstOrDefault(l => l.Code == CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
         ?? Languages.First(l => l.Code == SupportedLanguage.DefaultCode);
 
-    public void OnGet() { }
+    public void OnGet()
+    {
+        CacheFaulted = _cache.State == CacheState.Faulted;
+    }
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {

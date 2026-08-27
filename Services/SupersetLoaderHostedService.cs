@@ -85,6 +85,19 @@ public class SupersetLoaderHostedService : BackgroundService
             _logger.LogInformation("Starting service-account superset collection.");
             var token = await _tokenProvider.GetTokenAsync(ct).ConfigureAwait(false);
 
+            // Preflight: confirm the Active Roles REST API is reachable before running the full
+            // (expensive) collection. If the service is down, fault fast with a clear message
+            // instead of grinding through retries on every KPI query. The previous snapshot (if
+            // any) keeps being served because MarkFaulted preserves it.
+            var connectivityError = await _arService.TestConnectionAsync(token, ct).ConfigureAwait(false);
+            if (connectivityError != null)
+            {
+                _logger.LogError("Superset collection aborted: {Error}", connectivityError);
+                _cache.MarkFaulted(connectivityError);
+                _tokenProvider.Invalidate();
+                return;
+            }
+
             // Collect the unfiltered superset with the service-account identity.
             var summary = await _arService.GetDashboardSummaryAsync(token).ConfigureAwait(false);
 

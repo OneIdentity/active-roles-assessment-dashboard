@@ -58,6 +58,12 @@ public sealed class DashboardCacheHolder
     private volatile string? _lastError;
     private volatile ArPermissionModel _permissionModel = ArPermissionModel.Empty;
 
+    // Monotonic counter incremented every time a refresh attempt COMPLETES (successfully or not).
+    // The client polls this after an admin-triggered refresh to detect that the attempt finished,
+    // then inspects LastRefreshFailed to decide whether to show a success or an error toast.
+    private int _refreshSequence;
+    private volatile bool _lastRefreshFailed;
+
     // Live Entra membership-collection progress, observable while the superset is still being
     // built (before the atomic snapshot publish). Lets the login/badge path show a real
     // server-side countdown instead of falling back to per-session client loading. Written only
@@ -84,6 +90,16 @@ public sealed class DashboardCacheHolder
 
     /// <summary>UTC time the current snapshot was collected, if a snapshot exists.</summary>
     public DateTimeOffset? CollectedAtUtc => _current?.CollectedAtUtc;
+
+    /// <summary>
+    /// Monotonically increasing counter incremented each time a refresh attempt completes
+    /// (whether it succeeded or faulted). Clients capture this value before triggering a manual
+    /// refresh and poll until it changes to know the attempt has finished.
+    /// </summary>
+    public int RefreshSequence => Volatile.Read(ref _refreshSequence);
+
+    /// <summary>True if the most recently completed refresh attempt failed.</summary>
+    public bool LastRefreshFailed => _lastRefreshFailed;
 
     /// <summary>True while the background collector is actively loading Entra group membership.</summary>
     public bool MembershipLoading => _membershipLoading;
@@ -133,6 +149,8 @@ public sealed class DashboardCacheHolder
         _current = snapshot;
         _lastError = null;
         _state = CacheState.Ready;
+        _lastRefreshFailed = false;
+        Interlocked.Increment(ref _refreshSequence);
     }
 
     /// <summary>Atomically publishes a new snapshot together with its AR permission model.</summary>
@@ -152,5 +170,7 @@ public sealed class DashboardCacheHolder
     {
         _lastError = error;
         _state = _current is null ? CacheState.Faulted : CacheState.Ready;
+        _lastRefreshFailed = true;
+        Interlocked.Increment(ref _refreshSequence);
     }
 }
