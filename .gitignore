@@ -16,3 +16,6 @@ usersettings/
 
 # Local development configuration (kept locally, not tracked)
 appsettings.Development.json
+
+# GraphPerfTest moved to its own repository (kept locally, not tracked)
+GraphPerfTest/

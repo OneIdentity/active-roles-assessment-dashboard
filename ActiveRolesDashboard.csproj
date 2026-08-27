@@ -17,12 +17,7 @@
        default source globbing so their files (and generated obj artifacts) are not
        compiled into this assembly. They build as their own projects in the solution. -->
   <ItemGroup>
-    <Compile Remove="GraphPerfTest\**\*.cs" />
-    <Content Remove="GraphPerfTest\**\*" />
-    <None Remove="GraphPerfTest\**\*" />
     <None Include=".github\copilot-instructions.md" />
-    <None Include="GraphPerfTest\GraphPerfTest.csproj" />
-    <None Include="GraphPerfTest\appsettings.json" />
     <Compile Remove="_validate\**\*.cs" />
     <Content Remove="_validate\**\*" />
     <None Remove="_validate\**\*" />
