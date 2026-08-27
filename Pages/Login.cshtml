@@ -56,6 +56,14 @@
         {
             <div class="error-msg">@Model.ErrorMessage</div>
         }
+        @if (Model.CacheFaulted)
+        {
+            <div class="error-msg" id="cacheErrorBanner" role="alert">@Localizer["CacheError"]</div>
+        }
+        else
+        {
+            <div class="error-msg" id="cacheErrorBanner" role="alert" hidden>@Localizer["CacheError"]</div>
+        }
         <form method="post" id="loginForm">
             <div class="form-group">
                 <label for="username">@Localizer["Username"]</label>
@@ -65,7 +73,14 @@
                 <label for="password">@Localizer["Password"]</label>
                 <input type="password" id="password" name="Password" required />
             </div>
-            <button type="submit" class="btn-login">@Localizer["SignIn"]</button>
+            @if (Model.CacheFaulted)
+            {
+                <button type="submit" class="btn-login" id="btnSignIn" disabled>@Localizer["SignIn"]</button>
+            }
+            else
+            {
+                <button type="submit" class="btn-login" id="btnSignIn">@Localizer["SignIn"]</button>
+            }
         </form>
     </div>
     <div class="loading-overlay" id="loadingOverlay">
@@ -81,6 +96,7 @@
     .loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: #fff; }
     .spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
     @@keyframes spin { to { transform: rotate(360deg); } }
+    .btn-login:disabled { background: #9ca3af; cursor: not-allowed; }
 </style>
 @await Html.PartialAsync("_AppBaseScript")
 <script>
@@ -101,6 +117,34 @@
             ';path=' + (appBase || '/') + ';max-age=31536000;samesite=lax';
         window.location.reload();
     }
+    // Background watch: while the user sits on the login page, quietly poll the shared cache
+    // status. If the cache build faults (e.g. Active Roles unreachable at startup, which can
+    // happen a few seconds AFTER the page first renders), surface the error banner and disable
+    // Sign In proactively - without requiring the user to reload or attempt a login first.
+    (function watchCacheFault() {
+        var base = (appBase || '');
+        function showFault() {
+            var banner = document.getElementById('cacheErrorBanner');
+            if (banner) banner.hidden = false;
+            var btn = document.getElementById('btnSignIn');
+            if (btn) btn.disabled = true;
+        }
+        function poll() {
+            fetch(base + '/cache/status', { headers: { 'Accept': 'application/json' } })
+                .then(function(r) { return r.json(); })
+                .then(function(status) {
+                    if (status && status.faulted) {
+                        showFault();
+                        return; // stop watching; fault is terminal until restart
+                    }
+                    // Ready or still loading: keep watching in case it faults during the wait.
+                    setTimeout(poll, 3000);
+                })
+                .catch(function() { setTimeout(poll, 3000); });
+        }
+        poll();
+    })();
+
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         var overlay = document.getElementById('loadingOverlay');
@@ -120,12 +164,16 @@
                         if (status && status.ready) {
                             msg.textContent = loginI18n.filteringData;
                             window.location.href = redirectUrl;
-                        } else if (status && status.state === 'Faulted') {
-                            // Cache build failed (e.g. service-account auth error). Stop polling and
-                            // surface the fault instead of trapping the user on "Building cache…".
+                        } else if (status && status.faulted) {
+                            // Cache build failed (e.g. service-account auth error or Active Roles
+                            // unreachable). Stop polling and surface a generic, styled message. The
+                            // detailed reason is intentionally NOT exposed to anonymous users; it is
+                            // available to admins via the authenticated dashboard and in server logs.
                             overlay.classList.remove('active');
-                            var detail = (status.error ? (' (' + status.error + ')') : '');
-                            alert(loginI18n.cacheError + detail);
+                            var banner = document.getElementById('cacheErrorBanner');
+                            if (banner) banner.hidden = false;
+                            var btn = document.getElementById('btnSignIn');
+                            if (btn) btn.disabled = true;
                         } else {
                             msg.textContent = loginI18n.buildingCache;
                             setTimeout(poll, 1500);

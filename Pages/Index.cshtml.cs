@@ -69,6 +69,32 @@ public class IndexModel : DashboardPageModel
         HttpContext.Session.Remove("DashboardSummary");
         HttpContext.Session.Remove("OverviewTotals");
 
-        return RedirectToPage("/Index");
+        // Capture the refresh sequence at trigger time. The client polls OnGetRefreshStatus until
+        // the sequence advances, then shows a success or error toast based on the outcome. Passing
+        // it on the redirect lets the reloaded page know a background refresh is in flight.
+        var seq = Cache.RefreshSequence;
+        return RedirectToPage("/Index", new { refreshFrom = seq });
+    }
+
+    /// <summary>
+    /// Lightweight polling endpoint used by the main dashboard after an admin triggers a manual
+    /// refresh. Returns the current refresh sequence and whether the last completed refresh failed,
+    /// so the client can surface a success or error toast without reloading. Admin-only.
+    /// </summary>
+    public async Task<IActionResult> OnGetRefreshStatusAsync()
+    {
+        var redirect = await InitializePageAsync();
+        if (redirect != null) return new JsonResult(new { authorized = false });
+
+        if (!IsActiveRolesAdmin)
+            return new JsonResult(new { authorized = false });
+
+        return new JsonResult(new
+        {
+            authorized = true,
+            sequence = Cache.RefreshSequence,
+            failed = Cache.LastRefreshFailed,
+            error = Cache.LastError
+        });
     }
 }

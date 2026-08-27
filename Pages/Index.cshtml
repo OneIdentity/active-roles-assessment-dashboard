@@ -101,6 +101,48 @@
         btn.classList.toggle('collapsed');
         btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
     }
+
+    // Polling: after an AR admin triggers a manual refresh, OnPostRefreshAsync redirects here with
+    // ?refreshFrom=<sequence>. Poll the RefreshStatus handler until the sequence advances (the
+    // background refresh completed), then show a success or error toast. The existing cached KPI
+    // data stays on screen the whole time, so a failed refresh never wipes the dashboard.
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (!params.has('refreshFrom')) return;
+
+        var baseline = parseInt(params.get('refreshFrom'), 10);
+        if (isNaN(baseline)) return;
+
+        var msgSuccess = @Html.Raw(Json.Serialize(Localizer["RefreshSucceeded"].Value));
+        var msgFailed = @Html.Raw(Json.Serialize(Localizer["RefreshFailed"].Value));
+
+        function clearMarker() {
+            params.delete('refreshFrom');
+            var url = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
+            window.history.replaceState({}, document.title, url);
+        }
+
+        var attempts = 0;
+        var maxAttempts = 150; // ~5 minutes at 2s intervals
+        var timer = setInterval(function () {
+            attempts++;
+            fetch(appBase + '/?handler=RefreshStatus', { headers: { 'Accept': 'application/json' } })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (data) {
+                    if (!data || data.authorized === false) { clearInterval(timer); clearMarker(); return; }
+                    if (data.sequence > baseline || attempts >= maxAttempts) {
+                        clearInterval(timer);
+                        clearMarker();
+                        if (data.failed) {
+                            window.showToast(data.error ? (msgFailed + ' ' + data.error) : msgFailed, 'error');
+                        } else if (data.sequence > baseline) {
+                            window.showToast(msgSuccess, 'success');
+                        }
+                    }
+                })
+                .catch(function () { /* transient; keep polling until maxAttempts */ });
+        }, 2000);
+    })();
 </script>
 </body>
 </html>

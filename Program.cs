@@ -240,12 +240,16 @@ app.Use(async (context, next) =>
 // Cache readiness endpoint: polled by the login/wait screen while the shared superset is
 // being built at startup. Returns the current cache state so the UI can show "Building cache…"
 // until Ready. Anonymous by design (no user data is exposed, only lifecycle status).
+// Deliberately does NOT expose LastError: the raw fault message can contain internal hostnames,
+// ports and exception text, which must not be disclosed to unauthenticated visitors. The generic
+// "faulted" flag is enough for the login screen; admins see the detailed reason via the
+// authenticated dashboard refresh-status handler.
 app.MapGet("/cache/status", (DashboardCacheHolder cache) => Results.Json(new
 {
     state = cache.State.ToString(),
     ready = cache.IsReady,
-    collectedAtUtc = cache.CollectedAtUtc,
-    error = cache.LastError
+    faulted = cache.State == CacheState.Faulted,
+    collectedAtUtc = cache.CollectedAtUtc
 })).AllowAnonymous();
 
 // Admin-only diagnostics: validate that the per-user filter matches an independently derived
