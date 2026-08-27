@@ -164,6 +164,7 @@ Feature reference documents live under [`docs/`](docs/):
 - [ConfigSettings.md](docs/ConfigSettings.md) — full reference for every `appsettings.json` configuration setting.
 - [Deployment.md](docs/Deployment.md) — deploying to a target IIS server, the deploy script, and protecting the service-account secret.
 - [Localization.md](docs/Localization.md) — localization architecture, resource conventions, and how to add languages or translations.
+- [KnownIssues.md](docs/KnownIssues.md) — known issues, limitations, and their workarounds.
 
 ## Technology
 
