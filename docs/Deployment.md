@@ -22,12 +22,14 @@ IIS out-of-process (see [`web.config`](../web.config)). Deployment is automated 
 4. Optionally seeds `appsettings.json` on a fresh machine (`-IncludeAppSettings`).
 5. Restarts the application pool.
 
+> Note: The IIS Application and Application Pool must already exist on the target. The deploy script does not create them. See pre-requisites below.
+
 ## Prerequisites
 
 | Requirement | Notes |
 | --- | --- |
-| ASP.NET Core 9 Hosting Bundle (on the target) | Required because the app is published framework-dependent. |
 | .NET 9 SDK (on the build machine) | Required to run `dotnet publish`. |
+| ASP.NET Core 9 Hosting Bundle (on the target) | Required because the app is published framework-dependent. |
 | IIS site + application pool (on the target) | The app pool name is passed to the script. |
 | Remote PowerShell / WinRM to the target | Used to stop/start the app pool remotely. |
 | Administrative share access (`\\<Target>\C$`) | Used by `robocopy` to copy files. |
@@ -35,11 +37,11 @@ IIS out-of-process (see [`web.config`](../web.config)). Deployment is automated 
 ## The deploy script
 
 ```powershell
-# Normal repeat deploy (preserves the target's appsettings.json + Data Protection keys):
-.\deploy\Publish-ToServer.ps1 -Target winemeaapp04 -AppPool ActiveRolesDashboard
-
 # First-time deploy, seeding appsettings.json:
-.\deploy\Publish-ToServer.ps1 -Target winemeaapp04 -AppPool ActiveRolesDashboard -IncludeAppSettings
+.\deploy\Publish-ToServer.ps1 -Target <your-target-machine> -AppPool <your-app-pool> -IncludeAppSettings
+
+# Normal repeat deploy (preserves the target's appsettings.json + Data Protection keys):
+.\deploy\Publish-ToServer.ps1 -Target <your-target-machine> -AppPool <your-app-pool>
 ```
 
 ### Parameters
@@ -63,10 +65,11 @@ with ASP.NET Core Data Protection and stored in `appsettings.json` under
 `ActiveRoles:ServiceAccount:ProtectedPassword`.
 
 Data Protection keys are **machine- and key-ring-specific**. A `ProtectedPassword`
-generated on your build machine will **not** decrypt on the target. You must
-generate the value **on the target** after the first deploy.
+generated on your build machine will **not** decrypt on the target (assuming they are different machines). The password will be protected during the initial setup.
 
 ### Generate the protected password on the target
+
+If the service account password has been changed, run the following on the target machine.
 
 Run the published app with the `--protect-secret` switch, passing the plaintext
 password as an argument:
@@ -143,17 +146,9 @@ Because membership loads after the dashboard is already visible:
    .\deploy\Publish-ToServer.ps1 -Target <server> -AppPool <pool> -IncludeAppSettings
    ```
 
-4. On the target, generate the protected password and paste it into
-   `appsettings.json`:
-
-   ```powershell
-   dotnet .\ActiveRolesDashboard.dll --protect-secret "<password>"
-   ```
-
-5. Set `ServiceAccount:Username` (and any environment-specific `ActiveRoles`
-   settings) in the target's `appsettings.json`.
-6. Restart the application pool (the script does this automatically on subsequent
-   deploys).
+4. Open a browser window and navigate to the site. The setup wizard will be triggered.The first sign-in will trigger the initial cache collection, which may take several minutes. The dashboard will display a "Building cache…" overlay until the base superset is ready.
+5. Complete the setup wizard. This will trigger the initial cache collection, which may take several minutes. 
+6. Sign in to the application. The dashboard will display a "Building cache…" overlay until the base superset is ready.
 
 ## Subsequent deploys
 
