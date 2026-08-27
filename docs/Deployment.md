@@ -69,12 +69,12 @@ generated on your build machine will **not** decrypt on the target (assuming the
 
 ### Generate the protected password on the target
 
-If the service account password has been changed, run the following on the target machine:
-```powershell
+If the service account password has been changed, run the following on the target machine.
+
 Run the published app with the `--protect-secret` switch, passing the plaintext
 password as an argument:
 
-powershell
+```powershell
 cd C:\inetpub\wwwroot\ActiveRolesDashboard
 dotnet .\ActiveRolesDashboard.dll --protect-secret "<password>"
 ```
