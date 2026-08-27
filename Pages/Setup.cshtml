@@ -21,6 +21,8 @@
         .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
         .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
         .form-group input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .form-group input[type="password"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
+        .form-group input[type="password"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
         .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
         .required { color: #dc2626; }
         .error-msg { margin-bottom: 16px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: .82rem; color: #991b1b; }
@@ -60,6 +62,7 @@
             <div class="step" data-step="2"></div>
             <div class="step" data-step="3"></div>
             <div class="step" data-step="4"></div>
+            <div class="step" data-step="5"></div>
         </div>
 
         <div id="wizardError" class="error-msg" style="display:none;"></div>
@@ -91,8 +94,30 @@
                 </div>
             </div>
 
-            <!-- Page 2: Web Interface -->
+            <!-- Page 2: Service Account Credentials -->
             <div class="wizard-page" data-page="1">
+                <div class="setup-card">
+                    <h2>@Localizer["ServiceAccountConfig"] <span class="required">*</span></h2>
+                    <p class="subtitle">@Localizer["ServiceAccountSubtitle"]</p>
+                    <div class="form-group">
+                        <label for="ServiceAccountUsername">@Localizer["ServiceAccountUsername"] <span class="required">*</span></label>
+                        <input type="text" id="ServiceAccountUsername" name="ServiceAccountUsername" value="@Model.ServiceAccountUsername" placeholder="DOMAIN\svc_ars" autocomplete="off" />
+                        <p class="hint">@Localizer["ServiceAccountUsernameHint"]</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="ServiceAccountPassword">@Localizer["ServiceAccountPassword"] <span class="required">*</span></label>
+                        <input type="password" id="ServiceAccountPassword" name="ServiceAccountPassword" value="@Model.ServiceAccountPassword" autocomplete="new-password" />
+                        <p class="hint">@Localizer["ServiceAccountPasswordHint"]</p>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
+                </div>
+            </div>
+
+            <!-- Page 3: Web Interface -->
+            <div class="wizard-page" data-page="2">
                 <div class="setup-card">
                     <h2>@Localizer["WebInterface"]</h2>
                     <p class="subtitle">@Localizer["WebInterfaceSubtitle"]</p>
@@ -108,8 +133,8 @@
                 </div>
             </div>
 
-            <!-- Page 3: Language -->
-            <div class="wizard-page" data-page="2">
+            <!-- Page 4: Language -->
+            <div class="wizard-page" data-page="3">
                 <div class="setup-card">
                     <h2>@Localizer["Language"]</h2>
                     <p class="subtitle">@Localizer["LanguageSubtitle"]</p>
@@ -133,8 +158,8 @@
                 </div>
             </div>
 
-            <!-- Page 4: KPI Configuration -->
-            <div class="wizard-page" data-page="3">
+            <!-- Page 5: KPI Configuration -->
+            <div class="wizard-page" data-page="4">
                 <div class="setup-card">
                     <h2>@Localizer["KpiConfig"]</h2>
                     <p class="subtitle">@Localizer["KpiSubtitle"]</p>
@@ -185,8 +210,8 @@
                 </div>
             </div>
 
-            <!-- Page 5: Licensing Thresholds -->
-            <div class="wizard-page" data-page="4">
+            <!-- Page 6: Licensing Thresholds -->
+            <div class="wizard-page" data-page="5">
                 <div class="setup-card">
                     <h2>@Localizer["LicensingThresholds"]</h2>
                     <p class="subtitle">@Localizer["LicensingThresholdsSubtitle"]</p>
@@ -224,11 +249,13 @@
 <script>
     var setupI18n = {
         apiUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_ApiUrlRequired"].Value)),
-        rstsUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_RstsUrlRequired"].Value))
+        rstsUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_RstsUrlRequired"].Value)),
+        saUsernameRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_SaUsernameRequired"].Value)),
+        saPasswordRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_SaPasswordRequired"].Value))
     };
     (function () {
         var currentPage = 0;
-        var totalPages = 5;
+        var totalPages = 6;
 
         function showPage(index) {
             var pages = document.querySelectorAll('.wizard-page');
@@ -261,6 +288,12 @@
                 var rstsUrl = document.getElementById('RstsUrl').value.trim();
                 if (!apiUrl) { showError(setupI18n.apiUrlRequired); document.getElementById('ApiBaseUrl').focus(); return false; }
                 if (!rstsUrl) { showError(setupI18n.rstsUrlRequired); document.getElementById('RstsUrl').focus(); return false; }
+            }
+            if (index === 1) {
+                var saUser = document.getElementById('ServiceAccountUsername').value.trim();
+                var saPass = document.getElementById('ServiceAccountPassword').value;
+                if (!saUser) { showError(setupI18n.saUsernameRequired); document.getElementById('ServiceAccountUsername').focus(); return false; }
+                if (!saPass) { showError(setupI18n.saPasswordRequired); document.getElementById('ServiceAccountPassword').focus(); return false; }
             }
             return true;
         }

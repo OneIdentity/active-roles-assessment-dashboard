@@ -81,6 +81,14 @@
   <data name="FinishSetup" xml:space="preserve"><value>Terminer la configuration</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>L'URL de l'API REST est requise.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>L'URL du jeton RSTS est requise.</value></data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>Le nom d'utilisateur du compte de service est requis.</value></data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>Le mot de passe du compte de service est requis.</value></data>
+  <data name="ServiceAccountConfig" xml:space="preserve"><value>Compte de service</value></data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Informations d'identification utilisées par le tableau de bord pour collecter les données Active Roles en arrière-plan.</value></data>
+  <data name="ServiceAccountUsername" xml:space="preserve"><value>Nom d'utilisateur</value></data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>Le compte de service utilisé pour obtenir un jeton RSTS (par ex. DOMAIN\svc_ars).</value></data>
+  <data name="ServiceAccountPassword" xml:space="preserve"><value>Mot de passe</value></data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>Stocké chiffré à l'aide de Data Protection. Il n'est jamais enregistré en clair.</value></data>
   <data name="LicensingThresholds" xml:space="preserve"><value>Seuils de licence</value></data>
   <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Droits d'objets sous licence facultatifs utilisés par le tableau de bord des licences. Laissez 0 pour désactiver un seuil.</value></data>
   <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Objets de domaine sous licence</value></data>

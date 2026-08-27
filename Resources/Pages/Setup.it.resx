@@ -81,6 +81,14 @@
   <data name="FinishSetup" xml:space="preserve"><value>Completa configurazione</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>L'URL dell'API REST è obbligatorio.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>L'URL del token RSTS è obbligatorio.</value></data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>Il nome utente dell'account di servizio è obbligatorio.</value></data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>La password dell'account di servizio è obbligatoria.</value></data>
+  <data name="ServiceAccountConfig" xml:space="preserve"><value>Account di servizio</value></data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Credenziali usate dalla dashboard per raccogliere i dati di Active Roles in background.</value></data>
+  <data name="ServiceAccountUsername" xml:space="preserve"><value>Nome utente</value></data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>L'account di servizio usato per ottenere un token RSTS (es. DOMAIN\svc_ars).</value></data>
+  <data name="ServiceAccountPassword" xml:space="preserve"><value>Password</value></data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>Memorizzata crittografata tramite Data Protection. Non viene mai salvata in chiaro.</value></data>
   <data name="LicensingThresholds" xml:space="preserve"><value>Soglie di licenza</value></data>
   <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Diritti facoltativi di oggetti concessi in licenza usati dalla dashboard delle licenze. Lasciare 0 per disabilitare una soglia.</value></data>
   <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Oggetti dominio concessi in licenza</value></data>

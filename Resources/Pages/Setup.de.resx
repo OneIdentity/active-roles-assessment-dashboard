@@ -81,6 +81,14 @@
   <data name="FinishSetup" xml:space="preserve"><value>Einrichtung abschließen</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>Die REST-API-URL ist erforderlich.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>Die RSTS-Token-URL ist erforderlich.</value></data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>Der Dienstkonto-Benutzername ist erforderlich.</value></data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>Das Dienstkonto-Kennwort ist erforderlich.</value></data>
+  <data name="ServiceAccountConfig" xml:space="preserve"><value>Dienstkonto</value></data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Anmeldedaten, mit denen das Dashboard im Hintergrund Active Roles-Daten erfasst.</value></data>
+  <data name="ServiceAccountUsername" xml:space="preserve"><value>Benutzername</value></data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>Das Dienstkonto zum Abrufen eines RSTS-Tokens (z. B. DOMAIN\svc_ars).</value></data>
+  <data name="ServiceAccountPassword" xml:space="preserve"><value>Kennwort</value></data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>Wird mit Data Protection verschlüsselt gespeichert. Es wird niemals im Klartext gespeichert.</value></data>
   <data name="LicensingThresholds" xml:space="preserve"><value>Lizenzschwellenwerte</value></data>
   <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Optionale lizenzierte Objektkontingente für das Lizenz-Dashboard. 0 lassen, um einen Schwellenwert zu deaktivieren.</value></data>
   <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Lizenzierte Domänenobjekte</value></data>
