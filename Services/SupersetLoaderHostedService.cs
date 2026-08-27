@@ -51,9 +51,15 @@ public class SupersetLoaderHostedService : BackgroundService
     {
         var sa = _config.CurrentValue.ServiceAccount;
 
-        if (sa.LoadOnStartup)
+        if (sa.LoadOnStartup && IsConfigured())
         {
             await RefreshAsync(stoppingToken).ConfigureAwait(false);
+        }
+        else if (!IsConfigured())
+        {
+            _logger.LogInformation(
+                "Skipping startup superset collection: Active Roles is not configured yet (ApiBaseUrl is empty). " +
+                "The cache will build once setup is completed and a refresh is triggered.");
         }
 
         while (!stoppingToken.IsCancellationRequested)
@@ -79,6 +85,16 @@ public class SupersetLoaderHostedService : BackgroundService
 
     private async Task RefreshAsync(CancellationToken ct)
     {
+        // Do not attempt any collection until the app has been configured through the setup wizard.
+        // Without an ApiBaseUrl there is nothing to connect to, and the preflight would fault the
+        // cache with a misleading "unreachable" error instead of a clean "not configured" state.
+        if (!IsConfigured())
+        {
+            _logger.LogInformation(
+                "Superset refresh skipped: Active Roles is not configured yet (ApiBaseUrl is empty).");
+            return;
+        }
+
         _cache.MarkLoading();
         try
         {
@@ -163,6 +179,14 @@ public class SupersetLoaderHostedService : BackgroundService
             _tokenProvider.Invalidate();
         }
     }
+
+    /// <summary>
+    /// Returns true once the app has the minimum configuration required to collect data. Until the
+    /// setup wizard has written an ApiBaseUrl there is nothing to connect to, so collection is
+    /// deferred rather than faulted.
+    /// </summary>
+    private bool IsConfigured()
+        => !string.IsNullOrWhiteSpace(_config.CurrentValue.ApiBaseUrl);
 
     /// <summary>
     /// Computes the delay until the next occurrence of the configured daily refresh time (local).

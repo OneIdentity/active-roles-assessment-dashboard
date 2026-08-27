@@ -81,6 +81,14 @@
   <data name="FinishSetup" xml:space="preserve"><value>Finalizar configuración</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>La URL de la API REST es obligatoria.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>La URL del token RSTS es obligatoria.</value></data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>El nombre de usuario de la cuenta de servicio es obligatorio.</value></data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>La contraseña de la cuenta de servicio es obligatoria.</value></data>
+  <data name="ServiceAccountConfig" xml:space="preserve"><value>Cuenta de servicio</value></data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Credenciales que usa el panel para recopilar datos de Active Roles en segundo plano.</value></data>
+  <data name="ServiceAccountUsername" xml:space="preserve"><value>Nombre de usuario</value></data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>La cuenta de servicio usada para obtener un token RSTS (p. ej. DOMAIN\svc_ars).</value></data>
+  <data name="ServiceAccountPassword" xml:space="preserve"><value>Contraseña</value></data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>Se almacena cifrada mediante Data Protection. Nunca se guarda en texto sin formato.</value></data>
   <data name="LicensingThresholds" xml:space="preserve"><value>Umbrales de licencia</value></data>
   <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Derechos de objetos con licencia opcionales que usa el panel de licencias. Deje 0 para desactivar un umbral.</value></data>
   <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Objetos de dominio con licencia</value></data>

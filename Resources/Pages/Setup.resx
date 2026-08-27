@@ -81,6 +81,14 @@
   <data name="FinishSetup" xml:space="preserve"><value>Finish Setup</value></data>
   <data name="Err_ApiUrlRequired" xml:space="preserve"><value>REST API URL is required.</value></data>
   <data name="Err_RstsUrlRequired" xml:space="preserve"><value>RSTS Token URL is required.</value></data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>Service account username is required.</value></data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>Service account password is required.</value></data>
+  <data name="ServiceAccountConfig" xml:space="preserve"><value>Service Account</value></data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Credentials used by the dashboard to collect Active Roles data in the background.</value></data>
+  <data name="ServiceAccountUsername" xml:space="preserve"><value>Username</value></data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>The service account used to acquire an RSTS token (e.g. DOMAIN\svc_ars).</value></data>
+  <data name="ServiceAccountPassword" xml:space="preserve"><value>Password</value></data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>Stored encrypted using Data Protection. It is never saved in plain text.</value></data>
   <data name="LicensingThresholds" xml:space="preserve"><value>Licensing Thresholds</value></data>
   <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Optional licensed object entitlements used by the Licensing dashboard. Leave 0 to disable a threshold.</value></data>
   <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Licensed Domain objects</value></data>
