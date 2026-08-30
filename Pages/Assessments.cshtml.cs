@@ -65,16 +65,16 @@ public class AssessmentsModel : DashboardPageModel
         // server-side guard would then fire only after the form is submitted). Prefer the
         // cached summary to avoid re-querying Active Roles on every view.
         var token = GetAccessToken()!;
-        var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-        var cachedJson = HttpContext.Session.GetString("DashboardSummary");
+        var cachedJson = GetCachedSummaryJson();
         if (!string.IsNullOrEmpty(cachedJson))
         {
             Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
         }
         else
         {
-            Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, userSettings);
-            CacheSummary();
+            // Build the full per-user summary from the shared superset projection (fast) and
+            // cache it, instead of re-running the slow direct Active Roles query.
+            await LoadFullSummaryAsync(token);
         }
 
         if (!string.IsNullOrWhiteSpace(Id))
@@ -152,21 +152,19 @@ public class AssessmentsModel : DashboardPageModel
         if (redirect != null) return redirect;
 
         var token = GetAccessToken()!;
-        var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
 
         // Prefer the session-cached summary: once lazy Entra group membership finishes loading it
         // is persisted back into this cache (with MembershipLoaded = true). Building a fresh summary
         // here would always report membership as pending, so a membership-dependent assessment could
-        // never run even after loading completed. Fall back to a fresh fetch only when no cache exists.
-        var cachedJson = HttpContext.Session.GetString("DashboardSummary");
+        // never run even after loading completed. Fall back to a superset projection only when no cache exists.
+        var cachedJson = GetCachedSummaryJson();
         if (!string.IsNullOrEmpty(cachedJson))
         {
             Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
         }
         else
         {
-            Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, userSettings);
-            CacheSummary();
+            await LoadFullSummaryAsync(token);
         }
 
         // Block assessments that depend on accurate Entra group membership until lazy

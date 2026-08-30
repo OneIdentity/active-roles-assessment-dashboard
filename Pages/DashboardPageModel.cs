@@ -32,6 +32,15 @@ public abstract class DashboardPageModel : PageModel
     protected ServiceAccountTokenProvider ServiceAccountTokens => HttpContext.RequestServices.GetRequiredService<ServiceAccountTokenProvider>();
     protected ArPermissionModelService PermissionModelService => HttpContext.RequestServices.GetRequiredService<ArPermissionModelService>();
 
+    // Per-user server-side cache for the large summary/overview blobs (previously held in Session).
+    protected PerUserSummaryCache UserSummaryCache => HttpContext.RequestServices.GetRequiredService<PerUserSummaryCache>();
+
+    /// <summary>Cache key for the current authenticated user's per-user summary/overview blobs.</summary>
+    protected string UserCacheKey => User.Identity?.Name ?? string.Empty;
+
+    /// <summary>Gets the cached full dashboard summary JSON for the current user, or null if absent.</summary>
+    protected string? GetCachedSummaryJson() => UserSummaryCache.GetSummary(UserCacheKey);
+
     public DashboardSummary Summary { get; set; } = new();
     public KpiSettings KpiSettings { get; set; } = new();
     public int AutoRefreshMinutes { get; set; }
@@ -112,14 +121,26 @@ public abstract class DashboardPageModel : PageModel
         }
 
         var adminFlag = HttpContext.Session.GetString("IsActiveRolesAdmin");
-        if (adminFlag == null)
+        if (adminFlag != null)
         {
-            IsActiveRolesAdmin = await ArService.IsUserActiveRolesAdminAsync(token, username);
-            HttpContext.Session.SetString("IsActiveRolesAdmin", IsActiveRolesAdmin.ToString());
+            IsActiveRolesAdmin = bool.TryParse(adminFlag, out var val) && val;
         }
         else
         {
-            IsActiveRolesAdmin = bool.TryParse(adminFlag, out var val) && val;
+            // Prefer the app-level per-user cache (survives logout/login) so the directory
+            // membership check runs at most once per cache lifetime, not on every login.
+            var cachedAdmin = UserSummaryCache.GetAdmin(username);
+            if (cachedAdmin is bool known)
+            {
+                IsActiveRolesAdmin = known;
+            }
+            else
+            {
+                IsActiveRolesAdmin = await ArService.IsUserActiveRolesAdminAsync(token, username);
+                UserSummaryCache.SetAdmin(username, IsActiveRolesAdmin);
+            }
+
+            HttpContext.Session.SetString("IsActiveRolesAdmin", IsActiveRolesAdmin.ToString());
         }
 
         return null;
@@ -215,7 +236,7 @@ public abstract class DashboardPageModel : PageModel
     /// export can reuse it without re-querying Active Roles.
     /// </summary>
     protected void CacheSummary() =>
-        HttpContext.Session.SetString("DashboardSummary", JsonSerializer.Serialize(Summary));
+        UserSummaryCache.SetSummary(UserCacheKey, JsonSerializer.Serialize(Summary.ToSessionCacheSafe()));
 
     /// <summary>
     /// Lazily loads Entra group membership (the <c>member</c> attribute) and owner
@@ -347,7 +368,7 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     private EntraTotalsSummary? LoadUnfilteredEntraTotals()
     {
-        var summaryJson = HttpContext.Session.GetString("DashboardSummary");
+        var summaryJson = GetCachedSummaryJson();
         if (!string.IsNullOrEmpty(summaryJson))
         {
             var full = JsonSerializer.Deserialize<DashboardSummary>(summaryJson);
@@ -364,25 +385,25 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     private void PersistEntraTotals(EntraTotalsSummary totals)
     {
-        var summaryJson = HttpContext.Session.GetString("DashboardSummary");
+        var summaryJson = GetCachedSummaryJson();
         if (!string.IsNullOrEmpty(summaryJson))
         {
             var full = JsonSerializer.Deserialize<DashboardSummary>(summaryJson);
             if (full != null)
             {
                 full.EntraTotals = totals;
-                HttpContext.Session.SetString("DashboardSummary", JsonSerializer.Serialize(full));
+                UserSummaryCache.SetSummary(UserCacheKey, JsonSerializer.Serialize(full));
             }
         }
 
-        var overviewJson = HttpContext.Session.GetString("OverviewTotals");
+        var overviewJson = UserSummaryCache.GetOverview(UserCacheKey);
         if (!string.IsNullOrEmpty(overviewJson))
         {
             var overview = JsonSerializer.Deserialize<OverviewTotalsCache>(overviewJson);
             if (overview != null)
             {
                 overview.EntraTotals = totals;
-                HttpContext.Session.SetString("OverviewTotals", JsonSerializer.Serialize(overview));
+                UserSummaryCache.SetOverview(UserCacheKey, JsonSerializer.Serialize(overview));
             }
         }
     }
@@ -397,10 +418,10 @@ public abstract class DashboardPageModel : PageModel
         Summary.Computers = await ArService.GetComputersAsync(token);
         Summary.EntraTotals = await ArService.GetEntraTotalsAsync(token);
 
-        HttpContext.Session.SetString("OverviewTotals", JsonSerializer.Serialize(new OverviewTotalsCache
+        UserSummaryCache.SetOverview(UserCacheKey, JsonSerializer.Serialize(new OverviewTotalsCache
         {
             ADUserAccounts = Summary.ADUserAccounts,
-            ADGroups = Summary.ADGroups,
+            ADGroups = Summary.ADGroups.WithoutMemberPayload(),
             Computers = Summary.Computers,
             EntraTotals = Summary.EntraTotals
         }));
@@ -447,10 +468,10 @@ public abstract class DashboardPageModel : PageModel
 
         // Also cache the overview totals derived from the full summary so the main
         // dashboard's cached back-navigation path keeps working.
-        HttpContext.Session.SetString("OverviewTotals", JsonSerializer.Serialize(new OverviewTotalsCache
+        UserSummaryCache.SetOverview(UserCacheKey, JsonSerializer.Serialize(new OverviewTotalsCache
         {
             ADUserAccounts = Summary.ADUserAccounts,
-            ADGroups = Summary.ADGroups,
+            ADGroups = Summary.ADGroups.WithoutMemberPayload(),
             Computers = Summary.Computers,
             EntraTotals = Summary.EntraTotals
         }));
@@ -483,7 +504,7 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected OverviewTotalsCache? GetCachedOverviewTotals()
     {
-        var cached = HttpContext.Session.GetString("OverviewTotals");
+        var cached = UserSummaryCache.GetOverview(UserCacheKey);
         if (string.IsNullOrEmpty(cached)) return null;
         return JsonSerializer.Deserialize<OverviewTotalsCache>(cached);
     }
@@ -533,7 +554,7 @@ public abstract class DashboardPageModel : PageModel
 
         if (cached)
         {
-            var cachedJson = HttpContext.Session.GetString("DashboardSummary");
+            var cachedJson = GetCachedSummaryJson();
             if (!string.IsNullOrEmpty(cachedJson))
             {
                 Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();

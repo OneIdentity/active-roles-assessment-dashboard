@@ -84,6 +84,26 @@ public sealed class ArPermissionModel
     public bool GrantsLicensingVisibility(UserSidSet user)
         => LicensingProbe is { } probe
            && PermissionScope.IsVisibleTo(probe.EffectiveLinkGuids, probe.ObjectClass, user, this);
+
+    /// <summary>
+    /// True when <paramref name="user"/> is a trustee (directly or via a nested group SID) on at
+    /// least one Access Template Link in the model. When false the user can see nothing - visibility
+    /// requires the user's SIDs to overlap a link's trustee SIDs - so the whole-superset walk can be
+    /// skipped in favour of a zeroed projection.
+    /// </summary>
+    public bool HasAnyDelegation(UserSidSet user)
+    {
+        if (user is null || user.Sids.Count == 0)
+            return false;
+
+        foreach (var link in LinksByGuid.Values)
+        {
+            if (link.Template != null && link.TrusteeSids.Overlaps(user.Sids))
+                return true;
+        }
+
+        return false;
+    }
 }
 
 /// <summary>

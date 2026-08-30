@@ -1,4 +1,4 @@
-ï»¿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
@@ -788,7 +788,7 @@ public class ActiveRolesService
                 summary.DistributionGroups = new ADGroupDetailSummary
                 {
                     TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i)).ToList()
+                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
                 };
             }
             if (settings.IsKpiEnabled("ADGroupsCategory", "DomainLocalGroups"))
@@ -799,7 +799,7 @@ public class ActiveRolesService
                 summary.DomainLocalGroups = new ADGroupDetailSummary
                 {
                     TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i)).ToList()
+                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
                 };
             }
             if (settings.IsKpiEnabled("ADGroupsCategory", "GlobalGroups"))
@@ -810,7 +810,7 @@ public class ActiveRolesService
                 summary.GlobalGroups = new ADGroupDetailSummary
                 {
                     TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i)).ToList()
+                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
                 };
             }
             if (settings.IsKpiEnabled("ADGroupsCategory", "MailEnabledSecurityGroups"))
@@ -828,7 +828,7 @@ public class ActiveRolesService
                 summary.MailEnabledSecurityGroups = new ADGroupDetailSummary
                 {
                     TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i)).ToList()
+                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
                 };
             }
             if (settings.IsKpiEnabled("ADGroupsCategory", "SecurityGroups"))
@@ -839,7 +839,7 @@ public class ActiveRolesService
                 summary.SecurityGroups = new ADGroupDetailSummary
                 {
                     TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i)).ToList()
+                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
                 };
             }
             if (settings.IsKpiEnabled("ADGroupsCategory", "UniversalGroups"))
@@ -850,7 +850,7 @@ public class ActiveRolesService
                 summary.UniversalGroups = new ADGroupDetailSummary
                 {
                     TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i)).ToList()
+                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
                 };
             }
             if (settings.IsKpiEnabled("ADGroupsCategory", "CircularGroupNesting"))
@@ -1408,12 +1408,44 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
             var filter = config.DefaultADGroupsFilter;
-            var attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,edsaMember,edsaMemberIndirect,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName";
+            // Request the native 'member' attribute instead of Active Roles' virtual
+            // 'edsaMember'/'edsaMemberIndirect'. edsaMemberIndirect is server-computed, is the
+            // dominant cost of this query, and fails (HTTP 400) on large directories. We compute
+            // indirect (transitive) membership locally below — once per collection — reproducing
+            // edsaMemberIndirect's semantics (validated against a live AR directory).
+            var attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName";
+            _logger.LogInformation("GetADGroupsAsync: querying base '{BaseDn}' with filter '{Filter}'", baseDn, filter);
             var items = await SearchObjectsAsync(token, baseDn, filter, "sub", attributes);
             result.Items = items;
+
+            // Compute direct/indirect membership locally over the full group set. All group KPIs
+            // and drilldowns derive from these DN-keyed maps rather than AR virtual attributes.
+            var membership = IndirectMembershipCalculator.Compute(
+                items,
+                g => GetAttr(g, "distinguishedName"),
+                (g, attr) => GetMultiValuedAttr(g, attr));
+            result.DirectByDn = membership.DirectByDn;
+            result.IndirectByDn = membership.IndirectByDn;
+
+            // Compact, serializable per-DN counts so derived group-detail KPIs keep correct
+            // member counts after the summary round-trips through the session store, where the
+            // full DN-list maps ([JsonIgnore]) and the raw 'member' arrays are not retained.
+            result.DirectCountByDn = membership.DirectByDn.ToDictionary(
+                kv => kv.Key, kv => kv.Value.Count, StringComparer.OrdinalIgnoreCase);
+            result.IndirectCountByDn = membership.IndirectByDn.ToDictionary(
+                kv => kv.Key, kv => kv.Value.Count, StringComparer.OrdinalIgnoreCase);
+
             result.TotalCount = items.Count(i => !string.Equals(GetAttr(i, "edsvaGFIsGroupFamily"), "TRUE", StringComparison.OrdinalIgnoreCase));
+            _logger.LogInformation("GetADGroupsAsync: collected {ItemCount} objects, {TotalCount} groups (excluding group families); computed indirect membership for {NestedCount} groups", items.Count, result.TotalCount, membership.IndirectByDn.Count(kv => kv.Value.Count > 0));
         }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        catch (Exception ex)
+        {
+            // Surface the underlying failure. Without this the AD Groups KPI silently
+            // reads zero (e.g. when the directory search exceeds a server-side result
+            // cap) and the only visible clue is result.Error in the UI.
+            _logger.LogError(ex, "GetADGroupsAsync failed while collecting AD groups from base '{BaseDn}'", _configMonitor.CurrentValue.DefaultActiveDirectoryDN);
+            result.Error = $"No data ({ex.GetType().Name}: {ex.Message})";
+        }
         return result;
     }
 
@@ -1774,25 +1806,27 @@ public class ActiveRolesService
         return string.Empty;
     }
 
-    private ADGroupDetailInfo ToGroupDetail(JsonElement i)
+    private ADGroupDetailInfo ToGroupDetail(JsonElement i, ADGroupsSummary groups)
     {
-        var directRaw = GetAttr(i, "edsaMember");
-        var indirectRaw = GetAttr(i, "edsaMemberIndirect");
+        var dn = GetAttr(i, "distinguishedName");
+        // Member counts come from the locally-computed membership maps (native 'member' +
+        // transitive calculation) rather than AR's edsaMember/edsaMemberIndirect virtual attributes.
+        // Prefer the full DN-list maps (present on a fresh collection); fall back to the compact
+        // serialized counts when rendering from a session-cached summary (where the DN-list maps
+        // are not retained).
+        var directCount = groups.DirectByDn.TryGetValue(dn, out var direct)
+            ? direct.Count
+            : (groups.DirectCountByDn.TryGetValue(dn, out var directCached) ? directCached : 0);
+        var indirectCount = groups.IndirectByDn.TryGetValue(dn, out var indirect)
+            ? indirect.Count
+            : (groups.IndirectCountByDn.TryGetValue(dn, out var indirectCached) ? indirectCached : 0);
         return new ADGroupDetailInfo
         {
             Name = GetAttr(i, "name"),
-            Dn = GetAttr(i, "distinguishedName"),
-            DirectMembers = ParseMemberCount(directRaw),
-            IndirectMembers = ParseMemberCount(indirectRaw)
+            Dn = dn,
+            DirectMembers = directCount,
+            IndirectMembers = indirectCount
         };
-    }
-
-    private static int ParseMemberCount(string raw)
-    {
-        if (string.IsNullOrEmpty(raw)) return 0;
-        if (int.TryParse(raw, out var count)) return count;
-        // If multi-valued (DN list), count semicolons or entries
-        return raw.Split(';', StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     /// <summary>
@@ -1821,7 +1855,7 @@ public class ActiveRolesService
             var adjacency = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             foreach (var kvp in byDn)
             {
-                var memberDns = GetMultiValuedAttr(kvp.Value, "edsaMember");
+                var memberDns = GetMultiValuedAttr(kvp.Value, "member");
                 var groupMembers = memberDns
                     .Where(m => !string.IsNullOrEmpty(m) && byDn.ContainsKey(m))
                     .ToList();
@@ -2206,7 +2240,7 @@ public class ActiveRolesService
                         return GetAttr(item, "displayName") is { Length: > 0 } dn ? dn : GetAttr(item, "name");
                     }
 
-                    // The stored objectSid may also be Base64 â€” decode and compare
+                    // The stored objectSid may also be Base64 — decode and compare
                     try
                     {
                         var itemSidBytes = Convert.FromBase64String(itemSid);
@@ -2242,7 +2276,7 @@ public class ActiveRolesService
     /// <summary>
     /// Converts a SID string to use hex authority format when the authority value exceeds standard Windows range.
     /// The AR REST API returns the 6-byte authority as decimal, but Active Roles stores it as hex for
-    /// foreignSecurityPrincipals (e.g., S-1-107144191112803-1-1 â†’ S-1-0x617273737663-1-1).
+    /// foreignSecurityPrincipals (e.g., S-1-107144191112803-1-1 ? S-1-0x617273737663-1-1).
     /// </summary>
     private static string? ToHexAuthoritySid(string sidString, byte[]? sidBytes)
     {
@@ -2617,7 +2651,7 @@ public class ActiveRolesService
     {
         if (string.IsNullOrEmpty(dn)) return dn;
 
-        // Find the first ",CN=" segment after a "DC=" segment â€” that indicates
+        // Find the first ",CN=" segment after a "DC=" segment — that indicates
         // the start of the Active Roles virtual tree namespace suffix.
         var dcIndex = dn.IndexOf(",DC=", StringComparison.OrdinalIgnoreCase);
         if (dcIndex < 0) return dn;
@@ -2637,7 +2671,7 @@ public class ActiveRolesService
             }
             else if (nextSegment.StartsWith("CN=", StringComparison.OrdinalIgnoreCase))
             {
-                // Non-DC component after DCs â€” this is the virtual tree suffix
+                // Non-DC component after DCs — this is the virtual tree suffix
                 return dn[..nextComma];
             }
             else
@@ -2660,29 +2694,34 @@ public class ActiveRolesService
         var result = new PrivilegedGroupSummary();
         try
         {
-            // Search for the group using the provided base DN and filter
+            // Search for the target group(s). Request native 'member' for direct membership;
+            // indirect membership is computed locally from the full group graph below rather than
+            // requested from AR's edsaMemberIndirect virtual attribute.
             var groups = await SearchObjectsAsync(token, baseDn,
-                filter, "sub", "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect");
+                filter, "sub", "distinguishedName,edsaDomainNetbiosName,member");
+
+            // Fetch the full group set once so nested (indirect) membership can be resolved across
+            // groups that are not themselves in the filtered result. This is the same dataset the
+            // Total Groups KPI builds, and the calculation reproduces AR's edsaMemberIndirect.
+            var allGroups = await GetADGroupsAsync(token);
+            var indirectByDn = allGroups.IndirectByDn;
 
             var allMembers = new List<PrivilegedGroupMemberInfo>();
 
             foreach (var group in groups)
             {
                 var domain = GetAttr(group, "edsaDomainNetbiosName");
+                var groupDn = GetAttr(group, "distinguishedName");
 
                 // Capture the privileged group's own identity for launching the nested membership tree.
-                if (string.IsNullOrEmpty(result.GroupDn))
+                if (string.IsNullOrEmpty(result.GroupDn) && !string.IsNullOrEmpty(groupDn))
                 {
-                    var groupDn = GetAttr(group, "distinguishedName");
-                    if (!string.IsNullOrEmpty(groupDn))
-                    {
-                        result.GroupDn = groupDn;
-                        result.GroupName = ExtractCnFromDn(groupDn);
-                    }
+                    result.GroupDn = groupDn;
+                    result.GroupName = ExtractCnFromDn(groupDn);
                 }
 
-                // Parse direct members from edsaMember
-                var directMembers = GetMultiValuedAttr(group, "edsaMember");
+                // Direct members from the native 'member' attribute.
+                var directMembers = GetMultiValuedAttr(group, "member");
                 foreach (var dn in directMembers)
                 {
                     allMembers.Add(new PrivilegedGroupMemberInfo
@@ -2694,20 +2733,23 @@ public class ActiveRolesService
                     });
                 }
 
-                // Parse indirect members from edsaMemberIndirect
-                var indirectMembers = GetMultiValuedAttr(group, "edsaMemberIndirect");
-                foreach (var dn in indirectMembers)
+                // Indirect members from the locally-computed transitive closure.
+                if (!string.IsNullOrEmpty(groupDn) &&
+                    indirectByDn.TryGetValue(groupDn, out var indirectMembers))
                 {
-                    // Skip if already listed as direct member
-                    if (!allMembers.Any(m => m.Dn.Equals(dn, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var dn in indirectMembers)
                     {
-                        allMembers.Add(new PrivilegedGroupMemberInfo
+                        // Skip if already listed as direct member
+                        if (!allMembers.Any(m => m.Dn.Equals(dn, StringComparison.OrdinalIgnoreCase)))
                         {
-                            Name = ExtractCnFromDn(dn),
-                            Domain = domain,
-                            Dn = dn,
-                            MembershipType = "Indirect"
-                        });
+                            allMembers.Add(new PrivilegedGroupMemberInfo
+                            {
+                                Name = ExtractCnFromDn(dn),
+                                Domain = domain,
+                                Dn = dn,
+                                MembershipType = "Indirect"
+                            });
+                        }
                     }
                 }
             }
@@ -2985,30 +3027,64 @@ public class ActiveRolesService
         var client = CreateClient(token);
         var url = $"{BaseUrl}/objects?base={EscapeAmpersand(baseDn)}&filter={EscapeAmpersand(filter)}&scope={scope}&{BuildAttributesQuery(attributes)}";
         var allItems = new List<JsonElement>();
+        var pageNumber = 0;
 
         while (url != null)
         {
-            _logger.LogInformation("ActiveRoles API request: {Url}", url);
+            pageNumber++;
+            // Per-page request/response detail is verbose for large result sets (thousands
+            // of pages). Keep it at Debug so it's opt-in; a single summary is emitted at
+            // Information after the loop completes.
+            _logger.LogDebug("ActiveRoles API request (page {Page}): {Url}", pageNumber, url);
             var response = await client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                // Read the error payload before throwing so the actual server message
+                // (e.g. a max-result-set-size violation) is captured in the log rather
+                // than a bare status code.
+                var errorBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "ActiveRoles API request failed (page {Page}) with status {Status}. Body: {Body}",
+                    pageNumber, (int)response.StatusCode, errorBody);
+            }
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
-            // The full response body is verbose (whole membership lists, etc.) and clutters
-            // the log at Information level. Emit it only at Debug so it's opt-in via the
-            // ActiveRolesDashboard.Services.ActiveRolesService log level.
-            _logger.LogDebug("ActiveRoles API response: {Body}", body);
+            // The full response body can be enormous for large result sets (e.g. thousands
+            // of group DNs and membership lists). Dumping it floods the log, so only emit
+            // the raw body at Debug when it is reasonably small; otherwise log its size.
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                const int maxBodyLogChars = 8192;
+                if (body.Length <= maxBodyLogChars)
+                    _logger.LogDebug("ActiveRoles API response body (page {Page}): {Body}", pageNumber, body);
+                else
+                    _logger.LogDebug("ActiveRoles API response body (page {Page}) suppressed: {Size} chars (exceeds {Max}).", pageNumber, body.Length, maxBodyLogChars);
+            }
 
             using var doc = JsonDocument.Parse(body);
 
+            var pageItemCount = 0;
             if (doc.RootElement.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
             {
                 foreach (var item in items.EnumerateArray())
+                {
                     allItems.Add(item.Clone());
+                    pageItemCount++;
+                }
             }
             else if (doc.RootElement.ValueKind == JsonValueKind.Array)
             {
                 foreach (var item in doc.RootElement.EnumerateArray())
+                {
                     allItems.Add(item.Clone());
+                    pageItemCount++;
+                }
             }
+
+            var hasNextPage = doc.RootElement.TryGetProperty("nextPage", out _);
+            _logger.LogDebug(
+                "ActiveRoles API response (page {Page}): {PageItems} items this page, {Total} total so far, hasNextPage={HasNext}",
+                pageNumber, pageItemCount, allItems.Count, hasNextPage);
 
             if (doc.RootElement.TryGetProperty("nextPage", out var nextPage) && nextPage.ValueKind == JsonValueKind.String)
             {
@@ -3020,6 +3096,12 @@ public class ActiveRolesService
                 url = null;
             }
         }
+
+        // One concise summary at Information level so large collections are visible in the
+        // log (page count + total items) without emitting a line per page or per object.
+        _logger.LogInformation(
+            "ActiveRoles search complete: {Total} items across {Pages} page(s) (base '{BaseDn}', filter '{Filter}').",
+            allItems.Count, pageNumber, baseDn, filter);
 
         return allItems;
     }
