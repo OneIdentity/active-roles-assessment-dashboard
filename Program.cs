@@ -93,6 +93,14 @@ builder.Services.AddHttpClient("RSTS")
     });
 
 builder.Services.AddHttpClient("ActiveRolesApi")
+    .ConfigureHttpClient(client =>
+    {
+        // Large directories can take longer than the HttpClient default (100s) to return
+        // the first page of an expensive sub-scope search, causing a TaskCanceledException
+        // and a silently-empty KPI. Use a configurable, higher timeout.
+        var timeoutSeconds = arConfig.ApiTimeoutSeconds > 0 ? arConfig.ApiTimeoutSeconds : 300;
+        client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+    })
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
     {
         ServerCertificateCustomValidationCallback = arConfig.IgnoreSslErrors
@@ -162,6 +170,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.Cookie.Path = "/";
 });
+
+// Per-user, in-process cache for the large dashboard summary/overview blobs (previously stored
+// in Session, which bloated the session entry and dropped the auth token). Requires IMemoryCache.
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<PerUserSummaryCache>();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddRazorPages(options =>

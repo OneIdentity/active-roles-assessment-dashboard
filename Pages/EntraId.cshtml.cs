@@ -21,26 +21,21 @@ public class EntraIdModel : DashboardPageModel
         // The Entra dashboard honours the global segment selection (by tenant) but does not
         // host the filter dropdown; that lives on the main dashboard Overview.
 
-        // When re-rendering after a filter change, reuse the cached (unfiltered) summary
-        // instead of re-querying Active Roles.
-        if (cached)
+        // Always prefer the per-user cached summary (built once from the shared superset when the
+        // user first hits any dashboard). This applies to normal tile clicks too - not just
+        // cached=true filter re-renders - so navigating here never re-runs the slow query.
+        var cachedJson = GetCachedSummaryJson();
+        if (!string.IsNullOrEmpty(cachedJson))
         {
-            var cachedJson = HttpContext.Session.GetString("DashboardSummary");
-            if (!string.IsNullOrEmpty(cachedJson))
-            {
-                Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
-                ApplyActiveSegmentFilter();
-                return Page();
-            }
+            Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            ApplyActiveSegmentFilter();
+            return Page();
         }
 
-        // Load Entra ID-specific data using cached totals
-        var cachedTotals = GetCachedOverviewTotals();
+        // Cache miss (e.g. first navigation lands here directly, or the per-user cache expired):
+        // build the full per-user summary from the shared superset projection and cache it.
         var token = GetAccessToken()!;
-        var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-        Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, userSettings, skipOverviewTotals: true, cachedTotals: cachedTotals);
-        CacheSummary();
-        ApplyActiveSegmentFilter();
+        await LoadFullSummaryAsync(token);
 
         return Page();
     }

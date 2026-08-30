@@ -25,6 +25,13 @@ public sealed class PerUserDashboardFilter
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(model);
 
+        // Fast path for a non-trustee: if none of the user's SIDs is a trustee on any Access
+        // Template Link, every visibility check would return false and the whole-superset walk
+        // would produce an all-zero summary. Skip the walk entirely and return that zeroed
+        // projection directly - the result is identical but effectively instant.
+        if (!model.HasAnyDelegation(user))
+            return Zeroed();
+
         var s = new DashboardSummary();
 
         // --- Overview raw sources (JsonElement) ------------------------------
@@ -141,6 +148,18 @@ public sealed class PerUserDashboardFilter
 
         return s;
     }
+
+    /// <summary>
+    /// Builds an all-zero <see cref="DashboardSummary"/> for a viewer with no delegated read access.
+    /// A default <see cref="DashboardSummary"/> already carries empty item lists and zero counts for
+    /// every family (matching what the full filter produces when nothing is visible), so no per-item
+    /// work is required. Entra and Licensing stay hidden for non-admin viewers.
+    /// </summary>
+    private static DashboardSummary Zeroed() => new()
+    {
+        EntraTotals = new EntraTotalsSummary(),
+        LicensingVisible = false
+    };
 
     // ----- family-specific filters (new instance, recomputed count) ----------
 

@@ -17,13 +17,15 @@ public class SettingsModel : PageModel
     private readonly UserSettingsService _userSettingsService;
     private readonly IWebHostEnvironment _env;
     private readonly IStringLocalizer<SettingsModel> _localizer;
+    private readonly PerUserSummaryCache _summaryCache;
 
-    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer)
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache)
     {
         _arConfig = arConfig;
         _userSettingsService = userSettingsService;
         _env = env;
         _localizer = localizer;
+        _summaryCache = summaryCache;
     }
 
     [BindProperty]
@@ -132,7 +134,7 @@ public class SettingsModel : PageModel
         HttpContext.Session.SetString("KpiSettings", JsonSerializer.Serialize(KpiSettings));
 
         // Clear cached dashboard data since settings changed
-        HttpContext.Session.Remove("DashboardSummary");
+        _summaryCache.Clear(username);
 
         SettingsChanged = true;
         Message = _localizer["SavedSuccessfully"];

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using System.Buffers;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
@@ -722,6 +723,12 @@ public class ActiveRolesConfig
     public string Resource { get; set; } = string.Empty;
     public bool IgnoreSslErrors { get; set; }
 
+    // Per-request timeout (seconds) for the Active Roles REST API HttpClient. Large
+    // directories can take well over the HttpClient default of 100s to return the first
+    // page of an expensive sub-scope search (e.g. all groups with membership attributes),
+    // which surfaces as a TaskCanceledException. Raise this for large environments.
+    public int ApiTimeoutSeconds { get; set; } = 300;
+
     // Default UI language / culture code applied before a user selects their own in Settings.
     public string DefaultLanguage { get; set; } = SupportedLanguage.DefaultCode;
 
@@ -889,7 +896,7 @@ public class KpiInfo
 
     // Overview KPIs (use config-driven filters/attributes; SharedSearchKey enables reuse)
     public static readonly KpiInfo ADUserAccounts = new() { Key = "ADUserAccounts", DisplayName = "Total Users", CategoryKey = "Overview", CssColor = "blue", SortOrder = 0, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultADUserAccountsFilter}", Attributes = "{ConfigAttributes:ADUserAccounts}", SharedSearchKey = "ADUserAccounts" }] };
-    public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultADGroupsFilter}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,edsaMember,edsaMemberIndirect,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
+    public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultADGroupsFilter}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
     public static readonly KpiInfo Computers = new() { Key = "Computers", DisplayName = "Total Computers", CategoryKey = "Overview", CssColor = "teal", SortOrder = 2, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=computer)", Attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,pwdLastSet,lastLogonTimestamp" }] };
 
     // Single-source Overview KPIs (AD-only) shown on the Active Directory dashboard's Overview.
@@ -949,13 +956,13 @@ public class KpiInfo
     public static readonly KpiInfo ReversibleEncryption = new() { Key = "ReversibleEncryption", DisplayName = "Reversible Encryption", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "reversibleencryption", SortOrder = 18, HasDrilldown = true, IsRiskKpi = true };
 
     // Privileged Groups KPIs
-    public static readonly KpiInfo AccountOperators = new() { Key = "AccountOperators", DisplayName = "Account Operators", CategoryKey = "PrivilegedGroups", CssColor = "orange", SectionId = "accountoperators", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Account Operators))", GroupName = "Account Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo Administrators = new() { Key = "Administrators", DisplayName = "Administrators", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "administrators", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Administrators))", GroupName = "Administrators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo BackupOperators = new() { Key = "BackupOperators", DisplayName = "Backup Operators", CategoryKey = "PrivilegedGroups", CssColor = "amber", SectionId = "backupoperators", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Backup Operators))", GroupName = "Backup Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo DomainAdmins = new() { Key = "DomainAdmins", DisplayName = "Domain Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "domainadmins", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Domain Admins))", GroupName = "Domain Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo ServerOperators = new() { Key = "ServerOperators", DisplayName = "Server Operators", CategoryKey = "PrivilegedGroups", CssColor = "purple", SectionId = "serveroperators", SortOrder = 4, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Server Operators))", GroupName = "Server Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo EnterpriseAdmins = new() { Key = "EnterpriseAdmins", DisplayName = "Enterprise Admins", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "enterpriseadmins", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Enterprise Admins))", GroupName = "Enterprise Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo SchemaAdmins = new() { Key = "SchemaAdmins", DisplayName = "Schema Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "schemaadmins", SortOrder = 6, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Schema Admins))", GroupName = "Schema Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
+    public static readonly KpiInfo AccountOperators = new() { Key = "AccountOperators", DisplayName = "Account Operators", CategoryKey = "PrivilegedGroups", CssColor = "orange", SectionId = "accountoperators", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Account Operators))", GroupName = "Account Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo Administrators = new() { Key = "Administrators", DisplayName = "Administrators", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "administrators", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Administrators))", GroupName = "Administrators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo BackupOperators = new() { Key = "BackupOperators", DisplayName = "Backup Operators", CategoryKey = "PrivilegedGroups", CssColor = "amber", SectionId = "backupoperators", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Backup Operators))", GroupName = "Backup Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo DomainAdmins = new() { Key = "DomainAdmins", DisplayName = "Domain Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "domainadmins", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Domain Admins))", GroupName = "Domain Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ServerOperators = new() { Key = "ServerOperators", DisplayName = "Server Operators", CategoryKey = "PrivilegedGroups", CssColor = "purple", SectionId = "serveroperators", SortOrder = 4, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Server Operators))", GroupName = "Server Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo EnterpriseAdmins = new() { Key = "EnterpriseAdmins", DisplayName = "Enterprise Admins", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "enterpriseadmins", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Enterprise Admins))", GroupName = "Enterprise Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo SchemaAdmins = new() { Key = "SchemaAdmins", DisplayName = "Schema Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "schemaadmins", SortOrder = 6, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Schema Admins))", GroupName = "Schema Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
 
     // AD User Accounts KPIs (derived from shared ADUserAccounts search)
     public static readonly KpiInfo CannotChangePassword = new() { Key = "CannotChangePassword", DisplayName = "Cannot Change Password", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "cannotchangepassword", SortOrder = 0, HasDrilldown = true };
@@ -1132,9 +1139,9 @@ public class SupportedLanguage
     public static readonly IReadOnlyList<SupportedLanguage> All = new List<SupportedLanguage>
     {
         new() { Code = "en", DisplayName = "English", FlagImage = "img/flags/en.svg" },
-        new() { Code = "fr", DisplayName = "Français", FlagImage = "img/flags/fr.svg" },
+        new() { Code = "fr", DisplayName = "Fran�ais", FlagImage = "img/flags/fr.svg" },
         new() { Code = "it", DisplayName = "Italiano", FlagImage = "img/flags/it.svg" },
-        new() { Code = "es", DisplayName = "Español", FlagImage = "img/flags/es.svg" },
+        new() { Code = "es", DisplayName = "Espa�ol", FlagImage = "img/flags/es.svg" },
         new() { Code = "de", DisplayName = "Deutsch", FlagImage = "img/flags/de.svg" }
     };
 }
@@ -1364,6 +1371,21 @@ public class DashboardSummary
     public int EntraLargeGroupMemberThreshold { get; set; } = 100;
 
     /// <summary>
+    /// Returns a shallow copy of this summary that is safe to persist in the (size-sensitive)
+    /// session store. The AD Groups collection has its bulky native <c>member</c> DN arrays
+    /// stripped from each raw item (membership counts are preserved separately), which prevents
+    /// the serialized session blob from bloating on large directories and losing the session
+    /// (and its access token) on write. All other members are shared by reference and are only
+    /// read during serialization, so the original instance is left unmodified.
+    /// </summary>
+    public DashboardSummary ToSessionCacheSafe()
+    {
+        var clone = (DashboardSummary)MemberwiseClone();
+        clone.ADGroups = ADGroups.WithoutMemberPayload();
+        return clone;
+    }
+
+    /// <summary>
     /// Shared staleness guard: true when this summary's Entra group membership has not finished
     /// loading, so the membership-dependent Entra Groups KPIs (Empty Groups, No Group Owner,
     /// Guest-Containing Groups, Single-Owner Groups, Large Groups) may be inaccurate. Consumed by
@@ -1559,7 +1581,7 @@ public class DashboardSummary
     /// <summary>
     /// Applies an AD domain segment selection in place across the AD Overview summaries.
     /// This is the single server-side AD filter choke point: it resolves the selection
-    /// against the available domains (empty ⇒ all), then reduces the user, group, and
+    /// against the available domains (empty ? all), then reduces the user, group, and
     /// computer summaries to the effective domain set. Both live tiles and the per-segment
     /// export consume the reduced summaries, so the filtering rule lives in one place.
     /// Returns the resolved effective domains for callers that need to echo the selection.
@@ -2152,6 +2174,38 @@ public class ADGroupsSummary
     public List<JsonElement> Items { get; set; } = new();
     public string? Error { get; set; }
 
+    /// <summary>
+    /// Direct member DNs per group DN (case-insensitive), computed locally from the native
+    /// <c>member</c> attribute at collection time. Replaces Active Roles' <c>edsaMember</c>.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, List<string>> DirectByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Indirect (transitive) member DNs per group DN (case-insensitive), computed locally from
+    /// nested-group membership at collection time. Replaces Active Roles' <c>edsaMemberIndirect</c>.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, List<string>> IndirectByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Direct member COUNT per group DN. Unlike <see cref="DirectByDn"/> (the full DN lists,
+    /// which are transient and can be enormous), this compact projection is serialized so the
+    /// derived group-detail counts remain correct after the summary is round-tripped through the
+    /// session store (where the bulky raw <c>member</c> arrays are stripped to control size).
+    /// </summary>
+    public Dictionary<string, int> DirectCountByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Indirect (transitive) member COUNT per group DN. Serialized companion to
+    /// <see cref="IndirectByDn"/>; see <see cref="DirectCountByDn"/> for the rationale.
+    /// </summary>
+    public Dictionary<string, int> IndirectCountByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Reduces this summary to items whose domain is in <paramref name="effectiveDomains"/>.</summary>
     public ADGroupsSummary Filter(ISet<string> effectiveDomains)
     {
@@ -2159,7 +2213,43 @@ public class ADGroupsSummary
             return this;
 
         var items = Items.Where(i => effectiveDomains.Contains(SegmentAttributes.DomainOf(i))).ToList();
-        return new ADGroupsSummary { TotalCount = items.Count, Items = items, Error = null };
+        // The membership maps are keyed by DN, so they can be shared as-is: lookups for the
+        // retained items still resolve, and unused keys are harmless.
+        return new ADGroupsSummary
+        {
+            TotalCount = items.Count,
+            Items = items,
+            Error = null,
+            DirectByDn = DirectByDn,
+            IndirectByDn = IndirectByDn,
+            DirectCountByDn = DirectCountByDn,
+            IndirectCountByDn = IndirectCountByDn
+        };
+    }
+
+    /// <summary>
+    /// Returns a copy of this summary whose raw items have the bulky native <c>member</c> DN
+    /// arrays removed, so it is safe to persist in the (size-sensitive) session store without
+    /// bloating the serialized blob on large directories. Membership counts are preserved via
+    /// <see cref="DirectCountByDn"/>/<see cref="IndirectCountByDn"/>, and the transient DN-list
+    /// maps are carried over by reference (they are <c>[JsonIgnore]</c> and not serialized).
+    /// The original instance is left unmodified.
+    /// </summary>
+    public ADGroupsSummary WithoutMemberPayload()
+    {
+        if (Items.Count == 0)
+            return this;
+
+        return new ADGroupsSummary
+        {
+            TotalCount = TotalCount,
+            Items = Items.Select(i => SegmentAttributes.WithoutAttribute(i, "member")).ToList(),
+            Error = Error,
+            DirectByDn = DirectByDn,
+            IndirectByDn = IndirectByDn,
+            DirectCountByDn = DirectCountByDn,
+            IndirectCountByDn = IndirectCountByDn
+        };
     }
 }
 
@@ -2689,7 +2779,7 @@ public readonly struct SegmentSelection
     /// Creates a selection from an explicit list of segment names, preserving an empty
     /// list as an explicit "none" (rather than collapsing it to "all"). Use this for the
     /// user-driven segment filter, where clearing every checkbox means "show nothing".
-    /// A null list still means "unset ⇒ all".
+    /// A null list still means "unset ? all".
     /// </summary>
     public static SegmentSelection ExplicitOf(IEnumerable<string>? selected)
     {
@@ -2788,6 +2878,60 @@ public static class SegmentAttributes
             if (!string.IsNullOrWhiteSpace(s))
                 yield return s;
         }
+    }
+
+    /// <summary>
+    /// Returns a copy of <paramref name="element"/> with the property <paramref name="name"/>
+    /// removed, looking both at the top level and inside a nested <c>attributes</c> object
+    /// (mirroring how <see cref="ReadAttr"/>/<see cref="MultiAttrOf"/> resolve attributes). Used
+    /// to drop bulky multi-valued payloads (e.g. group <c>member</c> DN lists) before persisting
+    /// raw items to the session store. When the attribute is absent the original element is
+    /// returned unchanged.
+    /// </summary>
+    public static JsonElement WithoutAttribute(JsonElement element, string name)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+            return element;
+
+        bool atTop = element.TryGetProperty(name, out _);
+        bool inAttrs = element.TryGetProperty("attributes", out var attrsProbe)
+            && attrsProbe.ValueKind == JsonValueKind.Object
+            && attrsProbe.TryGetProperty(name, out _);
+
+        if (!atTop && !inAttrs)
+            return element;
+
+        var buffer = new ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer))
+        {
+            writer.WriteStartObject();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (atTop && string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (inAttrs && prop.NameEquals("attributes"))
+                {
+                    writer.WritePropertyName(prop.Name);
+                    writer.WriteStartObject();
+                    foreach (var attr in prop.Value.EnumerateObject())
+                    {
+                        if (string.Equals(attr.Name, name, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        attr.WriteTo(writer);
+                    }
+                    writer.WriteEndObject();
+                    continue;
+                }
+
+                prop.WriteTo(writer);
+            }
+            writer.WriteEndObject();
+        }
+
+        var reader = new Utf8JsonReader(buffer.WrittenSpan);
+        using var doc = JsonDocument.ParseValue(ref reader);
+        return doc.RootElement.Clone();
     }
 
     private static string ReadAttr(JsonElement element, string name)
