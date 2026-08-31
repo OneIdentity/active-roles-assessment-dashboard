@@ -84,6 +84,60 @@
   <data name="BackToDashboard" xml:space="preserve">
 	<value>Volver al panel</value>
   </data>
+  <data name="Card_RestApi" xml:space="preserve">
+    <value>Configuración de la API REST</value>
+  </data>
+  <data name="Card_ServiceAccount" xml:space="preserve">
+    <value>Credenciales de la cuenta de servicio</value>
+  </data>
+  <data name="Card_Licensing" xml:space="preserve">
+    <value>Umbrales de licencia</value>
+  </data>
+  <data name="Label_ApiBaseUrl" xml:space="preserve">
+    <value>URL base de la API REST</value>
+  </data>
+  <data name="Label_RstsUrl" xml:space="preserve">
+    <value>URL del token RSTS</value>
+  </data>
+  <data name="Label_ServiceAccountUsername" xml:space="preserve">
+    <value>Usuario de la cuenta de servicio</value>
+  </data>
+  <data name="Label_ServiceAccountPassword" xml:space="preserve">
+    <value>Contraseña de la cuenta de servicio</value>
+  </data>
+  <data name="Label_ExpiredBaseDn" xml:space="preserve">
+    <value>Cuenta de usuario caducada - DN base</value>
+  </data>
+  <data name="Label_LicensedDomainObjects" xml:space="preserve">
+    <value>Objetos de dominio con licencia</value>
+  </data>
+  <data name="Label_LicensedPartitionObjects" xml:space="preserve">
+    <value>Objetos de partición con licencia</value>
+  </data>
+  <data name="Label_LicensedAzureObjects" xml:space="preserve">
+    <value>Objetos de Azure con licencia</value>
+  </data>
+  <data name="Label_LicensedSaasObjects" xml:space="preserve">
+    <value>Objetos SaaS con licencia</value>
+  </data>
+  <data name="Label_LicensedTotalObjects" xml:space="preserve">
+    <value>Total de objetos con licencia</value>
+  </data>
+  <data name="Hint_RestartRequired" xml:space="preserve">
+    <value>Este ajuste solo se aplica tras reiniciar la aplicación.</value>
+  </data>
+  <data name="Hint_ServiceAccountPassword" xml:space="preserve">
+    <value>Déjelo en blanco para mantener la contraseña actual. Los cambios solo se aplican tras reiniciar.</value>
+  </data>
+  <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
+    <value>Sin cambios</value>
+  </data>
+  <data name="Hint_LicensedTotalObjects" xml:space="preserve">
+    <value>Derecho total con licencia en todas las categorías. Un valor de 0 significa no configurado.</value>
+  </data>
+  <data name="Msg_RestartRequired" xml:space="preserve">
+    <value>Se cambiaron una o más opciones de conexión. Reinicie la aplicación para que estos cambios surtan efecto.</value>
+  </data>
   <data name="SaveSettings" xml:space="preserve">
 	<value>Guardar configuración</value>
   </data>

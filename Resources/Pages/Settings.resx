@@ -87,4 +87,58 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Save Settings</value>
   </data>
+  <data name="Card_RestApi" xml:space="preserve">
+	<value>REST API Configuration</value>
+  </data>
+  <data name="Card_ServiceAccount" xml:space="preserve">
+	<value>Service Account Credentials</value>
+  </data>
+  <data name="Card_Licensing" xml:space="preserve">
+	<value>Licensing Thresholds</value>
+  </data>
+  <data name="Label_ApiBaseUrl" xml:space="preserve">
+	<value>REST API Base URL</value>
+  </data>
+  <data name="Label_RstsUrl" xml:space="preserve">
+	<value>RSTS Token URL</value>
+  </data>
+  <data name="Label_ServiceAccountUsername" xml:space="preserve">
+	<value>Service account username</value>
+  </data>
+  <data name="Label_ServiceAccountPassword" xml:space="preserve">
+	<value>Service account password</value>
+  </data>
+  <data name="Label_ExpiredBaseDn" xml:space="preserve">
+	<value>User Account Expired - Base DN</value>
+  </data>
+  <data name="Label_LicensedDomainObjects" xml:space="preserve">
+	<value>Licensed domain objects</value>
+  </data>
+  <data name="Label_LicensedPartitionObjects" xml:space="preserve">
+	<value>Licensed partition objects</value>
+  </data>
+  <data name="Label_LicensedAzureObjects" xml:space="preserve">
+	<value>Licensed Azure objects</value>
+  </data>
+  <data name="Label_LicensedSaasObjects" xml:space="preserve">
+	<value>Licensed SaaS objects</value>
+  </data>
+  <data name="Label_LicensedTotalObjects" xml:space="preserve">
+	<value>Licensed total objects</value>
+  </data>
+  <data name="Hint_RestartRequired" xml:space="preserve">
+	<value>Changing this setting only takes effect after the application is restarted.</value>
+  </data>
+  <data name="Hint_ServiceAccountPassword" xml:space="preserve">
+	<value>Leave blank to keep the existing password. Changing it only takes effect after a restart.</value>
+  </data>
+  <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
+	<value>Unchanged</value>
+  </data>
+  <data name="Hint_LicensedTotalObjects" xml:space="preserve">
+	<value>Grand-total licensed entitlement across all categories. A value of 0 means not configured.</value>
+  </data>
+  <data name="Msg_RestartRequired" xml:space="preserve">
+	<value>One or more connection settings were changed. Restart the application for these changes to take effect.</value>
+  </data>
 </root>

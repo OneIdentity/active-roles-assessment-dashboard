@@ -18,14 +18,16 @@ public class SettingsModel : PageModel
     private readonly IWebHostEnvironment _env;
     private readonly IStringLocalizer<SettingsModel> _localizer;
     private readonly PerUserSummaryCache _summaryCache;
+    private readonly ServiceAccountSecretProtector _secretProtector;
 
-    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache)
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector)
     {
         _arConfig = arConfig;
         _userSettingsService = userSettingsService;
         _env = env;
         _localizer = localizer;
         _summaryCache = summaryCache;
+        _secretProtector = secretProtector;
     }
 
     [BindProperty]
@@ -69,10 +71,35 @@ public class SettingsModel : PageModel
     [BindProperty]
     public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
 
+    // REST API Configuration (restart required)
+    [BindProperty]
+    public string ApiBaseUrl { get; set; } = string.Empty;
+    [BindProperty]
+    public string RstsUrl { get; set; } = string.Empty;
+
+    // Service Account Credentials (restart required)
+    [BindProperty]
+    public string ServiceAccountUsername { get; set; } = string.Empty;
+    [BindProperty]
+    public string ServiceAccountPassword { get; set; } = string.Empty;
+
+    // Licensing Thresholds
+    [BindProperty]
+    public int LicensedDomainObjects { get; set; }
+    [BindProperty]
+    public int LicensedPartitionObjects { get; set; }
+    [BindProperty]
+    public int LicensedAzureObjects { get; set; }
+    [BindProperty]
+    public int LicensedSaasObjects { get; set; }
+    [BindProperty]
+    public int LicensedTotalObjects { get; set; }
+
     public ActiveRolesConfig Defaults => _arConfig.CurrentValue;
 
     public bool SettingsChanged { get; set; }
     public bool IsActiveRolesAdmin { get; set; }
+    public bool RestartRequired { get; set; }
 
     public string? Message { get; set; }
 
@@ -103,6 +130,21 @@ public class SettingsModel : PageModel
         CustomActiveRolesAdminsBaseDn = config.CustomActiveRolesAdminsBaseDn;
         CustomActiveRolesAdminsFilter = config.CustomActiveRolesAdminsFilter;
         EntraLargeGroupMemberThreshold = config.EntraLargeGroupMemberThreshold;
+
+        // REST API Configuration
+        ApiBaseUrl = config.ApiBaseUrl;
+        RstsUrl = config.RstsUrl;
+
+        // Service Account Credentials (password is never rendered back to the client)
+        ServiceAccountUsername = config.ServiceAccount.Username;
+        ServiceAccountPassword = string.Empty;
+
+        // Licensing Thresholds
+        LicensedDomainObjects = config.LicensedDomainObjects;
+        LicensedPartitionObjects = config.LicensedPartitionObjects;
+        LicensedAzureObjects = config.LicensedAzureObjects;
+        LicensedSaasObjects = config.LicensedSaasObjects;
+        LicensedTotalObjects = config.LicensedTotalObjects;
     }
 
     public IActionResult OnPost()
@@ -112,6 +154,21 @@ public class SettingsModel : PageModel
 
         if (EntraLargeGroupMemberThreshold < 1)
             EntraLargeGroupMemberThreshold = 1;
+
+        // Clamp licensing thresholds to non-negative values.
+        LicensedDomainObjects = Math.Max(0, LicensedDomainObjects);
+        LicensedPartitionObjects = Math.Max(0, LicensedPartitionObjects);
+        LicensedAzureObjects = Math.Max(0, LicensedAzureObjects);
+        LicensedSaasObjects = Math.Max(0, LicensedSaasObjects);
+        LicensedTotalObjects = Math.Max(0, LicensedTotalObjects);
+
+        // Detect changes to connection settings that only take effect after a restart.
+        var config = _arConfig.CurrentValue;
+        RestartRequired =
+            !string.Equals((ApiBaseUrl ?? "").Trim(), config.ApiBaseUrl ?? "", StringComparison.Ordinal) ||
+            !string.Equals((RstsUrl ?? "").Trim(), config.RstsUrl ?? "", StringComparison.Ordinal) ||
+            !string.Equals((ServiceAccountUsername ?? "").Trim(), config.ServiceAccount.Username ?? "", StringComparison.Ordinal) ||
+            !string.IsNullOrEmpty(ServiceAccountPassword);
 
         // Save visibility settings to user file
         var username = User.Identity?.Name ?? "";
@@ -164,6 +221,32 @@ public class SettingsModel : PageModel
                 activeRoles["CustomActiveRolesAdminsBaseDn"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsFilter"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
                 activeRoles["EntraLargeGroupMemberThreshold"] = EntraLargeGroupMemberThreshold;
+
+                // REST API Configuration (takes effect after a restart)
+                activeRoles["ApiBaseUrl"] = ApiBaseUrl?.Trim() ?? "";
+                activeRoles["RstsUrl"] = RstsUrl?.Trim() ?? "";
+
+                // Licensing Thresholds
+                activeRoles["LicensedDomainObjects"] = Math.Max(0, LicensedDomainObjects);
+                activeRoles["LicensedPartitionObjects"] = Math.Max(0, LicensedPartitionObjects);
+                activeRoles["LicensedAzureObjects"] = Math.Max(0, LicensedAzureObjects);
+                activeRoles["LicensedSaasObjects"] = Math.Max(0, LicensedSaasObjects);
+                activeRoles["LicensedTotalObjects"] = Math.Max(0, LicensedTotalObjects);
+
+                // Service Account Credentials. The username is stored as-is; the password is
+                // encrypted via Data Protection and only overwritten when a new value is supplied
+                // (a blank password field leaves the existing protected password unchanged).
+                var serviceAccount = activeRoles["ServiceAccount"]?.AsObject();
+                if (serviceAccount is null)
+                {
+                    serviceAccount = new JsonObject();
+                    activeRoles["ServiceAccount"] = serviceAccount;
+                }
+                serviceAccount["Username"] = ServiceAccountUsername?.Trim() ?? "";
+                if (!string.IsNullOrEmpty(ServiceAccountPassword))
+                {
+                    serviceAccount["ProtectedPassword"] = _secretProtector.Protect(ServiceAccountPassword);
+                }
             }
             var options = new JsonSerializerOptions
             {

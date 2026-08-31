@@ -87,4 +87,58 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Einstellungen speichern</value>
   </data>
+  <data name="Card_RestApi" xml:space="preserve">
+	<value>REST-API-Konfiguration</value>
+  </data>
+  <data name="Card_ServiceAccount" xml:space="preserve">
+	<value>Dienstkonto-Anmeldedaten</value>
+  </data>
+  <data name="Card_Licensing" xml:space="preserve">
+	<value>Lizenzschwellenwerte</value>
+  </data>
+  <data name="Label_ApiBaseUrl" xml:space="preserve">
+	<value>REST-API-Basis-URL</value>
+  </data>
+  <data name="Label_RstsUrl" xml:space="preserve">
+	<value>RSTS-Token-URL</value>
+  </data>
+  <data name="Label_ServiceAccountUsername" xml:space="preserve">
+	<value>Dienstkonto-Benutzername</value>
+  </data>
+  <data name="Label_ServiceAccountPassword" xml:space="preserve">
+	<value>Dienstkonto-Kennwort</value>
+  </data>
+  <data name="Label_ExpiredBaseDn" xml:space="preserve">
+	<value>Abgelaufenes Benutzerkonto - Basis-DN</value>
+  </data>
+  <data name="Label_LicensedDomainObjects" xml:space="preserve">
+	<value>Lizenzierte Domänenobjekte</value>
+  </data>
+  <data name="Label_LicensedPartitionObjects" xml:space="preserve">
+	<value>Lizenzierte Partitionsobjekte</value>
+  </data>
+  <data name="Label_LicensedAzureObjects" xml:space="preserve">
+	<value>Lizenzierte Azure-Objekte</value>
+  </data>
+  <data name="Label_LicensedSaasObjects" xml:space="preserve">
+	<value>Lizenzierte SaaS-Objekte</value>
+  </data>
+  <data name="Label_LicensedTotalObjects" xml:space="preserve">
+	<value>Lizenzierte Objekte gesamt</value>
+  </data>
+  <data name="Hint_RestartRequired" xml:space="preserve">
+	<value>Diese Einstellung wird erst nach einem Neustart der Anwendung wirksam.</value>
+  </data>
+  <data name="Hint_ServiceAccountPassword" xml:space="preserve">
+	<value>Leer lassen, um das vorhandene Kennwort beizubehalten. Änderungen werden erst nach einem Neustart wirksam.</value>
+  </data>
+  <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
+	<value>Unverändert</value>
+  </data>
+  <data name="Hint_LicensedTotalObjects" xml:space="preserve">
+	<value>Lizenzierte Gesamtberechtigung über alle Kategorien. Der Wert 0 bedeutet nicht konfiguriert.</value>
+  </data>
+  <data name="Msg_RestartRequired" xml:space="preserve">
+	<value>Eine oder mehrere Verbindungseinstellungen wurden geändert. Starten Sie die Anwendung neu, damit diese Änderungen wirksam werden.</value>
+  </data>
 </root>
