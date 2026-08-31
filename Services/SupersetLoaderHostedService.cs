@@ -147,7 +147,7 @@ public class SupersetLoaderHostedService : BackgroundService
                 _cache.BeginMembershipLoading(groupCount);
                 try
                 {
-                    var sliceSize = Math.Max(1, _config.CurrentValue.EntraMembershipBatchSize);
+                    var sliceSize = Math.Max(1, _config.CurrentValue.Entra.MembershipBatchSize);
                     for (var skip = 0; skip < groupCount; skip += sliceSize)
                     {
                         ct.ThrowIfCancellationRequested();

@@ -45,6 +45,9 @@ public class SettingsModel : PageModel
     public SupportedLanguage SelectedLanguage =>
         SupportedLanguage.All.FirstOrDefault(l => l.Code == Language) ?? SupportedLanguage.All[0];
 
+    public SupportedLanguage SelectedDefaultLanguage =>
+        SupportedLanguage.All.FirstOrDefault(l => l.Code == DefaultLanguage) ?? SupportedLanguage.All[0];
+
     [BindProperty]
     public int EntraLargeGroupMemberThreshold { get; set; }
 
@@ -168,7 +171,7 @@ public class SettingsModel : PageModel
         CustomEmptyGroupsBaseDn = config.CustomEmptyGroupsBaseDn;
         CustomActiveRolesAdminsBaseDn = config.CustomActiveRolesAdminsBaseDn;
         CustomActiveRolesAdminsFilter = config.CustomActiveRolesAdminsFilter;
-        EntraLargeGroupMemberThreshold = config.EntraLargeGroupMemberThreshold;
+        EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
 
         // REST API Configuration
         ApiBaseUrl = config.ApiBaseUrl;
@@ -177,15 +180,15 @@ public class SettingsModel : PageModel
         IgnoreSslErrors = config.IgnoreSslErrors;
 
         // Default Filters
-        DefaultNoGroupOwnerFilter = config.DefaultNoGroupOwnerFilter;
-        DefaultNoManagerUserFilter = config.DefaultNoManagerUserFilter;
-        DefaultNoManagerServiceAccountFilter = config.DefaultNoManagerServiceAccountFilter;
-        DefaultUserAccountExpiredFilter = config.DefaultUserAccountExpiredFilter;
-        DefaultUserAccountLockedOutFilter = config.DefaultUserAccountLockedOutFilter;
-        DefaultEmptyGroupsFilter = config.DefaultEmptyGroupsFilter;
-        DefaultActiveRolesAdminsFilter = config.DefaultActiveRolesAdminsFilter;
-        DefaultADUserAccountsFilter = config.DefaultADUserAccountsFilter;
-        DefaultADGroupsFilter = config.DefaultADGroupsFilter;
+        DefaultNoGroupOwnerFilter = config.DefaultFilters.NoGroupOwner;
+        DefaultNoManagerUserFilter = config.DefaultFilters.NoManagerUser;
+        DefaultNoManagerServiceAccountFilter = config.DefaultFilters.NoManagerServiceAccount;
+        DefaultUserAccountExpiredFilter = config.DefaultFilters.UserAccountExpired;
+        DefaultUserAccountLockedOutFilter = config.DefaultFilters.UserAccountLockedOut;
+        DefaultEmptyGroupsFilter = config.DefaultFilters.EmptyGroups;
+        DefaultActiveRolesAdminsFilter = config.DefaultFilters.ActiveRolesAdmins;
+        DefaultADUserAccountsFilter = config.DefaultFilters.ADUserAccounts;
+        DefaultADGroupsFilter = config.DefaultFilters.ADGroups;
 
         // App-wide default language
         DefaultLanguage = config.DefaultLanguage;
@@ -202,11 +205,11 @@ public class SettingsModel : PageModel
         LoadOnStartup = config.DataRefresh.LoadOnStartup;
 
         // Licensing Thresholds
-        LicensedDomainObjects = config.LicensedDomainObjects;
-        LicensedPartitionObjects = config.LicensedPartitionObjects;
-        LicensedAzureObjects = config.LicensedAzureObjects;
-        LicensedSaasObjects = config.LicensedSaasObjects;
-        LicensedTotalObjects = config.LicensedTotalObjects;
+        LicensedDomainObjects = config.Licensing.DomainObjects;
+        LicensedPartitionObjects = config.Licensing.PartitionObjects;
+        LicensedAzureObjects = config.Licensing.AzureObjects;
+        LicensedSaasObjects = config.Licensing.SaasObjects;
+        LicensedTotalObjects = config.Licensing.TotalObjects;
     }
 
     public IActionResult OnPost()
@@ -295,7 +298,15 @@ public class SettingsModel : PageModel
                 activeRoles["CustomEmptyGroupsBaseDn"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsBaseDn"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
                 activeRoles["CustomActiveRolesAdminsFilter"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
-                activeRoles["EntraLargeGroupMemberThreshold"] = EntraLargeGroupMemberThreshold;
+
+                // Entra membership tuning (stored in its own Entra section).
+                var entra = activeRoles["Entra"]?.AsObject();
+                if (entra is null)
+                {
+                    entra = new JsonObject();
+                    activeRoles["Entra"] = entra;
+                }
+                entra["LargeGroupMemberThreshold"] = EntraLargeGroupMemberThreshold;
 
                 // REST API Configuration (takes effect after a restart)
                 activeRoles["ApiBaseUrl"] = ApiBaseUrl?.Trim() ?? "";
@@ -303,16 +314,22 @@ public class SettingsModel : PageModel
                 activeRoles["Resource"] = Resource?.Trim() ?? "";
                 activeRoles["IgnoreSslErrors"] = IgnoreSslErrors;
 
-                // Default Filters
-                activeRoles["DefaultNoGroupOwnerFilter"] = DefaultNoGroupOwnerFilter?.Trim() ?? "";
-                activeRoles["DefaultNoManagerUserFilter"] = DefaultNoManagerUserFilter?.Trim() ?? "";
-                activeRoles["DefaultNoManagerServiceAccountFilter"] = DefaultNoManagerServiceAccountFilter?.Trim() ?? "";
-                activeRoles["DefaultUserAccountExpiredFilter"] = DefaultUserAccountExpiredFilter?.Trim() ?? "";
-                activeRoles["DefaultUserAccountLockedOutFilter"] = DefaultUserAccountLockedOutFilter?.Trim() ?? "";
-                activeRoles["DefaultEmptyGroupsFilter"] = DefaultEmptyGroupsFilter?.Trim() ?? "";
-                activeRoles["DefaultActiveRolesAdminsFilter"] = DefaultActiveRolesAdminsFilter?.Trim() ?? "";
-                activeRoles["DefaultADUserAccountsFilter"] = DefaultADUserAccountsFilter?.Trim() ?? "";
-                activeRoles["DefaultADGroupsFilter"] = DefaultADGroupsFilter?.Trim() ?? "";
+                // Default Filters (stored in their own DefaultFilters section).
+                var defaultFilters = activeRoles["DefaultFilters"]?.AsObject();
+                if (defaultFilters is null)
+                {
+                    defaultFilters = new JsonObject();
+                    activeRoles["DefaultFilters"] = defaultFilters;
+                }
+                defaultFilters["NoGroupOwner"] = DefaultNoGroupOwnerFilter?.Trim() ?? "";
+                defaultFilters["NoManagerUser"] = DefaultNoManagerUserFilter?.Trim() ?? "";
+                defaultFilters["NoManagerServiceAccount"] = DefaultNoManagerServiceAccountFilter?.Trim() ?? "";
+                defaultFilters["UserAccountExpired"] = DefaultUserAccountExpiredFilter?.Trim() ?? "";
+                defaultFilters["UserAccountLockedOut"] = DefaultUserAccountLockedOutFilter?.Trim() ?? "";
+                defaultFilters["EmptyGroups"] = DefaultEmptyGroupsFilter?.Trim() ?? "";
+                defaultFilters["ActiveRolesAdmins"] = DefaultActiveRolesAdminsFilter?.Trim() ?? "";
+                defaultFilters["ADUserAccounts"] = DefaultADUserAccountsFilter?.Trim() ?? "";
+                defaultFilters["ADGroups"] = DefaultADGroupsFilter?.Trim() ?? "";
 
                 // App-wide default language
                 activeRoles["DefaultLanguage"] = DefaultLanguage?.Trim() ?? "";
@@ -327,12 +344,18 @@ public class SettingsModel : PageModel
                 }
                 activeRoles["CustomADUserAccountAttributes"] = attrArray;
 
-                // Licensing Thresholds
-                activeRoles["LicensedDomainObjects"] = Math.Max(0, LicensedDomainObjects);
-                activeRoles["LicensedPartitionObjects"] = Math.Max(0, LicensedPartitionObjects);
-                activeRoles["LicensedAzureObjects"] = Math.Max(0, LicensedAzureObjects);
-                activeRoles["LicensedSaasObjects"] = Math.Max(0, LicensedSaasObjects);
-                activeRoles["LicensedTotalObjects"] = Math.Max(0, LicensedTotalObjects);
+                // Licensing Thresholds (stored in their own Licensing section).
+                var licensing = activeRoles["Licensing"]?.AsObject();
+                if (licensing is null)
+                {
+                    licensing = new JsonObject();
+                    activeRoles["Licensing"] = licensing;
+                }
+                licensing["DomainObjects"] = Math.Max(0, LicensedDomainObjects);
+                licensing["PartitionObjects"] = Math.Max(0, LicensedPartitionObjects);
+                licensing["AzureObjects"] = Math.Max(0, LicensedAzureObjects);
+                licensing["SaasObjects"] = Math.Max(0, LicensedSaasObjects);
+                licensing["TotalObjects"] = Math.Max(0, LicensedTotalObjects);
 
                 // Data Refresh schedule (stored in its own DataRefresh section).
                 var dataRefresh = activeRoles["DataRefresh"]?.AsObject();

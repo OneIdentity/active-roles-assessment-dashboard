@@ -21,6 +21,10 @@
         .form-group input[type="number"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
         .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; }
         .form-group input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .form-group input[type="password"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
+        .form-group input[type="password"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; resize: vertical; font-family: inherit; }
+        .form-group textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
         .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
         .btn-save { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s; }
         .btn-save:hover { background: #1d4ed8; }
@@ -786,7 +790,7 @@
             </div>
             <div class="form-group">
                 <label for="CustomActiveRolesAdminsFilter">@Localizer["Label_ArAdminsFilter"]</label>
-                <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultActiveRolesAdminsFilter" />
+                <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultFilters.ActiveRolesAdmins" />
             </div>
             }
             <div class="form-group">
@@ -799,7 +803,7 @@
             </div>
             <div class="form-group">
                 <label for="CustomNoManagerUserFilter">@Localizer["Label_NoManagerUserFilter"]</label>
-                <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultNoManagerUserFilter" />
+                <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultFilters.NoManagerUser" />
             </div>
             <div class="form-group">
                 <label for="CustomNoManagerServiceAccountBaseDn">@Localizer["Label_NoManagerSvcBaseDn"]</label>
@@ -807,7 +811,7 @@
             </div>
             <div class="form-group">
                 <label for="CustomNoManagerServiceAccountFilter">@Localizer["Label_NoManagerSvcFilter"]</label>
-                <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultNoManagerServiceAccountFilter" />
+                <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultFilters.NoManagerServiceAccount" />
             </div>
             <div class="form-group">
                 <label for="CustomUserAccountExpiredBaseDn">@Localizer["Label_ExpiredBaseDn"]</label>
@@ -887,19 +891,22 @@
             <div class="section-body collapsed">
                 <div class="form-group">
                     <label for="DefaultLanguage">@Localizer["Label_DefaultLanguage"]</label>
-                    <select id="DefaultLanguage" name="DefaultLanguage">
-                        @foreach (var lang in Model.Languages)
-                        {
-                            if (lang.Code == Model.DefaultLanguage)
+                    <div class="lang-select-wrap">
+                        <img id="defaultLangFlag" class="lang-flag" src="@(HttpContext.Request.PathBase)/@(Model.SelectedDefaultLanguage.FlagImage)" alt="@Model.SelectedDefaultLanguage.DisplayName flag" />
+                        <select id="DefaultLanguage" name="DefaultLanguage" class="lang-select" onchange="updateLangFlag(this, 'defaultLangFlag')">
+                            @foreach (var lang in Model.Languages)
                             {
-                                <option value="@lang.Code" selected>@lang.DisplayName</option>
+                                if (lang.Code == Model.DefaultLanguage)
+                                {
+                                    <option value="@lang.Code" data-flag="@(HttpContext.Request.PathBase)/@(lang.FlagImage)" selected>@lang.DisplayName</option>
+                                }
+                                else
+                                {
+                                    <option value="@lang.Code" data-flag="@(HttpContext.Request.PathBase)/@(lang.FlagImage)">@lang.DisplayName</option>
+                                }
                             }
-                            else
-                            {
-                                <option value="@lang.Code">@lang.DisplayName</option>
-                            }
-                        }
-                    </select>
+                        </select>
+                    </div>
                     <p class="hint">@Localizer["Hint_DefaultLanguage"]</p>
                 </div>
             </div>
@@ -1011,10 +1018,10 @@
         body.classList.toggle('collapsed');
     }
 
-    function updateLangFlag(select) {
+    function updateLangFlag(select, flagId) {
         var opt = select.options[select.selectedIndex];
         var flag = opt.getAttribute('data-flag');
-        if (flag) document.getElementById('langFlag').src = flag;
+        if (flag) document.getElementById(flagId || 'langFlag').src = flag;
     }
 </script>
 </body>

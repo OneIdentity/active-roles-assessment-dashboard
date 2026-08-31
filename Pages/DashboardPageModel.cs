@@ -49,12 +49,12 @@ public abstract class DashboardPageModel : PageModel
     public bool IsActiveRolesAdmin { get; set; }
 
     /// <summary>Number of groups the client requests per lazy-membership batch (min 1).</summary>
-    public int MembershipBatchSize => Math.Max(1, ArConfig.CurrentValue.EntraMembershipBatchSize);
+    public int MembershipBatchSize => Math.Max(1, ArConfig.CurrentValue.Entra.MembershipBatchSize);
 
     /// <summary>Delay in ms before the membership start toast is shown (min 0).</summary>
-    public int MembershipToastDelayMs => Math.Max(0, ArConfig.CurrentValue.EntraMembershipToastDelayMs);
+    public int MembershipToastDelayMs => Math.Max(0, ArConfig.CurrentValue.Entra.MembershipToastDelayMs);
 
-    public int LargeGroupMemberThreshold => Math.Max(1, ArConfig.CurrentValue.EntraLargeGroupMemberThreshold);
+    public int LargeGroupMemberThreshold => Math.Max(1, ArConfig.CurrentValue.Entra.LargeGroupMemberThreshold);
 
     /// <summary>
     /// True when the shared superset collector is actively loading Entra group membership. When
@@ -275,12 +275,12 @@ public abstract class DashboardPageModel : PageModel
             noGroupOwner = ToKpiPayload(totals.EntraNoGroupOwnerGroups()),
             guestContaining = ToKpiPayload(totals.EntraGuestContainingGroups()),
             singleOwner = ToKpiPayload(totals.EntraSingleOwnerGroups()),
-            largeGroups = ToKpiPayload(totals.EntraLargeGroups(ArConfig.CurrentValue.EntraLargeGroupMemberThreshold))
+            largeGroups = ToKpiPayload(totals.EntraLargeGroups(ArConfig.CurrentValue.Entra.LargeGroupMemberThreshold))
         });
     }
 
     /// <summary>
-    /// Reports live server-side Entra membership-collection progress from the shared superset
+    /// Reports live server-side Entra membership-collection progress
     /// collector, so the client can render a real countdown badge when a user logs in WHILE the
     /// superset is still loading membership (before the atomic snapshot publish). Only meaningful
     /// for viewers who can see Entra; non-admins never render the badge. Returns whether the
@@ -323,7 +323,7 @@ public abstract class DashboardPageModel : PageModel
             return new JsonResult(new { error = "No cached dashboard data. Reload the dashboard." }) { StatusCode = 409 };
 
         if (take <= 0)
-            take = Math.Max(1, ArConfig.CurrentValue.EntraMembershipBatchSize);
+            take = Math.Max(1, ArConfig.CurrentValue.Entra.MembershipBatchSize);
 
         int totalGroups;
         try
@@ -351,7 +351,7 @@ public abstract class DashboardPageModel : PageModel
             noGroupOwner = ToKpiPayload(totals.EntraNoGroupOwnerGroups()),
             guestContaining = ToKpiPayload(totals.EntraGuestContainingGroups()),
             singleOwner = ToKpiPayload(totals.EntraSingleOwnerGroups()),
-            largeGroups = ToKpiPayload(totals.EntraLargeGroups(ArConfig.CurrentValue.EntraLargeGroupMemberThreshold))
+            largeGroups = ToKpiPayload(totals.EntraLargeGroups(ArConfig.CurrentValue.Entra.LargeGroupMemberThreshold))
         });
     }
 
