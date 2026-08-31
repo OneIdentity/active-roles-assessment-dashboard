@@ -16,11 +16,11 @@ public class LicensingModel : DashboardPageModel
 
     // Licensed entitlement thresholds surfaced for the totals-vs-thresholds chart.
     // A value of 0 means "not configured" (no threshold line / no breach styling).
-    public int LicensedDomainObjects => Math.Max(0, ArConfig.CurrentValue.LicensedDomainObjects);
-    public int LicensedPartitionObjects => Math.Max(0, ArConfig.CurrentValue.LicensedPartitionObjects);
-    public int LicensedAzureObjects => Math.Max(0, ArConfig.CurrentValue.LicensedAzureObjects);
-    public int LicensedSaasObjects => Math.Max(0, ArConfig.CurrentValue.LicensedSaasObjects);
-    public int LicensedTotalObjects => Math.Max(0, ArConfig.CurrentValue.LicensedTotalObjects);
+    public int LicensedDomainObjects => Math.Max(0, ArConfig.CurrentValue.Licensing.DomainObjects);
+    public int LicensedPartitionObjects => Math.Max(0, ArConfig.CurrentValue.Licensing.PartitionObjects);
+    public int LicensedAzureObjects => Math.Max(0, ArConfig.CurrentValue.Licensing.AzureObjects);
+    public int LicensedSaasObjects => Math.Max(0, ArConfig.CurrentValue.Licensing.SaasObjects);
+    public int LicensedTotalObjects => Math.Max(0, ArConfig.CurrentValue.Licensing.TotalObjects);
 
     // True when at least one threshold is configured, so the view can decide whether to render the chart.
     public bool HasLicensingThresholds =>

@@ -69,7 +69,7 @@ public class ActiveRolesService
         var settings = kpiSettings ?? new KpiSettings();
         var config = _configMonitor.CurrentValue;
         var summary = new DashboardSummary();
-        summary.EntraLargeGroupMemberThreshold = config.EntraLargeGroupMemberThreshold;
+        summary.EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
 
         var tasks = new List<(string Key, Task Task)>();
 
@@ -892,7 +892,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("ARConfiguration", "ActiveRolesAdmins"))
         {
             var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultActiveRolesAdminsFilter);
+            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultFilters.ActiveRolesAdmins);
             var t = GetActiveRolesAdminsAsync(token, baseDn, filter);
             tasks.Add(("ActiveRolesAdmins", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ActiveRolesAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -972,7 +972,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("ADGroupsCategory", "NoGroupOwner") || settings.IsKpiEnabled("ADGovernance", "NoGroupOwner"))
         {
             var baseDn = ResolveValue(config.CustomNoGroupOwnerBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = config.DefaultNoGroupOwnerFilter;
+            var filter = config.DefaultFilters.NoGroupOwner;
             var t = GetNoGroupOwnerAsync(token, baseDn, filter);
             tasks.Add(("NoGroupOwner", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoGroupOwner = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -980,7 +980,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("NHIs", "NoManagerServiceAccount") || settings.IsKpiEnabled("ADGovernance", "NoManagerServiceAccount"))
         {
             var baseDn = ResolveValue(config.CustomNoManagerServiceAccountBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = ResolveValue(config.CustomNoManagerServiceAccountFilter, config.DefaultNoManagerServiceAccountFilter);
+            var filter = ResolveValue(config.CustomNoManagerServiceAccountFilter, config.DefaultFilters.NoManagerServiceAccount);
             var t = GetNoManagerServiceAccountAsync(token, baseDn, filter);
             tasks.Add(("NoManagerServiceAccount", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoManagerServiceAccount = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -988,7 +988,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("NHIs", "ServiceAccounts"))
         {
             var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultServiceAccountsFilter;
+            var filter = config.DefaultFilters.ServiceAccounts;
             var t = GetServiceAccountsAsync(token, baseDn, filter);
             tasks.Add(("ServiceAccounts", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -996,7 +996,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("NHIs", "GmsaServiceAccounts"))
         {
             var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultGmsaServiceAccountsFilter;
+            var filter = config.DefaultFilters.GmsaServiceAccounts;
             var t = GetGmsaServiceAccountsAsync(token, baseDn, filter);
             tasks.Add(("GmsaServiceAccounts", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.GmsaServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -1004,7 +1004,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("NHIs", "SmsaServiceAccounts"))
         {
             var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultSmsaServiceAccountsFilter;
+            var filter = config.DefaultFilters.SmsaServiceAccounts;
             var t = GetSmsaServiceAccountsAsync(token, baseDn, filter);
             tasks.Add(("SmsaServiceAccounts", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SmsaServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -1013,7 +1013,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("ADUserAccountsCategory", "UserAccountLockedOut") || settings.IsKpiEnabled("ADGovernance", "UserAccountLockedOut"))
         {
             var baseDn = ResolveValue(config.CustomUserAccountLockedOutBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = config.DefaultUserAccountLockedOutFilter;
+            var filter = config.DefaultFilters.UserAccountLockedOut;
             var t = GetUserAccountLockedOutAsync(token, baseDn, filter);
             tasks.Add(("UserAccountLockedOut", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UserAccountLockedOut = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -1021,7 +1021,7 @@ public class ActiveRolesService
         if (settings.IsKpiEnabled("ADGroupsCategory", "EmptyGroups") || settings.IsKpiEnabled("ADGovernance", "EmptyGroups"))
         {
             var baseDn = ResolveValue(config.CustomEmptyGroupsBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = config.DefaultEmptyGroupsFilter;
+            var filter = config.DefaultFilters.EmptyGroups;
             var t = GetEmptyGroupsAsync(token, baseDn, filter);
             tasks.Add(("EmptyGroups", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyGroups = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -1390,7 +1390,7 @@ public class ActiveRolesService
         {
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultADUserAccountsFilter;
+            var filter = config.DefaultFilters.ADUserAccounts;
             var attributes = string.Join(",", config.DefaultADUserAccountAttributes.Concat(config.CustomADUserAccountAttributes).Distinct());
             var items = await SearchObjectsAsync(token, baseDn, filter, "sub", attributes);
             result.TotalCount = items.Count;
@@ -1407,7 +1407,7 @@ public class ActiveRolesService
         {
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultADGroupsFilter;
+            var filter = config.DefaultFilters.ADGroups;
             // Request the native 'member' attribute instead of Active Roles' virtual
             // 'edsaMember'/'edsaMemberIndirect'. edsaMemberIndirect is server-computed, is the
             // dominant cost of this query, and fails (HTTP 400) on large directories. We compute
@@ -1601,7 +1601,7 @@ public class ActiveRolesService
     /// each <see cref="EntraObjectInfo.Raw"/> so that <c>EntraEmptyGroups()</c>,
     /// <c>EntraNoGroupOwnerGroups()</c>, and <c>EntraGuestContainingGroups()</c> can be
     /// recomputed. The per-group fetches run in parallel, bounded by the configurable
-    /// <see cref="ActiveRolesConfig.EntraMembershipFetchConcurrency"/> (default 8), because
+    /// <see cref="EntraConfig.MembershipFetchConcurrency"/> (default 8), because
     /// fetching membership inline for every group is the dominant login-time cost. On
     /// success <see cref="EntraTotalsSummary.MembershipLoaded"/> is set to true.
     /// </summary>
@@ -1645,7 +1645,7 @@ public class ActiveRolesService
             return totalGroups;
         }
 
-        var concurrency = Math.Max(1, _configMonitor.CurrentValue.EntraMembershipFetchConcurrency);
+        var concurrency = Math.Max(1, _configMonitor.CurrentValue.Entra.MembershipFetchConcurrency);
         using var gate = new SemaphoreSlim(concurrency);
         var sw = System.Diagnostics.Stopwatch.StartNew();
 
@@ -2587,7 +2587,7 @@ public class ActiveRolesService
         {
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultActiveRolesAdminsFilter;
+            var filter = config.DefaultFilters.ActiveRolesAdmins;
             var admins = await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
 
             _logger.LogInformation("IsUserActiveRolesAdminAsync: Admin group members ({Count}): {Members}",

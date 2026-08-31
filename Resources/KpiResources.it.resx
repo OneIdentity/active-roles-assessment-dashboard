@@ -5,6 +5,8 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Cat_Overview" xml:space="preserve"><value>Panoramica</value></data>
+  <data name="SettingsCat_User" xml:space="preserve"><value>Utente</value></data>
+  <data name="SettingsCat_System" xml:space="preserve"><value>Sistema</value></data>
   <data name="Chart_ComputerOsBreakdown" xml:space="preserve"><value>Computer per sistema operativo</value></data>
   <data name="Chart_GroupTypeBreakdown" xml:space="preserve"><value>Gruppi per tipo</value></data>
   <data name="Chart_UserAccountStateBreakdown" xml:space="preserve"><value>Utenti per stato dell'account</value></data>
