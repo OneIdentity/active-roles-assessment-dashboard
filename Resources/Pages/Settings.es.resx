@@ -87,11 +87,77 @@
   <data name="Card_RestApi" xml:space="preserve">
     <value>Configuración de la API REST</value>
   </data>
+  <data name="Label_Resource" xml:space="preserve">
+    <value>Recurso</value>
+  </data>
+  <data name="Label_IgnoreSslErrors" xml:space="preserve">
+    <value>Ignorar errores de certificado SSL</value>
+  </data>
+  <data name="Card_DefaultFilters" xml:space="preserve">
+    <value>Filtros predeterminados</value>
+  </data>
+  <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
+    <value>Filtro de grupos sin propietario</value>
+  </data>
+  <data name="Label_DefaultNoManagerUserFilter" xml:space="preserve">
+    <value>Filtro de usuarios sin administrador</value>
+  </data>
+  <data name="Label_DefaultNoManagerServiceAccountFilter" xml:space="preserve">
+    <value>Filtro de cuentas de servicio sin administrador</value>
+  </data>
+  <data name="Label_DefaultUserAccountExpiredFilter" xml:space="preserve">
+    <value>Filtro de cuentas de usuario caducadas</value>
+  </data>
+  <data name="Label_DefaultUserAccountLockedOutFilter" xml:space="preserve">
+    <value>Filtro de cuentas de usuario bloqueadas</value>
+  </data>
+  <data name="Label_DefaultEmptyGroupsFilter" xml:space="preserve">
+    <value>Filtro de grupos vacíos</value>
+  </data>
+  <data name="Label_DefaultActiveRolesAdminsFilter" xml:space="preserve">
+    <value>Filtro de administradores de Active Roles</value>
+  </data>
+  <data name="Label_DefaultADUserAccountsFilter" xml:space="preserve">
+    <value>Filtro de cuentas de usuario de AD</value>
+  </data>
+  <data name="Label_DefaultADGroupsFilter" xml:space="preserve">
+    <value>Filtro de grupos de AD</value>
+  </data>
+  <data name="Card_DefaultLanguage" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Label_DefaultLanguage" xml:space="preserve">
+    <value>Idioma predeterminado</value>
+  </data>
+  <data name="Hint_DefaultLanguage" xml:space="preserve">
+    <value>El idioma predeterminado para los nuevos usuarios y cuando un usuario no ha seleccionado un idioma.</value>
+  </data>
+  <data name="Label_CustomADUserAccountAttributes" xml:space="preserve">
+    <value>Atributos personalizados de cuentas de usuario de AD</value>
+  </data>
+  <data name="Hint_CustomADUserAccountAttributes" xml:space="preserve">
+    <value>Atributos adicionales que se recuperan para las cuentas de usuario de AD, uno por línea.</value>
+  </data>
   <data name="Card_ServiceAccount" xml:space="preserve">
     <value>Credenciales de la cuenta de servicio</value>
   </data>
   <data name="Card_Licensing" xml:space="preserve">
     <value>Umbrales de licencia</value>
+  </data>
+  <data name="Card_DataRefresh" xml:space="preserve">
+    <value>Actualización de datos</value>
+  </data>
+  <data name="Label_DailyRefreshTime" xml:space="preserve">
+    <value>Hora de actualización diaria</value>
+  </data>
+  <data name="Hint_DailyRefreshTime" xml:space="preserve">
+    <value>Hora local (formato de 24 horas) a la que se actualizan los datos compartidos.</value>
+  </data>
+  <data name="Label_LoadOnStartup" xml:space="preserve">
+    <value>Cargar al iniciar</value>
+  </data>
+  <data name="Hint_LoadOnStartup" xml:space="preserve">
+    <value>Actualizar los datos compartidos automáticamente al iniciar la aplicación.</value>
   </data>
   <data name="Label_ApiBaseUrl" xml:space="preserve">
     <value>URL base de la API REST</value>

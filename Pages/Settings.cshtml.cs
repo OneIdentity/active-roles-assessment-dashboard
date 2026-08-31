@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using ActiveRolesDashboard.Models;
@@ -76,12 +77,50 @@ public class SettingsModel : PageModel
     public string ApiBaseUrl { get; set; } = string.Empty;
     [BindProperty]
     public string RstsUrl { get; set; } = string.Empty;
+    [BindProperty]
+    public string Resource { get; set; } = string.Empty;
+    [BindProperty]
+    public bool IgnoreSslErrors { get; set; }
+
+    // Default Filters
+    [BindProperty]
+    public string DefaultNoGroupOwnerFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultNoManagerUserFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultNoManagerServiceAccountFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultUserAccountExpiredFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultUserAccountLockedOutFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultEmptyGroupsFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultActiveRolesAdminsFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultADUserAccountsFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string DefaultADGroupsFilter { get; set; } = string.Empty;
+
+    // App-wide default language (distinct from the per-user Language setting)
+    [BindProperty]
+    public string DefaultLanguage { get; set; } = string.Empty;
+
+    // KPI Configuration - custom AD user account attributes (newline/comma separated in the UI)
+    [BindProperty]
+    public string CustomADUserAccountAttributes { get; set; } = string.Empty;
 
     // Service Account Credentials (restart required)
     [BindProperty]
     public string ServiceAccountUsername { get; set; } = string.Empty;
     [BindProperty]
     public string ServiceAccountPassword { get; set; } = string.Empty;
+
+    // Data Refresh (restart required)
+    [BindProperty]
+    public string DailyRefreshTime { get; set; } = string.Empty;
+    [BindProperty]
+    public bool LoadOnStartup { get; set; }
 
     // Licensing Thresholds
     [BindProperty]
@@ -134,10 +173,33 @@ public class SettingsModel : PageModel
         // REST API Configuration
         ApiBaseUrl = config.ApiBaseUrl;
         RstsUrl = config.RstsUrl;
+        Resource = config.Resource;
+        IgnoreSslErrors = config.IgnoreSslErrors;
+
+        // Default Filters
+        DefaultNoGroupOwnerFilter = config.DefaultNoGroupOwnerFilter;
+        DefaultNoManagerUserFilter = config.DefaultNoManagerUserFilter;
+        DefaultNoManagerServiceAccountFilter = config.DefaultNoManagerServiceAccountFilter;
+        DefaultUserAccountExpiredFilter = config.DefaultUserAccountExpiredFilter;
+        DefaultUserAccountLockedOutFilter = config.DefaultUserAccountLockedOutFilter;
+        DefaultEmptyGroupsFilter = config.DefaultEmptyGroupsFilter;
+        DefaultActiveRolesAdminsFilter = config.DefaultActiveRolesAdminsFilter;
+        DefaultADUserAccountsFilter = config.DefaultADUserAccountsFilter;
+        DefaultADGroupsFilter = config.DefaultADGroupsFilter;
+
+        // App-wide default language
+        DefaultLanguage = config.DefaultLanguage;
+
+        // KPI Configuration - custom AD user account attributes (one per line for editing)
+        CustomADUserAccountAttributes = string.Join("\n", config.CustomADUserAccountAttributes);
 
         // Service Account Credentials (password is never rendered back to the client)
         ServiceAccountUsername = config.ServiceAccount.Username;
         ServiceAccountPassword = string.Empty;
+
+        // Data Refresh schedule
+        DailyRefreshTime = config.DataRefresh.DailyRefreshTime;
+        LoadOnStartup = config.DataRefresh.LoadOnStartup;
 
         // Licensing Thresholds
         LicensedDomainObjects = config.LicensedDomainObjects;
@@ -162,11 +224,24 @@ public class SettingsModel : PageModel
         LicensedSaasObjects = Math.Max(0, LicensedSaasObjects);
         LicensedTotalObjects = Math.Max(0, LicensedTotalObjects);
 
+        // Normalize the daily refresh time (HH:mm, 24-hour); fall back to the current value if invalid.
+        if (!TimeSpan.TryParseExact((DailyRefreshTime ?? "").Trim(),
+                new[] { @"hh\:mm", @"h\:mm" }, CultureInfo.InvariantCulture, out var refreshTime))
+        {
+            DailyRefreshTime = _arConfig.CurrentValue.DataRefresh.DailyRefreshTime;
+        }
+        else
+        {
+            DailyRefreshTime = refreshTime.ToString(@"hh\:mm", CultureInfo.InvariantCulture);
+        }
+
         // Detect changes to connection settings that only take effect after a restart.
         var config = _arConfig.CurrentValue;
         RestartRequired =
             !string.Equals((ApiBaseUrl ?? "").Trim(), config.ApiBaseUrl ?? "", StringComparison.Ordinal) ||
             !string.Equals((RstsUrl ?? "").Trim(), config.RstsUrl ?? "", StringComparison.Ordinal) ||
+            !string.Equals((Resource ?? "").Trim(), config.Resource ?? "", StringComparison.Ordinal) ||
+            IgnoreSslErrors != config.IgnoreSslErrors ||
             !string.Equals((ServiceAccountUsername ?? "").Trim(), config.ServiceAccount.Username ?? "", StringComparison.Ordinal) ||
             !string.IsNullOrEmpty(ServiceAccountPassword);
 
@@ -225,6 +300,32 @@ public class SettingsModel : PageModel
                 // REST API Configuration (takes effect after a restart)
                 activeRoles["ApiBaseUrl"] = ApiBaseUrl?.Trim() ?? "";
                 activeRoles["RstsUrl"] = RstsUrl?.Trim() ?? "";
+                activeRoles["Resource"] = Resource?.Trim() ?? "";
+                activeRoles["IgnoreSslErrors"] = IgnoreSslErrors;
+
+                // Default Filters
+                activeRoles["DefaultNoGroupOwnerFilter"] = DefaultNoGroupOwnerFilter?.Trim() ?? "";
+                activeRoles["DefaultNoManagerUserFilter"] = DefaultNoManagerUserFilter?.Trim() ?? "";
+                activeRoles["DefaultNoManagerServiceAccountFilter"] = DefaultNoManagerServiceAccountFilter?.Trim() ?? "";
+                activeRoles["DefaultUserAccountExpiredFilter"] = DefaultUserAccountExpiredFilter?.Trim() ?? "";
+                activeRoles["DefaultUserAccountLockedOutFilter"] = DefaultUserAccountLockedOutFilter?.Trim() ?? "";
+                activeRoles["DefaultEmptyGroupsFilter"] = DefaultEmptyGroupsFilter?.Trim() ?? "";
+                activeRoles["DefaultActiveRolesAdminsFilter"] = DefaultActiveRolesAdminsFilter?.Trim() ?? "";
+                activeRoles["DefaultADUserAccountsFilter"] = DefaultADUserAccountsFilter?.Trim() ?? "";
+                activeRoles["DefaultADGroupsFilter"] = DefaultADGroupsFilter?.Trim() ?? "";
+
+                // App-wide default language
+                activeRoles["DefaultLanguage"] = DefaultLanguage?.Trim() ?? "";
+
+                // KPI Configuration - custom AD user account attributes (stored as a JSON array)
+                var attrArray = new JsonArray();
+                foreach (var attr in (CustomADUserAccountAttributes ?? "")
+                        .Split(new[] { '\r', '\n', ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    attrArray.Add(attr);
+                }
+                activeRoles["CustomADUserAccountAttributes"] = attrArray;
 
                 // Licensing Thresholds
                 activeRoles["LicensedDomainObjects"] = Math.Max(0, LicensedDomainObjects);
@@ -232,6 +333,16 @@ public class SettingsModel : PageModel
                 activeRoles["LicensedAzureObjects"] = Math.Max(0, LicensedAzureObjects);
                 activeRoles["LicensedSaasObjects"] = Math.Max(0, LicensedSaasObjects);
                 activeRoles["LicensedTotalObjects"] = Math.Max(0, LicensedTotalObjects);
+
+                // Data Refresh schedule (stored in its own DataRefresh section).
+                var dataRefresh = activeRoles["DataRefresh"]?.AsObject();
+                if (dataRefresh is null)
+                {
+                    dataRefresh = new JsonObject();
+                    activeRoles["DataRefresh"] = dataRefresh;
+                }
+                dataRefresh["DailyRefreshTime"] = DailyRefreshTime?.Trim() ?? "";
+                dataRefresh["LoadOnStartup"] = LoadOnStartup;
 
                 // Service Account Credentials. The username is stored as-is; the password is
                 // encrypted via Data Protection and only overwritten when a new value is supplied

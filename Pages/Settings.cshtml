@@ -708,8 +708,21 @@
                     <input type="text" id="RstsUrl" name="RstsUrl" value="@Model.RstsUrl" placeholder="https://sts/oauth2/token" />
                     <p class="hint">@Localizer["Hint_RestartRequired"]</p>
                 </div>
+                <div class="form-group">
+                    <label for="Resource">@Localizer["Label_Resource"]</label>
+                    <input type="text" id="Resource" name="Resource" value="@Model.Resource" placeholder="rsts" />
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
+                <div class="form-group form-group-checkbox">
+                    <label>
+                        <input type="checkbox" id="IgnoreSslErrors" name="IgnoreSslErrors" value="true" @(Model.IgnoreSslErrors ? "checked" : "") />
+                        @Localizer["Label_IgnoreSslErrors"]
+                    </label>
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
             </div>
         </div>
+
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
@@ -813,8 +826,85 @@
                 <input type="number" id="EntraLargeGroupMemberThreshold" name="EntraLargeGroupMemberThreshold" value="@Model.EntraLargeGroupMemberThreshold" min="1" max="100000" />
                 <p class="hint">@Localizer["Hint_LargeGroupThreshold"]</p>
             </div>
+            <div class="form-group">
+                <label for="CustomADUserAccountAttributes">@Localizer["Label_CustomADUserAccountAttributes"]</label>
+                <textarea id="CustomADUserAccountAttributes" name="CustomADUserAccountAttributes" rows="4">@Model.CustomADUserAccountAttributes</textarea>
+                <p class="hint">@Localizer["Hint_CustomADUserAccountAttributes"]</p>
+            </div>
             </div>
         </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_DefaultFilters"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="DefaultNoGroupOwnerFilter">@Localizer["Label_DefaultNoGroupOwnerFilter"]</label>
+                    <input type="text" id="DefaultNoGroupOwnerFilter" name="DefaultNoGroupOwnerFilter" value="@Model.DefaultNoGroupOwnerFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultNoManagerUserFilter">@Localizer["Label_DefaultNoManagerUserFilter"]</label>
+                    <input type="text" id="DefaultNoManagerUserFilter" name="DefaultNoManagerUserFilter" value="@Model.DefaultNoManagerUserFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultNoManagerServiceAccountFilter">@Localizer["Label_DefaultNoManagerServiceAccountFilter"]</label>
+                    <input type="text" id="DefaultNoManagerServiceAccountFilter" name="DefaultNoManagerServiceAccountFilter" value="@Model.DefaultNoManagerServiceAccountFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultUserAccountExpiredFilter">@Localizer["Label_DefaultUserAccountExpiredFilter"]</label>
+                    <input type="text" id="DefaultUserAccountExpiredFilter" name="DefaultUserAccountExpiredFilter" value="@Model.DefaultUserAccountExpiredFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultUserAccountLockedOutFilter">@Localizer["Label_DefaultUserAccountLockedOutFilter"]</label>
+                    <input type="text" id="DefaultUserAccountLockedOutFilter" name="DefaultUserAccountLockedOutFilter" value="@Model.DefaultUserAccountLockedOutFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultEmptyGroupsFilter">@Localizer["Label_DefaultEmptyGroupsFilter"]</label>
+                    <input type="text" id="DefaultEmptyGroupsFilter" name="DefaultEmptyGroupsFilter" value="@Model.DefaultEmptyGroupsFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultActiveRolesAdminsFilter">@Localizer["Label_DefaultActiveRolesAdminsFilter"]</label>
+                    <input type="text" id="DefaultActiveRolesAdminsFilter" name="DefaultActiveRolesAdminsFilter" value="@Model.DefaultActiveRolesAdminsFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultADUserAccountsFilter">@Localizer["Label_DefaultADUserAccountsFilter"]</label>
+                    <input type="text" id="DefaultADUserAccountsFilter" name="DefaultADUserAccountsFilter" value="@Model.DefaultADUserAccountsFilter" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultADGroupsFilter">@Localizer["Label_DefaultADGroupsFilter"]</label>
+                    <input type="text" id="DefaultADGroupsFilter" name="DefaultADGroupsFilter" value="@Model.DefaultADGroupsFilter" />
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_DefaultLanguage"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="DefaultLanguage">@Localizer["Label_DefaultLanguage"]</label>
+                    <select id="DefaultLanguage" name="DefaultLanguage">
+                        @foreach (var lang in Model.Languages)
+                        {
+                            if (lang.Code == Model.DefaultLanguage)
+                            {
+                                <option value="@lang.Code" selected>@lang.DisplayName</option>
+                            }
+                            else
+                            {
+                                <option value="@lang.Code">@lang.DisplayName</option>
+                            }
+                        }
+                    </select>
+                    <p class="hint">@Localizer["Hint_DefaultLanguage"]</p>
+                </div>
+            </div>
+        </div>
+
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
@@ -842,6 +932,31 @@
                     <label for="LicensedTotalObjects">@Localizer["Label_LicensedTotalObjects"]</label>
                     <input type="number" id="LicensedTotalObjects" name="LicensedTotalObjects" value="@Model.LicensedTotalObjects" min="0" max="100000000" />
                     <p class="hint">@Localizer["Hint_LicensedTotalObjects"]</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_DataRefresh"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="DailyRefreshTime">@Localizer["Label_DailyRefreshTime"]</label>
+                    <input type="time" id="DailyRefreshTime" name="DailyRefreshTime" value="@Model.DailyRefreshTime" />
+                    <p class="hint">@Localizer["Hint_DailyRefreshTime"]</p>
+                </div>
+                <div class="form-group">
+                    <div class="toggle-row">
+                        <span class="toggle-label">@Localizer["Label_LoadOnStartup"]</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="LoadOnStartup" value="true" @(Model.LoadOnStartup ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="LoadOnStartup" value="false" />
+                    </div>
+                    <p class="hint">@Localizer["Hint_LoadOnStartup"]</p>
                 </div>
             </div>
         </div>

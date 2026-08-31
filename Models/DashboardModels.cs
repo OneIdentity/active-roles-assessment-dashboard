@@ -884,10 +884,14 @@ public class ActiveRolesConfig
     // (Access Templates / AT Links), so a dedicated service account performs collection and
     // the per-user permission filtering is derived from its view.
     public ServiceAccountConfig ServiceAccount { get; set; } = new();
+
+    // Background superset/data refresh scheduling. Kept separate from ServiceAccount
+    // because it concerns the refresh schedule, not the collection credentials.
+    public DataRefreshConfig DataRefresh { get; set; } = new();
 }
 
 /// <summary>
-/// Configuration for the background collection service account and the shared-superset refresh schedule.
+/// Configuration for the background collection service account.
 /// </summary>
 public class ServiceAccountConfig
 {
@@ -900,7 +904,13 @@ public class ServiceAccountConfig
     /// Use the one-time protect utility to produce this value.
     /// </summary>
     public string ProtectedPassword { get; set; } = string.Empty;
+}
 
+/// <summary>
+/// Configuration for the shared-superset background refresh schedule.
+/// </summary>
+public class DataRefreshConfig
+{
     /// <summary>
     /// Local time of day (HH:mm, 24-hour) at which the shared superset is refreshed daily.
     /// The main dashboard also exposes a manual refresh for Active Roles admins.

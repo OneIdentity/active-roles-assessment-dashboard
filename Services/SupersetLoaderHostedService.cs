@@ -49,9 +49,9 @@ public class SupersetLoaderHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var sa = _config.CurrentValue.ServiceAccount;
+        var dataRefresh = _config.CurrentValue.DataRefresh;
 
-        if (sa.LoadOnStartup && IsConfigured())
+        if (dataRefresh.LoadOnStartup && IsConfigured())
         {
             await RefreshAsync(stoppingToken).ConfigureAwait(false);
         }
@@ -66,7 +66,7 @@ public class SupersetLoaderHostedService : BackgroundService
         {
             var delay = TimeUntilNextDailyRefresh();
             _logger.LogInformation("Next scheduled superset refresh in {Delay} (at {Time} local).",
-                delay, _config.CurrentValue.ServiceAccount.DailyRefreshTime);
+                delay, _config.CurrentValue.DataRefresh.DailyRefreshTime);
 
             // Wait until either the daily time elapses or a manual refresh is triggered.
             var manualTask = _manualRefresh.WaitAsync(stoppingToken);
@@ -194,7 +194,7 @@ public class SupersetLoaderHostedService : BackgroundService
     /// </summary>
     private TimeSpan TimeUntilNextDailyRefresh()
     {
-        var configured = _config.CurrentValue.ServiceAccount.DailyRefreshTime;
+        var configured = _config.CurrentValue.DataRefresh.DailyRefreshTime;
         if (!TimeSpan.TryParseExact(configured, new[] { @"hh\:mm", @"h\:mm" }, CultureInfo.InvariantCulture, out var timeOfDay))
         {
             _logger.LogWarning("Invalid DailyRefreshTime '{Value}'; defaulting to 24h interval.", configured);

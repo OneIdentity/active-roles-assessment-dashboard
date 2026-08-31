@@ -90,11 +90,77 @@
   <data name="Card_RestApi" xml:space="preserve">
 	<value>REST API Configuration</value>
   </data>
+  <data name="Label_Resource" xml:space="preserve">
+	<value>Resource</value>
+  </data>
+  <data name="Label_IgnoreSslErrors" xml:space="preserve">
+	<value>Ignore SSL certificate errors</value>
+  </data>
+  <data name="Card_DefaultFilters" xml:space="preserve">
+	<value>Default Filters</value>
+  </data>
+  <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
+	<value>Groups without an owner filter</value>
+  </data>
+  <data name="Label_DefaultNoManagerUserFilter" xml:space="preserve">
+	<value>Users without a manager filter</value>
+  </data>
+  <data name="Label_DefaultNoManagerServiceAccountFilter" xml:space="preserve">
+	<value>Service accounts without a manager filter</value>
+  </data>
+  <data name="Label_DefaultUserAccountExpiredFilter" xml:space="preserve">
+	<value>Expired user accounts filter</value>
+  </data>
+  <data name="Label_DefaultUserAccountLockedOutFilter" xml:space="preserve">
+	<value>Locked out user accounts filter</value>
+  </data>
+  <data name="Label_DefaultEmptyGroupsFilter" xml:space="preserve">
+	<value>Empty groups filter</value>
+  </data>
+  <data name="Label_DefaultActiveRolesAdminsFilter" xml:space="preserve">
+	<value>Active Roles administrators filter</value>
+  </data>
+  <data name="Label_DefaultADUserAccountsFilter" xml:space="preserve">
+	<value>AD user accounts filter</value>
+  </data>
+  <data name="Label_DefaultADGroupsFilter" xml:space="preserve">
+	<value>AD groups filter</value>
+  </data>
+  <data name="Card_DefaultLanguage" xml:space="preserve">
+	<value>Language</value>
+  </data>
+  <data name="Label_DefaultLanguage" xml:space="preserve">
+	<value>Default language</value>
+  </data>
+  <data name="Hint_DefaultLanguage" xml:space="preserve">
+	<value>The default language used for new users and when a user has not selected a language.</value>
+  </data>
+  <data name="Label_CustomADUserAccountAttributes" xml:space="preserve">
+	<value>Custom AD user account attributes</value>
+  </data>
+  <data name="Hint_CustomADUserAccountAttributes" xml:space="preserve">
+	<value>Additional attributes to retrieve for AD user accounts, one per line.</value>
+  </data>
   <data name="Card_ServiceAccount" xml:space="preserve">
 	<value>Service Account Credentials</value>
   </data>
   <data name="Card_Licensing" xml:space="preserve">
 	<value>Licensing Thresholds</value>
+  </data>
+  <data name="Card_DataRefresh" xml:space="preserve">
+	<value>Data Refresh</value>
+  </data>
+  <data name="Label_DailyRefreshTime" xml:space="preserve">
+	<value>Daily refresh time</value>
+  </data>
+  <data name="Hint_DailyRefreshTime" xml:space="preserve">
+	<value>Local time of day (24-hour) at which the shared data is refreshed.</value>
+  </data>
+  <data name="Label_LoadOnStartup" xml:space="preserve">
+	<value>Load on startup</value>
+  </data>
+  <data name="Hint_LoadOnStartup" xml:space="preserve">
+	<value>Refresh the shared data automatically when the application starts.</value>
   </data>
   <data name="Label_ApiBaseUrl" xml:space="preserve">
 	<value>REST API Base URL</value>
