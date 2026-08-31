@@ -56,16 +56,16 @@ public class AttackExposureModel : DashboardPageModel
         // show the "loading" banner incorrectly and cause back-navigation to the dashboard to
         // restart membership loading. Only fetch fresh when no cache exists.
         var token = GetAccessToken()!;
-        var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-        var cachedJson = HttpContext.Session.GetString("DashboardSummary");
+        var cachedJson = GetCachedSummaryJson();
         if (!string.IsNullOrEmpty(cachedJson))
         {
             Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
         }
         else
         {
-            Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, userSettings);
-            CacheSummary();
+            // Build the full per-user summary from the shared superset projection (fast) and
+            // cache it, instead of re-running the slow direct Active Roles query.
+            await LoadFullSummaryAsync(token);
         }
 
         Exposure = _mitre.Build(Summary);

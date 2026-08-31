@@ -60,6 +60,8 @@
   </resheader>
   <!-- Categories -->
   <data name="Cat_Overview" xml:space="preserve"><value>Overview</value></data>
+  <data name="SettingsCat_User" xml:space="preserve"><value>User</value></data>
+  <data name="SettingsCat_System" xml:space="preserve"><value>System</value></data>
   <data name="Chart_ComputerOsBreakdown" xml:space="preserve"><value>Computers by Operating System</value></data>
   <data name="Chart_GroupTypeBreakdown" xml:space="preserve"><value>Groups by Type</value></data>
   <data name="Chart_UserAccountStateBreakdown" xml:space="preserve"><value>Users by Account State</value></data>

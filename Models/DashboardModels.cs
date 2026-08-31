@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Buffers;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
@@ -291,6 +292,75 @@ public class CategoryInfo
 
         return OrderedFor(dashboardKey).ToList();
     }
+}
+
+/// <summary>
+/// Describes a top-level, collapsible grouping of cards on the Settings page,
+/// modelled after <see cref="CategoryInfo"/>. Categories carry a sort order using the
+/// shared <see cref="CategorySortOrder"/> semantics (default A-Z), an admin gate, and a
+/// default expand/collapse state that is reset on each page load (no persistence).
+/// </summary>
+public class SettingsCategoryInfo
+{
+    private readonly string _displayName = string.Empty;
+
+    public string Key { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Localized category name resolved at read-time (key <c>SettingsCat_{Key}</c>) via
+    /// <see cref="KpiLocalizer"/>, falling back to the literal set at initialization.
+    /// </summary>
+    public string DisplayName
+    {
+        get => KpiLocalizer.Localize($"SettingsCat_{Key}", _displayName);
+        init => _displayName = value;
+    }
+
+    /// <summary>Manual ordering used when <see cref="SortMode"/> is <see cref="CategorySortOrder.Custom"/>.</summary>
+    public int SortOrder { get; init; }
+
+    /// <summary>How this set of categories is ordered on the page. Defaults to A-Z.</summary>
+    public CategorySortOrder SortMode { get; init; } = CategorySortOrder.AtoZ;
+
+    /// <summary>When true, the category is only rendered for Active Roles administrators.</summary>
+    public bool RequiresAdmin { get; init; }
+
+    /// <summary>Default expand state applied on each page load (state is not persisted).</summary>
+    public bool DefaultExpanded { get; init; }
+
+    public static readonly SettingsCategoryInfo User = new()
+    {
+        Key = "User",
+        DisplayName = "User",
+        SortOrder = 0,
+        DefaultExpanded = true
+    };
+
+    public static readonly SettingsCategoryInfo System = new()
+    {
+        Key = "System",
+        DisplayName = "System",
+        SortOrder = 1,
+        RequiresAdmin = true,
+        DefaultExpanded = false
+    };
+
+    public static readonly IReadOnlyList<SettingsCategoryInfo> All = [User, System];
+
+    /// <summary>
+    /// Returns the categories in display order. Mirrors <see cref="CategoryInfo.ForDashboard"/>
+    /// sort semantics: A-Z / Z-A by localized name, otherwise the manual <see cref="SortOrder"/>.
+    /// </summary>
+    public static IReadOnlyList<SettingsCategoryInfo> Ordered() => All.First().SortMode switch
+    {
+        CategorySortOrder.AtoZ => All.OrderBy(c => c.DisplayName, StringComparer.OrdinalIgnoreCase).ToList(),
+        CategorySortOrder.ZtoA => All.OrderByDescending(c => c.DisplayName, StringComparer.OrdinalIgnoreCase).ToList(),
+        _ => All.OrderBy(c => c.SortOrder).ToList()
+    };
+
+    /// <summary>Returns the ordered categories visible to the current user, honouring <see cref="RequiresAdmin"/>.</summary>
+    public static IReadOnlyList<SettingsCategoryInfo> Visible(bool isAdmin) =>
+        Ordered().Where(c => !c.RequiresAdmin || isAdmin).ToList();
 }
 
 public enum ChartType
@@ -697,8 +767,8 @@ public class KpiSearchDefinition
         if (Filter.StartsWith("{ConfigFilter:") && Filter.EndsWith("}"))
         {
             var propName = Filter["{ConfigFilter:".Length..^1];
-            var prop = typeof(ActiveRolesConfig).GetProperty(propName);
-            return prop?.GetValue(config)?.ToString() ?? Filter;
+            var prop = typeof(DefaultFiltersConfig).GetProperty(propName);
+            return prop?.GetValue(config.DefaultFilters)?.ToString() ?? Filter;
         }
         return Filter;
     }
@@ -722,6 +792,12 @@ public class ActiveRolesConfig
     public string Resource { get; set; } = string.Empty;
     public bool IgnoreSslErrors { get; set; }
 
+    // Per-request timeout (seconds) for the Active Roles REST API HttpClient. Large
+    // directories can take well over the HttpClient default of 100s to return the first
+    // page of an expensive sub-scope search (e.g. all groups with membership attributes),
+    // which surfaces as a TaskCanceledException. Raise this for large environments.
+    public int ApiTimeoutSeconds { get; set; } = 300;
+
     // Default UI language / culture code applied before a user selects their own in Settings.
     public string DefaultLanguage { get; set; } = SupportedLanguage.DefaultCode;
 
@@ -742,19 +818,8 @@ public class ActiveRolesConfig
     // Directory where saved assessment results are stored (relative paths are resolved under the content root).
     public string AssessmentDirectory { get; set; } = "App_Data/Assessments";
 
-    // Default filters for governance KPIs
-    public string DefaultNoGroupOwnerFilter { get; set; } = "(&(objectClass=group)(!(managedBy=*))(!(edsvaSecondaryOwners=*)))";
-    public string DefaultNoManagerUserFilter { get; set; } = "(&(objectClass=user)(objectCategory=person)(!(manager=*)))";
-    public string DefaultNoManagerServiceAccountFilter { get; set; } = "(&(objectClass=user)(objectCategory=person)(servicePrincipalName=*)(!(manager=*)))";
-    public string DefaultServiceAccountsFilter { get; set; } = "(&(objectClass=user)(objectCategory=person)(servicePrincipalName=*))";
-    public string DefaultGmsaServiceAccountsFilter { get; set; } = "(objectClass=msDS-GroupManagedServiceAccount)";
-    public string DefaultSmsaServiceAccountsFilter { get; set; } = "(objectClass=msDS-ManagedServiceAccount)";
-    public string DefaultUserAccountExpiredFilter { get; set; } = "(&(objectClass=user)(objectCategory=person)(edsvaAccountIsExpired=TRUE))";
-    public string DefaultUserAccountLockedOutFilter { get; set; } = "(&(objectClass=user)(objectCategory=person)(lockoutTime>=1))";
-    public string DefaultEmptyGroupsFilter { get; set; } = "(&(objectClass=group)(!(member=*)))";
-    public string DefaultActiveRolesAdminsFilter { get; set; } = "(&(objectClass=group)(name=APP-ACTIVEROLES-ADMINS))";
-    public string DefaultADUserAccountsFilter { get; set; } = "(&(objectClass=user)(objectCategory=person))";
-    public string DefaultADGroupsFilter { get; set; } = "(objectClass=group)";
+    // Default filters for governance KPIs (grouped under the DefaultFilters section).
+    public DefaultFiltersConfig DefaultFilters { get; set; } = new();
     public List<string> DefaultADUserAccountAttributes { get; set; } = new();
     public List<string> CustomADUserAccountAttributes { get; set; } = new();
 
@@ -762,34 +827,15 @@ public class ActiveRolesConfig
     // considered stale (used by the StaleUsers KPI and the HYG-StaleAccounts rule).
     public int StaleAccountThresholdDays { get; set; } = 90;
 
-    // Maximum number of concurrent per-group membership fetches when lazily loading
-    // Entra group membership (the 'member' attribute) for the Entra Groups hygiene KPIs.
-    public int EntraMembershipFetchConcurrency { get; set; } = 8;
+    // Entra group-membership loading and large-group tuning (grouped under the Entra section).
+    public EntraConfig Entra { get; set; } = new();
 
-    // Number of groups the client requests per batch when lazily loading Entra group
-    // membership. Smaller batches make the header progress badge decrement more smoothly
-    // at the cost of more round-trips; larger batches reduce round-trips.
-    public int EntraMembershipBatchSize { get; set; } = 40;
-
-    // Delay in milliseconds before the "loading group membership" start toast is shown.
-    // The toast is only displayed if membership loading is still in progress after this
-    // delay, so fast loads do not flash a transient message.
-    public int EntraMembershipToastDelayMs { get; set; } = 500;
-
-    // Member-count threshold at or above which an Entra group is considered "large"
-    // (oversized) for the Large Groups hygiene KPI. Derived from the lazily-loaded
-    // 'member' attribute, so it does not add per-group lookup latency.
-    public int EntraLargeGroupMemberThreshold { get; set; } = 100;
-
-    // Licensed entitlement thresholds for the Managed Objects (Licensing) KPI. Each value is the
-    // number of licensed managed objects for a category; the Licensing dashboard compares the latest
-    // observed totals against these. A value of 0 means "not configured" (no threshold line / no
-    // breach styling). LicensedTotalObjects is the grand-total entitlement across all categories.
-    public int LicensedDomainObjects { get; set; }
-    public int LicensedPartitionObjects { get; set; }
-    public int LicensedAzureObjects { get; set; }
-    public int LicensedSaasObjects { get; set; }
-    public int LicensedTotalObjects { get; set; }
+    // Licensed entitlement thresholds for the Managed Objects (Licensing) KPI (grouped under
+    // the Licensing section). Each value is the number of licensed managed objects for a
+    // category; the Licensing dashboard compares the latest observed totals against these.
+    // A value of 0 means "not configured" (no threshold line / no breach styling).
+    // TotalObjects is the grand-total entitlement across all categories.
+    public LicensingConfig Licensing { get; set; } = new();
 
     // Custom overrides (blank = use default)
     public string CustomNoGroupOwnerBaseDn { get; set; } = string.Empty;
@@ -808,10 +854,14 @@ public class ActiveRolesConfig
     // (Access Templates / AT Links), so a dedicated service account performs collection and
     // the per-user permission filtering is derived from its view.
     public ServiceAccountConfig ServiceAccount { get; set; } = new();
+
+    // Background superset/data refresh scheduling. Kept separate from ServiceAccount
+    // because it concerns the refresh schedule, not the collection credentials.
+    public DataRefreshConfig DataRefresh { get; set; } = new();
 }
 
 /// <summary>
-/// Configuration for the background collection service account and the shared-superset refresh schedule.
+/// Configuration for the background collection service account.
 /// </summary>
 public class ServiceAccountConfig
 {
@@ -824,7 +874,13 @@ public class ServiceAccountConfig
     /// Use the one-time protect utility to produce this value.
     /// </summary>
     public string ProtectedPassword { get; set; } = string.Empty;
+}
 
+/// <summary>
+/// Configuration for the shared-superset background refresh schedule.
+/// </summary>
+public class DataRefreshConfig
+{
     /// <summary>
     /// Local time of day (HH:mm, 24-hour) at which the shared superset is refreshed daily.
     /// The main dashboard also exposes a manual refresh for Active Roles admins.
@@ -835,6 +891,73 @@ public class ServiceAccountConfig
     /// Whether the superset should be (re)loaded automatically at application startup.
     /// </summary>
     public bool LoadOnStartup { get; set; } = true;
+}
+
+/// <summary>
+/// Default LDAP filters for governance KPIs. Grouped under the "DefaultFilters"
+/// configuration section. Custom overrides live on <see cref="ActiveRolesConfig"/>.
+/// </summary>
+public class DefaultFiltersConfig
+{
+    public string NoGroupOwner { get; set; } = "(&(objectClass=group)(!(managedBy=*))(!(edsvaSecondaryOwners=*)))";
+    public string NoManagerUser { get; set; } = "(&(objectClass=user)(objectCategory=person)(!(manager=*)))";
+    public string NoManagerServiceAccount { get; set; } = "(&(objectClass=user)(objectCategory=person)(servicePrincipalName=*)(!(manager=*)))";
+    public string ServiceAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person)(servicePrincipalName=*))";
+    public string GmsaServiceAccounts { get; set; } = "(objectClass=msDS-GroupManagedServiceAccount)";
+    public string SmsaServiceAccounts { get; set; } = "(objectClass=msDS-ManagedServiceAccount)";
+    public string UserAccountExpired { get; set; } = "(&(objectClass=user)(objectCategory=person)(edsvaAccountIsExpired=TRUE))";
+    public string UserAccountLockedOut { get; set; } = "(&(objectClass=user)(objectCategory=person)(lockoutTime>=1))";
+    public string EmptyGroups { get; set; } = "(&(objectClass=group)(!(member=*)))";
+    public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=APP-ACTIVEROLES-ADMINS))";
+    public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
+    public string ADGroups { get; set; } = "(objectClass=group)";
+}
+
+/// <summary>
+/// Entra group-membership loading and large-group tuning. Grouped under the "Entra"
+/// configuration section.
+/// </summary>
+public class EntraConfig
+{
+    /// <summary>
+    /// Maximum number of concurrent per-group membership fetches when lazily loading
+    /// Entra group membership (the 'member' attribute) for the Entra Groups hygiene KPIs.
+    /// </summary>
+    public int MembershipFetchConcurrency { get; set; } = 8;
+
+    /// <summary>
+    /// Number of groups the client requests per batch when lazily loading Entra group
+    /// membership. Smaller batches make the header progress badge decrement more smoothly
+    /// at the cost of more round-trips; larger batches reduce round-trips.
+    /// </summary>
+    public int MembershipBatchSize { get; set; } = 40;
+
+    /// <summary>
+    /// Delay in milliseconds before the "loading group membership" start toast is shown.
+    /// The toast is only displayed if membership loading is still in progress after this
+    /// delay, so fast loads do not flash a transient message.
+    /// </summary>
+    public int MembershipToastDelayMs { get; set; } = 500;
+
+    /// <summary>
+    /// Member-count threshold at or above which an Entra group is considered "large"
+    /// (oversized) for the Large Groups hygiene KPI. Derived from the lazily-loaded
+    /// 'member' attribute, so it does not add per-group lookup latency.
+    /// </summary>
+    public int LargeGroupMemberThreshold { get; set; } = 100;
+}
+
+/// <summary>
+/// Licensed entitlement thresholds for the Managed Objects (Licensing) KPI. Grouped
+/// under the "Licensing" configuration section. A value of 0 means "not configured".
+/// </summary>
+public class LicensingConfig
+{
+    public int DomainObjects { get; set; }
+    public int PartitionObjects { get; set; }
+    public int AzureObjects { get; set; }
+    public int SaasObjects { get; set; }
+    public int TotalObjects { get; set; }
 }
 
 public class KpiInfo
@@ -888,8 +1011,8 @@ public class KpiInfo
     public string Label => string.IsNullOrEmpty(TileLabel) ? DisplayName : TileLabel;
 
     // Overview KPIs (use config-driven filters/attributes; SharedSearchKey enables reuse)
-    public static readonly KpiInfo ADUserAccounts = new() { Key = "ADUserAccounts", DisplayName = "Total Users", CategoryKey = "Overview", CssColor = "blue", SortOrder = 0, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultADUserAccountsFilter}", Attributes = "{ConfigAttributes:ADUserAccounts}", SharedSearchKey = "ADUserAccounts" }] };
-    public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultADGroupsFilter}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,edsaMember,edsaMemberIndirect,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
+    public static readonly KpiInfo ADUserAccounts = new() { Key = "ADUserAccounts", DisplayName = "Total Users", CategoryKey = "Overview", CssColor = "blue", SortOrder = 0, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADUserAccounts}", Attributes = "{ConfigAttributes:ADUserAccounts}", SharedSearchKey = "ADUserAccounts" }] };
+    public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADGroups}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
     public static readonly KpiInfo Computers = new() { Key = "Computers", DisplayName = "Total Computers", CategoryKey = "Overview", CssColor = "teal", SortOrder = 2, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=computer)", Attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,pwdLastSet,lastLogonTimestamp" }] };
 
     // Single-source Overview KPIs (AD-only) shown on the Active Directory dashboard's Overview.
@@ -923,7 +1046,7 @@ public class KpiInfo
     public static readonly KpiInfo EntraLargeGroups = new() { Key = "EntraLargeGroups", DisplayName = "Large Groups", CategoryKey = "EntraGroups", CssColor = "slate", SectionId = "entralargegroups", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true };
 
     // AR Configuration KPIs
-    public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultActiveRolesAdminsFilter}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
+    public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
     public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARConfiguration", CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion" }] };
     public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
     public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
@@ -939,23 +1062,23 @@ public class KpiInfo
     public static readonly KpiInfo HistoryDatabases = new() { Key = "HistoryDatabases", DisplayName = "History Databases", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "historydatabases", SortOrder = 113, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Management History Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsMHReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationRole" }] };
 
     // AD Governance KPIs
-    public static readonly KpiInfo NoGroupOwner = new() { Key = "NoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "ADGroupsCategory", CssColor = "amber", SectionId = "nogroupowner", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultNoGroupOwnerFilter}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo NoManagerUser = new() { Key = "NoManagerUser", DisplayName = "No Manager (User)", CategoryKey = "ADUserAccountsCategory", CssColor = "purple", SectionId = "nomanageruser", SortOrder = 13, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultNoManagerUserFilter}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo NoManagerServiceAccount = new() { Key = "NoManagerServiceAccount", DisplayName = "No Manager (Service Account)", CategoryKey = "NHIs", CssColor = "teal", SectionId = "nomanagersa", SortOrder = 14, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultNoManagerServiceAccountFilter}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo UserAccountLockedOut = new() { Key = "UserAccountLockedOut", DisplayName = "User Account Locked Out", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "accountlockedout", SortOrder = 15, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultUserAccountLockedOutFilter}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo EmptyGroups = new() { Key = "EmptyGroups", DisplayName = "Empty Groups", CategoryKey = "ADGroupsCategory", CssColor = "slate", SectionId = "emptygroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultEmptyGroupsFilter}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo NoGroupOwner = new() { Key = "NoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "ADGroupsCategory", CssColor = "amber", SectionId = "nogroupowner", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoGroupOwner}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo NoManagerUser = new() { Key = "NoManagerUser", DisplayName = "No Manager (User)", CategoryKey = "ADUserAccountsCategory", CssColor = "purple", SectionId = "nomanageruser", SortOrder = 13, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoManagerUser}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo NoManagerServiceAccount = new() { Key = "NoManagerServiceAccount", DisplayName = "No Manager (Service Account)", CategoryKey = "NHIs", CssColor = "teal", SectionId = "nomanagersa", SortOrder = 14, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoManagerServiceAccount}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo UserAccountLockedOut = new() { Key = "UserAccountLockedOut", DisplayName = "User Account Locked Out", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "accountlockedout", SortOrder = 15, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:UserAccountLockedOut}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo EmptyGroups = new() { Key = "EmptyGroups", DisplayName = "Empty Groups", CategoryKey = "ADGroupsCategory", CssColor = "slate", SectionId = "emptygroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:EmptyGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
     public static readonly KpiInfo NeverLoggedIn = new() { Key = "NeverLoggedIn", DisplayName = "Never Logged In", CategoryKey = "ADUserAccountsCategory", CssColor = "orange", SectionId = "neverloggedin", SortOrder = 16, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo ExpiredUsers = new() { Key = "ExpiredUsers", DisplayName = "Expired Users", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "expiredusers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultUserAccountExpiredFilter}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo ExpiredUsers = new() { Key = "ExpiredUsers", DisplayName = "Expired Users", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "expiredusers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:UserAccountExpired}", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo ReversibleEncryption = new() { Key = "ReversibleEncryption", DisplayName = "Reversible Encryption", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "reversibleencryption", SortOrder = 18, HasDrilldown = true, IsRiskKpi = true };
 
     // Privileged Groups KPIs
-    public static readonly KpiInfo AccountOperators = new() { Key = "AccountOperators", DisplayName = "Account Operators", CategoryKey = "PrivilegedGroups", CssColor = "orange", SectionId = "accountoperators", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Account Operators))", GroupName = "Account Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo Administrators = new() { Key = "Administrators", DisplayName = "Administrators", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "administrators", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Administrators))", GroupName = "Administrators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo BackupOperators = new() { Key = "BackupOperators", DisplayName = "Backup Operators", CategoryKey = "PrivilegedGroups", CssColor = "amber", SectionId = "backupoperators", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Backup Operators))", GroupName = "Backup Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo DomainAdmins = new() { Key = "DomainAdmins", DisplayName = "Domain Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "domainadmins", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Domain Admins))", GroupName = "Domain Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo ServerOperators = new() { Key = "ServerOperators", DisplayName = "Server Operators", CategoryKey = "PrivilegedGroups", CssColor = "purple", SectionId = "serveroperators", SortOrder = 4, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Server Operators))", GroupName = "Server Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo EnterpriseAdmins = new() { Key = "EnterpriseAdmins", DisplayName = "Enterprise Admins", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "enterpriseadmins", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Enterprise Admins))", GroupName = "Enterprise Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
-    public static readonly KpiInfo SchemaAdmins = new() { Key = "SchemaAdmins", DisplayName = "Schema Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "schemaadmins", SortOrder = 6, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Schema Admins))", GroupName = "Schema Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,edsaMember,edsaMemberIndirect" }] };
+    public static readonly KpiInfo AccountOperators = new() { Key = "AccountOperators", DisplayName = "Account Operators", CategoryKey = "PrivilegedGroups", CssColor = "orange", SectionId = "accountoperators", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Account Operators))", GroupName = "Account Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo Administrators = new() { Key = "Administrators", DisplayName = "Administrators", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "administrators", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Administrators))", GroupName = "Administrators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo BackupOperators = new() { Key = "BackupOperators", DisplayName = "Backup Operators", CategoryKey = "PrivilegedGroups", CssColor = "amber", SectionId = "backupoperators", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Backup Operators))", GroupName = "Backup Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo DomainAdmins = new() { Key = "DomainAdmins", DisplayName = "Domain Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "domainadmins", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Domain Admins))", GroupName = "Domain Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ServerOperators = new() { Key = "ServerOperators", DisplayName = "Server Operators", CategoryKey = "PrivilegedGroups", CssColor = "purple", SectionId = "serveroperators", SortOrder = 4, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Server Operators))", GroupName = "Server Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo EnterpriseAdmins = new() { Key = "EnterpriseAdmins", DisplayName = "Enterprise Admins", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "enterpriseadmins", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Enterprise Admins))", GroupName = "Enterprise Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo SchemaAdmins = new() { Key = "SchemaAdmins", DisplayName = "Schema Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "schemaadmins", SortOrder = 6, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Schema Admins))", GroupName = "Schema Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
 
     // AD User Accounts KPIs (derived from shared ADUserAccounts search)
     public static readonly KpiInfo CannotChangePassword = new() { Key = "CannotChangePassword", DisplayName = "Cannot Change Password", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "cannotchangepassword", SortOrder = 0, HasDrilldown = true };
@@ -974,9 +1097,9 @@ public class KpiInfo
     public static readonly KpiInfo DeprovisionedUsers = new() { Key = "DeprovisionedUsers", DisplayName = "Deprovisioned Users", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "deprovisionedusers", SortOrder = 13, HasDrilldown = true };
     public static readonly KpiInfo SpnUserAccounts = new() { Key = "SpnUserAccounts", DisplayName = "Service Accounts (SPN)", CategoryKey = "NHIs", CssColor = "red", SectionId = "spnuseraccounts", SortOrder = 19, HasDrilldown = true, IsRiskKpi = true };
     public static readonly KpiInfo StaleUsers = new() { Key = "StaleUsers", DisplayName = "Stale Accounts (Inactive)", CategoryKey = "ADUserAccountsCategory", CssColor = "amber", SectionId = "staleusers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo ServiceAccounts = new() { Key = "ServiceAccounts", DisplayName = "Service Accounts", CategoryKey = "NHIs", CssColor = "teal", SectionId = "serviceaccounts", SortOrder = 21, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultServiceAccountsFilter}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo GmsaServiceAccounts = new() { Key = "GmsaServiceAccounts", DisplayName = "gMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "gmsaserviceaccounts", SortOrder = 22, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultGmsaServiceAccountsFilter}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo SmsaServiceAccounts = new() { Key = "SmsaServiceAccounts", DisplayName = "sMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "smsaserviceaccounts", SortOrder = 23, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:DefaultSmsaServiceAccountsFilter}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo ServiceAccounts = new() { Key = "ServiceAccounts", DisplayName = "Service Accounts", CategoryKey = "NHIs", CssColor = "teal", SectionId = "serviceaccounts", SortOrder = 21, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ServiceAccounts}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo GmsaServiceAccounts = new() { Key = "GmsaServiceAccounts", DisplayName = "gMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "gmsaserviceaccounts", SortOrder = 22, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:GmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo SmsaServiceAccounts = new() { Key = "SmsaServiceAccounts", DisplayName = "sMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "smsaserviceaccounts", SortOrder = 23, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:SmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
 
     // AD Groups KPIs (derived from shared ADGroups search)
     public static readonly KpiInfo DistributionGroups = new() { Key = "DistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "distributiongroups", SortOrder = 0, HasDrilldown = true };
@@ -1359,10 +1482,25 @@ public class DashboardSummary
 {
     /// <summary>
     /// Member-count threshold at or above which an Entra group is treated as "large" for the
-    /// Large Groups KPI. Populated from <c>ActiveRolesConfig.EntraLargeGroupMemberThreshold</c>
+    /// Large Groups KPI. Populated from <c>ActiveRolesConfig.Entra.LargeGroupMemberThreshold</c>
     /// when the summary is built.
     /// </summary>
     public int EntraLargeGroupMemberThreshold { get; set; } = 100;
+
+    /// <summary>
+    /// Returns a shallow copy of this summary that is safe to persist in the (size-sensitive)
+    /// session store. The AD Groups collection has its bulky native <c>member</c> DN arrays
+    /// stripped from each raw item (membership counts are preserved separately), which prevents
+    /// the serialized session blob from bloating on large directories and losing the session
+    /// (and its access token) on write. All other members are shared by reference and are only
+    /// read during serialization, so the original instance is left unmodified.
+    /// </summary>
+    public DashboardSummary ToSessionCacheSafe()
+    {
+        var clone = (DashboardSummary)MemberwiseClone();
+        clone.ADGroups = ADGroups.WithoutMemberPayload();
+        return clone;
+    }
 
     /// <summary>
     /// Shared staleness guard: true when this summary's Entra group membership has not finished
@@ -1560,7 +1698,7 @@ public class DashboardSummary
     /// <summary>
     /// Applies an AD domain segment selection in place across the AD Overview summaries.
     /// This is the single server-side AD filter choke point: it resolves the selection
-    /// against the available domains (empty ⇒ all), then reduces the user, group, and
+    /// against the available domains (empty ? all), then reduces the user, group, and
     /// computer summaries to the effective domain set. Both live tiles and the per-segment
     /// export consume the reduced summaries, so the filtering rule lives in one place.
     /// Returns the resolved effective domains for callers that need to echo the selection.
@@ -2153,6 +2291,38 @@ public class ADGroupsSummary
     public List<JsonElement> Items { get; set; } = new();
     public string? Error { get; set; }
 
+    /// <summary>
+    /// Direct member DNs per group DN (case-insensitive), computed locally from the native
+    /// <c>member</c> attribute at collection time. Replaces Active Roles' <c>edsaMember</c>.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, List<string>> DirectByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Indirect (transitive) member DNs per group DN (case-insensitive), computed locally from
+    /// nested-group membership at collection time. Replaces Active Roles' <c>edsaMemberIndirect</c>.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, List<string>> IndirectByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Direct member COUNT per group DN. Unlike <see cref="DirectByDn"/> (the full DN lists,
+    /// which are transient and can be enormous), this compact projection is serialized so the
+    /// derived group-detail counts remain correct after the summary is round-tripped through the
+    /// session store (where the bulky raw <c>member</c> arrays are stripped to control size).
+    /// </summary>
+    public Dictionary<string, int> DirectCountByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Indirect (transitive) member COUNT per group DN. Serialized companion to
+    /// <see cref="IndirectByDn"/>; see <see cref="DirectCountByDn"/> for the rationale.
+    /// </summary>
+    public Dictionary<string, int> IndirectCountByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Reduces this summary to items whose domain is in <paramref name="effectiveDomains"/>.</summary>
     public ADGroupsSummary Filter(ISet<string> effectiveDomains)
     {
@@ -2160,7 +2330,43 @@ public class ADGroupsSummary
             return this;
 
         var items = Items.Where(i => effectiveDomains.Contains(SegmentAttributes.DomainOf(i))).ToList();
-        return new ADGroupsSummary { TotalCount = items.Count, Items = items, Error = null };
+        // The membership maps are keyed by DN, so they can be shared as-is: lookups for the
+        // retained items still resolve, and unused keys are harmless.
+        return new ADGroupsSummary
+        {
+            TotalCount = items.Count,
+            Items = items,
+            Error = null,
+            DirectByDn = DirectByDn,
+            IndirectByDn = IndirectByDn,
+            DirectCountByDn = DirectCountByDn,
+            IndirectCountByDn = IndirectCountByDn
+        };
+    }
+
+    /// <summary>
+    /// Returns a copy of this summary whose raw items have the bulky native <c>member</c> DN
+    /// arrays removed, so it is safe to persist in the (size-sensitive) session store without
+    /// bloating the serialized blob on large directories. Membership counts are preserved via
+    /// <see cref="DirectCountByDn"/>/<see cref="IndirectCountByDn"/>, and the transient DN-list
+    /// maps are carried over by reference (they are <c>[JsonIgnore]</c> and not serialized).
+    /// The original instance is left unmodified.
+    /// </summary>
+    public ADGroupsSummary WithoutMemberPayload()
+    {
+        if (Items.Count == 0)
+            return this;
+
+        return new ADGroupsSummary
+        {
+            TotalCount = TotalCount,
+            Items = Items.Select(i => SegmentAttributes.WithoutAttribute(i, "member")).ToList(),
+            Error = Error,
+            DirectByDn = DirectByDn,
+            IndirectByDn = IndirectByDn,
+            DirectCountByDn = DirectCountByDn,
+            IndirectCountByDn = IndirectCountByDn
+        };
     }
 }
 
@@ -2690,7 +2896,7 @@ public readonly struct SegmentSelection
     /// Creates a selection from an explicit list of segment names, preserving an empty
     /// list as an explicit "none" (rather than collapsing it to "all"). Use this for the
     /// user-driven segment filter, where clearing every checkbox means "show nothing".
-    /// A null list still means "unset ⇒ all".
+    /// A null list still means "unset ? all".
     /// </summary>
     public static SegmentSelection ExplicitOf(IEnumerable<string>? selected)
     {
@@ -2789,6 +2995,60 @@ public static class SegmentAttributes
             if (!string.IsNullOrWhiteSpace(s))
                 yield return s;
         }
+    }
+
+    /// <summary>
+    /// Returns a copy of <paramref name="element"/> with the property <paramref name="name"/>
+    /// removed, looking both at the top level and inside a nested <c>attributes</c> object
+    /// (mirroring how <see cref="ReadAttr"/>/<see cref="MultiAttrOf"/> resolve attributes). Used
+    /// to drop bulky multi-valued payloads (e.g. group <c>member</c> DN lists) before persisting
+    /// raw items to the session store. When the attribute is absent the original element is
+    /// returned unchanged.
+    /// </summary>
+    public static JsonElement WithoutAttribute(JsonElement element, string name)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+            return element;
+
+        bool atTop = element.TryGetProperty(name, out _);
+        bool inAttrs = element.TryGetProperty("attributes", out var attrsProbe)
+            && attrsProbe.ValueKind == JsonValueKind.Object
+            && attrsProbe.TryGetProperty(name, out _);
+
+        if (!atTop && !inAttrs)
+            return element;
+
+        var buffer = new ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer))
+        {
+            writer.WriteStartObject();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (atTop && string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (inAttrs && prop.NameEquals("attributes"))
+                {
+                    writer.WritePropertyName(prop.Name);
+                    writer.WriteStartObject();
+                    foreach (var attr in prop.Value.EnumerateObject())
+                    {
+                        if (string.Equals(attr.Name, name, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        attr.WriteTo(writer);
+                    }
+                    writer.WriteEndObject();
+                    continue;
+                }
+
+                prop.WriteTo(writer);
+            }
+            writer.WriteEndObject();
+        }
+
+        var reader = new Utf8JsonReader(buffer.WrittenSpan);
+        using var doc = JsonDocument.ParseValue(ref reader);
+        return doc.RootElement.Clone();
     }
 
     private static string ReadAttr(JsonElement element, string name)

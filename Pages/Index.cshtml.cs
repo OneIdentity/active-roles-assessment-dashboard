@@ -24,21 +24,20 @@ public class IndexModel : DashboardPageModel
 
         var token = GetAccessToken()!;
 
-        // If navigating back (cached=true), reuse cached data without re-fetching. Prefer the
-        // full cached summary, falling back to the lighter overview totals.
-        if (cached)
+        // Always prefer the warm per-user cache (built once from the shared superset). This is
+        // keyed by username and survives logout, so a re-login within the cache lifetime reloads
+        // instantly instead of re-running the (potentially slow) per-user projection. The cached=true
+        // flag only matters as a hint for the lighter overview-totals fallback below.
+        var cachedJson = GetCachedSummaryJson();
+        if (!string.IsNullOrEmpty(cachedJson))
         {
-            var cachedJson = HttpContext.Session.GetString("DashboardSummary");
-            if (!string.IsNullOrEmpty(cachedJson))
-            {
-                Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
-                ApplyActiveSegmentFilter();
-                return Page();
-            }
-
-            if (RestoreOverviewTotalsFromCache())
-                return Page();
+            Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            ApplyActiveSegmentFilter();
+            return Page();
         }
+
+        if (cached && RestoreOverviewTotalsFromCache())
+            return Page();
 
         // Fresh load or refresh: pre-warm the full dashboard data for all in-scope
         // dashboards so subsequent exports and sub-dashboard views are served from cache.
@@ -66,8 +65,7 @@ public class IndexModel : DashboardPageModel
             .TriggerManualRefresh();
 
         // Drop the per-session cached summary so the next load rebuilds from the refreshed cache.
-        HttpContext.Session.Remove("DashboardSummary");
-        HttpContext.Session.Remove("OverviewTotals");
+        UserSummaryCache.Clear(UserCacheKey);
 
         // Capture the refresh sequence at trigger time. The client polls OnGetRefreshStatus until
         // the sequence advances, then shows a success or error toast based on the outcome. Passing

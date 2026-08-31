@@ -17,13 +17,15 @@ public class ExportController : ControllerBase
     private readonly ReportExporterFactory _exporterFactory;
     private readonly UserSettingsService _userSettings;
     private readonly ActiveRolesService _activeRoles;
+    private readonly PerUserSummaryCache _summaryCache;
 
-    public ExportController(ReportBuilder reportBuilder, ReportExporterFactory exporterFactory, UserSettingsService userSettings, ActiveRolesService activeRoles)
+    public ExportController(ReportBuilder reportBuilder, ReportExporterFactory exporterFactory, UserSettingsService userSettings, ActiveRolesService activeRoles, PerUserSummaryCache summaryCache)
     {
         _reportBuilder = reportBuilder;
         _exporterFactory = exporterFactory;
         _userSettings = userSettings;
         _activeRoles = activeRoles;
+        _summaryCache = summaryCache;
     }
 
     [HttpPost]
@@ -45,7 +47,7 @@ public class ExportController : ControllerBase
 
         DashboardSummary? summary = null;
 
-        var cached = HttpContext.Session.GetString("DashboardSummary");
+        var cached = _summaryCache.GetSummary(username);
         if (!string.IsNullOrEmpty(cached))
         {
             summary = JsonSerializer.Deserialize<DashboardSummary>(cached);
@@ -53,7 +55,7 @@ public class ExportController : ControllerBase
         else
         {
             OverviewTotalsCache? cachedTotals = null;
-            var totalsJson = HttpContext.Session.GetString("OverviewTotals");
+            var totalsJson = _summaryCache.GetOverview(username);
             if (!string.IsNullOrEmpty(totalsJson))
                 cachedTotals = JsonSerializer.Deserialize<OverviewTotalsCache>(totalsJson);
 
@@ -64,7 +66,7 @@ public class ExportController : ControllerBase
             // reuse it instead of re-querying. The active segment filter is applied below
             // per-request, so the cached copy must remain unfiltered.
             if (summary != null)
-                HttpContext.Session.SetString("DashboardSummary", JsonSerializer.Serialize(summary));
+                _summaryCache.SetSummary(username, JsonSerializer.Serialize(summary.ToSessionCacheSafe()));
         }
 
         if (summary == null)
