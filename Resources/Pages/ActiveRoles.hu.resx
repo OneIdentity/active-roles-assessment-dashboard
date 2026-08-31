@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="LoadingDashboardData" xml:space="preserve"><value>Irányítópult adatainak betöltése...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópulthoz</value></data>
+  <!-- Column headers (shared) -->
+  <data name="Col_Name" xml:space="preserve"><value>Név</value></data>
+  <data name="Col_DistinguishedName" xml:space="preserve"><value>Megkülönböztetett név</value></data>
+  <data name="Col_Membership" xml:space="preserve"><value>Tagság</value></data>
+  <data name="Col_DnsName" xml:space="preserve"><value>DNS név</value></data>
+  <data name="Col_UseOverride" xml:space="preserve"><value>Felülbírálás használata</value></data>
+  <data name="Col_ServerName" xml:space="preserve"><value>Kiszolgáló neve</value></data>
+  <data name="Col_Version" xml:space="preserve"><value>Verzió</value></data>
+  <data name="Col_Rules" xml:space="preserve"><value>Szabályok</value></data>
+  <data name="Col_Enabled" xml:space="preserve"><value>Engedélyezve</value></data>
+  <data name="Col_Automation" xml:space="preserve"><value>Automatizálás</value></data>
+  <data name="Col_LdapDisplayName" xml:space="preserve"><value>LDAP megjelenített név</value></data>
+  <data name="Col_Multivalued" xml:space="preserve"><value>Többértékű</value></data>
+  <data name="Col_SqlAlias" xml:space="preserve"><value>SQL álnév</value></data>
+  <data name="Col_DatabaseName" xml:space="preserve"><value>Adatbázis neve</value></data>
+  <data name="Col_DatabaseType" xml:space="preserve"><value>Adatbázis típusa</value></data>
+  <data name="Col_ReplicationSupport" xml:space="preserve"><value>Replikációs támogatás</value></data>
+  <data name="Col_ReplicationRole" xml:space="preserve"><value>Replikációs szerep</value></data>
+  <data name="Col_Parent" xml:space="preserve"><value>Szülő</value></data>
+  <data name="Col_Trustee" xml:space="preserve"><value>Megbízott</value></data>
+  <data name="Col_DirectoryObject" xml:space="preserve"><value>Címtár objektum</value></data>
+  <data name="Col_AccessTemplate" xml:space="preserve"><value>Hozzáférési sablon</value></data>
+  <!-- Empty-state rows -->
+  <data name="Empty_Members" xml:space="preserve"><value>Nem található tag</value></data>
+  <data name="Empty_Domains" xml:space="preserve"><value>Nem található tartomány</value></data>
+  <data name="Empty_Servers" xml:space="preserve"><value>Nem található kiszolgáló</value></data>
+  <data name="Empty_DynamicGroups" xml:space="preserve"><value>Nem található dinamikus csoport</value></data>
+  <data name="Empty_GroupFamilies" xml:space="preserve"><value>Nem található csoportcsalád</value></data>
+  <data name="Empty_ManagedUnits" xml:space="preserve"><value>Nem található kezelt egység</value></data>
+  <data name="Empty_Workflows" xml:space="preserve"><value>Nem található munkafolyamat</value></data>
+  <data name="Empty_VirtualAttributes" xml:space="preserve"><value>Nem található virtuális attribútum</value></data>
+  <data name="Empty_ConfigDatabases" xml:space="preserve"><value>Nem található konfigurációs adatbázis</value></data>
+  <data name="Empty_HistoryDatabases" xml:space="preserve"><value>Nem található előzmény-adatbázis</value></data>
+  <data name="Empty_PolicyObjects" xml:space="preserve"><value>Nem található szabályzat-objektum</value></data>
+  <data name="Empty_AccessTemplates" xml:space="preserve"><value>Nem található hozzáférési sablon</value></data>
+  <data name="Empty_AccessTemplateLinks" xml:space="preserve"><value>Nem található hozzáférési sablon hivatkozás</value></data>
+  <data name="Empty_PolicyObjectLinks" xml:space="preserve"><value>Nem található szabályzat-objektum hivatkozás</value></data>
+  <!-- Tooltips -->
+  <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Megnyitás a webes felületen</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Állítsa be a webes felület URL-jét a Beállításokban</value></data>
+  <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>Beágyazott tagság megtekintése</value></data>
+  <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>Nincsenek közvetett (beágyazott) tagok</value></data>
+</root>

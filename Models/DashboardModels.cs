@@ -1135,7 +1135,8 @@ public class SupportedLanguage
         new() { Code = "fr", DisplayName = "Français", FlagImage = "img/flags/fr.svg" },
         new() { Code = "it", DisplayName = "Italiano", FlagImage = "img/flags/it.svg" },
         new() { Code = "es", DisplayName = "Español", FlagImage = "img/flags/es.svg" },
-        new() { Code = "de", DisplayName = "Deutsch", FlagImage = "img/flags/de.svg" }
+        new() { Code = "de", DisplayName = "Deutsch", FlagImage = "img/flags/de.svg" },
+        new() { Code = "hu", DisplayName = "Magyar", FlagImage = "img/flags/hu.svg" }
     };
 }
 

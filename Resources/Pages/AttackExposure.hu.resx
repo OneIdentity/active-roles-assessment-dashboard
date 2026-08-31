@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópulthoz</value></data>
+  <data name="Level_High" xml:space="preserve"><value>Magas</value></data>
+  <data name="Level_Medium" xml:space="preserve"><value>Közepes</value></data>
+  <data name="Level_Low" xml:space="preserve"><value>Alacsony</value></data>
+  <data name="Level_None" xml:space="preserve"><value>Nincs</value></data>
+  <data name="HighExposure" xml:space="preserve"><value>Magas kitettség</value></data>
+  <data name="MediumExposure" xml:space="preserve"><value>Közepes kitettség</value></data>
+  <data name="LowExposure" xml:space="preserve"><value>Alacsony kitettség</value></data>
+  <data name="TechniquesWithExposure" xml:space="preserve"><value>Kitettséggel rendelkező technikák</value></data>
+  <data name="IntroNote" xml:space="preserve"><value>A kitettség a környezetében található kockázatos konfigurációk jelenlétét tükrözi, a MITRE ATT&amp;CK technikákra leképezve. Ez egy tájékoztató jellegű láthatósági nézet, nem megfelelőségi pontszám.</value></data>
+  <data name="GeneratedAt" xml:space="preserve"><value>Generálva: {0} UTC.</value></data>
+  <data name="CompareAndTrend" xml:space="preserve"><value>Összehasonlítás &amp; tendencia</value></data>
+  <value>A kitettség nem kerül külön tárolásra; a történeti kitettség a mentett &lt;a href="{0}"&gt;pillanatképekből&lt;/a&gt; kerül újraszámításra. Válasszon egy alaphelyzetet egy másik pillanatképpel vagy a jelenlegi élő nézettel való összehasonlításhoz.</value>
+  <data name="NoSnapshotsWarning" xml:space="preserve"><value>Még nem lett mentve pillanatkép. Rögzítsen egy pillanatképet a kitettség-összehasonlítás és a tendenciaelemzés engedélyezéséhez.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Alaphelyzet</value></data>
+  <data name="SelectPlaceholder" xml:space="preserve"><value>&#8212; válasszon &#8212;</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Összehasonlítás ezzel</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Jelenlegi (élő)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Összehasonlítás</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} nőtt</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} csökkent</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} változatlan</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} hozzáadva</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} eltávolítva</value></data>
+  <data name="ComparingNote" xml:space="preserve"><value>Összehasonlítás: &lt;strong&gt;{0}&lt;/strong&gt; &#8594; &lt;strong&gt;{1}&lt;/strong&gt;. A növekvő kitettségi szint rosszabb (&#9650;), a csökkenő szint jobb (&#9660;).</value></data>
+  <data name="Col_Technique" xml:space="preserve"><value>Technika</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Alaphelyzet</value></data>
+  <data name="Col_Compared" xml:space="preserve"><value>Összehasonlítva</value></data>
+  <data name="ExposureTrend" xml:space="preserve"><value>Kitettségi tendencia</value></data>
+  <data name="TrendNote" xml:space="preserve"><value>Magas / Közepes / Alacsony kitettségű technikák száma {0} mentett pillanatképben.</value></data>
+  <data name="TrendTooltip" xml:space="preserve"><value>Magas {0}, Közepes {1}, Alacsony {2}</value></data>
+  <data name="NotAvailable" xml:space="preserve"><value>n/a</value></data>
+  <data name="Mitigation" xml:space="preserve"><value>Enyhítés</value></data>
+  <data name="Footer" xml:space="preserve"><value>Active Roles irányítópult &#8212; ATT&amp;CK kitettség generálva: {0} UTC</value></data>
+</root>

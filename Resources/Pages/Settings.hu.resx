@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LoadingDashboardData" xml:space="preserve">
+    <value>Irányítópult adatainak betöltése...</value>
+  </data>
+  <data name="Card_WebInterface" xml:space="preserve">
+	<value>Active Roles Web Interface</value>
+  </data>
+  <data name="Card_AutoRefresh" xml:space="preserve">
+	<value>Automatikus frissítés</value>
+  </data>
+  <data name="Card_Language" xml:space="preserve">
+	<value>Nyelv</value>
+  </data>
+  <data name="Card_KpiConfiguration" xml:space="preserve">
+	<value>KPI konfiguráció</value>
+  </data>
+  <data name="Card_KpiVisibility" xml:space="preserve">
+	<value>KPI láthatóság</value>
+  </data>
+  <data name="Label_BaseUrl" xml:space="preserve">
+	<value>Alap URL</value>
+  </data>
+  <data name="Hint_WebInterface" xml:space="preserve">
+	<value>Az Active Roles webes felület alap-URL-je. Ez a beállítás minden felhasználóra vonatkozik.</value>
+  </data>
+  <data name="Label_RefreshInterval" xml:space="preserve">
+	<value>Frissítési időköz (perc)</value>
+  </data>
+  <data name="Hint_AutoRefresh" xml:space="preserve">
+	<value>Állítsa 0-ra az automatikus frissítés letiltásához.</value>
+  </data>
+  <data name="Label_DisplayLanguage" xml:space="preserve">
+	<value>Megjelenítési nyelv</value>
+  </data>
+  <data name="Hint_Language" xml:space="preserve">
+	<value>Az irányítópult felületéhez használt nyelv. Idővel további nyelvek kerülnek hozzáadásra.</value>
+  </data>
+  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
+	<value>Active Roles rendszergazdák - Alap DN</value>
+  </data>
+  <data name="Label_ArAdminsFilter" xml:space="preserve">
+	<value>Active Roles rendszergazdák - LDAP szűrő</value>
+  </data>
+  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
+	<value>Nincs csoporttulajdonos - Alap DN</value>
+  </data>
+  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
+	<value>Nincs vezető (Felhasználó) - Alap DN</value>
+  </data>
+  <data name="Label_NoManagerUserFilter" xml:space="preserve">
+	<value>Nincs vezető (Felhasználó) - LDAP szűrő</value>
+  </data>
+  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
+	<value>Nincs vezető (Szolgáltatásfiók) - Alap DN</value>
+  </data>
+  <data name="Label_NoManagerSvcFilter" xml:space="preserve">
+	<value>Nincs vezető (Szolgáltatásfiók) - LDAP szűrő</value>
+  </data>
+  <data name="Label_LockedOutBaseDn" xml:space="preserve">
+	<value>Zárolt felhasználói fiók - Alap DN</value>
+  </data>
+  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
+	<value>Üres csoportok - Alap DN</value>
+  </data>
+  <data name="Label_LargeGroupThreshold" xml:space="preserve">
+	<value>Nagy csoportok - Tagsági küszöbérték</value>
+  </data>
+  <data name="Hint_LargeGroupThreshold" xml:space="preserve">
+	<value>Azokat az Entra-csoportokat, amelyeknek legalább ennyi közvetlen tagjuk van, a Nagy csoportok KPI megjelöli. Alapértelmezett: 100.</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+	<value>Vissza az irányítópulthoz</value>
+  </data>
+  <data name="SaveSettings" xml:space="preserve">
+	<value>Beállítások mentése</value>
+  </data>
+</root>

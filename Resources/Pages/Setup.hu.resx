@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:element name="root" msdata:IsDataSet="true">
+	  <xsd:complexType>
+		<xsd:choice maxOccurs="unbounded">
+		  <xsd:element name="metadata">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" use="required" type="xsd:string" />
+			  <xsd:attribute name="type" type="xsd:string" />
+			  <xsd:attribute name="mimetype" type="xsd:string" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="assembly">
+			<xsd:complexType>
+			  <xsd:attribute name="alias" type="xsd:string" />
+			  <xsd:attribute name="name" type="xsd:string" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="data">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+				<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+			  <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+			  <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="resheader">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" />
+			</xsd:complexType>
+		  </xsd:element>
+		</xsd:choice>
+	  </xsd:complexType>
+	</xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="RestApiConfig" xml:space="preserve"><value>REST API konfigurációja</value></data>
+  <data name="RestApiSubtitle" xml:space="preserve"><value>Állítsa be a kapcsolatot az Active Roles REST API szolgáltatáshoz.</value></data>
+  <data name="RestApiUrl" xml:space="preserve"><value>REST API URL</value></data>
+  <data name="RestApiUrlHint" xml:space="preserve"><value>Az Active Roles REST API alap-URL-je. Ez a beállítás kötelező.</value></data>
+  <data name="RstsUrl" xml:space="preserve"><value>RSTS token URL</value></data>
+  <data name="RstsUrlHint" xml:space="preserve"><value>Az RSTS OAuth2 token végpont URL-je. Ez a beállítás kötelező.</value></data>
+  <data name="WebInterface" xml:space="preserve"><value>Webes felület</value></data>
+  <data name="WebInterfaceSubtitle" xml:space="preserve"><value>Igény szerint állítsa be az Active Roles webes felület URL-jét a közvetlen hivatkozásokhoz.</value></data>
+  <data name="WebInterfaceUrl" xml:space="preserve"><value>Webes felület URL</value></data>
+  <data name="WebInterfaceUrlHint" xml:space="preserve"><value>Az Active Roles webes felület alap-URL-je. Ez a beállítás nem kötelező.</value></data>
+  <data name="Language" xml:space="preserve"><value>Nyelv</value></data>
+  <data name="LanguageSubtitle" xml:space="preserve"><value>Válassza ki az irányítópult felületének megjelenítési nyelvét.</value></data>
+  <data name="DisplayLanguage" xml:space="preserve"><value>Megjelenítési nyelv</value></data>
+  <data name="LanguageHint" xml:space="preserve"><value>Idővel további nyelvek kerülnek hozzáadásra. Ezt később a Beállításokban módosíthatja.</value></data>
+  <data name="KpiConfig" xml:space="preserve"><value>KPI konfiguráció</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Minden KPI beállítás nem kötelező. Hagyja üresen az alapértelmezett értékek használatához.</value></data>
+  <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Active Roles rendszergazdák - Alap DN</value></data>
+  <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Active Roles rendszergazdák - LDAP szűrő</value></data>
+  <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Nincs csoporttulajdonos - Alap DN</value></data>
+  <data name="Lbl_NoManagerUserBaseDn" xml:space="preserve"><value>Nincs vezető (Felhasználó) - Alap DN</value></data>
+  <data name="Lbl_NoManagerUserFilter" xml:space="preserve"><value>Nincs vezető (Felhasználó) - LDAP szűrő</value></data>
+  <data name="Lbl_NoManagerSaBaseDn" xml:space="preserve"><value>Nincs vezető (Szolgáltatásfiók) - Alap DN</value></data>
+  <data name="Lbl_NoManagerSaFilter" xml:space="preserve"><value>Nincs vezető (Szolgáltatásfiók) - LDAP szűrő</value></data>
+  <data name="Lbl_UserExpiredBaseDn" xml:space="preserve"><value>Lejárt felhasználói fiók - Alap DN</value></data>
+  <data name="Lbl_UserLockedBaseDn" xml:space="preserve"><value>Zárolt felhasználói fiók - Alap DN</value></data>
+  <data name="Lbl_EmptyGroupsBaseDn" xml:space="preserve"><value>Üres csoportok - Alap DN</value></data>
+  <data name="Next" xml:space="preserve"><value>Tovább</value></data>
+  <data name="Back" xml:space="preserve"><value>Vissza</value></data>
+  <data name="FinishSetup" xml:space="preserve"><value>Beállítás befejezése</value></data>
+  <data name="Err_ApiUrlRequired" xml:space="preserve"><value>A REST API URL megadása kötelező.</value></data>
+  <data name="Err_RstsUrlRequired" xml:space="preserve"><value>Az RSTS token URL megadása kötelező.</value></data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>A szolgáltatásfiók felhasználónevének megadása kötelező.</value></data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>A szolgáltatásfiók jelszavának megadása kötelező.</value></data>
+  <data name="ServiceAccountConfig" xml:space="preserve"><value>Szolgáltatásfiók</value></data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Az irányítópult által a háttérben az Active Roles adatok gyűjtéséhez használt hitelesítő adatok.</value></data>
+  <data name="ServiceAccountUsername" xml:space="preserve"><value>Felhasználónév</value></data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>Az RSTS token megszerzéséhez használt szolgáltatásfiók (pl. DOMAIN\svc_ars).</value></data>
+  <data name="ServiceAccountPassword" xml:space="preserve"><value>Jelszó</value></data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>A Data Protection használatával titkosítva tárolódik. Soha nem kerül mentésre egyszerű szövegként.</value></data>
+  <data name="LicensingThresholds" xml:space="preserve"><value>Licencelési küszöbértékek</value></data>
+  <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>A Licencelés irányítópult által használt, nem kötelező licencelt objektumjogosultságok. Hagyjon 0-t egy küszöbérték letiltásához.</value></data>
+  <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Licencelt tartományi objektumok</value></data>
+  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve"><value>Licencelt partíció objektumok</value></data>
+  <data name="Lbl_LicensedAzureObjects" xml:space="preserve"><value>Licencelt Azure objektumok</value></data>
+  <data name="Lbl_LicensedSaasObjects" xml:space="preserve"><value>Licencelt SaaS objektumok</value></data>
+  <data name="Lbl_LicensedTotalObjects" xml:space="preserve"><value>Licencelt objektumok összesen (végösszeg)</value></data>
+  <data name="LicensedThresholdsHint" xml:space="preserve"><value>A 0 érték azt jelenti, hogy a küszöbérték nincs konfigurálva, és nem jelenik meg.</value></data>
+</root>

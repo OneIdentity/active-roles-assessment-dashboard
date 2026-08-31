@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópulthoz</value></data>
+  <data name="RunningAssessment" xml:space="preserve"><value>Értékelés futása...</value></data>
+  <data name="MembershipPendingWarning" xml:space="preserve"><value>Az Entra csoporttagság még betöltődik. Azok az értékelések, amelyek az Entra csoporttagság pontosságától függenek (Entra ID és az Entra csoportirányítási ellenőrzéseket tartalmazó megfelelőségi keretrendszerek), a betöltés befejezéséig blokkolva vannak; más értékelések most is futtathatók.</value></data>
+  <!-- Run bar -->
+  <data name="RunAssessment" xml:space="preserve"><value>Értékelés futtatása</value></data>
+  <data name="AssessmentType" xml:space="preserve"><value>Értékelés típusa</value></data>
+  <data name="LabelOptional" xml:space="preserve"><value>Címke (nem kötelező)</value></data>
+  <data name="LabelPlaceholder" xml:space="preserve"><value>pl. Negyedéves áttekintés</value></data>
+  <data name="RunAndSave" xml:space="preserve"><value>Futtatás és mentés</value></data>
+  <!-- Compare -->
+  <data name="CompareRuns" xml:space="preserve"><value>{0} futtatás összehasonlítása</value></data>
+  <data name="CompareHint" xml:space="preserve"><value>Mentsen legalább két {0} értékelést az összehasonlítás engedélyezéséhez.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Alaphelyzet</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Összehasonlítás ezzel</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Jelenlegi (élő)</value></data>
+  <data name="Compare" xml:space="preserve"><value>Összehasonlítás</value></data>
+  <!-- Scope note -->
+  <data name="ScopeDisclaimer" xml:space="preserve"><value>Hatókör és jogi nyilatkozat:</value></data>
+  <!-- Trend -->
+  <data name="ScoreTrend" xml:space="preserve"><value>{0} pontszám-tendencia</value></data>
+  <data name="ScoreTrendHint" xml:space="preserve"><value>Pontszám (0-100) és a sikertelen ellenőrzések az utolsó {0} mentett értékelésben. A szaggatott segédvonalak az A/B/C/D osztályzási küszöbértékeket jelölik.</value></data>
+  <data name="CheckComposition" xml:space="preserve"><value>{0} ellenőrzés-összetétel</value></data>
+  <data name="CheckCompositionHint" xml:space="preserve"><value>Megfelelt / figyelmeztetés / sikertelen értékek az idő múlásával, bemutatva, mi okozza a pontszám változásait.</value></data>
+  <!-- History -->
+  <data name="History" xml:space="preserve"><value>{0} előzmények</value></data>
+  <data name="Col_WhenUtc" xml:space="preserve"><value>Mikor (UTC)</value></data>
+  <data name="Col_Label" xml:space="preserve"><value>Címke</value></data>
+  <data name="Col_By" xml:space="preserve"><value>Általa</value></data>
+  <data name="Col_Grade" xml:space="preserve"><value>Osztályzat</value></data>
+  <data name="Col_Score" xml:space="preserve"><value>Pontszám</value></data>
+  <data name="Col_Fail" xml:space="preserve"><value>Sikertelen</value></data>
+  <data name="Col_Warn" xml:space="preserve"><value>Figyelmeztetés</value></data>
+  <data name="Unlabelled" xml:space="preserve"><value>(címkézetlen)</value></data>
+  <data name="ViewAssessment" xml:space="preserve"><value>Értékelés megtekintése</value></data>
+  <data name="CompareToCurrent" xml:space="preserve"><value>Összehasonlítás a jelenlegivel</value></data>
+  <data name="DeleteAssessment" xml:space="preserve"><value>Értékelés törlése</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Törli ezt az értékelést?</value></data>
+  <!-- Comparison -->
+  <data name="Comparison" xml:space="preserve"><value>Összehasonlítás</value></data>
+  <data name="ScorePill" xml:space="preserve"><value>Pontszám</value></data>
+  <data name="Grade" xml:space="preserve"><value>osztályzat</value></data>
+  <data name="Improved" xml:space="preserve"><value>javýlt</value></data>
+  <data name="Regressed" xml:space="preserve"><value>romlott</value></data>
+  <data name="Unchanged" xml:space="preserve"><value>változatlan</value></data>
+  <data name="Added" xml:space="preserve"><value>hozzáadva</value></data>
+  <data name="Removed" xml:space="preserve"><value>eltávolítva</value></data>
+  <data name="Col_Check" xml:space="preserve"><value>Ellenőrzés</value></data>
+  <data name="Current" xml:space="preserve"><value>Jelenlegi</value></data>
+  <data name="Col_Count" xml:space="preserve"><value>Szám</value></data>
+  <data name="Col_Change" xml:space="preserve"><value>Változás</value></data>
+  <data name="Delta_Improved" xml:space="preserve"><value>Javýlt</value></data>
+  <data name="Delta_Regressed" xml:space="preserve"><value>Romlott</value></data>
+  <data name="Delta_Added" xml:space="preserve"><value>Hozzáadva</value></data>
+  <data name="Delta_Removed" xml:space="preserve"><value>Eltávolítva</value></data>
+  <data name="Delta_NoChange" xml:space="preserve"><value>Nincs változás</value></data>
+  <!-- Status words -->
+  <data name="Status_Pass" xml:space="preserve"><value>Megfelelt</value></data>
+  <data name="Status_Warn" xml:space="preserve"><value>Figyelmeztetés</value></data>
+  <data name="Status_Fail" xml:space="preserve"><value>Sikertelen</value></data>
+  <data name="Status_Na" xml:space="preserve"><value>n/a</value></data>
+  <!-- Empty / scorecard -->
+  <data name="RunToSeeResults" xml:space="preserve"><value>Futtasson egy értékelést fent az eredmények megtekintéséhez, vagy tekintsen meg egy mentettet az előzményekből.</value></data>
+  <data name="ScoreCaption" xml:space="preserve"><value>{0} &#183; {1} ellenőrzés &#183; generálva: {2} UTC</value></data>
+  <data name="Passed" xml:space="preserve"><value>megfelelt</value></data>
+  <data name="Warnings" xml:space="preserve"><value>figyelmeztetések</value></data>
+  <data name="Failed" xml:space="preserve"><value>sikertelen</value></data>
+  <data name="NotApplicableShort" xml:space="preserve"><value>n/a</value></data>
+  <data name="SaveAsPdf" xml:space="preserve"><value>Mentés PDF-ként</value></data>
+  <data name="SaveAsWord" xml:space="preserve"><value>Mentés Word-ként</value></data>
+  <!-- Detail table -->
+  <data name="Col_Severity" xml:space="preserve"><value>Súlyosság</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Állapot</value></data>
+  <data name="Col_Recommendation" xml:space="preserve"><value>Javaslat</value></data>
+  <data name="Tag_Fail" xml:space="preserve"><value>sikertelen</value></data>
+  <data name="Tag_Warn" xml:space="preserve"><value>figyelmeztetés</value></data>
+  <data name="Tag_Pass" xml:space="preserve"><value>megfelelt</value></data>
+  <data name="NoActionRequired" xml:space="preserve"><value>Nincs szükség beávatkozásra</value></data>
+  <!-- Script / chart -->
+  <data name="RunBlockedTitle" xml:space="preserve"><value>Blokkolva: ez az értékelés az Entra csoporttagságtól függ, amely még betöltődik.</value></data>
+  <data name="Chart_Score" xml:space="preserve"><value>Pontszám</value></data>
+  <data name="Chart_FailingChecks" xml:space="preserve"><value>Sikertelen ellenőrzések</value></data>
+  <data name="Chart_Pass" xml:space="preserve"><value>Megfelelt</value></data>
+  <data name="Chart_Warning" xml:space="preserve"><value>Figyelmeztetés</value></data>
+  <data name="Chart_Fail" xml:space="preserve"><value>Sikertelen</value></data>
+  <data name="Chart_Checks" xml:space="preserve"><value>Ellenőrzések</value></data>
+</root>

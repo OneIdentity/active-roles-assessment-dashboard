@@ -1,0 +1,150 @@
+﻿===== _EntraMembershipConfig =====
+Empty_EmptyGroups ||| No empty groups found
+Empty_NoGroupOwner ||| No groups without an owner found
+Empty_GuestContaining ||| No guest-containing groups found
+Empty_SingleOwner ||| No single-owner groups found
+Empty_LargeGroups ||| No large groups found
+FailedToLoadMembership ||| Failed to load group membership.
+Toast_MembershipLoaded ||| Group membership loaded
+Toast_MembershipFailed ||| Failed to load group membership
+Toast_MembershipLoading ||| Loading group memberships. This may take a while depending on the environment. Group based KPIs may not be accurate and details will not be available until loading is complete.
+Tip_OpenWebInterface ||| Open in Web Interface
+Tip_ConfigureWebUrl ||| Configure Web Interface URL in Settings
+===== _ExportDialog =====
+ExportingData ||| Exporting data...
+===== Licensing =====
+LoadingDashboardData ||| Loading Dashboard Data...
+BackToDashboard ||| Back to Dashboard
+H_ManagedObjects ||| Managed Objects
+E_ManagedObjects ||| No managed object statistics found
+Chart_Time ||| Time
+Chart_ObjectCount ||| Object Count
+H_LicensingThresholds ||| Totals vs Licensed Entitlements
+Badge_OverEntitlement ||| Over entitlement
+Chart_Actual ||| Actual
+Chart_Entitlement ||| Entitlement
+Cat_Domain ||| Domain
+Cat_Partition ||| Partition
+Cat_Azure ||| Azure
+Cat_Saas ||| SaaS
+Cat_GrandTotal ||| Grand Total
+===== ActiveRoles =====
+LoadingDashboardData ||| Loading Dashboard Data...
+BackToDashboard ||| Back to Dashboard
+Col_Name ||| Name
+Col_DistinguishedName ||| Distinguished Name
+Col_Membership ||| Membership
+Col_DnsName ||| DNS Name
+Col_UseOverride ||| Use Override
+Col_ServerName ||| Server Name
+Col_Version ||| Version
+Col_Rules ||| Rules
+Col_Enabled ||| Enabled
+Col_Automation ||| Automation
+Col_LdapDisplayName ||| LDAP Display Name
+Col_Multivalued ||| Multivalued
+Col_SqlAlias ||| SQL Alias
+Col_DatabaseName ||| Database Name
+Col_DatabaseType ||| Database Type
+Col_ReplicationSupport ||| Replication Support
+Col_ReplicationRole ||| Replication Role
+Col_Parent ||| Parent
+Col_Trustee ||| Trustee
+Col_DirectoryObject ||| Directory Object
+Col_AccessTemplate ||| Access Template
+Empty_Members ||| No members found
+Empty_Domains ||| No domains found
+Empty_Servers ||| No servers found
+Empty_DynamicGroups ||| No dynamic groups found
+Empty_GroupFamilies ||| No group families found
+Empty_ManagedUnits ||| No managed units found
+Empty_Workflows ||| No workflows found
+Empty_VirtualAttributes ||| No virtual attributes found
+Empty_ConfigDatabases ||| No config databases found
+Empty_HistoryDatabases ||| No history databases found
+Empty_PolicyObjects ||| No policy objects found
+Empty_AccessTemplates ||| No access templates found
+Empty_AccessTemplateLinks ||| No access template links found
+Empty_PolicyObjectLinks ||| No policy object links found
+Tip_OpenWebInterface ||| Open in Web Interface
+Tip_ConfigureWebUrl ||| Configure Web Interface URL in Settings
+Tip_ViewNestedMembership ||| View nested membership
+Tip_NoIndirectMembers ||| No indirect (nested) members
+===== Snapshots =====
+CapturingSnapshot ||| Capturing Snapshot...
+Comparing ||| Comparing...
+BackToDashboard ||| Back to Dashboard
+TakeSnapshot ||| Take a snapshot
+TakeSnapshotHint ||| Captures the current KPI counts across all dashboards. This queries Active Roles for fresh data.
+OptionalLabelPlaceholder ||| Optional label (e.g. Monthly review)
+CaptureSnapshot ||| Capture snapshot
+Compare ||| Compare
+NoSnapshotsForComparison ||| No snapshots yet. Capture one to enable comparison.
+Baseline ||| Baseline
+CompareTo ||| Compare to
+CurrentLive ||| Current (live)
+SavedSnapshots ||| Saved snapshots
+NoSnapshotsYet ||| You haven't captured any snapshots yet.
+Col_Label ||| Label
+Col_CapturedUtc ||| Captured (UTC)
+Col_By ||| By
+Col_Kpis ||| KPIs
+Unlabelled ||| (unlabelled)
+Tip_CompareToCurrent ||| Compare to current
+Tip_DeleteSnapshot ||| Delete snapshot
+ConfirmDelete ||| Delete this snapshot?
+Comparison ||| Comparison
+Pill_Increased ||| {0} increased
+Pill_Decreased ||| {0} decreased
+Pill_Unchanged ||| {0} unchanged
+Pill_Added ||| {0} added
+Pill_Removed ||| {0} removed
+Col_Kpi ||| KPI
+Col_Baseline ||| Baseline
+Col_Current ||| Current
+Col_Compare ||| Compare
+Col_Change ||| Change
+RiskKpi ||| Risk KPI
+Trend ||| Trend
+TrendHint ||| KPI counts across the last {0} snapshots. Pick a dashboard and category, then tick one or more KPIs to plot.
+Filter_Dashboard ||| Dashboard
+Filter_Category ||| Category
+Filter_Kpis ||| KPIs
+SelectKpis ||| Select KPIs
+AllKpisFormat ||| All KPIs ({0})
+KpisSelectedFormat ||| {0} KPIs selected
+===== AttackExposure =====
+BackToDashboard ||| Back to Dashboard
+Level_High ||| High
+Level_Medium ||| Medium
+Level_Low ||| Low
+Level_None ||| None
+HighExposure ||| High Exposure
+MediumExposure ||| Medium Exposure
+LowExposure ||| Low Exposure
+TechniquesWithExposure ||| Techniques with Exposure
+IntroNote ||| Exposure reflects the presence of risky configurations in your environment mapped to MITRE ATT&amp;CK techniques. It is an indicative visibility view, not a compliance score.
+GeneratedAt ||| Generated at {0} UTC.
+CompareAndTrend ||| Compare &amp; Trend
+CompareNote ||| Exposure is not stored separately; historical exposure is recomputed from saved &lt;a href="{0}"&gt;snapshots&lt;/a&gt;. Pick a baseline to compare against another snapshot or the current live view.
+NoSnapshotsWarning ||| No snapshots have been saved yet. Capture a snapshot to enable exposure comparison and trend analysis.
+Baseline ||| Baseline
+SelectPlaceholder ||| &#8212; select &#8212;
+CompareTo ||| Compare to
+CurrentLive ||| Current (live)
+Compare ||| Compare
+Pill_Increased ||| {0} increased
+Pill_Decreased ||| {0} decreased
+Pill_Unchanged ||| {0} unchanged
+Pill_Added ||| {0} added
+Pill_Removed ||| {0} removed
+ComparingNote ||| Comparing &lt;strong&gt;{0}&lt;/strong&gt; &#8594; &lt;strong&gt;{1}&lt;/strong&gt;. A rising exposure level is worse (&#9650;), a falling level is better (&#9660;).
+Col_Technique ||| Technique
+Col_Baseline ||| Baseline
+Col_Compared ||| Compared
+ExposureTrend ||| Exposure trend
+TrendNote ||| High / Medium / Low exposed technique counts across {0} saved snapshots.
+TrendTooltip ||| High {0}, Medium {1}, Low {2}
+NotAvailable ||| n/a
+Mitigation ||| Mitigation
+Footer ||| Active Roles Dashboard &#8212; ATT&amp;CK Exposure generated at {0} UTC

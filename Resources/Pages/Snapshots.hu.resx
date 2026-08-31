@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CapturingSnapshot" xml:space="preserve"><value>Pillanatkép rögzítése...</value></data>
+  <data name="Comparing" xml:space="preserve"><value>Összehasonlítás...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópulthoz</value></data>
+  <data name="TakeSnapshot" xml:space="preserve"><value>Pillanatkép készítése</value></data>
+  <data name="TakeSnapshotHint" xml:space="preserve"><value>Rögzíti az összes irányítópult aktuális KPI-értékeit. Friss adatokat kér le az Active Roles-ból.</value></data>
+  <data name="OptionalLabelPlaceholder" xml:space="preserve"><value>Nem kötelező címke (pl. Havi áttekintés)</value></data>
+  <data name="CaptureSnapshot" xml:space="preserve"><value>Pillanatkép rögzítése</value></data>
+  <data name="Compare" xml:space="preserve"><value>Összehasonlítás</value></data>
+  <data name="NoSnapshotsForComparison" xml:space="preserve"><value>Még nincsenek pillanatképek. Rögzítsen egyet az összehasonlítás engedélyezéséhez.</value></data>
+  <data name="Baseline" xml:space="preserve"><value>Alaphelyzet</value></data>
+  <data name="CompareTo" xml:space="preserve"><value>Összehasonlítás ezzel</value></data>
+  <data name="CurrentLive" xml:space="preserve"><value>Jelenlegi (élő)</value></data>
+  <data name="SavedSnapshots" xml:space="preserve"><value>Mentett pillanatképek</value></data>
+  <data name="NoSnapshotsYet" xml:space="preserve"><value>Még nem rögzített egyetlen pillanatképet sem.</value></data>
+  <data name="Col_Label" xml:space="preserve"><value>Címke</value></data>
+  <data name="Col_CapturedUtc" xml:space="preserve"><value>Rögzítve (UTC)</value></data>
+  <data name="Col_By" xml:space="preserve"><value>Általa</value></data>
+  <data name="Col_Kpis" xml:space="preserve"><value>KPI-k</value></data>
+  <data name="Unlabelled" xml:space="preserve"><value>(címkézetlen)</value></data>
+  <data name="Tip_CompareToCurrent" xml:space="preserve"><value>Összehasonlítás a jelenlegivel</value></data>
+  <data name="Tip_DeleteSnapshot" xml:space="preserve"><value>Pillanatkép törlése</value></data>
+  <data name="ConfirmDelete" xml:space="preserve"><value>Törli ezt a pillanatképet?</value></data>
+  <data name="Comparison" xml:space="preserve"><value>Összehasonlítás</value></data>
+  <data name="Pill_Increased" xml:space="preserve"><value>{0} nőtt</value></data>
+  <data name="Pill_Decreased" xml:space="preserve"><value>{0} csökkent</value></data>
+  <data name="Pill_Unchanged" xml:space="preserve"><value>{0} változatlan</value></data>
+  <data name="Pill_Added" xml:space="preserve"><value>{0} hozzáadva</value></data>
+  <data name="Pill_Removed" xml:space="preserve"><value>{0} eltávolítva</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_Baseline" xml:space="preserve"><value>Alaphelyzet</value></data>
+  <data name="Col_Current" xml:space="preserve"><value>Jelenlegi</value></data>
+  <data name="Col_Compare" xml:space="preserve"><value>Összehasonlítás</value></data>
+  <data name="Col_Change" xml:space="preserve"><value>Változás</value></data>
+  <data name="RiskKpi" xml:space="preserve"><value>Kockázati KPI</value></data>
+  <data name="Trend" xml:space="preserve"><value>Tendencia</value></data>
+  <data name="TrendHint" xml:space="preserve"><value>KPI-értékek az utolsó {0} pillanatképben. Válasszon irányítópultot és kategóriát, majd jelöljön be egy vagy több KPI-t az ábrázoláshoz.</value></data>
+  <data name="Filter_Dashboard" xml:space="preserve"><value>Irányítópult</value></data>
+  <data name="Filter_Category" xml:space="preserve"><value>Kategória</value></data>
+  <data name="Filter_Kpis" xml:space="preserve"><value>KPI-k</value></data>
+  <data name="SelectKpis" xml:space="preserve"><value>KPI-k kiválasztása</value></data>
+  <data name="AllKpisFormat" xml:space="preserve"><value>Összes KPI ({0})</value></data>
+  <data name="KpisSelectedFormat" xml:space="preserve"><value>{0} KPI kiválasztva</value></data>
+</root>
