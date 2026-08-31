@@ -53,6 +53,16 @@
         .lang-flag { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.08); flex-shrink: 0; }
         .lang-select { flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; transition: border-color .2s; }
         .lang-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+        .settings-category { max-width: 600px; margin: 0 auto 24px; }
+        .category-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; background: #111827; color: #fff; border-radius: 12px; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+        .category-header h2 { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0; }
+        .category-toggle { background: none; border: none; cursor: pointer; padding: 4px 8px; color: #fff; display: flex; align-items: center; }
+        .category-toggle svg { width: 22px; height: 22px; transition: transform .2s; }
+        .category-header.collapsed .category-toggle svg { transform: rotate(-90deg); }
+        .category-body { overflow: hidden; transition: max-height .35s ease, opacity .2s ease; max-height: 6000px; opacity: 1; margin-top: 16px; }
+        .category-body.collapsed { max-height: 0; opacity: 0; margin-top: 0; }
+        .settings-category .settings-card { margin-bottom: 16px; }
     </style>
 </head>
 <body>
@@ -66,33 +76,12 @@
     <a href="@(HttpContext.Request.PathBase)/" class="back-link" id="backLink">&larr; @Localizer["BackToDashboard"]</a>
 
     <form method="post">
-        <div class="settings-card">
-            <div class="section-header collapsed" onclick="toggleSection(this)">
-                <h2>@Localizer["Card_WebInterface"]</h2>
-                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="settings-category">
+            <div class="category-header" onclick="toggleSection(this)">
+                <h2>@SettingsCategoryInfo.User.DisplayName</h2>
+                <button type="button" class="category-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
             </div>
-            <div class="section-body collapsed">
-                <div class="form-group">
-                    <label for="WebInterfaceUrl">@Localizer["Label_BaseUrl"]</label>
-                    <input type="text" id="WebInterfaceUrl" name="WebInterfaceUrl" value="@Model.WebInterfaceUrl" placeholder="https://server/arWebAdmin" />
-                    <p class="hint">@Localizer["Hint_WebInterface"]</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-card">
-            <div class="section-header collapsed" onclick="toggleSection(this)">
-                <h2>@Localizer["Card_AutoRefresh"]</h2>
-                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-            </div>
-            <div class="section-body collapsed">
-                <div class="form-group">
-                    <label for="AutoRefreshMinutes">@Localizer["Label_RefreshInterval"]</label>
-                    <input type="number" id="AutoRefreshMinutes" name="AutoRefreshMinutes" value="@Model.AutoRefreshMinutes" min="0" max="1440" />
-                    <p class="hint">@Localizer["Hint_AutoRefresh"]</p>
-                </div>
-            </div>
-        </div>
+            <div class="category-body">
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
@@ -113,60 +102,6 @@
                     </div>
                     <p class="hint">@Localizer["Hint_Language"]</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="settings-card">
-            <div class="section-header collapsed" onclick="toggleSection(this)">
-                <h2>@Localizer["Card_KpiConfiguration"]</h2>
-                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-            </div>
-            <div class="section-body collapsed">
-
-            @if (Model.IsActiveRolesAdmin)
-            {
-            <div class="form-group">
-                <label for="CustomActiveRolesAdminsBaseDn">@Localizer["Label_ArAdminsBaseDn"]</label>
-                <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomActiveRolesAdminsFilter">@Localizer["Label_ArAdminsFilter"]</label>
-                <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultActiveRolesAdminsFilter" />
-            </div>
-            }
-            <div class="form-group">
-                <label for="CustomNoGroupOwnerBaseDn">@Localizer["Label_NoGroupOwnerBaseDn"]</label>
-                <input type="text" id="CustomNoGroupOwnerBaseDn" name="CustomNoGroupOwnerBaseDn" value="@Model.CustomNoGroupOwnerBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomNoManagerUserBaseDn">@Localizer["Label_NoManagerUserBaseDn"]</label>
-                <input type="text" id="CustomNoManagerUserBaseDn" name="CustomNoManagerUserBaseDn" value="@Model.CustomNoManagerUserBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomNoManagerUserFilter">@Localizer["Label_NoManagerUserFilter"]</label>
-                <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultNoManagerUserFilter" />
-            </div>
-            <div class="form-group">
-                <label for="CustomNoManagerServiceAccountBaseDn">@Localizer["Label_NoManagerSvcBaseDn"]</label>
-                <input type="text" id="CustomNoManagerServiceAccountBaseDn" name="CustomNoManagerServiceAccountBaseDn" value="@Model.CustomNoManagerServiceAccountBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomNoManagerServiceAccountFilter">@Localizer["Label_NoManagerSvcFilter"]</label>
-                <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultNoManagerServiceAccountFilter" />
-            </div>
-            <div class="form-group">
-                <label for="CustomUserAccountLockedOutBaseDn">@Localizer["Label_LockedOutBaseDn"]</label>
-                <input type="text" id="CustomUserAccountLockedOutBaseDn" name="CustomUserAccountLockedOutBaseDn" value="@Model.CustomUserAccountLockedOutBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomEmptyGroupsBaseDn">@Localizer["Label_EmptyGroupsBaseDn"]</label>
-                <input type="text" id="CustomEmptyGroupsBaseDn" name="CustomEmptyGroupsBaseDn" value="@Model.CustomEmptyGroupsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="EntraLargeGroupMemberThreshold">@Localizer["Label_LargeGroupThreshold"]</label>
-                <input type="number" id="EntraLargeGroupMemberThreshold" name="EntraLargeGroupMemberThreshold" value="@Model.EntraLargeGroupMemberThreshold" min="1" max="100000" />
-                <p class="hint">@Localizer["Hint_LargeGroupThreshold"]</p>
-            </div>
             </div>
         </div>
 
@@ -744,6 +679,102 @@
                 </div>
             </div>
         </div>
+            </div>
+        </div>
+
+        @if (Model.IsActiveRolesAdmin)
+        {
+        <div class="settings-category">
+            <div class="category-header collapsed" onclick="toggleSection(this)">
+                <h2>@SettingsCategoryInfo.System.DisplayName</h2>
+                <button type="button" class="category-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="category-body collapsed">
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_WebInterface"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="WebInterfaceUrl">@Localizer["Label_BaseUrl"]</label>
+                    <input type="text" id="WebInterfaceUrl" name="WebInterfaceUrl" value="@Model.WebInterfaceUrl" placeholder="https://server/arWebAdmin" />
+                    <p class="hint">@Localizer["Hint_WebInterface"]</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_AutoRefresh"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="AutoRefreshMinutes">@Localizer["Label_RefreshInterval"]</label>
+                    <input type="number" id="AutoRefreshMinutes" name="AutoRefreshMinutes" value="@Model.AutoRefreshMinutes" min="0" max="1440" />
+                    <p class="hint">@Localizer["Hint_AutoRefresh"]</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_KpiConfiguration"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+
+            @if (Model.IsActiveRolesAdmin)
+            {
+            <div class="form-group">
+                <label for="CustomActiveRolesAdminsBaseDn">@Localizer["Label_ArAdminsBaseDn"]</label>
+                <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomActiveRolesAdminsFilter">@Localizer["Label_ArAdminsFilter"]</label>
+                <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultActiveRolesAdminsFilter" />
+            </div>
+            }
+            <div class="form-group">
+                <label for="CustomNoGroupOwnerBaseDn">@Localizer["Label_NoGroupOwnerBaseDn"]</label>
+                <input type="text" id="CustomNoGroupOwnerBaseDn" name="CustomNoGroupOwnerBaseDn" value="@Model.CustomNoGroupOwnerBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerUserBaseDn">@Localizer["Label_NoManagerUserBaseDn"]</label>
+                <input type="text" id="CustomNoManagerUserBaseDn" name="CustomNoManagerUserBaseDn" value="@Model.CustomNoManagerUserBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerUserFilter">@Localizer["Label_NoManagerUserFilter"]</label>
+                <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultNoManagerUserFilter" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerServiceAccountBaseDn">@Localizer["Label_NoManagerSvcBaseDn"]</label>
+                <input type="text" id="CustomNoManagerServiceAccountBaseDn" name="CustomNoManagerServiceAccountBaseDn" value="@Model.CustomNoManagerServiceAccountBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomNoManagerServiceAccountFilter">@Localizer["Label_NoManagerSvcFilter"]</label>
+                <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultNoManagerServiceAccountFilter" />
+            </div>
+            <div class="form-group">
+                <label for="CustomUserAccountLockedOutBaseDn">@Localizer["Label_LockedOutBaseDn"]</label>
+                <input type="text" id="CustomUserAccountLockedOutBaseDn" name="CustomUserAccountLockedOutBaseDn" value="@Model.CustomUserAccountLockedOutBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="CustomEmptyGroupsBaseDn">@Localizer["Label_EmptyGroupsBaseDn"]</label>
+                <input type="text" id="CustomEmptyGroupsBaseDn" name="CustomEmptyGroupsBaseDn" value="@Model.CustomEmptyGroupsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
+            </div>
+            <div class="form-group">
+                <label for="EntraLargeGroupMemberThreshold">@Localizer["Label_LargeGroupThreshold"]</label>
+                <input type="number" id="EntraLargeGroupMemberThreshold" name="EntraLargeGroupMemberThreshold" value="@Model.EntraLargeGroupMemberThreshold" min="1" max="100000" />
+                <p class="hint">@Localizer["Hint_LargeGroupThreshold"]</p>
+            </div>
+            </div>
+        </div>
+            </div>
+        </div>
+        }
 
         <div class="settings-card">
             <button type="submit" class="btn-save">@Localizer["SaveSettings"]</button>

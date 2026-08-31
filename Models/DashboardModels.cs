@@ -294,6 +294,75 @@ public class CategoryInfo
     }
 }
 
+/// <summary>
+/// Describes a top-level, collapsible grouping of cards on the Settings page,
+/// modelled after <see cref="CategoryInfo"/>. Categories carry a sort order using the
+/// shared <see cref="CategorySortOrder"/> semantics (default A-Z), an admin gate, and a
+/// default expand/collapse state that is reset on each page load (no persistence).
+/// </summary>
+public class SettingsCategoryInfo
+{
+    private readonly string _displayName = string.Empty;
+
+    public string Key { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Localized category name resolved at read-time (key <c>SettingsCat_{Key}</c>) via
+    /// <see cref="KpiLocalizer"/>, falling back to the literal set at initialization.
+    /// </summary>
+    public string DisplayName
+    {
+        get => KpiLocalizer.Localize($"SettingsCat_{Key}", _displayName);
+        init => _displayName = value;
+    }
+
+    /// <summary>Manual ordering used when <see cref="SortMode"/> is <see cref="CategorySortOrder.Custom"/>.</summary>
+    public int SortOrder { get; init; }
+
+    /// <summary>How this set of categories is ordered on the page. Defaults to A-Z.</summary>
+    public CategorySortOrder SortMode { get; init; } = CategorySortOrder.AtoZ;
+
+    /// <summary>When true, the category is only rendered for Active Roles administrators.</summary>
+    public bool RequiresAdmin { get; init; }
+
+    /// <summary>Default expand state applied on each page load (state is not persisted).</summary>
+    public bool DefaultExpanded { get; init; }
+
+    public static readonly SettingsCategoryInfo User = new()
+    {
+        Key = "User",
+        DisplayName = "User",
+        SortOrder = 0,
+        DefaultExpanded = true
+    };
+
+    public static readonly SettingsCategoryInfo System = new()
+    {
+        Key = "System",
+        DisplayName = "System",
+        SortOrder = 1,
+        RequiresAdmin = true,
+        DefaultExpanded = false
+    };
+
+    public static readonly IReadOnlyList<SettingsCategoryInfo> All = [User, System];
+
+    /// <summary>
+    /// Returns the categories in display order. Mirrors <see cref="CategoryInfo.ForDashboard"/>
+    /// sort semantics: A-Z / Z-A by localized name, otherwise the manual <see cref="SortOrder"/>.
+    /// </summary>
+    public static IReadOnlyList<SettingsCategoryInfo> Ordered() => All.First().SortMode switch
+    {
+        CategorySortOrder.AtoZ => All.OrderBy(c => c.DisplayName, StringComparer.OrdinalIgnoreCase).ToList(),
+        CategorySortOrder.ZtoA => All.OrderByDescending(c => c.DisplayName, StringComparer.OrdinalIgnoreCase).ToList(),
+        _ => All.OrderBy(c => c.SortOrder).ToList()
+    };
+
+    /// <summary>Returns the ordered categories visible to the current user, honouring <see cref="RequiresAdmin"/>.</summary>
+    public static IReadOnlyList<SettingsCategoryInfo> Visible(bool isAdmin) =>
+        Ordered().Where(c => !c.RequiresAdmin || isAdmin).ToList();
+}
+
 public enum ChartType
 {
     Doughnut,
