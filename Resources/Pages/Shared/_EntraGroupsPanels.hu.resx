@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Tip_OpenInWebInterface" xml:space="preserve"><value>Megnyitás a webes felületen</value></data>
+  <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Állítsa be a webes felület URL-jét a Beállításokban</value></data>
+  <data name="LoadingMembership" xml:space="preserve"><value>Csoporttagság betöltése&#8230;</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Név</value></data>
+  <data name="Col_Tenant" xml:space="preserve"><value>Bérlő</value></data>
+  <data name="Col_Dn" xml:space="preserve"><value>Megkülönböztetett név</value></data>
+  <data name="H_DistributionGroups" xml:space="preserve"><value>Terjesztési csoportok</value></data>
+  <data name="H_DynamicDistributionGroups" xml:space="preserve"><value>Dinamikus terjesztési csoportok</value></data>
+  <data name="H_Microsoft365Groups" xml:space="preserve"><value>Microsoft 365 Groups</value></data>
+  <data name="H_SecurityGroups" xml:space="preserve"><value>Biztonsági csoportok</value></data>
+  <data name="H_EmptyGroups" xml:space="preserve"><value>Üres csoportok</value></data>
+  <data name="H_NoGroupOwner" xml:space="preserve"><value>Nincs csoporttulajdonos</value></data>
+  <data name="H_GuestContainingGroups" xml:space="preserve"><value>Vendégeket tartalmazó csoportok</value></data>
+  <data name="H_PublicGroups" xml:space="preserve"><value>Nyilvános M365 csoportok</value></data>
+  <data name="H_OnPremSyncedGroups" xml:space="preserve"><value>Helyszínen szinkronizált csoportok</value></data>
+  <data name="H_SingleOwnerGroups" xml:space="preserve"><value>Egyetlen tulajdonosú csoportok</value></data>
+  <data name="H_LargeGroups" xml:space="preserve"><value>Nagy csoportok (&#8805;{0} tag)</value></data>
+  <data name="E_DistributionGroups" xml:space="preserve"><value>Nem található terjesztési csoport</value></data>
+  <data name="E_DynamicDistributionGroups" xml:space="preserve"><value>Nem található dinamikus terjesztési csoport</value></data>
+  <data name="E_Microsoft365Groups" xml:space="preserve"><value>Nem található Microsoft 365 csoport</value></data>
+  <data name="E_SecurityGroups" xml:space="preserve"><value>Nem található biztonsági csoport</value></data>
+  <data name="E_EmptyGroups" xml:space="preserve"><value>Nem található üres csoport</value></data>
+  <data name="E_NoGroupOwner" xml:space="preserve"><value>Nem található tulajdonos nélküli csoport</value></data>
+  <data name="E_GuestContainingGroups" xml:space="preserve"><value>Nem található vendégeket tartalmazó csoport</value></data>
+  <data name="E_PublicGroups" xml:space="preserve"><value>Nem található nyilvános Microsoft 365 csoport</value></data>
+  <data name="E_OnPremSyncedGroups" xml:space="preserve"><value>Nem található helyszínen szinkronizált csoport</value></data>
+  <data name="E_SingleOwnerGroups" xml:space="preserve"><value>Nem található egyetlen tulajdonosú csoport</value></data>
+  <data name="E_LargeGroups" xml:space="preserve"><value>Nem található nagy csoport</value></data>
+</root>

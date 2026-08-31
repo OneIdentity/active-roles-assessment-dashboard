@@ -1,4 +1,4 @@
-using System.Buffers;
+ï»¿using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ActiveRolesDashboard.Models.Reporting;
@@ -1255,10 +1255,11 @@ public class SupportedLanguage
     public static readonly IReadOnlyList<SupportedLanguage> All = new List<SupportedLanguage>
     {
         new() { Code = "en", DisplayName = "English", FlagImage = "img/flags/en.svg" },
-        new() { Code = "fr", DisplayName = "Français", FlagImage = "img/flags/fr.svg" },
+        new() { Code = "fr", DisplayName = "FranÃ§ais", FlagImage = "img/flags/fr.svg" },
         new() { Code = "it", DisplayName = "Italiano", FlagImage = "img/flags/it.svg" },
-        new() { Code = "es", DisplayName = "Español", FlagImage = "img/flags/es.svg" },
-        new() { Code = "de", DisplayName = "Deutsch", FlagImage = "img/flags/de.svg" }
+        new() { Code = "es", DisplayName = "EspaÃ±ol", FlagImage = "img/flags/es.svg" },
+        new() { Code = "de", DisplayName = "Deutsch", FlagImage = "img/flags/de.svg" },
+        new() { Code = "hu", DisplayName = "Magyar", FlagImage = "img/flags/hu.svg" }
     };
 }
 

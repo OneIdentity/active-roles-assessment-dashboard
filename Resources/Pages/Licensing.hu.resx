@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+    <data name="LoadingDashboardData" xml:space="preserve"><value>Irányítópult adatainak betöltése...</value></data>
+  <data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópulthoz</value></data>
+  <data name="H_ManagedObjects" xml:space="preserve"><value>Kezelt objektumok</value></data>
+  <data name="E_ManagedObjects" xml:space="preserve"><value>Nem található kezelt objektum statisztika</value></data>
+  <data name="Chart_Time" xml:space="preserve"><value>Idő</value></data>
+  <data name="Chart_ObjectCount" xml:space="preserve"><value>Objektumok száma</value></data>
+  <data name="H_LicensingThresholds" xml:space="preserve"><value>Összesen a licencelt jogosultságokhoz képest</value></data>
+  <data name="Badge_OverEntitlement" xml:space="preserve"><value>Jogosultság tüllépése</value></data>
+  <data name="Chart_Actual" xml:space="preserve"><value>Valós</value></data>
+  <data name="Chart_Entitlement" xml:space="preserve"><value>Jogosultság</value></data>
+  <data name="Cat_Domain" xml:space="preserve"><value>Tartomány</value></data>
+  <data name="Cat_Partition" xml:space="preserve"><value>Partíció</value></data>
+  <data name="Cat_Azure" xml:space="preserve"><value>Azure</value></data>
+  <data name="Cat_Saas" xml:space="preserve"><value>SaaS</value></data>
+  <data name="Cat_GrandTotal" xml:space="preserve"><value>Végösszeg</value></data>
+</root>

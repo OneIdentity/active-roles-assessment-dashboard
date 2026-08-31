@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+	<xsd:element name="root" msdata:IsDataSet="true">
+	  <xsd:complexType>
+		<xsd:choice maxOccurs="unbounded">
+		  <xsd:element name="metadata">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" use="required" type="xsd:string" />
+			  <xsd:attribute name="type" type="xsd:string" />
+			  <xsd:attribute name="mimetype" type="xsd:string" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="assembly">
+			<xsd:complexType>
+			  <xsd:attribute name="alias" type="xsd:string" />
+			  <xsd:attribute name="name" type="xsd:string" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="data">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+				<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+			  <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+			  <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+			  <xsd:attribute ref="xml:space" />
+			</xsd:complexType>
+		  </xsd:element>
+		  <xsd:element name="resheader">
+			<xsd:complexType>
+			  <xsd:sequence>
+				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+			  </xsd:sequence>
+			  <xsd:attribute name="name" type="xsd:string" use="required" />
+			</xsd:complexType>
+		  </xsd:element>
+		</xsd:choice>
+	  </xsd:complexType>
+	</xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Categories -->
+  <data name="Cat_Overview" xml:space="preserve"><value>Áttekintés</value></data>
+  <data name="Chart_ComputerOsBreakdown" xml:space="preserve"><value>Számítógépek operációs rendszer szerint</value></data>
+  <data name="Chart_GroupTypeBreakdown" xml:space="preserve"><value>Csoportok típus szerint</value></data>
+  <data name="Chart_UserAccountStateBreakdown" xml:space="preserve"><value>Felhasználók fiókállapot szerint</value></data>
+  <data name="Chart_UserPasswordControlBreakdown" xml:space="preserve"><value>Jelszóváltoztatás vezérlése</value></data>
+  <data name="Chart_UserDelegationBreakdown" xml:space="preserve"><value>Delegálás vezérlése</value></data>
+  <data name="Chart_UserAccountOptions" xml:space="preserve"><value>Fiókbeállítások</value></data>
+  <data name="Chart_OverviewUsersBySource" xml:space="preserve"><value>Felhasználók forrás szerint</value></data>
+  <data name="Chart_OverviewGroupsBySource" xml:space="preserve"><value>Csoportok forrás szerint</value></data>
+  <data name="Chart_OverviewComputersBySource" xml:space="preserve"><value>Számítógépek / eszközök forrás szerint</value></data>
+  <data name="Chart_AdOverviewUsersChart" xml:space="preserve"><value>Felhasználók forrás szerint</value></data>
+  <data name="Chart_AdOverviewGroupsChart" xml:space="preserve"><value>Csoportok forrás szerint</value></data>
+  <data name="Chart_AdOverviewComputersChart" xml:space="preserve"><value>Számítógépek / eszközök forrás szerint</value></data>
+  <data name="Chart_EntraOverviewUsersChart" xml:space="preserve"><value>Felhasználók forrás szerint</value></data>
+  <data name="Chart_EntraOverviewGroupsChart" xml:space="preserve"><value>Csoportok forrás szerint</value></data>
+  <data name="Chart_EntraUserAccountStateBreakdown" xml:space="preserve"><value>Felhasználók fiókállapot szerint</value></data>
+  <data name="Chart_EntraUserOriginBreakdown" xml:space="preserve"><value>Felhasználók eredet szerint</value></data>
+  <data name="Chart_EntraGroupTypeBreakdown" xml:space="preserve"><value>Csoportok típus szerint</value></data>
+  <data name="Cat_ADOverview" xml:space="preserve"><value>Áttekintés</value></data>
+  <data name="Cat_EntraOverview" xml:space="preserve"><value>Áttekintés</value></data>
+  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Active Roles konfiguráció</value></data>
+  <data name="Cat_ADGovernance" xml:space="preserve"><value>Irányítás és kockázat</value></data>
+  <data name="Cat_PrivilegedGroups" xml:space="preserve"><value>Kiváltságos csoportok</value></data>
+  <data name="Cat_ADUserAccountsCategory" xml:space="preserve"><value>Felhasználói fiókok</value></data>
+  <data name="Cat_ADGroupsCategory" xml:space="preserve"><value>Csoportok</value></data>
+  <data name="Cat_PrivilegedUsers" xml:space="preserve"><value>Kiváltságos felhasználók</value></data>
+  <data name="Cat_Infrastructure" xml:space="preserve"><value>Infrastruktúra</value></data>
+  <data name="Cat_ComputersCategory" xml:space="preserve"><value>Számítógépek</value></data>
+  <data name="Cat_NHIs" xml:space="preserve"><value>NHI-k</value></data>
+  <data name="Cat_EntraIDGovernance" xml:space="preserve"><value>Irányítás és kockázat</value></data>
+  <data name="Cat_EntraUserAccounts" xml:space="preserve"><value>Felhasználói fiókok</value></data>
+  <data name="Cat_EntraGroups" xml:space="preserve"><value>Csoportok</value></data>
+  <data name="Cat_Licensing" xml:space="preserve"><value>Licencelés</value></data>
+  <!-- KPI display names -->
+  <data name="Kpi_ADUserAccounts" xml:space="preserve"><value>Összes felhasználó</value></data>
+  <data name="Kpi_ADGroups" xml:space="preserve"><value>Összes csoport</value></data>
+  <data name="Kpi_Computers" xml:space="preserve"><value>Összes számítógép</value></data>
+  <data name="Kpi_AdOverviewUsers" xml:space="preserve"><value>Összes felhasználó</value></data>
+  <data name="Kpi_AdOverviewGroups" xml:space="preserve"><value>Összes csoport</value></data>
+  <data name="Kpi_AdOverviewComputers" xml:space="preserve"><value>Összes számítógép</value></data>
+  <data name="Kpi_EntraOverviewUsers" xml:space="preserve"><value>Összes felhasználó</value></data>
+  <data name="Kpi_EntraOverviewGroups" xml:space="preserve"><value>Összes csoport</value></data>
+  <data name="Kpi_EntraEnabledUsers" xml:space="preserve"><value>Engedélyezett felhasználók</value></data>
+  <data name="Kpi_EntraDisabledUsers" xml:space="preserve"><value>Letiltott felhasználók</value></data>
+  <data name="Kpi_EntraNoManagerUser" xml:space="preserve"><value>Nincs vezető (Felhasználó)</value></data>
+  <data name="Kpi_EntraGuestUsers" xml:space="preserve"><value>Vendégfelhasználók</value></data>
+  <data name="Kpi_EntraInternalUsers" xml:space="preserve"><value>Belső felhasználók</value></data>
+  <data name="Kpi_EntraExternalUsers" xml:space="preserve"><value>Külső felhasználók</value></data>
+  <data name="Kpi_EntraDistributionGroups" xml:space="preserve"><value>Terjesztési csoportok</value></data>
+  <data name="Kpi_EntraDynamicDistributionGroups" xml:space="preserve"><value>Dinamikus terjesztési csoportok</value></data>
+  <data name="Kpi_EntraMicrosoft365Groups" xml:space="preserve"><value>Microsoft 365 csoportok</value></data>
+  <data name="Kpi_EntraSecurityGroups" xml:space="preserve"><value>Biztonsági csoportok</value></data>
+  <data name="Kpi_EntraEmptyGroups" xml:space="preserve"><value>Üres csoportok</value></data>
+  <data name="Kpi_EntraNoGroupOwner" xml:space="preserve"><value>Nincs csoporttulajdonos</value></data>
+  <data name="Kpi_EntraGuestContainingGroups" xml:space="preserve"><value>Vendégeket tartalmazó csoportok</value></data>
+  <data name="Kpi_EntraPublicGroups" xml:space="preserve"><value>Nyilvános M365 csoportok</value></data>
+  <data name="Kpi_EntraOnPremSyncedGroups" xml:space="preserve"><value>Helyszíni szinkronizált csoportok</value></data>
+  <data name="Kpi_EntraSingleOwnerGroups" xml:space="preserve"><value>Egyetlen tulajdonosú csoportok</value></data>
+  <data name="Kpi_EntraLargeGroups" xml:space="preserve"><value>Nagy csoportok</value></data>
+  <data name="Kpi_ActiveRolesAdmins" xml:space="preserve"><value>Active Roles rendszergazdák</value></data>
+  <data name="KpiTile_ActiveRolesAdmins" xml:space="preserve"><value>AR rendszergazdák</value></data>
+  <data name="Kpi_Servers" xml:space="preserve"><value>AR kiszolgálók</value></data>
+  <data name="Kpi_Domains" xml:space="preserve"><value>Kezelt tartományok</value></data>
+  <data name="Kpi_AccessTemplateLinks" xml:space="preserve"><value>Hozzáférési sablon hivatkozások</value></data>
+  <data name="Kpi_AccessTemplates" xml:space="preserve"><value>Hozzáférési sablonok</value></data>
+  <data name="Kpi_DynamicGroups" xml:space="preserve"><value>Dinamikus csoportok</value></data>
+  <data name="Kpi_GroupFamilies" xml:space="preserve"><value>Csoportcsaládok</value></data>
+  <data name="Kpi_ManagedUnits" xml:space="preserve"><value>Kezelt egységek</value></data>
+  <data name="Kpi_PolicyObjectLinks" xml:space="preserve"><value>Szabályzat-objektum hivatkozások</value></data>
+  <data name="Kpi_PolicyObjects" xml:space="preserve"><value>Szabályzat-objektumok</value></data>
+  <data name="Kpi_VirtualAttributes" xml:space="preserve"><value>Virtuális attribútumok</value></data>
+  <data name="Kpi_Workflows" xml:space="preserve"><value>Munkafolyamatok</value></data>
+  <data name="Kpi_ConfigDatabases" xml:space="preserve"><value>Konfigurációs adatbázisok</value></data>
+  <data name="Kpi_HistoryDatabases" xml:space="preserve"><value>Előzmény-adatbázisok</value></data>
+  <data name="Kpi_NoGroupOwner" xml:space="preserve"><value>Nincs csoporttulajdonos</value></data>
+  <data name="Kpi_NoManagerUser" xml:space="preserve"><value>Nincs vezető (Felhasználó)</value></data>
+  <data name="Kpi_NoManagerServiceAccount" xml:space="preserve"><value>Nincs vezető (Szolgáltatásfiók)</value></data>
+  <data name="Kpi_UserAccountLockedOut" xml:space="preserve"><value>Zárolt felhasználói fiók</value></data>
+  <data name="Kpi_EmptyGroups" xml:space="preserve"><value>Üres csoportok</value></data>
+  <data name="Kpi_NeverLoggedIn" xml:space="preserve"><value>Soha nem jelentkezett be</value></data>
+  <data name="Kpi_ExpiredUsers" xml:space="preserve"><value>Lejárt felhasználók</value></data>
+  <data name="Kpi_ReversibleEncryption" xml:space="preserve"><value>Visszafordítható titkosítás</value></data>
+  <data name="Kpi_AccountOperators" xml:space="preserve"><value>Account Operators</value></data>
+  <data name="Kpi_Administrators" xml:space="preserve"><value>Administrators</value></data>
+  <data name="Kpi_BackupOperators" xml:space="preserve"><value>Backup Operators</value></data>
+  <data name="Kpi_DomainAdmins" xml:space="preserve"><value>Domain Admins</value></data>
+  <data name="Kpi_ServerOperators" xml:space="preserve"><value>Server Operators</value></data>
+  <data name="Kpi_EnterpriseAdmins" xml:space="preserve"><value>Enterprise Admins</value></data>
+  <data name="Kpi_SchemaAdmins" xml:space="preserve"><value>Schema Admins</value></data>
+  <data name="Kpi_CannotChangePassword" xml:space="preserve"><value>Nem módosítható a jelszó</value></data>
+  <data name="Kpi_DisabledUsers" xml:space="preserve"><value>Letiltott felhasználók</value></data>
+  <data name="Kpi_NoKerberosPreauth" xml:space="preserve"><value>Nem igényel Kerberos előhitelesítést</value></data>
+  <data name="Kpi_EnabledUsers" xml:space="preserve"><value>Engedélyezett felhasználók</value></data>
+  <data name="Kpi_ExpiringUsers" xml:space="preserve"><value>Lejáró felhasználók</value></data>
+  <data name="Kpi_MustChangePassword" xml:space="preserve"><value>Jelszót módosítania kell</value></data>
+  <data name="Kpi_PasswordNeverExpires" xml:space="preserve"><value>A jelszó soha nem jár le</value></data>
+  <data name="Kpi_PasswordNotRequired" xml:space="preserve"><value>Jelszó nem szükséges</value></data>
+  <data name="Kpi_UserReversibleEncryption" xml:space="preserve"><value>Visszafordítható titkosítás</value></data>
+  <data name="Kpi_SensitiveCannotDelegate" xml:space="preserve"><value>Érzékeny - Nem delegálható</value></data>
+  <data name="Kpi_SmartCardRequired" xml:space="preserve"><value>Intelligens kártya szükséges</value></data>
+  <data name="Kpi_TrustedForDelegation" xml:space="preserve"><value>Delegáláshoz megbízható</value></data>
+  <data name="Kpi_UseDesEncryption" xml:space="preserve"><value>DES titkosítás használata</value></data>
+  <data name="Kpi_DeprovisionedUsers" xml:space="preserve"><value>Megszüntetett felhasználók</value></data>
+  <data name="Kpi_SpnUserAccounts" xml:space="preserve"><value>Szolgáltatásfiókok (SPN)</value></data>
+  <data name="Kpi_StaleUsers" xml:space="preserve"><value>Elavult fiókok (Inaktív)</value></data>
+  <data name="Kpi_ServiceAccounts" xml:space="preserve"><value>Szolgáltatásfiókok</value></data>
+  <data name="Kpi_GmsaServiceAccounts" xml:space="preserve"><value>gMSA szolgáltatásfiókok</value></data>
+  <data name="Kpi_SmsaServiceAccounts" xml:space="preserve"><value>sMSA szolgáltatásfiókok</value></data>
+  <data name="Kpi_DistributionGroups" xml:space="preserve"><value>Terjesztési csoportok</value></data>
+  <data name="Kpi_AdminCount" xml:space="preserve"><value>Admin számláló</value></data>
+  <data name="Kpi_Sites" xml:space="preserve"><value>Helyek</value></data>
+  <data name="Kpi_SiteLinks" xml:space="preserve"><value>Helyhivatkozások</value></data>
+  <data name="Kpi_Subnets" xml:space="preserve"><value>Alhálózatok</value></data>
+  <data name="Kpi_OUs" xml:space="preserve"><value>Szervezeti egységek</value></data>
+  <data name="Kpi_DomainControllers" xml:space="preserve"><value>Tartományvezérlők</value></data>
+  <data name="Kpi_DomainLocalGroups" xml:space="preserve"><value>Tartományi helyi csoportok</value></data>
+  <data name="Kpi_GlobalGroups" xml:space="preserve"><value>Globális csoportok</value></data>
+  <data name="Kpi_MailEnabledSecurityGroups" xml:space="preserve"><value>Levélküldésre engedélyezett biztonsági csoportok</value></data>
+  <data name="Kpi_SecurityGroups" xml:space="preserve"><value>Biztonsági csoportok</value></data>
+  <data name="Kpi_UniversalGroups" xml:space="preserve"><value>Univerzális csoportok</value></data>
+  <data name="Kpi_CircularGroupNesting" xml:space="preserve"><value>Körkörös csoportbeágyazás</value></data>
+  <data name="Kpi_ComputerClients" xml:space="preserve"><value>Kliensek</value></data>
+  <data name="Kpi_ComputerServers" xml:space="preserve"><value>Kiszolgálók</value></data>
+  <data name="Kpi_WinServer2008R2" xml:space="preserve"><value>Windows Server 2008 R2</value></data>
+  <data name="Kpi_WinServer2012R2" xml:space="preserve"><value>Windows Server 2012 R2</value></data>
+  <data name="Kpi_WinServer2016" xml:space="preserve"><value>Windows Server 2016</value></data>
+  <data name="Kpi_WinServer2019" xml:space="preserve"><value>Windows Server 2019</value></data>
+  <data name="Kpi_WinServer2022" xml:space="preserve"><value>Windows Server 2022</value></data>
+  <data name="Kpi_WinServer2025" xml:space="preserve"><value>Windows Server 2025</value></data>
+  <data name="Kpi_ServerOther" xml:space="preserve"><value>Kiszolgáló (egyéb)</value></data>
+  <data name="Kpi_Win7" xml:space="preserve"><value>Windows 7</value></data>
+  <data name="Kpi_Win81" xml:space="preserve"><value>Windows 8.1</value></data>
+  <data name="Kpi_Win10_22H2" xml:space="preserve"><value>Windows 10 22H2</value></data>
+  <data name="Kpi_Win11_22H2" xml:space="preserve"><value>Windows 11 22H2</value></data>
+  <data name="Kpi_Win11_23H2" xml:space="preserve"><value>Windows 11 23H2</value></data>
+  <data name="Kpi_Win11Enterprise" xml:space="preserve"><value>Windows 11 Enterprise</value></data>
+  <data name="Kpi_Win11Pro" xml:space="preserve"><value>Windows 11 Pro</value></data>
+  <data name="Kpi_ClientsOther" xml:space="preserve"><value>Kliensek (egyéb)</value></data>
+  <data name="Kpi_UnconstrainedComputers" xml:space="preserve"><value>Korlátlan delegálás</value></data>
+  <data name="Kpi_ManagedObjects" xml:space="preserve"><value>Kezelt objektumok</value></data>
+</root>
