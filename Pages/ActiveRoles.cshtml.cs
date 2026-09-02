@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +17,12 @@ public class ActiveRolesModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
-        // Restore cached totals for derivation (e.g. GroupFamilies from ADGroups)
-        var cachedTotals = GetCachedOverviewTotals();
-
-        // Load AR Configuration-specific data using cached totals
+        // Serve from the shared, already-collected superset (admins: unfiltered; others: per-user
+        // projection) instead of re-querying Active Roles for every KPI on each visit. This also
+        // keeps membership-dependent KPIs (e.g. Circular Group Nesting) accurate, since the
+        // superset retains the `member` payload that the cached overview totals strip.
         var token = GetAccessToken()!;
-        var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-        Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, userSettings, skipOverviewTotals: true, cachedTotals: cachedTotals);
-        CacheSummary();
+        await LoadFullSummaryAsync(token);
 
         return Page();
     }
