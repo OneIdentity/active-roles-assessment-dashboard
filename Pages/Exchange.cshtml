@@ -1,0 +1,73 @@
+@page
+@model ActiveRolesDashboard.Pages.ExchangeModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Microsoft Exchange";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - Microsoft Exchange</title>
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+</head>
+<body>
+<div class="loading-overlay active" id="loadingOverlay">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>@Localizer["LoadingDashboardData"]</p>
+    </div>
+</div>
+<div class="page">
+    <div class="sticky-head">
+    @{
+        ViewData["HeaderKey"] = "Exchange";
+        ViewData["RefreshUrl"] = "/Exchange"; ViewData["ShowHome"] = true; ViewData["DashboardKey"] = "Exchange";
+    }
+    <partial name="_DashboardHeader" />
+
+    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
+    </div>
+
+    <div class="kpi-category">
+        <h2 class="kpi-category-title">
+            <span>Microsoft Exchange</span>
+            <button type="button" class="btn-collapse" onclick="toggleCategory(this)" title="Collapse">&#9650;</button>
+        </h2>
+        <p class="muted">Microsoft Exchange (on-premises) KPIs will appear here.</p>
+    </div>
+
+    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+</div>
+<script src="js/chart.umd.min.js" asp-append-version="true"></script>
+<script src="js/dashboard.js" asp-append-version="true"></script>
+@if (Model.AutoRefreshMinutes > 0)
+{
+<script>
+    setTimeout(function() { document.getElementById('loadingOverlay').classList.add('active'); window.location.reload(); }, @(Model.AutoRefreshMinutes * 60 * 1000));
+</script>
+}
+@await Html.PartialAsync("_AppBaseScript")
+<script>
+    document.getElementById('loadingOverlay').classList.remove('active');
+    window.addEventListener('beforeunload', function() {
+        if (window.__isExporting) return;
+        document.getElementById('loadingOverlay').classList.add('active');
+    });
+    document.getElementById('btnRefresh').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('loadingOverlay').classList.add('active');
+        window.location.reload();
+    });
+    function toggleCategory(btn) {
+        var category = btn.closest('.kpi-category');
+        category.classList.toggle('collapsed');
+        btn.classList.toggle('collapsed');
+        btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+</script>
+</body>
+</html>

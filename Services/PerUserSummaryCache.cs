@@ -51,6 +51,16 @@ public sealed class PerUserSummaryCache
     public void SetAdmin(string user, bool isAdmin) =>
         _cache.Set(AdminKey(user), isAdmin, new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
 
+    /// <summary>
+    /// Gets the cached organization-wide "is Exchange deployed" flag, or null if not yet resolved.
+    /// Cached at app scope (not per-user) since Exchange deployment is the same for every viewer.
+    /// </summary>
+    public bool? GetExchangeDeployed() => _cache.TryGetValue(ExchangeDeployedKey, out bool value) ? value : null;
+
+    /// <summary>Stores the resolved organization-wide "is Exchange deployed" flag.</summary>
+    public void SetExchangeDeployed(bool deployed) =>
+        _cache.Set(ExchangeDeployedKey, deployed, new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
+
     /// <summary>Drops both cached blobs for the user (e.g. on an admin-triggered refresh).</summary>
     public void Clear(string user)
     {
@@ -58,6 +68,8 @@ public sealed class PerUserSummaryCache
         _cache.Remove(OverviewKey(user));
         _cache.Remove(AdminKey(user));
     }
+
+    private const string ExchangeDeployedKey = "org-exchange-deployed";
 
     private string? Read(string key) => _cache.TryGetValue(key, out string? value) ? value : null;
 

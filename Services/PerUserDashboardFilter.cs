@@ -158,7 +158,8 @@ public sealed class PerUserDashboardFilter
     private static DashboardSummary Zeroed() => new()
     {
         EntraTotals = new EntraTotalsSummary(),
-        LicensingVisible = false
+        LicensingVisible = false,
+        ExchangeVisible = false
     };
 
     // ----- family-specific filters (new instance, recomputed count) ----------

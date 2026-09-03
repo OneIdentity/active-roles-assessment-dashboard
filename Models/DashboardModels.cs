@@ -63,7 +63,16 @@ public class DashboardInfo
         Image = "images/Licensing.png"
     };
 
-    public static readonly IReadOnlyList<DashboardInfo> All = [ActiveRoles, ActiveDirectory, EntraId, Licensing];
+    public static readonly DashboardInfo Exchange = new()
+    {
+        Key = "Exchange",
+        Title = "Microsoft Exchange",
+        Subtitle = "Microsoft Exchange (on-premises) KPIs",
+        Url = "/Exchange",
+        Image = "images/exchange.svg"
+    };
+
+    public static readonly IReadOnlyList<DashboardInfo> All = [ActiveRoles, ActiveDirectory, EntraId, Exchange, Licensing];
 }
 
 public class CategoryInfo
@@ -911,6 +920,27 @@ public class DefaultFiltersConfig
     public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=APP-ACTIVEROLES-ADMINS))";
     public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
     public string ADGroups { get; set; } = "(objectClass=group)";
+
+    /// <summary>
+    /// Detects deployed Exchange mailbox/CAS servers: any <c>msExchExchangeServer</c> object that
+    /// is NOT a pure transport (edge/hub) server (<c>msExchExchangeTransportServer</c>). Presence of
+    /// at least one match makes the Exchange dashboard eligible to be shown.
+    /// </summary>
+    public string ExchangeServers { get; set; } = "(&(objectClass=msExchExchangeServer)(!(objectClass=msExchExchangeTransportServer)))";
+
+    /// <summary>
+    /// Base DN for the <see cref="ExchangeServers"/> detection search. Exchange server objects are
+    /// stored in the Active Directory configuration partition
+    /// (CN=Microsoft Exchange,CN=Services,CN=Configuration,DC=...), which Active Roles exposes under
+    /// <c>CN=Active Directory</c>. Blank falls back to <c>DefaultActiveDirectoryDN</c>.
+    /// </summary>
+    public string ExchangeServersBaseDn { get; set; } = string.Empty;
+
+    /// <summary>Resolves the "Organization Management" Exchange security group whose members may view the Exchange dashboard.</summary>
+    public string ExchangeOrganizationManagement { get; set; } = "(&(objectClass=group)(name=Organization Management))";
+
+    /// <summary>Resolves the "View-Only Organization Management" Exchange security group whose members may view the Exchange dashboard.</summary>
+    public string ExchangeViewOnlyOrganizationManagement { get; set; } = "(&(objectClass=group)(name=View-Only Organization Management))";
 }
 
 /// <summary>
@@ -1737,6 +1767,23 @@ public class DashboardSummary
     /// and dashboard for viewers without that delegated read access.
     /// </summary>
     public bool LicensingVisible { get; set; } = true;
+
+    /// <summary>
+    /// True when the current viewer is permitted to see the Exchange dashboard: the organization
+    /// must have Exchange deployed (<see cref="ExchangeDeployed"/>) AND the viewer must be an Active
+    /// Roles admin or a member of an Exchange administrative security group ("Organization
+    /// Management" / "View-Only Organization Management"). Defaults to false so the tile and
+    /// dashboard stay hidden unless explicitly granted; set by the per-user gate in the page model.
+    /// </summary>
+    public bool ExchangeVisible { get; set; }
+
+    /// <summary>
+    /// True when the directory contains at least one <c>msExchExchangeServer</c> that is not a
+    /// pure transport server (<c>msExchExchangeTransportServer</c>), i.e. Exchange is deployed.
+    /// This is an organization-wide signal (independent of the viewer) and is a precondition for
+    /// <see cref="ExchangeVisible"/>. Defaults to false until the detection query runs.
+    /// </summary>
+    public bool ExchangeDeployed { get; set; }
 
     /// <summary>
     /// Applies both dimensions of a persisted <see cref="SegmentFilterState"/> to this

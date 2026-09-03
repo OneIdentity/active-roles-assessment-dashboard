@@ -202,6 +202,56 @@ public abstract class DashboardPageModel : PageModel
     }
 
     /// <summary>
+    /// Determines whether the current viewer may see the Exchange dashboard. Two conditions must
+    /// both hold: (1) the organization has Exchange deployed (at least one
+    /// <c>msExchExchangeServer</c> that is not a transport-only server), and (2) the viewer is an
+    /// Active Roles admin OR a member of an Exchange administrative security group ("Organization
+    /// Management" / "View-Only Organization Management"). All other users are denied.
+    ///
+    /// The org-wide deployment signal and the per-user membership result are cached (deployment in
+    /// the app-level cache, membership in session) so the directory lookups run at most once per
+    /// cache lifetime rather than on every page load.
+    /// </summary>
+    protected async Task<bool> CanViewExchangeAsync(CancellationToken ct = default)
+    {
+        var token = GetAccessToken();
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        // (1) Org-wide precondition: Exchange must be deployed. Cache the result app-wide.
+        bool deployed;
+        var cachedDeployed = UserSummaryCache.GetExchangeDeployed();
+        if (cachedDeployed is bool knownDeployed)
+        {
+            deployed = knownDeployed;
+        }
+        else
+        {
+            deployed = await ArService.IsExchangeDeployedAsync(token);
+            UserSummaryCache.SetExchangeDeployed(deployed);
+        }
+
+        if (!deployed)
+            return false;
+
+        // (2) Active Roles admins may always see it once deployed.
+        if (IsActiveRolesAdmin)
+            return true;
+
+        // Otherwise the viewer must be a member of an Exchange administrative group. Cache the
+        // per-user result in session so the membership lookup runs at most once per session.
+        var cachedMember = HttpContext.Session.GetString("IsExchangeAdmin");
+        if (cachedMember != null)
+            return bool.TryParse(cachedMember, out var v) && v;
+
+        var username = User.Identity?.Name ?? string.Empty;
+        var isMember = !string.IsNullOrEmpty(username)
+            && await ArService.IsUserExchangeAdminAsync(token, username);
+        HttpContext.Session.SetString("IsExchangeAdmin", isMember.ToString());
+        return isMember;
+    }
+
+    /// <summary>
     /// Applies the session's active segment (domain/tenant) filter to <see cref="Summary"/>.
     /// Call this AFTER caching the unfiltered summary so the cache can be re-filtered when
     /// the selection changes without re-querying Active Roles. Rendering, export, and any
@@ -445,6 +495,9 @@ public abstract class DashboardPageModel : PageModel
             // renders (already correctly scoped by the caller's own Active Roles permissions).
             var fallbackSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
             Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, fallbackSettings);
+
+            // Even on the cache-cold path, resolve Exchange visibility so the tile renders correctly.
+            Summary.ExchangeVisible = await CanViewExchangeAsync(HttpContext.RequestAborted);
         }
         else
         {
@@ -461,6 +514,11 @@ public abstract class DashboardPageModel : PageModel
             // Admins (and the cache-cold fallback above) keep the default true; a non-admin viewer
             // must be granted List Object + Read objectClass (or Read all properties) on that class.
             Summary.LicensingVisible = viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
+
+            // The Exchange dashboard is gated on Exchange being deployed AND the viewer being an
+            // Active Roles admin or a member of an Exchange administrative group. CanViewExchangeAsync
+            // encapsulates both conditions (and caches the directory lookups).
+            Summary.ExchangeVisible = await CanViewExchangeAsync(HttpContext.RequestAborted);
         }
 
         // Cache the (already permission-scoped) summary for export and sub-dashboard reuse.

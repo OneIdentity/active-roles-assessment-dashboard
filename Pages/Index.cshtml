@@ -63,6 +63,9 @@
             // Hide the Licensing tile from viewers without read access to
             // edsManagedObjectStatisticsData (admins always keep it).
             if (dash.Key == "Licensing" && !Model.Summary.LicensingVisible) { continue; }
+            // Hide the Exchange tile unless Exchange is deployed AND the viewer is an AR admin or a
+            // member of an Exchange administrative group (Organization Management / View-Only).
+            if (dash.Key == "Exchange" && !Model.Summary.ExchangeVisible) { continue; }
             <a href="@(HttpContext.Request.PathBase)@dash.Url" class="dashboard-tile">
                 <img src="@dash.Image" alt="@dash.Title" />
                 <h3>@dash.Title</h3>

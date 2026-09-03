@@ -2642,6 +2642,99 @@ public class ActiveRolesService
     }
 
     /// <summary>
+    /// Returns true when the organization has Exchange deployed, i.e. the directory contains at
+    /// least one <c>msExchExchangeServer</c> that is not a pure transport server
+    /// (<c>msExchExchangeTransportServer</c>). Uses the configured detection filter/base and returns
+    /// false on any error so the Exchange dashboard simply stays hidden rather than faulting.
+    /// </summary>
+    public async Task<bool> IsExchangeDeployedAsync(string token)
+    {
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var filter = config.DefaultFilters.ExchangeServers;
+            var baseDn = string.IsNullOrWhiteSpace(config.DefaultFilters.ExchangeServersBaseDn)
+                ? config.DefaultActiveDirectoryDN
+                : config.DefaultFilters.ExchangeServersBaseDn;
+
+            var servers = await SearchObjectsAsync(token, baseDn, filter, "sub", "distinguishedName");
+            _logger.LogInformation("IsExchangeDeployedAsync: Found {Count} Exchange server object(s) under '{BaseDn}'.",
+                servers.Count, baseDn);
+            return servers.Count > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "IsExchangeDeployedAsync: Exception while detecting Exchange servers.");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Returns true when <paramref name="username"/> is a member (direct or nested) of one of the
+    /// Exchange administrative security groups that may view the Exchange dashboard: "Organization
+    /// Management" or "View-Only Organization Management". Resolution and DN comparison mirror
+    /// <see cref="IsUserActiveRolesAdminAsync"/>. Returns false on any error.
+    /// </summary>
+    public async Task<bool> IsUserExchangeAdminAsync(string token, string username)
+    {
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var baseDn = config.DefaultActiveDirectoryDN;
+
+            // Resolve the viewer's DN once (by sAMAccountName) so it can be compared against the
+            // members of either Exchange administrative group.
+            var name = username;
+            var slashIndex = name.IndexOf('\\');
+            if (slashIndex >= 0) name = name[(slashIndex + 1)..];
+            var atIndex = name.IndexOf('@');
+            if (atIndex >= 0) name = name[..atIndex];
+
+            var userSearch = await SearchObjectsAsync(token, baseDn,
+                $"(&(objectClass=user)(sAMAccountName={name}))", "sub", "distinguishedName");
+            if (userSearch.Count == 0)
+            {
+                _logger.LogWarning("IsUserExchangeAdminAsync: No user found for sAMAccountName '{Username}'.", name);
+                return false;
+            }
+
+            var userDn = GetAttr(userSearch[0], "distinguishedName");
+            if (string.IsNullOrEmpty(userDn))
+                return false;
+
+            var normalizedUserDn = NormalizeAdDn(userDn);
+
+            foreach (var groupFilter in new[]
+            {
+                config.DefaultFilters.ExchangeOrganizationManagement,
+                config.DefaultFilters.ExchangeViewOnlyOrganizationManagement
+            })
+            {
+                if (string.IsNullOrWhiteSpace(groupFilter)) continue;
+
+                var members = await GetPrivilegedGroupMembersAsync(token, baseDn, groupFilter);
+                if (members.Error != null || members.Items.Count == 0) continue;
+
+                var isMember = members.Items.Any(m =>
+                    NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
+                if (isMember)
+                {
+                    _logger.LogInformation("IsUserExchangeAdminAsync: User '{Username}' is a member of an Exchange admin group (filter '{Filter}').",
+                        name, groupFilter);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "IsUserExchangeAdminAsync: Exception while checking Exchange admin status for '{Username}'.", username);
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Strips Active Roles virtual tree suffixes from a DN so that DNs from different
     /// API contexts can be compared reliably.
     /// E.g. "CN=user,OU=Users,DC=domain,DC=com,CN=domain.com,CN=Active Directory"
