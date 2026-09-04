@@ -1,0 +1,72 @@
+@using ActiveRolesDashboard.Models
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    // Data-driven Exchange drilldown panels. Every Exchange KPI shares the generic
+    // GovernanceKpiSummary shape (count + Name/Domain/Dn/Guid items), so a single loop renders one
+    // panel per drilldown-enabled KPI. Panel ids are "panel-{SectionId}" to match each KPI tile's
+    // data-section, wiring the existing dashboard.js click-to-open behaviour.
+    var exchangeKpis = CategoryInfo.ForDashboard(DashboardInfo.Exchange)
+        .Where(c => Model.KpiSettings.IsCategoryEnabled(c.Key))
+        .SelectMany(c => KpiInfo.ForCategory(c).Select(k => (Category: c, Kpi: k)))
+        .Where(x => x.Kpi.HasDrilldown && Model.KpiSettings.IsKpiEnabled(x.Category.Key, x.Kpi.Key))
+        .ToList();
+
+    var webUrl = string.IsNullOrEmpty(Model.WebInterfaceUrl) ? null : Model.WebInterfaceUrl.TrimEnd('/');
+}
+
+@foreach (var (category, kpi) in exchangeKpis)
+{
+    var summary = Model.Summary.ExchangeKpi(kpi.Key);
+    <div class="panel" id="panel-@kpi.SectionId">
+        <h2><span class="sec-icon">E</span> @kpi.DisplayName</h2>
+        <div class="panel-content">
+            @if (summary.Error != null)
+            {
+                <p class="muted">@summary.Error</p>
+            }
+            else
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Col_Name"]</th>
+                            <th>@Localizer["Col_Domain"]</th>
+                            <th>@Localizer["Col_DistinguishedName"]</th>
+                            <th style="width:40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in summary.Items)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Domain</td>
+                                <td class="dn-cell">@item.Dn</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Dn) && webUrl != null)
+                                    {
+                                        <a href="javascript:void(0)" onclick="openWebInterface('@(webUrl)/redirect.ashx?dn=@(Uri.EscapeDataString(item.Dn))')" title="@Localizer["Tip_OpenWebInterface"]" class="btn-manage">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        </a>
+                                    }
+                                    else if (!string.IsNullOrEmpty(item.Dn))
+                                    {
+                                        <span class="btn-manage disabled" title="@Localizer["Tip_ConfigureWebUrl"]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!summary.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">@Localizer["E_NoItems"]</td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}

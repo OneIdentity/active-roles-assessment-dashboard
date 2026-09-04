@@ -145,4 +145,33 @@
   <data name="Kpi_ClientsOther" xml:space="preserve"><value>Client (altro)</value></data>
   <data name="Kpi_UnconstrainedComputers" xml:space="preserve"><value>Delega non vincolata</value></data>
   <data name="Kpi_ManagedObjects" xml:space="preserve"><value>Oggetti gestiti</value></data>
+  <data name="Cat_ExchangeOverview" xml:space="preserve"><value>Panoramica</value></data>
+  <data name="Cat_ExchangeGovernance" xml:space="preserve"><value>Governance e rischio</value></data>
+  <data name="Cat_ExchangeInfrastructure" xml:space="preserve"><value>Infrastruttura</value></data>
+  <data name="Cat_ExchangeMailboxes" xml:space="preserve"><value>Cassette postali</value></data>
+  <data name="Cat_ExchangeGroups" xml:space="preserve"><value>Gruppi di distribuzione</value></data>
+  <data name="Kpi_ExchangeServersKpi" xml:space="preserve"><value>Server Exchange</value></data>
+  <data name="KpiTile_ExchangeServersKpi" xml:space="preserve"><value>Server</value></data>
+  <data name="Kpi_ExchangeTotalMailboxes" xml:space="preserve"><value>Totale cassette postali</value></data>
+  <data name="KpiTile_ExchangeTotalMailboxes" xml:space="preserve"><value>Cassette postali</value></data>
+  <data name="Kpi_ExchangeMailboxDatabasesKpi" xml:space="preserve"><value>Database delle cassette postali</value></data>
+  <data name="KpiTile_ExchangeMailboxDatabasesKpi" xml:space="preserve"><value>Database</value></data>
+  <data name="Kpi_ExchangeAcceptedDomainsKpi" xml:space="preserve"><value>Domini accettati</value></data>
+  <data name="Kpi_ExchangeMailboxServersKpi" xml:space="preserve"><value>Server cassette postali</value></data>
+  <data name="Kpi_ExchangeDAGsKpi" xml:space="preserve"><value>Gruppi di disponibilità del database</value></data>
+  <data name="KpiTile_ExchangeDAGsKpi" xml:space="preserve"><value>DAG</value></data>
+  <data name="Kpi_ExchangeUserMailboxesKpi" xml:space="preserve"><value>Cassette postali utente</value></data>
+  <data name="Kpi_ExchangeSharedMailboxesKpi" xml:space="preserve"><value>Cassette postali condivise</value></data>
+  <data name="Kpi_ExchangeRoomMailboxesKpi" xml:space="preserve"><value>Cassette postali sala</value></data>
+  <data name="Kpi_ExchangeEquipmentMailboxesKpi" xml:space="preserve"><value>Cassette postali apparecchiatura</value></data>
+  <data name="Kpi_ExchangeMailUsersKpi" xml:space="preserve"><value>Utente abilitato alla posta</value></data>
+  <data name="Kpi_ExchangeMailContactsKpi" xml:space="preserve"><value>Contatto abilitato alla posta</value></data>
+  <data name="Kpi_ExchangeDistributionGroupsKpi" xml:space="preserve"><value>Gruppi di distribuzione</value></data>
+  <data name="Kpi_ExchangeMailEnabledSecurityGroupsKpi" xml:space="preserve"><value>Gruppi di sicurezza abilitati alla posta</value></data>
+  <data name="Kpi_ExchangeDynamicDistributionGroupsKpi" xml:space="preserve"><value>Gruppi di distribuzione dinamici</value></data>
+  <data name="Kpi_ExchangeGroupsNoOwnerKpi" xml:space="preserve"><value>Gruppi senza proprietario</value></data>
+  <data name="Kpi_ExchangeEmptyDistributionGroupsKpi" xml:space="preserve"><value>Gruppi di distribuzione vuoti</value></data>
+  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Cassette postali non gestite</value></data>
+  <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Cassette postali orfane (disabilitate)</value></data>
+  <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Blocco per controversia legale disabilitato</value></data>
 </root>

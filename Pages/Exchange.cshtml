@@ -32,12 +32,48 @@
     <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
-    <div class="kpi-category">
-        <h2 class="kpi-category-title">
-            <span>Microsoft Exchange</span>
-            <button type="button" class="btn-collapse" onclick="toggleCategory(this)" title="Collapse">&#9650;</button>
-        </h2>
-        <p class="muted">Microsoft Exchange (on-premises) KPIs will appear here.</p>
+    @{
+        var sortedCategories = CategoryInfo.ForDashboard(DashboardInfo.Exchange)
+            .Where(c => Model.KpiSettings.IsCategoryEnabled(c.Key))
+            .ToList();
+        var renderedCount = 0;
+    }
+
+    @foreach (var category in sortedCategories)
+    {
+        if (renderedCount > 0)
+        {
+            <hr class="kpi-separator" />
+        }
+        // Overview and Governance and Risk are expanded by default; all others collapse.
+        var expanded = category.IsOverviewCategory || category.IsRiskCategory;
+        var collapsedClass = expanded ? "" : " collapsed";
+        var btnCollapsedClass = expanded ? "" : " collapsed";
+        var btnTitle = expanded ? "Collapse" : "Expand";
+        renderedCount++;
+
+        var kpis = KpiInfo.ForCategory(category);
+    <div class="kpi-category@(collapsedClass)">
+        <h2 class="kpi-category-title"><span>@category.DisplayName</span><button type="button" class="btn-collapse@(btnCollapsedClass)" onclick="toggleCategory(this)" title="@btnTitle">&#9650;</button></h2>
+        <div class="kpi-grid">
+            @foreach (var kpi in kpis)
+            {
+                if (!Model.KpiSettings.IsKpiEnabled(category.Key, kpi.Key)) { continue; }
+                var result = Model.Summary.ExchangeKpi(kpi.Key);
+            <div class="kpi @kpi.CssColor" data-section="@kpi.SectionId">
+                <div class="lbl">@kpi.Label</div>
+                <div class="val">@(result.Error ?? result.TotalCount.ToString())</div>
+            </div>
+            }
+        </div>
+        @await Html.PartialAsync("_CategoryCharts", (category, Model.Summary, Model.KpiSettings))
+    </div>
+    }
+
+    <hr class="kpi-separator" />
+
+    <div class="panel-grid">
+        @await Html.PartialAsync("_ExchangeDrillDownPanels")
     </div>
 
     <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
@@ -67,6 +103,9 @@
         category.classList.toggle('collapsed');
         btn.classList.toggle('collapsed');
         btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+    function openWebInterface(url) {
+        window.open(url, 'arWebInterface');
     }
 </script>
 </body>

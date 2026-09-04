@@ -246,7 +246,53 @@ public class CategoryInfo
         SortOrder = 0
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing];
+    public static readonly CategoryInfo ExchangeOverview = new()
+    {
+        Key = "ExchangeOverview",
+        DisplayName = "Overview",
+        DashboardKey = "Exchange",
+        SortOrder = -1,
+        IsOverviewCategory = true
+    };
+
+    public static readonly CategoryInfo ExchangeGovernance = new()
+    {
+        Key = "ExchangeGovernance",
+        DisplayName = "Governance and Risk",
+        DashboardKey = "Exchange",
+        SortOrder = 0,
+        KpiSortOrder = CategorySortOrder.AtoZ,
+        IsRiskCategory = true
+    };
+
+    public static readonly CategoryInfo ExchangeInfrastructure = new()
+    {
+        Key = "ExchangeInfrastructure",
+        DisplayName = "Infrastructure",
+        DashboardKey = "Exchange",
+        SortOrder = 1,
+        KpiSortOrder = CategorySortOrder.AtoZ
+    };
+
+    public static readonly CategoryInfo ExchangeMailboxes = new()
+    {
+        Key = "ExchangeMailboxes",
+        DisplayName = "Mailboxes",
+        DashboardKey = "Exchange",
+        SortOrder = 2,
+        KpiSortOrder = CategorySortOrder.AtoZ
+    };
+
+    public static readonly CategoryInfo ExchangeGroups = new()
+    {
+        Key = "ExchangeGroups",
+        DisplayName = "Distribution Groups",
+        DashboardKey = "Exchange",
+        SortOrder = 3,
+        KpiSortOrder = CategorySortOrder.AtoZ
+    };
+
+    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups];
 
     private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
 
@@ -712,6 +758,55 @@ public class ChartInfo
         ]
     };
 
+    // Exchange Mailboxes category: composition of the mailbox population by mailbox type.
+    // These are mutually exclusive per mailbox, so it renders as a donut (donut/column toggle).
+    public static readonly ChartInfo ExchangeMailboxTypeBreakdown = new()
+    {
+        Key = "ExchangeMailboxTypeBreakdown",
+        Title = "Mailboxes by Type",
+        CategoryKey = "ExchangeMailboxes",
+        Type = ChartType.Doughnut,
+        SortOrder = 0,
+        SliceOffset = 0,
+        Series =
+        [
+            new() { KpiKey = "ExchangeUserMailboxesKpi", CssColor = "blue" },
+            new() { KpiKey = "ExchangeSharedMailboxesKpi", CssColor = "green" },
+            new() { KpiKey = "ExchangeRoomMailboxesKpi", CssColor = "teal" },
+            new() { KpiKey = "ExchangeEquipmentMailboxesKpi", CssColor = "amber" }
+        ]
+    };
+
+    // Exchange Groups category: composition of the mail-enabled group population by group type.
+    public static readonly ChartInfo ExchangeGroupTypeBreakdown = new()
+    {
+        Key = "ExchangeGroupTypeBreakdown",
+        Title = "Mail-Enabled Groups by Type",
+        CategoryKey = "ExchangeGroups",
+        Type = ChartType.Doughnut,
+        SortOrder = 0,
+        SliceOffset = 0,
+        Series =
+        [
+            new() { KpiKey = "ExchangeDistributionGroupsKpi", CssColor = "blue" },
+            new() { KpiKey = "ExchangeMailEnabledSecurityGroupsKpi", CssColor = "green" },
+            new() { KpiKey = "ExchangeDynamicDistributionGroupsKpi", CssColor = "teal" }
+        ]
+    };
+
+    // Exchange Overview category: total mailboxes broken down by AD domain (per-domain split of
+    // the ExchangeTotalMailboxes KPI, mirroring the AD Overview per-domain breakdown).
+    public static readonly ChartInfo ExchangeMailboxesByDomain = new()
+    {
+        Key = "ExchangeMailboxesByDomain",
+        Title = "Mailboxes by Domain",
+        CategoryKey = "ExchangeOverview",
+        Type = ChartType.Pie,
+        SortOrder = 0,
+        SliceOffset = 16,
+        SourceSplitKpiKey = "ExchangeTotalMailboxes"
+    };
+
     public static readonly IReadOnlyList<ChartInfo> All =
     [
         ComputerOsBreakdown,
@@ -720,7 +815,8 @@ public class ChartInfo
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
         AdOverviewUsersChart, AdOverviewGroupsChart, AdOverviewComputersChart,
         EntraOverviewUsersChart, EntraOverviewGroupsChart,
-        EntraUserAccountStateBreakdown, EntraUserOriginBreakdown, EntraGroupTypeBreakdown
+        EntraUserAccountStateBreakdown, EntraUserOriginBreakdown, EntraGroupTypeBreakdown,
+        ExchangeMailboxTypeBreakdown, ExchangeGroupTypeBreakdown, ExchangeMailboxesByDomain
     ];
 
 
@@ -941,6 +1037,67 @@ public class DefaultFiltersConfig
 
     /// <summary>Resolves the "View-Only Organization Management" Exchange security group whose members may view the Exchange dashboard.</summary>
     public string ExchangeViewOnlyOrganizationManagement { get; set; } = "(&(objectClass=group)(name=View-Only Organization Management))";
+
+    // ----- Exchange dashboard KPI filters (phase 1: counts) -----
+
+    /// <summary>Mailbox databases (private message databases) in the organization.</summary>
+    public string ExchangeMailboxDatabases { get; set; } = "(objectClass=msExchPrivateMDB)";
+
+    /// <summary>Exchange servers holding the Mailbox role (msExchCurrentServerRoles bit 2).</summary>
+    public string ExchangeMailboxServers { get; set; } = "(&(objectClass=msExchExchangeServer)(msExchCurrentServerRoles:1.2.840.113556.1.4.803:=2))";
+
+    /// <summary>Database Availability Groups.</summary>
+    public string ExchangeDAGs { get; set; } = "(objectClass=msExchMDBAvailabilityGroup)";
+
+    /// <summary>Accepted (authoritative/relay) SMTP domains configured in the organization.</summary>
+    public string ExchangeAcceptedDomains { get; set; } = "(objectClass=msExchAcceptedDomain)";
+
+    /// <summary>User mailboxes (msExchRecipientTypeDetails = 1, UserMailbox).</summary>
+    public string ExchangeUserMailboxes { get; set; } = "(&(objectClass=user)(homeMDB=*)(msExchRecipientTypeDetails=1))";
+
+    /// <summary>Shared mailboxes (msExchRecipientTypeDetails = 4, SharedMailbox).</summary>
+    public string ExchangeSharedMailboxes { get; set; } = "(&(objectClass=user)(msExchRecipientTypeDetails=4))";
+
+    /// <summary>Room resource mailboxes (msExchRecipientTypeDetails = 16, RoomMailbox).</summary>
+    public string ExchangeRoomMailboxes { get; set; } = "(&(objectClass=user)(msExchRecipientTypeDetails=16))";
+
+    /// <summary>Equipment resource mailboxes (msExchRecipientTypeDetails = 32, EquipmentMailbox).</summary>
+    public string ExchangeEquipmentMailboxes { get; set; } = "(&(objectClass=user)(msExchRecipientTypeDetails=32))";
+
+    /// <summary>Mail users / mail-enabled users (msExchRecipientTypeDetails = 128, MailUser).</summary>
+    public string ExchangeMailUsers { get; set; } = "(&(objectClass=user)(msExchRecipientTypeDetails=128))";
+
+    /// <summary>Mail contacts (msExchRecipientTypeDetails = 64, MailContact).</summary>
+    public string ExchangeMailContacts { get; set; } = "(&(objectClass=contact)(msExchRecipientTypeDetails=64))";
+
+    /// <summary>Distribution groups (msExchRecipientDisplayType = 1, DistributionGroup). Uses the reliably-populated display-type attribute; msExchRecipientTypeDetails is frequently unset on on-prem groups.</summary>
+    public string ExchangeDistributionGroups { get; set; } = "(&(objectClass=group)(mailNickname=*)(msExchRecipientDisplayType=1))";
+
+    /// <summary>Mail-enabled security groups (msExchRecipientDisplayType = 1073741833, MailUniversalSecurityGroup).</summary>
+    public string ExchangeMailEnabledSecurityGroups { get; set; } = "(&(objectClass=group)(mailNickname=*)(msExchRecipientDisplayType=1073741833))";
+
+    /// <summary>Dynamic distribution groups.</summary>
+    public string ExchangeDynamicDistributionGroups { get; set; } = "(objectClass=msExchDynamicDistributionList)";
+
+    // ----- Exchange dashboard KPI filters (phase 2: governance and risk) -----
+
+    /// <summary>Mail-enabled groups with no owner (managedBy) set.</summary>
+    public string ExchangeGroupsNoOwner { get; set; } = "(&(objectClass=group)(mailNickname=*)(!(managedBy=*)))";
+
+    /// <summary>Distribution groups with no members.</summary>
+    public string ExchangeEmptyDistributionGroups { get; set; } = "(&(objectClass=group)(mailNickname=*)(msExchRecipientDisplayType=1)(!(member=*)))";
+
+    /// <summary>Mailboxes with no manager assigned.</summary>
+    public string ExchangeMailboxNoManager { get; set; } = "(&(objectClass=user)(homeMDB=*)(!(manager=*)))";
+
+    /// <summary>Orphaned mailboxes: a mailbox on a disabled account (userAccountControl bit 2).</summary>
+    public string ExchangeOrphanedMailboxes { get; set; } = "(&(objectClass=user)(homeMDB=*)(userAccountControl:1.2.840.113556.1.4.803:=2))";
+
+    /// <summary>
+    /// Mailboxes without litigation hold enabled, evaluated via the Active Roles virtual
+    /// attribute <c>edsva-MsExch-LitigationHoldEnabled</c>. Treats an absent value as "not on hold".
+    /// </summary>
+    public string ExchangeLitigationHoldDisabled { get; set; } = "(&(objectClass=user)(homeMDB=*)(|(!(edsva-MsExch-LitigationHoldEnabled=*))(edsva-MsExch-LitigationHoldEnabled=FALSE)))";
 }
 
 /// <summary>
@@ -1044,6 +1201,10 @@ public class KpiInfo
     public static readonly KpiInfo ADUserAccounts = new() { Key = "ADUserAccounts", DisplayName = "Total Users", CategoryKey = "Overview", CssColor = "blue", SortOrder = 0, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADUserAccounts}", Attributes = "{ConfigAttributes:ADUserAccounts}", SharedSearchKey = "ADUserAccounts" }] };
     public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADGroups}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
     public static readonly KpiInfo Computers = new() { Key = "Computers", DisplayName = "Total Computers", CategoryKey = "Overview", CssColor = "teal", SortOrder = 2, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=computer)", Attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,pwdLastSet,lastLogonTimestamp" }] };
+    // Main Overview mailbox total. Carries no Searches of its own: the value is sourced from the
+    // already-computed Exchange ExchangeTotalMailboxes KPI (see GetKpiResult). Rendered on the main
+    // dashboard only when the Exchange dashboard is visible to the user.
+    public static readonly KpiInfo MainTotalMailboxes = new() { Key = "MainTotalMailboxes", DisplayName = "Total Mailboxes", CategoryKey = "Overview", CssColor = "purple", SortOrder = 3, HasDrilldown = false };
 
     // Single-source Overview KPIs (AD-only) shown on the Active Directory dashboard's Overview.
     // These reuse the shared AD datasets, so they carry no Searches of their own and honour the domain selection via the reduced summaries.
@@ -1173,9 +1334,39 @@ public class KpiInfo
     // Licensing KPIs
     public static readonly KpiInfo ManagedObjects = new() { Key = "ManagedObjects", DisplayName = "Managed Objects", CategoryKey = "Licensing", CssColor = "slate", SectionId = "managedobjects", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Object Statistics,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsManagedObjectStatisticsData)", Attributes = "name,edsaStatisticsCountXML" }] };
 
+    // Exchange Overview KPIs (phase 1 - counts)
+    public static readonly KpiInfo ExchangeServersKpi = new() { Key = "ExchangeServersKpi", DisplayName = "Exchange Servers", TileLabel = "Servers", CategoryKey = "ExchangeOverview", CssColor = "blue", SectionId = "exchangeservers", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeServers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,serialNumber,msExchCurrentServerRoles" }] };
+    public static readonly KpiInfo ExchangeTotalMailboxes = new() { Key = "ExchangeTotalMailboxes", DisplayName = "Total Mailboxes", TileLabel = "Mailboxes", CategoryKey = "ExchangeOverview", CssColor = "green", SectionId = "exchangetotalmailboxes", SortOrder = 1, HasDrilldown = false, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=user)(homeMDB=*))", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailboxDatabasesKpi = new() { Key = "ExchangeMailboxDatabasesKpi", DisplayName = "Mailbox Databases", TileLabel = "Databases", CategoryKey = "ExchangeOverview", CssColor = "teal", SectionId = "exchangemailboxdatabases", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxDatabases}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeAcceptedDomainsKpi = new() { Key = "ExchangeAcceptedDomainsKpi", DisplayName = "Accepted Domains", CategoryKey = "ExchangeOverview", CssColor = "orange", SectionId = "exchangeaccepteddomains", SortOrder = 3, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeAcceptedDomains}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,domainName" }] };
+
+    // Exchange Infrastructure KPIs (phase 1 - counts)
+    public static readonly KpiInfo ExchangeMailboxServersKpi = new() { Key = "ExchangeMailboxServersKpi", DisplayName = "Mailbox Servers", CategoryKey = "ExchangeInfrastructure", CssColor = "blue", SectionId = "exchangemailboxservers", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxServers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,serialNumber" }] };
+    public static readonly KpiInfo ExchangeDAGsKpi = new() { Key = "ExchangeDAGsKpi", DisplayName = "Database Availability Groups", TileLabel = "DAGs", CategoryKey = "ExchangeInfrastructure", CssColor = "purple", SectionId = "exchangedags", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDAGs}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+
+    // Exchange Mailboxes KPIs (phase 1 - counts by recipient type)
+    public static readonly KpiInfo ExchangeUserMailboxesKpi = new() { Key = "ExchangeUserMailboxesKpi", DisplayName = "User Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "blue", SectionId = "exchangeusermailboxes", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeUserMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeSharedMailboxesKpi = new() { Key = "ExchangeSharedMailboxesKpi", DisplayName = "Shared Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "green", SectionId = "exchangesharedmailboxes", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeSharedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeRoomMailboxesKpi = new() { Key = "ExchangeRoomMailboxesKpi", DisplayName = "Room Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "teal", SectionId = "exchangeroommailboxes", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeRoomMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeEquipmentMailboxesKpi = new() { Key = "ExchangeEquipmentMailboxesKpi", DisplayName = "Equipment Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "amber", SectionId = "exchangeequipmentmailboxes", SortOrder = 3, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeEquipmentMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailUsersKpi = new() { Key = "ExchangeMailUsersKpi", DisplayName = "Mail Enabled User", CategoryKey = "ExchangeMailboxes", CssColor = "purple", SectionId = "exchangemailusers", SortOrder = 4, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailUsers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailContactsKpi = new() { Key = "ExchangeMailContactsKpi", DisplayName = "Mail Enabled Contact", CategoryKey = "ExchangeMailboxes", CssColor = "pink", SectionId = "exchangemailcontacts", SortOrder = 5, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailContacts}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+
+    // Exchange Distribution Groups KPIs (phase 1 - counts)
+    public static readonly KpiInfo ExchangeDistributionGroupsKpi = new() { Key = "ExchangeDistributionGroupsKpi", DisplayName = "Distribution Groups", CategoryKey = "ExchangeGroups", CssColor = "blue", SectionId = "exchangedistributiongroups", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ExchangeMailEnabledSecurityGroupsKpi = new() { Key = "ExchangeMailEnabledSecurityGroupsKpi", DisplayName = "Mail-Enabled Security Groups", CategoryKey = "ExchangeGroups", CssColor = "green", SectionId = "exchangemailenabledsecuritygroups", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailEnabledSecurityGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ExchangeDynamicDistributionGroupsKpi = new() { Key = "ExchangeDynamicDistributionGroupsKpi", DisplayName = "Dynamic Distribution Groups", CategoryKey = "ExchangeGroups", CssColor = "teal", SectionId = "exchangedynamicdistributiongroups", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDynamicDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+
+    // Exchange Governance and Risk KPIs (phase 2 - flagged IsRiskKpi so they also surface in the Governance category)
+    public static readonly KpiInfo ExchangeGroupsNoOwnerKpi = new() { Key = "ExchangeGroupsNoOwnerKpi", DisplayName = "Groups With No Owner", CategoryKey = "ExchangeGroups", CssColor = "amber", SectionId = "exchangegroupsnoowner", SortOrder = 3, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeGroupsNoOwner}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeEmptyDistributionGroupsKpi = new() { Key = "ExchangeEmptyDistributionGroupsKpi", DisplayName = "Empty Distribution Groups", CategoryKey = "ExchangeGroups", CssColor = "slate", SectionId = "exchangeemptydistributiongroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeEmptyDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailboxNoManagerKpi = new() { Key = "ExchangeMailboxNoManagerKpi", DisplayName = "Unmanaged Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "purple", SectionId = "exchangemailboxnomanager", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxNoManager}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeOrphanedMailboxesKpi = new() { Key = "ExchangeOrphanedMailboxesKpi", DisplayName = "Orphaned Mailboxes (Disabled)", CategoryKey = "ExchangeMailboxes", CssColor = "red", SectionId = "exchangeorphanedmailboxes", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeOrphanedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeLitigationHoldDisabledKpi = new() { Key = "ExchangeLitigationHoldDisabledKpi", DisplayName = "Litigation Hold Disabled", CategoryKey = "ExchangeMailboxes", CssColor = "orange", SectionId = "exchangelitigationholddisabled", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeLitigationHoldDisabled}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,edsva-MsExch-LitigationHoldEnabled" }] };
+
     public static readonly IReadOnlyList<KpiInfo> All =
     [
-        ADUserAccounts, ADGroups, Computers,
+        ADUserAccounts, ADGroups, Computers, MainTotalMailboxes,
         AdOverviewUsers, AdOverviewGroups, AdOverviewComputers,
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers,
@@ -1191,7 +1382,12 @@ public class KpiInfo
         Sites, SiteLinks, Subnets, OUs, DomainControllers,
         ComputerClients, ComputerServers, WinServer2008R2, WinServer2012R2, WinServer2016, WinServer2019, WinServer2022, WinServer2025, ServerOther,
         Win7, Win81, Win10_22H2, Win11_22H2, Win11_23H2, Win11Enterprise, Win11Pro, ClientsOther, UnconstrainedComputers,
-        ManagedObjects
+        ManagedObjects,
+        ExchangeServersKpi, ExchangeTotalMailboxes, ExchangeMailboxDatabasesKpi, ExchangeAcceptedDomainsKpi,
+        ExchangeMailboxServersKpi, ExchangeDAGsKpi,
+        ExchangeUserMailboxesKpi, ExchangeSharedMailboxesKpi, ExchangeRoomMailboxesKpi, ExchangeEquipmentMailboxesKpi, ExchangeMailUsersKpi, ExchangeMailContactsKpi,
+        ExchangeDistributionGroupsKpi, ExchangeMailEnabledSecurityGroupsKpi, ExchangeDynamicDistributionGroupsKpi,
+        ExchangeGroupsNoOwnerKpi, ExchangeEmptyDistributionGroupsKpi, ExchangeMailboxNoManagerKpi, ExchangeOrphanedMailboxesKpi, ExchangeLitigationHoldDisabledKpi
     ];
 
     public static IEnumerable<KpiInfo> ForCategory(string categoryKey) => All.Where(k => k.CategoryKey == categoryKey);
@@ -1395,6 +1591,35 @@ public class KpiSettings
     public bool EntraSingleOwnerGroupsEnabled { get; set; } = true;
     public bool EntraLargeGroupsEnabled { get; set; } = true;
 
+    // Exchange category enable flags
+    public bool ExchangeOverviewEnabled { get; set; } = true;
+    public bool ExchangeGovernanceEnabled { get; set; } = true;
+    public bool ExchangeInfrastructureEnabled { get; set; } = true;
+    public bool ExchangeMailboxesEnabled { get; set; } = true;
+    public bool ExchangeGroupsCategoryEnabled { get; set; } = true;
+
+    // Exchange KPI enable flags
+    public bool ExchangeServersKpiEnabled { get; set; } = true;
+    public bool ExchangeTotalMailboxesEnabled { get; set; } = true;
+    public bool ExchangeMailboxDatabasesKpiEnabled { get; set; } = true;
+    public bool ExchangeAcceptedDomainsKpiEnabled { get; set; } = true;
+    public bool ExchangeMailboxServersKpiEnabled { get; set; } = true;
+    public bool ExchangeDAGsKpiEnabled { get; set; } = true;
+    public bool ExchangeUserMailboxesKpiEnabled { get; set; } = true;
+    public bool ExchangeSharedMailboxesKpiEnabled { get; set; } = true;
+    public bool ExchangeRoomMailboxesKpiEnabled { get; set; } = true;
+    public bool ExchangeEquipmentMailboxesKpiEnabled { get; set; } = true;
+    public bool ExchangeMailUsersKpiEnabled { get; set; } = true;
+    public bool ExchangeMailContactsKpiEnabled { get; set; } = true;
+    public bool ExchangeDistributionGroupsKpiEnabled { get; set; } = true;
+    public bool ExchangeMailEnabledSecurityGroupsKpiEnabled { get; set; } = true;
+    public bool ExchangeDynamicDistributionGroupsKpiEnabled { get; set; } = true;
+    public bool ExchangeGroupsNoOwnerKpiEnabled { get; set; } = true;
+    public bool ExchangeEmptyDistributionGroupsKpiEnabled { get; set; } = true;
+    public bool ExchangeMailboxNoManagerKpiEnabled { get; set; } = true;
+    public bool ExchangeOrphanedMailboxesKpiEnabled { get; set; } = true;
+    public bool ExchangeLitigationHoldDisabledKpiEnabled { get; set; } = true;
+
     public bool IsCategoryEnabled(string categoryKey) => categoryKey switch
     {
         "Overview" => OverviewEnabled,
@@ -1411,6 +1636,11 @@ public class KpiSettings
         "ComputersCategory" => ComputersCategoryEnabled,
         "NHIs" => NHIsCategoryEnabled,
         "Licensing" => LicensingEnabled,
+        "ExchangeOverview" => ExchangeOverviewEnabled,
+        "ExchangeGovernance" => ExchangeGovernanceEnabled,
+        "ExchangeInfrastructure" => ExchangeInfrastructureEnabled,
+        "ExchangeMailboxes" => ExchangeMailboxesEnabled,
+        "ExchangeGroups" => ExchangeGroupsCategoryEnabled,
         _ => true
     };
 
@@ -1503,6 +1733,26 @@ public class KpiSettings
             "OUs" => OUsEnabled,
             "DomainControllers" => DomainControllersEnabled,
             "UnconstrainedComputers" => UnconstrainedComputersEnabled,
+            "ExchangeServersKpi" => ExchangeServersKpiEnabled,
+            "ExchangeTotalMailboxes" => ExchangeTotalMailboxesEnabled,
+            "ExchangeMailboxDatabasesKpi" => ExchangeMailboxDatabasesKpiEnabled,
+            "ExchangeAcceptedDomainsKpi" => ExchangeAcceptedDomainsKpiEnabled,
+            "ExchangeMailboxServersKpi" => ExchangeMailboxServersKpiEnabled,
+            "ExchangeDAGsKpi" => ExchangeDAGsKpiEnabled,
+            "ExchangeUserMailboxesKpi" => ExchangeUserMailboxesKpiEnabled,
+            "ExchangeSharedMailboxesKpi" => ExchangeSharedMailboxesKpiEnabled,
+            "ExchangeRoomMailboxesKpi" => ExchangeRoomMailboxesKpiEnabled,
+            "ExchangeEquipmentMailboxesKpi" => ExchangeEquipmentMailboxesKpiEnabled,
+            "ExchangeMailUsersKpi" => ExchangeMailUsersKpiEnabled,
+            "ExchangeMailContactsKpi" => ExchangeMailContactsKpiEnabled,
+            "ExchangeDistributionGroupsKpi" => ExchangeDistributionGroupsKpiEnabled,
+            "ExchangeMailEnabledSecurityGroupsKpi" => ExchangeMailEnabledSecurityGroupsKpiEnabled,
+            "ExchangeDynamicDistributionGroupsKpi" => ExchangeDynamicDistributionGroupsKpiEnabled,
+            "ExchangeGroupsNoOwnerKpi" => ExchangeGroupsNoOwnerKpiEnabled,
+            "ExchangeEmptyDistributionGroupsKpi" => ExchangeEmptyDistributionGroupsKpiEnabled,
+            "ExchangeMailboxNoManagerKpi" => ExchangeMailboxNoManagerKpiEnabled,
+            "ExchangeOrphanedMailboxesKpi" => ExchangeOrphanedMailboxesKpiEnabled,
+            "ExchangeLitigationHoldDisabledKpi" => ExchangeLitigationHoldDisabledKpiEnabled,
             _ => true
         };
     }
@@ -1529,6 +1779,18 @@ public class DashboardSummary
     {
         var clone = (DashboardSummary)MemberwiseClone();
         clone.ADGroups = ADGroups.WithoutMemberPayload();
+
+        // ExchangeKpis is populated by concurrent task continuations during collection. Take a
+        // snapshot under the same lock used for those writes so the serialized copy is a stable,
+        // fully-published view (and defensively drop any null/empty key, which System.Text.Json
+        // would otherwise reject with ArgumentNullException).
+        lock (ExchangeKpis)
+        {
+            clone.ExchangeKpis = ExchangeKpis
+                .Where(kvp => !string.IsNullOrEmpty(kvp.Key))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
+        }
+
         return clone;
     }
 
@@ -1631,6 +1893,17 @@ public class DashboardSummary
     public ComputerBreakdownSummary Win11Pro { get; set; } = new();
     public ComputerBreakdownSummary ClientsOther { get; set; } = new();
     public ComputerBreakdownSummary StaleComputers { get; set; } = new();
+
+    /// <summary>
+    /// Exchange (on-prem) KPI results, keyed by <see cref="KpiInfo.Key"/> (e.g. "ExchangeUserMailboxesKpi").
+    /// Each entry is a generic count + drilldown summary supporting per-AD-domain segmentation via
+    /// <see cref="GovernanceKpiInfo.Domain"/>. Populated only for KPIs enabled in <see cref="KpiSettings"/>.
+    /// </summary>
+    public Dictionary<string, GovernanceKpiSummary> ExchangeKpis { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Returns the Exchange KPI summary for the given key, or an empty summary when absent.</summary>
+    public GovernanceKpiSummary ExchangeKpi(string key) =>
+        ExchangeKpis.TryGetValue(key, out var s) ? s : new GovernanceKpiSummary();
 
     // Tier 2 security-health scalar signals.
     public SecurityHealthSummary KrbtgtPasswordAge { get; set; } = new();
@@ -1812,6 +2085,8 @@ public class DashboardSummary
         "ADUserAccounts" => GetCombinedResult(ADUserAccounts.TotalCount, ADUserAccounts.Error, EntraTotals.CountFor(EntraObjectType.User), EntraTotals.Error),
         "ADGroups" => GetCombinedResult(ADGroups.TotalCount, ADGroups.Error, EntraGroupsTotal, EntraTotals.Error),
         "Computers" => (Computers.TotalCount, Computers.Error),
+        // Main Overview mailbox total: sourced from the already-computed Exchange result.
+        "MainTotalMailboxes" => ExchangeKpis.TryGetValue("ExchangeTotalMailboxes", out var mbx) ? (mbx.TotalCount, mbx.Error) : (0, null),
 
         // Single-source Overview KPIs (AD-only) for the Active Directory dashboard Overview.
         "AdOverviewUsers" => (ADUserAccounts.TotalCount, ADUserAccounts.Error),
@@ -1939,7 +2214,8 @@ public class DashboardSummary
             (WinServer2008R2.Error ?? WinServer2012R2.Error ?? Win7.Error ?? Win81.Error ?? Win10_22H2.Error) != null ? 0
                 : WinServer2008R2.TotalCount + WinServer2012R2.TotalCount + Win7.TotalCount + Win81.TotalCount + Win10_22H2.TotalCount,
             WinServer2008R2.Error ?? WinServer2012R2.Error ?? Win7.Error ?? Win81.Error ?? Win10_22H2.Error),
-        _ => (0, null)
+        // Exchange KPIs are stored generically keyed by KpiInfo.Key; resolve them from the dictionary.
+        _ => ExchangeKpis.TryGetValue(kpiKey, out var ex) ? (ex.TotalCount, ex.Error) : (0, null)
     };
 
     /// <summary>
@@ -1984,6 +2260,16 @@ public class DashboardSummary
         [
             ("Active Directory", Computers.Error != null ? 0 : Computers.TotalCount)
         ],
+
+        // Exchange Overview mailbox total broken down by AD domain (from the generically-stored
+        // ExchangeTotalMailboxes result). Each GovernanceKpiInfo carries a Domain (edsaDomainNetbiosName).
+        "ExchangeTotalMailboxes" => !ExchangeKpis.TryGetValue("ExchangeTotalMailboxes", out var exMbx) || exMbx.Error != null
+            ? []
+            : exMbx.Items
+                .GroupBy(i => string.IsNullOrWhiteSpace(i.Domain) ? "(unknown)" : i.Domain)
+                .OrderByDescending(g => g.Count())
+                .Select(g => (g.Key, g.Count()))
+                .ToList(),
 
         // Single-source Overview splits: the AD dashboard breaks its Overview totals down
         // by selected domain (mirroring the Entra dashboard's per-tenant breakdown); the

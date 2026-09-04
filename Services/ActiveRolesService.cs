@@ -1093,6 +1093,32 @@ public class ActiveRolesService
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OUs = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
+        // Exchange (on-prem) KPIs. Every Exchange KPI shares the generic count + drilldown shape and
+        // is resolved through GetInfrastructureKpiAsync (which honours the KPI's config-driven filter,
+        // base DN, attributes and captures the AD domain for per-domain segmentation). Results are keyed
+        // by KpiInfo.Key on summary.ExchangeKpis so the Exchange page can render them data-driven.
+        foreach (var exKpi in KpiInfo.All.Where(k => k.CategoryKey.StartsWith("Exchange", StringComparison.Ordinal)))
+        {
+            if (!settings.IsKpiEnabled(exKpi.CategoryKey, exKpi.Key)) continue;
+
+            var key = exKpi.Key;
+            var t = GetInfrastructureKpiAsync(token, exKpi);
+            tasks.Add((key, t));
+            // These continuations complete on thread-pool threads as each Exchange search finishes,
+            // so multiple of them can write to the shared ExchangeKpis dictionary concurrently.
+            // Dictionary<,> is not thread-safe; unsynchronized concurrent writes can corrupt its
+            // internal entries (producing a torn null-key entry that later makes System.Text.Json
+            // throw ArgumentNullException during summary serialization). Lock to serialize writes.
+            _ = t.ContinueWith(r =>
+            {
+                if (r.IsCompletedSuccessfully)
+                {
+                    lock (summary.ExchangeKpis)
+                        summary.ExchangeKpis[key] = r.Result;
+                }
+            }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+
         await Task.WhenAll(tasks.Select(t => t.Task));
 
         // Tier 2 security-health signals (krbtgt password age, weak domain password policy,

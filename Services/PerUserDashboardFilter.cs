@@ -146,6 +146,16 @@ public sealed class PerUserDashboardFilter
         s.NoAccountLockout = ScopeSecurityHealth(superset.NoAccountLockout, visibleDomains);
         s.PasswordMaxAgeDays = ScopeSecurityHealth(superset.PasswordMaxAgeDays, visibleDomains);
 
+        // --- Exchange KPIs ---------------------------------------------------
+        // Each Exchange KPI is a GovernanceKpiSummary of IPermissionScoped drilldown items, so it is
+        // filtered with the same per-object visibility walk as the other governance families and the
+        // count is recomputed from what remains. Keys are preserved so the Exchange page keeps its
+        // data-driven lookup.
+        foreach (var kvp in superset.ExchangeKpis)
+        {
+            s.ExchangeKpis[kvp.Key] = FilterGovernance(kvp.Value, user, model);
+        }
+
         return s;
     }
 

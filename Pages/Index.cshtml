@@ -38,6 +38,8 @@
             @foreach (var kpi in KpiInfo.ForCategory(CategoryInfo.Overview))
             {
                 if (!Model.KpiSettings.IsKpiEnabled(CategoryInfo.Overview.Key, kpi.Key)) { continue; }
+                // The mailbox total is only meaningful/authorized when the Exchange dashboard is visible to this user.
+                if (kpi.Key == "MainTotalMailboxes" && !Model.Summary.ExchangeVisible) { continue; }
                 var result = Model.Summary.GetKpiResult(kpi.Key);
             <div class="kpi @kpi.CssColor">
                 <div class="lbl">@kpi.Label</div>
