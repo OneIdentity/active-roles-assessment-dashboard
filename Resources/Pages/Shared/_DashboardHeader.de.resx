@@ -42,6 +42,12 @@
   <data name="Sub_Licensing" xml:space="preserve">
 	<value>KPIs zu Lizenzierung und Compliance</value>
   </data>
+  <data name="Title_Exchange" xml:space="preserve">
+	<value>Microsoft Exchange</value>
+  </data>
+  <data name="Sub_Exchange" xml:space="preserve">
+	<value>Microsoft Exchange (lokal) KPIs</value>
+  </data>
   <data name="Title_Snapshots" xml:space="preserve">
 	<value>Snapshots</value>
   </data>

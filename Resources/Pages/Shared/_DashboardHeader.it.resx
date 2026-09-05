@@ -39,6 +39,12 @@
   <data name="Title_Licensing" xml:space="preserve">
 	<value>Licenze</value>
   </data>
+  <data name="Title_Exchange" xml:space="preserve">
+    <value>Microsoft Exchange</value>
+  </data>
+  <data name="Sub_Exchange" xml:space="preserve">
+    <value>KPI di Microsoft Exchange (on-premises)</value>
+  </data>
   <data name="Sub_Licensing" xml:space="preserve">
 	<value>KPI di licenze e conformità</value>
   </data>

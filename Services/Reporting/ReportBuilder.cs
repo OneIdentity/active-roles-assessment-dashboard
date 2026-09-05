@@ -53,6 +53,7 @@ public class ReportBuilder
         if (dashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) return;
         if (dashboardKey == DashboardInfo.EntraId.Key && !summary.EntraVisible) return;
         if (dashboardKey == DashboardInfo.Licensing.Key && !summary.LicensingVisible) return;
+        if (dashboardKey == DashboardInfo.Exchange.Key && !summary.ExchangeVisible) return;
 
         // The main dashboard is an aggregate hub: export its own Overview plus the
         // Active Directory and Entra ID dashboards. Other dashboards export only their own
@@ -68,6 +69,7 @@ public class ReportBuilder
             if (category.DashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) continue;
             if (category.DashboardKey == DashboardInfo.EntraId.Key && !summary.EntraVisible) continue;
             if (category.DashboardKey == DashboardInfo.Licensing.Key && !summary.LicensingVisible) continue;
+            if (category.DashboardKey == DashboardInfo.Exchange.Key && !summary.ExchangeVisible) continue;
 
             if (!settings.IsCategoryEnabled(category.Key)) continue;
             var section = BuildCategorySection(category, summary, settings, model.IncludeDetails);

@@ -1093,6 +1093,86 @@ public class ActiveRolesService
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OUs = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
+        // Exchange (on-prem) KPIs. Every Exchange KPI shares the generic count + drilldown shape and
+        // is resolved through GetInfrastructureKpiAsync (which honours the KPI's config-driven filter,
+        // base DN, attributes and captures the AD domain for per-domain segmentation). Results are keyed
+        // by KpiInfo.Key on summary.ExchangeKpis so the Exchange page can render them data-driven.
+        foreach (var exKpi in KpiInfo.All.Where(k => k.CategoryKey.StartsWith("Exchange", StringComparison.Ordinal)))
+        {
+            if (!settings.IsKpiEnabled(exKpi.CategoryKey, exKpi.Key)) continue;
+            // KPIs with no Searches are not simple LDAP counts (e.g. Send As, which is resolved from
+            // each mailbox's security descriptor by a dedicated collector below). Skip them here.
+            if (exKpi.Searches.Count == 0) continue;
+
+            var key = exKpi.Key;
+            var t = GetInfrastructureKpiAsync(token, exKpi);
+            tasks.Add((key, t));
+            // These continuations complete on thread-pool threads as each Exchange search finishes,
+            // so multiple of them can write to the shared ExchangeKpis dictionary concurrently.
+            // Dictionary<,> is not thread-safe; unsynchronized concurrent writes can corrupt its
+            // internal entries (producing a torn null-key entry that later makes System.Text.Json
+            // throw ArgumentNullException during summary serialization). Lock to serialize writes.
+            _ = t.ContinueWith(r =>
+            {
+                if (r.IsCompletedSuccessfully)
+                {
+                    lock (summary.ExchangeKpis)
+                        summary.ExchangeKpis[key] = r.Result;
+                }
+            }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        // Send As (Exchange Permissions) is not an LDAP-countable attribute: it lives in each mailbox's
+        // nTSecurityDescriptor. Resolve it via the dedicated DACL-parsing collector and key it into
+        // ExchangeKpis alongside the generic Exchange KPIs. Guarded by the same enablement check.
+        if (settings.IsKpiEnabled(KpiInfo.ExchangeSendAsKpi.CategoryKey, KpiInfo.ExchangeSendAsKpi.Key))
+        {
+            var sendAsTask = GetExchangeSendAsKpiAsync(token);
+            tasks.Add((KpiInfo.ExchangeSendAsKpi.Key, sendAsTask));
+            _ = sendAsTask.ContinueWith(r =>
+            {
+                if (r.IsCompletedSuccessfully)
+                {
+                    lock (summary.ExchangeKpis)
+                        summary.ExchangeKpis[KpiInfo.ExchangeSendAsKpi.Key] = r.Result;
+                }
+            }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        // Full Access (Exchange Permissions) resolves each mailbox's msExchDelegateListLink delegate DNs
+        // into account names for the drilldown Trustee column, so it uses a dedicated collector rather
+        // than the generic LDAP counter. Guarded by the same enablement check.
+        if (settings.IsKpiEnabled(KpiInfo.ExchangeFullAccessDelegatesKpi.CategoryKey, KpiInfo.ExchangeFullAccessDelegatesKpi.Key))
+        {
+            var faTask = GetExchangeFullAccessKpiAsync(token);
+            tasks.Add((KpiInfo.ExchangeFullAccessDelegatesKpi.Key, faTask));
+            _ = faTask.ContinueWith(r =>
+            {
+                if (r.IsCompletedSuccessfully)
+                {
+                    lock (summary.ExchangeKpis)
+                        summary.ExchangeKpis[KpiInfo.ExchangeFullAccessDelegatesKpi.Key] = r.Result;
+                }
+            }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        // Send on Behalf (Exchange Permissions) resolves each mailbox's publicDelegates delegate DNs into
+        // account names for the drilldown Trustee column, so it uses a dedicated collector rather
+        // than the generic LDAP counter. Guarded by the same enablement check.
+        if (settings.IsKpiEnabled(KpiInfo.ExchangeSendOnBehalfKpi.CategoryKey, KpiInfo.ExchangeSendOnBehalfKpi.Key))
+        {
+            var sobTask = GetExchangeSendOnBehalfKpiAsync(token);
+            tasks.Add((KpiInfo.ExchangeSendOnBehalfKpi.Key, sobTask));
+            _ = sobTask.ContinueWith(r =>
+            {
+                if (r.IsCompletedSuccessfully)
+                {
+                    lock (summary.ExchangeKpis)
+                        summary.ExchangeKpis[KpiInfo.ExchangeSendOnBehalfKpi.Key] = r.Result;
+                }
+            }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+
         await Task.WhenAll(tasks.Select(t => t.Task));
 
         // Tier 2 security-health signals (krbtgt password age, weak domain password policy,
@@ -2576,6 +2656,400 @@ public class ActiveRolesService
         return result;
     }
 
+    // The Send-As extended right (schema GUID). A mailbox "Send As" delegation is an Allow ACE on the
+    // mailbox object's nTSecurityDescriptor granting this control right.
+    private static readonly Guid SendAsRightGuid = new("ab721a54-1e2f-11d0-9819-00aa0040529b");
+
+    /// <summary>
+    /// Resolves the "Mailbox Permissions (Send As)" KPI. Unlike the other Exchange KPIs this cannot be
+    /// expressed as an LDAP filter: Send As is an ACE inside each mailbox's <c>nTSecurityDescriptor</c>.
+    /// We therefore read the security descriptor for every mailbox and count those that carry an
+    /// <em>explicit</em> (non-inherited) Allow Send-As ACE granted to a non-system trustee. Inherited
+    /// and well-known-SID grants (SELF, SYSTEM, Exchange servers, Domain/Enterprise Admins, Org
+    /// Management) are excluded because virtually every mailbox inherits those, which would make the
+    /// count meaningless.
+    /// </summary>
+    public async Task<GovernanceKpiSummary> GetExchangeSendAsKpiAsync(string token)
+    {
+        var result = new GovernanceKpiSummary();
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var baseDn = config.DefaultActiveDirectoryDN;
+            // The /objects search projection does not return nTSecurityDescriptor, so request the
+            // objectGUID here and fetch each mailbox's descriptor via a per-object GET below.
+            var items = await SearchObjectsAsync(token, baseDn, "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))", "sub",
+                "name,distinguishedName,edsaDomainNetbiosName,objectGUID,objectSid");
+
+            var matched = new List<GovernanceKpiInfo>();
+            foreach (var item in items)
+            {
+                var sd = await GetMailboxSecurityDescriptorAsync(token, item);
+                if (sd == null)
+                    continue;
+
+                var ownerSid = GetAttr(item, "objectSid");
+                var sendAsSids = GetExplicitNonSystemSendAsSids(sd, ownerSid);
+                if (sendAsSids.Count > 0)
+                {
+                    var names = new List<string>();
+                    foreach (var trusteeSid in sendAsSids)
+                    {
+                        var resolved = await ResolveSidToNameAsync(token, trusteeSid);
+                        names.Add(string.IsNullOrEmpty(resolved) ? trusteeSid : resolved);
+                    }
+
+                    matched.Add(new GovernanceKpiInfo
+                    {
+                        Name = GetAttr(item, "name"),
+                        Domain = GetAttr(item, "edsaDomainNetbiosName"),
+                        Dn = GetAttr(item, "distinguishedName"),
+                        Trustee = string.Join(", ", names.Distinct(StringComparer.OrdinalIgnoreCase))
+                    });
+                }
+            }
+
+            result.TotalCount = matched.Count;
+            result.Items = matched;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    /// <summary>
+    /// Collects mailboxes that grant Send on Behalf (publicDelegates populated) and resolves the
+    /// delegate DNs into account names, surfaced as a single comma-separated Trustee string per mailbox.
+    /// Unlike Send As this is a plain multi-valued LDAP attribute, so no security-descriptor parsing is
+    /// required.
+    /// </summary>
+    public async Task<GovernanceKpiSummary> GetExchangeSendOnBehalfKpiAsync(string token)
+    {
+        var result = new GovernanceKpiSummary();
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var baseDn = config.DefaultActiveDirectoryDN;
+            var items = await SearchObjectsAsync(token, baseDn, "(&(objectClass=user)(homeMDB=*)(publicDelegates=*))", "sub",
+                "name,distinguishedName,edsaDomainNetbiosName,publicDelegates");
+
+            var matched = new List<GovernanceKpiInfo>();
+            foreach (var item in items)
+            {
+                var delegates = GetAttrValues(item, "publicDelegates");
+                if (delegates.Count == 0)
+                    continue;
+
+                var names = delegates
+                    .Select(GetCnFromDn)
+                    .Where(n => !string.IsNullOrEmpty(n))
+                    .Distinct(StringComparer.OrdinalIgnoreCase);
+
+                matched.Add(new GovernanceKpiInfo
+                {
+                    Name = GetAttr(item, "name"),
+                    Domain = GetAttr(item, "edsaDomainNetbiosName"),
+                    Dn = GetAttr(item, "distinguishedName"),
+                    Trustee = string.Join(", ", names)
+                });
+            }
+
+            result.TotalCount = matched.Count;
+            result.Items = matched;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    /// <summary>
+    /// Collects mailboxes that grant Full Access and resolves the trustee SIDs into account names,
+    /// surfaced as a single comma-separated Trustee string per mailbox. Full Access is a DACL right
+    /// (an AccessAllowed ACE granting GenericAll on the mailbox), NOT the msExchDelegateListLink
+    /// automapping attribute, so it is resolved from each mailbox's nTSecurityDescriptor - the same
+    /// way Send As is - excluding inherited and system/administrative trustees.
+    /// </summary>
+    public async Task<GovernanceKpiSummary> GetExchangeFullAccessKpiAsync(string token)
+    {
+        var result = new GovernanceKpiSummary();
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var baseDn = config.DefaultActiveDirectoryDN;
+            // The /objects search projection does not return nTSecurityDescriptor, so request the
+            // objectGUID here and fetch each mailbox's descriptor via a per-object GET below.
+            var items = await SearchObjectsAsync(token, baseDn, "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))", "sub",
+                "name,distinguishedName,edsaDomainNetbiosName,objectGUID,objectSid");
+
+            var matched = new List<GovernanceKpiInfo>();
+            foreach (var item in items)
+            {
+                // Exchange Full Access (Add-MailboxPermission -AccessRights FullAccess) is stored in the
+                // mailbox's msExchMailboxSecurityDescriptor, NOT nTSecurityDescriptor, so read that one.
+                var sd = await GetMailboxSecurityDescriptorAsync(token, item, "msExchMailboxSecurityDescriptor");
+                if (sd == null)
+                    continue;
+
+                var ownerSid = GetAttr(item, "objectSid");
+                var fullAccessSids = GetExplicitNonSystemFullAccessSids(sd, ownerSid);
+                if (fullAccessSids.Count > 0)
+                {
+                    var names = new List<string>();
+                    foreach (var trusteeSid in fullAccessSids)
+                    {
+                        var resolved = await ResolveSidToNameAsync(token, trusteeSid);
+                        names.Add(string.IsNullOrEmpty(resolved) ? trusteeSid : resolved);
+                    }
+
+                    matched.Add(new GovernanceKpiInfo
+                    {
+                        Name = GetAttr(item, "name"),
+                        Domain = GetAttr(item, "edsaDomainNetbiosName"),
+                        Dn = GetAttr(item, "distinguishedName"),
+                        Trustee = string.Join(", ", names.Distinct(StringComparer.OrdinalIgnoreCase))
+                    });
+                }
+            }
+
+            result.TotalCount = matched.Count;
+            result.Items = matched;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    /// <summary>
+    /// Walks a parsed mailbox DACL and returns the distinct trustee SID strings for every Allow ACE that
+    /// grants Full Access (GenericAll) to the whole mailbox object, is not inherited, and whose trustee is
+    /// not a well-known system/administrative SID. Object-specific ACEs (e.g. Send As) are excluded so
+    /// only true full-mailbox grants are counted.
+    /// </summary>
+    private List<string> GetExplicitNonSystemFullAccessSids(System.Security.AccessControl.RawSecurityDescriptor sd, string? ownerSid = null)
+    {
+        var sids = new List<string>();
+        if (sd.DiscretionaryAcl == null)
+            return sids;
+
+        // In the Exchange mailbox security descriptor (msExchMailboxSecurityDescriptor) the "Full Access"
+        // (Full Mailbox Access) right is expressed as the low bit (0x00000001) of an AccessAllowed ACE -
+        // NOT the AD GENERIC_ALL bit. Match that bit; the mailbox owner (SELF) and system/admin trustees
+        // are excluded separately.
+        const int mailboxFullAccess = 0x00000001;
+
+        foreach (var ace in sd.DiscretionaryAcl)
+        {
+            if (ace is not System.Security.AccessControl.CommonAce cace)
+                continue;
+            if (cace.AceType != System.Security.AccessControl.AceType.AccessAllowed)
+                continue;
+            // Exclude inherited grants (present on nearly every mailbox by design).
+            if ((cace.AceFlags & System.Security.AccessControl.AceFlags.Inherited) != 0)
+                continue;
+            // Full Access grants the mailbox Full Access right (low bit).
+            if ((cace.AccessMask & mailboxFullAccess) == 0)
+                continue;
+            if (IsSystemOrAdminSid(cace.SecurityIdentifier))
+                continue;
+            // Exclude the mailbox's own account granting itself access (not a delegation).
+            if (!string.IsNullOrEmpty(ownerSid) &&
+                string.Equals(cace.SecurityIdentifier.Value, ownerSid, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            sids.Add(cace.SecurityIdentifier.Value);
+        }
+
+        return sids;
+    }
+
+    /// <summary>
+    /// Fetches a mailbox's nTSecurityDescriptor. The Active Roles REST /objects search projection does
+    /// not include the security descriptor even when it is explicitly requested, so it is retrieved via a
+    /// per-object GET (which does return it) keyed off the objectGuid captured during the search. Returns
+    /// null when the objectGuid is missing or the descriptor cannot be read/parsed.
+    /// </summary>
+    private async Task<System.Security.AccessControl.RawSecurityDescriptor?> GetMailboxSecurityDescriptorAsync(string token, JsonElement item, string descriptorAttribute = "nTSecurityDescriptor")
+    {
+        var objectGuid = GetAttr(item, "objectGUID");
+        if (string.IsNullOrEmpty(objectGuid))
+        {
+            _logger.LogDebug("Exchange permissions: mailbox search result had no objectGUID; cannot fetch its security descriptor.");
+            return null;
+        }
+
+        using var doc = await GetObjectDetailsAsync(token, objectGuid, descriptorAttribute);
+        if (doc == null)
+        {
+            _logger.LogDebug("Exchange permissions: per-object GET for mailbox {Guid} returned null (GET failed or not found).", objectGuid);
+            return null;
+        }
+
+        return TryBuildSecurityDescriptor(doc.RootElement, descriptorAttribute);
+    }
+
+    /// <summary>
+    /// Reads a mailbox's nTSecurityDescriptor from the search result (which the Active Roles REST API may
+    /// return as base64, SDDL, or a JSON array of raw bytes) and builds a RawSecurityDescriptor. Returns
+    /// null when the attribute is absent or cannot be parsed.
+    /// </summary>
+    private System.Security.AccessControl.RawSecurityDescriptor? TryBuildSecurityDescriptor(JsonElement item, string descriptorAttribute = "nTSecurityDescriptor")
+    {
+        if (!TryGetAttrElement(item, descriptorAttribute, out var val))
+        {
+            _logger.LogDebug("Exchange permissions: mailbox result did not include {Attribute}.", descriptorAttribute);
+            return null;
+        }
+
+        try
+        {
+            // Shape 1: JSON array of byte values (numbers).
+            if (val.ValueKind == JsonValueKind.Array)
+            {
+                var bytes = new byte[val.GetArrayLength()];
+                var i = 0;
+                foreach (var b in val.EnumerateArray())
+                    bytes[i++] = (byte)b.GetInt32();
+                if (bytes.Length == 0) return null;
+                return new System.Security.AccessControl.RawSecurityDescriptor(bytes, 0);
+            }
+
+            if (val.ValueKind == JsonValueKind.String)
+            {
+                var s = val.GetString();
+                if (string.IsNullOrEmpty(s)) return null;
+
+                // Shape 2: base64-encoded binary.
+                if (TryDecodeBase64(s, out var b64Bytes))
+                    return new System.Security.AccessControl.RawSecurityDescriptor(b64Bytes, 0);
+
+                // Shape 3: SDDL string.
+                return new System.Security.AccessControl.RawSecurityDescriptor(s);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Exchange permissions: could not parse a mailbox security descriptor; skipping it.");
+        }
+
+        return null;
+    }
+
+    /// <summary>Gets the raw JsonElement for an attribute (top-level or nested under "attributes").</summary>
+    private static bool TryGetAttrElement(JsonElement element, string name, out JsonElement value)
+    {
+        if (element.TryGetProperty(name, out value))
+            return true;
+        if (element.TryGetProperty("attributes", out var attrs) && attrs.TryGetProperty(name, out value))
+            return true;
+        value = default;
+        return false;
+    }
+
+    /// <summary>Reads a possibly multi-valued LDAP attribute as a list of strings.</summary>
+    private static List<string> GetAttrValues(JsonElement element, string name)
+    {
+        JsonElement val;
+        if (element.TryGetProperty(name, out val)
+            || (element.TryGetProperty("attributes", out var attrs) && attrs.TryGetProperty(name, out val)))
+        {
+            if (val.ValueKind == JsonValueKind.Array)
+                return val.EnumerateArray()
+                    .Select(v => v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText())
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .ToList();
+            if (val.ValueKind == JsonValueKind.String)
+            {
+                var s = val.GetString();
+                return string.IsNullOrEmpty(s) ? [] : [s];
+            }
+        }
+        return [];
+    }
+
+    /// <summary>Extracts the first CN component from a distinguished name, falling back to the raw value.</summary>
+    private static string GetCnFromDn(string dn)
+    {
+        if (string.IsNullOrEmpty(dn))
+            return dn;
+        var match = System.Text.RegularExpressions.Regex.Match(dn, @"^CN=([^,]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return match.Success ? match.Groups[1].Value.Replace("\\,", ",") : dn;
+    }
+
+    /// <summary>
+    /// Walks a parsed mailbox DACL and returns the distinct trustee SID strings for every Allow Send-As
+    /// ACE that is not inherited and whose trustee is not a well-known system/administrative SID.
+    /// </summary>
+    private List<string> GetExplicitNonSystemSendAsSids(System.Security.AccessControl.RawSecurityDescriptor sd, string? ownerSid = null)
+    {
+        var sids = new List<string>();
+        if (sd.DiscretionaryAcl == null)
+            return sids;
+
+        foreach (var ace in sd.DiscretionaryAcl)
+        {
+            if (ace is not System.Security.AccessControl.ObjectAce oace)
+                continue;
+            if (oace.AceType != System.Security.AccessControl.AceType.AccessAllowedObject)
+                continue;
+            // Only object-specific ACEs that name the Send-As right.
+            if ((oace.ObjectAceFlags & System.Security.AccessControl.ObjectAceFlags.ObjectAceTypePresent) == 0)
+                continue;
+            if (oace.ObjectAceType != SendAsRightGuid)
+                continue;
+            // Exclude inherited grants (present on nearly every mailbox).
+            if ((oace.AceFlags & System.Security.AccessControl.AceFlags.Inherited) != 0)
+                continue;
+            if (IsSystemOrAdminSid(oace.SecurityIdentifier))
+                continue;
+            // Exclude the mailbox's own account granting itself the right (not a delegation).
+            if (!string.IsNullOrEmpty(ownerSid) &&
+                string.Equals(oace.SecurityIdentifier.Value, ownerSid, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            sids.Add(oace.SecurityIdentifier.Value);
+        }
+
+        return sids;
+    }
+
+    private static bool TryDecodeBase64(string value, out byte[] bytes)
+    {
+        bytes = [];
+        // SDDL always starts with an owner/DACL token like "O:" or "D:" — never valid SD base64.
+        if (value.StartsWith("O:", StringComparison.Ordinal) || value.StartsWith("D:", StringComparison.Ordinal))
+            return false;
+        var buffer = new byte[((value.Length + 3) / 4) * 3];
+        if (Convert.TryFromBase64String(value, buffer, out var written) && written > 0)
+        {
+            bytes = buffer[..written];
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// True for trustees that should not count as a meaningful Send-As delegation: the mailbox owner
+    /// (SELF), LOCAL SYSTEM, and well-known administrative groups that hold Send-As by design.
+    /// </summary>
+    private static bool IsSystemOrAdminSid(System.Security.Principal.SecurityIdentifier sid)
+    {
+        // SELF (S-1-5-10) and LOCAL SYSTEM (S-1-5-18).
+        if (sid.IsWellKnown(System.Security.Principal.WellKnownSidType.SelfSid) ||
+            sid.IsWellKnown(System.Security.Principal.WellKnownSidType.LocalSystemSid))
+            return true;
+
+        var value = sid.Value;
+        // Exclude common built-in/domain admin trustees identified by RID suffix or absolute SID:
+        // -512 Domain Admins, -519 Enterprise Admins, -518 Schema Admins, -516 Domain Controllers,
+        // S-1-5-32-544 Administrators, S-1-5-32-548 Account Operators.
+        if (value.EndsWith("-512", StringComparison.Ordinal) ||
+            value.EndsWith("-519", StringComparison.Ordinal) ||
+            value.EndsWith("-518", StringComparison.Ordinal) ||
+            value.EndsWith("-516", StringComparison.Ordinal) ||
+            value == "S-1-5-32-544" ||
+            value == "S-1-5-32-548")
+            return true;
+
+        return false;
+    }
+
     public async Task<PrivilegedGroupSummary> GetActiveRolesAdminsAsync(string token, string baseDn, string filter)
     {
         return await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
@@ -2637,6 +3111,99 @@ public class ActiveRolesService
         catch (Exception ex)
         {
             _logger.LogError(ex, "IsUserActiveRolesAdminAsync: Exception while checking admin status for '{Username}'", username);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Returns true when the organization has Exchange deployed, i.e. the directory contains at
+    /// least one <c>msExchExchangeServer</c> that is not a pure transport server
+    /// (<c>msExchExchangeTransportServer</c>). Uses the configured detection filter/base and returns
+    /// false on any error so the Exchange dashboard simply stays hidden rather than faulting.
+    /// </summary>
+    public async Task<bool> IsExchangeDeployedAsync(string token)
+    {
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var filter = config.DefaultFilters.ExchangeServers;
+            var baseDn = string.IsNullOrWhiteSpace(config.DefaultFilters.ExchangeServersBaseDn)
+                ? config.DefaultActiveDirectoryDN
+                : config.DefaultFilters.ExchangeServersBaseDn;
+
+            var servers = await SearchObjectsAsync(token, baseDn, filter, "sub", "distinguishedName");
+            _logger.LogInformation("IsExchangeDeployedAsync: Found {Count} Exchange server object(s) under '{BaseDn}'.",
+                servers.Count, baseDn);
+            return servers.Count > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "IsExchangeDeployedAsync: Exception while detecting Exchange servers.");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Returns true when <paramref name="username"/> is a member (direct or nested) of one of the
+    /// Exchange administrative security groups that may view the Exchange dashboard: "Organization
+    /// Management" or "View-Only Organization Management". Resolution and DN comparison mirror
+    /// <see cref="IsUserActiveRolesAdminAsync"/>. Returns false on any error.
+    /// </summary>
+    public async Task<bool> IsUserExchangeAdminAsync(string token, string username)
+    {
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var baseDn = config.DefaultActiveDirectoryDN;
+
+            // Resolve the viewer's DN once (by sAMAccountName) so it can be compared against the
+            // members of either Exchange administrative group.
+            var name = username;
+            var slashIndex = name.IndexOf('\\');
+            if (slashIndex >= 0) name = name[(slashIndex + 1)..];
+            var atIndex = name.IndexOf('@');
+            if (atIndex >= 0) name = name[..atIndex];
+
+            var userSearch = await SearchObjectsAsync(token, baseDn,
+                $"(&(objectClass=user)(sAMAccountName={name}))", "sub", "distinguishedName");
+            if (userSearch.Count == 0)
+            {
+                _logger.LogWarning("IsUserExchangeAdminAsync: No user found for sAMAccountName '{Username}'.", name);
+                return false;
+            }
+
+            var userDn = GetAttr(userSearch[0], "distinguishedName");
+            if (string.IsNullOrEmpty(userDn))
+                return false;
+
+            var normalizedUserDn = NormalizeAdDn(userDn);
+
+            foreach (var groupFilter in new[]
+            {
+                config.DefaultFilters.ExchangeOrganizationManagement,
+                config.DefaultFilters.ExchangeViewOnlyOrganizationManagement
+            })
+            {
+                if (string.IsNullOrWhiteSpace(groupFilter)) continue;
+
+                var members = await GetPrivilegedGroupMembersAsync(token, baseDn, groupFilter);
+                if (members.Error != null || members.Items.Count == 0) continue;
+
+                var isMember = members.Items.Any(m =>
+                    NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
+                if (isMember)
+                {
+                    _logger.LogInformation("IsUserExchangeAdminAsync: User '{Username}' is a member of an Exchange admin group (filter '{Filter}').",
+                        name, groupFilter);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "IsUserExchangeAdminAsync: Exception while checking Exchange admin status for '{Username}'.", username);
             return false;
         }
     }

@@ -94,6 +94,11 @@
   <data name="Cat_EntraUserAccounts" xml:space="preserve"><value>User Accounts</value></data>
   <data name="Cat_EntraGroups" xml:space="preserve"><value>Groups</value></data>
   <data name="Cat_Licensing" xml:space="preserve"><value>Licensing</value></data>
+  <data name="Cat_ExchangeOverview" xml:space="preserve"><value>Overview</value></data>
+  <data name="Cat_ExchangeGovernance" xml:space="preserve"><value>Governance and Risk</value></data>
+  <data name="Cat_ExchangeInfrastructure" xml:space="preserve"><value>Infrastructure</value></data>
+  <data name="Cat_ExchangeMailboxes" xml:space="preserve"><value>Mailboxes</value></data>
+  <data name="Cat_ExchangeGroups" xml:space="preserve"><value>Distribution Groups</value></data>
   <!-- KPI display names -->
   <data name="Kpi_ADUserAccounts" xml:space="preserve"><value>Total Users</value></data>
   <data name="Kpi_ADGroups" xml:space="preserve"><value>Total Groups</value></data>
@@ -201,4 +206,33 @@
   <data name="Kpi_ClientsOther" xml:space="preserve"><value>Clients (other)</value></data>
   <data name="Kpi_UnconstrainedComputers" xml:space="preserve"><value>Unconstrained Delegation</value></data>
   <data name="Kpi_ManagedObjects" xml:space="preserve"><value>Managed Objects</value></data>
+  <!-- Exchange KPI display names -->
+  <data name="Kpi_ExchangeServersKpi" xml:space="preserve"><value>Exchange Servers</value></data>
+  <data name="KpiTile_ExchangeServersKpi" xml:space="preserve"><value>Servers</value></data>
+  <data name="Kpi_ExchangeTotalMailboxes" xml:space="preserve"><value>Total Mailboxes</value></data>
+  <data name="KpiTile_ExchangeTotalMailboxes" xml:space="preserve"><value>Mailboxes</value></data>
+  <data name="Kpi_ExchangeMailboxDatabasesKpi" xml:space="preserve"><value>Mailbox Databases</value></data>
+  <data name="KpiTile_ExchangeMailboxDatabasesKpi" xml:space="preserve"><value>Databases</value></data>
+  <data name="Kpi_ExchangeAcceptedDomainsKpi" xml:space="preserve"><value>Accepted Domains</value></data>
+  <data name="Kpi_ExchangeMailboxServersKpi" xml:space="preserve"><value>Mailbox Servers</value></data>
+  <data name="Kpi_ExchangeDAGsKpi" xml:space="preserve"><value>Database Availability Groups</value></data>
+  <data name="KpiTile_ExchangeDAGsKpi" xml:space="preserve"><value>DAGs</value></data>
+  <data name="Kpi_ExchangeUserMailboxesKpi" xml:space="preserve"><value>User Mailboxes</value></data>
+  <data name="Kpi_ExchangeSharedMailboxesKpi" xml:space="preserve"><value>Shared Mailboxes</value></data>
+  <data name="Kpi_ExchangeRoomMailboxesKpi" xml:space="preserve"><value>Room Mailboxes</value></data>
+  <data name="Kpi_ExchangeEquipmentMailboxesKpi" xml:space="preserve"><value>Equipment Mailboxes</value></data>
+  <data name="Kpi_ExchangeMailUsersKpi" xml:space="preserve"><value>Mail Enabled User</value></data>
+  <data name="Kpi_ExchangeMailContactsKpi" xml:space="preserve"><value>Mail Enabled Contact</value></data>
+  <data name="Kpi_ExchangeDistributionGroupsKpi" xml:space="preserve"><value>Distribution Groups</value></data>
+  <data name="Kpi_ExchangeMailEnabledSecurityGroupsKpi" xml:space="preserve"><value>Mail-Enabled Security Groups</value></data>
+  <data name="Kpi_ExchangeDynamicDistributionGroupsKpi" xml:space="preserve"><value>Dynamic Distribution Groups</value></data>
+  <data name="Kpi_ExchangeGroupsNoOwnerKpi" xml:space="preserve"><value>Groups With No Owner</value></data>
+  <data name="Kpi_ExchangeEmptyDistributionGroupsKpi" xml:space="preserve"><value>Empty Distribution Groups</value></data>
+  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Unmanaged Mailboxes</value></data>
+  <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Orphaned Mailboxes (Disabled)</value></data>
+  <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Litigation Hold Disabled</value></data>
+  <data name="Cat_ExchangePermissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Kpi_ExchangeFullAccessDelegatesKpi" xml:space="preserve"><value>Mailbox Permissions (Full Access)</value></data>
+  <data name="Kpi_ExchangeSendOnBehalfKpi" xml:space="preserve"><value>Mailbox Permissions (Send on Behalf)</value></data>
+  <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve"><value>Mailbox Permissions (Send As)</value></data>
 </root>

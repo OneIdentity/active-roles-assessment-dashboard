@@ -39,6 +39,12 @@
   <data name="Title_Licensing" xml:space="preserve">
 	<value>Licencelés</value>
   </data>
+  <data name="Title_Exchange" xml:space="preserve">
+    <value>Microsoft Exchange</value>
+  </data>
+  <data name="Sub_Exchange" xml:space="preserve">
+    <value>Microsoft Exchange (helyi) KPI-k</value>
+  </data>
   <data name="Sub_Licensing" xml:space="preserve">
 	<value>Licencelési és megfelelőségi KPI-k</value>
   </data>
