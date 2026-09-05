@@ -231,4 +231,8 @@
   <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Unmanaged Mailboxes</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Orphaned Mailboxes (Disabled)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Litigation Hold Disabled</value></data>
+  <data name="Cat_ExchangePermissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Kpi_ExchangeFullAccessDelegatesKpi" xml:space="preserve"><value>Mailbox Permissions (Full Access)</value></data>
+  <data name="Kpi_ExchangeSendOnBehalfKpi" xml:space="preserve"><value>Mailbox Permissions (Send on Behalf)</value></data>
+  <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve"><value>Mailbox Permissions (Send As)</value></data>
 </root>

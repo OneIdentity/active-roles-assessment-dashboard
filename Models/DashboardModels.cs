@@ -292,7 +292,16 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups];
+    public static readonly CategoryInfo ExchangePermissions = new()
+    {
+        Key = "ExchangePermissions",
+        DisplayName = "Permissions",
+        DashboardKey = "Exchange",
+        SortOrder = 4,
+        KpiSortOrder = CategorySortOrder.AtoZ
+    };
+
+    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
 
     private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
 
@@ -1098,6 +1107,14 @@ public class DefaultFiltersConfig
     /// attribute <c>edsva-MsExch-LitigationHoldEnabled</c>. Treats an absent value as "not on hold".
     /// </summary>
     public string ExchangeLitigationHoldDisabled { get; set; } = "(&(objectClass=user)(homeMDB=*)(|(!(edsva-MsExch-LitigationHoldEnabled=*))(edsva-MsExch-LitigationHoldEnabled=FALSE)))";
+
+    // ----- Exchange dashboard KPI filters (permissions) -----
+
+    /// <summary>Mailboxes that grant Full Access to one or more delegates (msExchDelegateListLink populated).</summary>
+    public string ExchangeFullAccessDelegates { get; set; } = "(&(objectClass=user)(homeMDB=*)(msExchDelegateListLink=*))";
+
+    /// <summary>Mailboxes that grant Send on Behalf to one or more delegates (publicDelegates populated).</summary>
+    public string ExchangeSendOnBehalf { get; set; } = "(&(objectClass=user)(homeMDB=*)(publicDelegates=*))";
 }
 
 /// <summary>
@@ -1364,6 +1381,15 @@ public class KpiInfo
     public static readonly KpiInfo ExchangeOrphanedMailboxesKpi = new() { Key = "ExchangeOrphanedMailboxesKpi", DisplayName = "Orphaned Mailboxes (Disabled)", CategoryKey = "ExchangeMailboxes", CssColor = "red", SectionId = "exchangeorphanedmailboxes", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeOrphanedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
     public static readonly KpiInfo ExchangeLitigationHoldDisabledKpi = new() { Key = "ExchangeLitigationHoldDisabledKpi", DisplayName = "Litigation Hold Disabled", CategoryKey = "ExchangeMailboxes", CssColor = "orange", SectionId = "exchangelitigationholddisabled", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeLitigationHoldDisabled}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,edsva-MsExch-LitigationHoldEnabled" }] };
 
+    // Exchange Permissions KPIs (mailbox delegation / access). Full Access and Send on Behalf are
+    // simple LDAP object counts (msExchDelegateListLink / publicDelegates populated on the mailbox).
+    public static readonly KpiInfo ExchangeFullAccessDelegatesKpi = new() { Key = "ExchangeFullAccessDelegatesKpi", DisplayName = "Mailbox Permissions (Full Access)", TileLabel = "Full Access", CategoryKey = "ExchangePermissions", CssColor = "blue", SectionId = "exchangefullaccessdelegates", SortOrder = 0, HasDrilldown = true, IsSegmentable = true };
+    public static readonly KpiInfo ExchangeSendOnBehalfKpi = new() { Key = "ExchangeSendOnBehalfKpi", DisplayName = "Mailbox Permissions (Send on Behalf)", TileLabel = "Send on Behalf", CategoryKey = "ExchangePermissions", CssColor = "teal", SectionId = "exchangesendonbehalf", SortOrder = 1, HasDrilldown = true, IsSegmentable = true };
+    // Send As is an ACE in each mailbox's nTSecurityDescriptor, not an attribute, so it cannot be
+    // expressed as an LDAP filter. It carries no Searches and is resolved by the dedicated
+    // DACL-parsing collector (GetExchangeSendAsKpiAsync), which the generic Exchange loop skips.
+    public static readonly KpiInfo ExchangeSendAsKpi = new() { Key = "ExchangeSendAsKpi", DisplayName = "Mailbox Permissions (Send As)", TileLabel = "Send As", CategoryKey = "ExchangePermissions", CssColor = "purple", SectionId = "exchangesendas", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [] };
+
     public static readonly IReadOnlyList<KpiInfo> All =
     [
         ADUserAccounts, ADGroups, Computers, MainTotalMailboxes,
@@ -1387,7 +1413,8 @@ public class KpiInfo
         ExchangeMailboxServersKpi, ExchangeDAGsKpi,
         ExchangeUserMailboxesKpi, ExchangeSharedMailboxesKpi, ExchangeRoomMailboxesKpi, ExchangeEquipmentMailboxesKpi, ExchangeMailUsersKpi, ExchangeMailContactsKpi,
         ExchangeDistributionGroupsKpi, ExchangeMailEnabledSecurityGroupsKpi, ExchangeDynamicDistributionGroupsKpi,
-        ExchangeGroupsNoOwnerKpi, ExchangeEmptyDistributionGroupsKpi, ExchangeMailboxNoManagerKpi, ExchangeOrphanedMailboxesKpi, ExchangeLitigationHoldDisabledKpi
+        ExchangeGroupsNoOwnerKpi, ExchangeEmptyDistributionGroupsKpi, ExchangeMailboxNoManagerKpi, ExchangeOrphanedMailboxesKpi, ExchangeLitigationHoldDisabledKpi,
+        ExchangeFullAccessDelegatesKpi, ExchangeSendOnBehalfKpi, ExchangeSendAsKpi
     ];
 
     public static IEnumerable<KpiInfo> ForCategory(string categoryKey) => All.Where(k => k.CategoryKey == categoryKey);
@@ -2960,6 +2987,12 @@ public class GovernanceKpiInfo : IPermissionScoped
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Optional resolved trustee(s) for permission-oriented KPIs (e.g. Send As), rendered as a single
+    /// comma-separated string of account names. Empty for count-only KPIs.
+    /// </summary>
+    public string Trustee { get; set; } = string.Empty;
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;

@@ -28,11 +28,17 @@
             }
             else
             {
+                var showTrustee = summary.Items.Any(i => !string.IsNullOrEmpty(i.Trustee));
+                var colCount = showTrustee ? 5 : 4;
                 <table>
                     <thead>
                         <tr>
                             <th>@Localizer["Col_Name"]</th>
                             <th>@Localizer["Col_Domain"]</th>
+                            @if (showTrustee)
+                            {
+                                <th>@Localizer["Col_Trustee"]</th>
+                            }
                             <th>@Localizer["Col_DistinguishedName"]</th>
                             <th style="width:40px;"></th>
                         </tr>
@@ -43,6 +49,10 @@
                             <tr>
                                 <td>@item.Name</td>
                                 <td>@item.Domain</td>
+                                @if (showTrustee)
+                                {
+                                    <td>@item.Trustee</td>
+                                }
                                 <td class="dn-cell">@item.Dn</td>
                                 <td>
                                     @if (!string.IsNullOrEmpty(item.Dn) && webUrl != null)
@@ -62,7 +72,7 @@
                         }
                         @if (!summary.Items.Any())
                         {
-                            <tr><td colspan="4" class="empty-row">@Localizer["E_NoItems"]</td></tr>
+                            <tr><td colspan="@colCount" class="empty-row">@Localizer["E_NoItems"]</td></tr>
                         }
                     </tbody>
                 </table>

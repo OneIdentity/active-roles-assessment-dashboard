@@ -33,8 +33,11 @@
     </div>
 
     @{
+        // Order: Overview first, then Governance & Risk, then the rest alphabetically by display name.
         var sortedCategories = CategoryInfo.ForDashboard(DashboardInfo.Exchange)
             .Where(c => Model.KpiSettings.IsCategoryEnabled(c.Key))
+            .OrderBy(c => c.IsOverviewCategory ? 0 : c.IsRiskCategory ? 1 : 2)
+            .ThenBy(c => c.DisplayName, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
         var renderedCount = 0;
     }

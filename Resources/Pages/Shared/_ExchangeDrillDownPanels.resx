@@ -7,6 +7,7 @@
   <!-- Columns -->
   <data name="Col_Name" xml:space="preserve"><value>Name</value></data>
   <data name="Col_Domain" xml:space="preserve"><value>Domain</value></data>
+  <data name="Col_Trustee" xml:space="preserve"><value>Trustee</value></data>
   <data name="Col_DistinguishedName" xml:space="preserve"><value>Distinguished Name</value></data>
   <!-- Tooltips -->
   <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Open in Web Interface</value></data>
