@@ -9,4 +9,6 @@
   <data name="RebuildCacheTitle" xml:space="preserve"><value>A megosztott adat-gyorsítótár újraépítése az Active Roles-ból (csak rendszergazdák)</value></data>
   <data name="RefreshSucceeded" xml:space="preserve"><value>Az irányítópult adat-gyorsítótára sikeresen frissült.</value></data>
   <data name="RefreshFailed" xml:space="preserve"><value>Az irányítópult adat-gyorsítótárának frissítése sikertelen. A korábbi adatok láthatók.</value></data>
+  <data name="CacheRebuild_Started" xml:space="preserve"><value>A gyorsítótár újraépítése elkezdődött.</value></data>
+  <data name="CacheRebuild_Completed" xml:space="preserve"><value>A gyorsítótár újraépítése befejeződött.</value></data>
 </root>
