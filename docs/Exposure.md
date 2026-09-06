@@ -204,6 +204,17 @@ Deprovisioned/long-inactive accounts can be silently reactivated to establish pe
 | `DeprovisionedUsers` | Deprovisioned accounts that persist can be reactivated. | 10 / 50 |
 | `StaleUsers` | Inactive enabled accounts are candidates for takeover/reuse. | 5 / 25 |
 
+### Collection
+
+**`T1114` — Email Collection**
+Mailbox delegation lets one principal read another user's mail (Full Access) or send mail as / on behalf of another identity (Send As, Send on Behalf), enabling exfiltration, impersonation, and business email compromise. Shared mailboxes are excluded from these KPIs, so counts reflect delegation on regular user mailboxes.
+
+| KPI Key | Rationale | Medium/High |
+|---------|-----------|-------------|
+| `ExchangeFullAccessDelegatesKpi` | Full Access delegates can read another user's mailbox contents. | 5 / 25 |
+| `ExchangeSendAsKpi` | Send As delegates can impersonate the mailbox owner in outbound mail. | 1 / 10 |
+| `ExchangeSendOnBehalfKpi` | Send on Behalf delegates can send mail on behalf of another identity. | 5 / 25 |
+
 ---
 
 ## 4. KPI coverage
@@ -212,7 +223,7 @@ The exposure model reads each mapped KPI count via `DashboardSummary.GetKpiResul
 
 ### KPIs referenced by exposure techniques
 
-`EntraGuestUsers`, `EntraGuestContainingGroups`, `EntraNoGroupOwner`, `SpnUserAccounts`, `NoKerberosPreauth`, `ReversibleEncryption`, `UseDesEncryption`, `PasswordNotRequired`, `PasswordNeverExpires`, `DomainAdmins`, `EnterpriseAdmins`, `AdminCount`, `AccountOperators`, `ServerOperators`, `BackupOperators`, `ExpiredUsers`, `UserAccountLockedOut`, `NoGroupOwner`, `EmptyGroups`, `UnconstrainedComputers`, `TrustedForDelegation`, `NeverLoggedIn`, `StaleUsers`, `NoManagerServiceAccount`, `DeprovisionedUsers`.
+`EntraGuestUsers`, `EntraGuestContainingGroups`, `EntraNoGroupOwner`, `SpnUserAccounts`, `NoKerberosPreauth`, `ReversibleEncryption`, `UseDesEncryption`, `PasswordNotRequired`, `PasswordNeverExpires`, `DomainAdmins`, `EnterpriseAdmins`, `AdminCount`, `AccountOperators`, `ServerOperators`, `BackupOperators`, `ExpiredUsers`, `UserAccountLockedOut`, `NoGroupOwner`, `EmptyGroups`, `UnconstrainedComputers`, `TrustedForDelegation`, `NeverLoggedIn`, `StaleUsers`, `NoManagerServiceAccount`, `DeprovisionedUsers`, `ExchangeFullAccessDelegatesKpi`, `ExchangeSendAsKpi`, `ExchangeSendOnBehalfKpi`.
 
 ### Notes
 
