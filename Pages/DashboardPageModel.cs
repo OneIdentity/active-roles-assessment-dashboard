@@ -41,6 +41,12 @@ public abstract class DashboardPageModel : PageModel
     /// <summary>Gets the cached full dashboard summary JSON for the current user, or null if absent.</summary>
     protected string? GetCachedSummaryJson() => UserSummaryCache.GetSummary(UserCacheKey);
 
+    /// <summary>
+    /// True while the shared service-account superset is being (re)built. Used to disable the admin
+    /// "Rebuild Cache" toolbar button so a rebuild can't be triggered while one is already running.
+    /// </summary>
+    public bool CacheRebuildInProgress => Cache.State == CacheState.Refreshing;
+
     public DashboardSummary Summary { get; set; } = new();
     public KpiSettings KpiSettings { get; set; } = new();
     public int AutoRefreshMinutes { get; set; }

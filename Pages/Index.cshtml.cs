@@ -97,6 +97,7 @@ public class IndexModel : DashboardPageModel
         {
             authorized = true,
             sequence = Cache.RefreshSequence,
+            refreshing = Cache.State == CacheState.Refreshing,
             failed = Cache.LastRefreshFailed,
             error = Cache.LastError
         });

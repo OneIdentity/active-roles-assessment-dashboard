@@ -9,4 +9,6 @@
   <data name="RebuildCacheTitle" xml:space="preserve"><value>Rebuild the shared data cache from Active Roles (admins only)</value></data>
   <data name="RefreshSucceeded" xml:space="preserve"><value>Dashboard data cache refreshed successfully.</value></data>
   <data name="RefreshFailed" xml:space="preserve"><value>Dashboard data cache refresh failed. The previous data is still shown.</value></data>
+  <data name="CacheRebuild_Started" xml:space="preserve"><value>The cache rebuild has started.</value></data>
+  <data name="CacheRebuild_Completed" xml:space="preserve"><value>Cache rebuild completed.</value></data>
 </root>
