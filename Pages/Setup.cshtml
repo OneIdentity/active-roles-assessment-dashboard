@@ -88,6 +88,11 @@
                         <input type="text" id="RstsUrl" name="RstsUrl" value="@Model.RstsUrl" placeholder="https://server:443/rsts/oauth2/token" />
                         <p class="hint">@Localizer["RstsUrlHint"]</p>
                     </div>
+                    <div class="form-group">
+                        <label for="RstsScope">@Localizer["RstsScope"]</label>
+                        <input type="text" id="RstsScope" name="RstsScope" value="@Model.RstsScope" placeholder="rsts:sts:primaryproviderid:ad" />
+                        <p class="hint">@Localizer["RstsScopeHint"]</p>
+                    </div>
                 </div>
                 <div class="wizard-nav">
                     <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
