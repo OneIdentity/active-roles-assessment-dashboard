@@ -71,6 +71,7 @@ Every framework is honestly **scoped**: it evaluates only the identity/access an
 | `DfeCyber` | DfE Cyber Standards (Account & Access Management) | ✔ |
 | `PciDss` | PCI DSS (Requirements 7 & 8 - Access Control) | ✔ |
 | `ActiveRoles` | Active Roles Configuration | — |
+| `Exchange` | Exchange (On-Premises) | ✔ |
 
 ### Rule groupings (which frameworks share rules)
 
@@ -85,6 +86,8 @@ Rules are assigned to reusable framework groupings so a control can be defined o
 | `SecureConfigUnsupportedOs` | AD, NIS2, CIS, NIST, NEN 7510, ISO 27001, Cyber Essentials, DfE, DSPT, PCI DSS, 800-171 |
 | `SecureConfigCore` | `SecureConfigUnsupportedOs` + DORA, HIPAA, SOX (also PCI DSS, 800-171) |
 | `EntraGovernance` | Entra, NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, PCI DSS, 800-171 (**AD excluded** — it has its own AD-scoped group/user rules) |
+| `ExchangeDelegation` | Exchange + NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, PCI DSS, 800-171 (**AD, Entra and Active Roles excluded** — mailbox delegation is an Exchange data-access surface, not a directory-object concern) |
+| `ExchangeOnly` | Exchange only (product-scoped mailbox / group hygiene rules) |
 | `ActiveRolesGdpr` | Active Roles + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, PCI DSS, 800-171 |
 | `ActiveRolesDora` | Active Roles, DORA |
 | `AdOnly` | AD only |
@@ -191,6 +194,28 @@ Entra ID group-ownership/review and guest/external-access indicators surfaced th
 |---------|-------|---------|----------|-----------|-----------|
 | `AUTH-SmartCardAdoption` ↓ | Accounts enforcing smart-card (strong) authentication | `SmartCardRequired` | Medium | 2 / 0 | NIS2, NIST, NEN 7510, ISO 27001 |
 
+### Exchange Mailbox & Group Hygiene
+
+Product-scoped Exchange findings surfaced by the Exchange dashboard's risk KPIs. These feed the dedicated **Exchange (On-Premises)** assessment only (`ExchangeOnly`), giving admins a focused "how healthy is my Exchange org?" scorecard analogous to the Active Directory and Active Roles assessments.
+
+| Rule Id | Title | KPI Key | Severity | Warn/Fail | Applies to |
+|---------|-------|---------|----------|-----------|-----------|
+| `EXO-OrphanedMailboxes` | Orphaned mailboxes on disabled accounts | `ExchangeOrphanedMailboxesKpi` | High | 1 / 10 | ExchangeOnly |
+| `EXO-LitigationHoldDisabled` | Mailboxes with litigation hold disabled | `ExchangeLitigationHoldDisabledKpi` | Medium | 25 / 100 | ExchangeOnly |
+| `EXO-UnmanagedMailboxes` | Mailboxes without a manager | `ExchangeMailboxNoManagerKpi` | Low | 10 / 50 | ExchangeOnly |
+| `EXO-GroupsNoOwner` | Distribution / mail-enabled groups without an owner | `ExchangeGroupsNoOwnerKpi` | Medium | 1 / 10 | ExchangeOnly |
+| `EXO-EmptyDistributionGroups` | Empty distribution groups | `ExchangeEmptyDistributionGroupsKpi` | Low | 5 / 25 | ExchangeOnly |
+
+### Mailbox Delegation
+
+Mailbox delegation grants one identity access to another's mailbox. It is legitimate but should be minimised and reviewed — excessive delegation is a least-privilege weakness and, for mailboxes holding personal or regulated data, an accountability and data-access concern. Shared/room/equipment mailbox self-entries are already excluded from the underlying KPIs, so the counts reflect user-to-user delegation. These rules feed the regulatory frameworks **and** the product-scoped Exchange assessment (not the AD/Entra/Active Roles product assessments).
+
+| Rule Id | Title | KPI Key | Severity | Warn/Fail | Applies to |
+|---------|-------|---------|----------|-----------|-----------|
+| `EXO-FullAccessDelegation` | Mailboxes with Full Access delegation | `ExchangeFullAccessDelegatesKpi` | High | 10 / 25 | ExchangeDelegation |
+| `EXO-SendAsDelegation` | Mailboxes with Send As delegation | `ExchangeSendAsKpi` | High | 5 / 15 | ExchangeDelegation |
+| `EXO-SendOnBehalfDelegation` | Mailboxes with Send on Behalf delegation | `ExchangeSendOnBehalfKpi` | Medium | 10 / 25 | ExchangeDelegation |
+
 ### Active Roles Configuration
 
 | Rule Id | Title | KPI Key | Severity | Warn/Fail | Comparison | Applies to |
@@ -277,5 +302,8 @@ Computed from enriched telemetry rather than a single object search:
 | `BroadDelegationLinks` | Access Template Links granted to broad principals | Active Roles config (`edsACE` under `CN=AT Links`) |
 | `ConfigDatabases` | Number of Active Roles configuration databases | Active Roles config |
 | `HistoryDatabases` | Number of Active Roles Management History databases | Active Roles config |
+| `ExchangeFullAccessDelegatesKpi` | Mailboxes with Full Access delegation (user-to-user) | Exchange mailbox `msExchMailboxSecurityDescriptor` (shared/room/equipment self-entries excluded) |
+| `ExchangeSendAsKpi` | Mailboxes with Send As delegation | Exchange mailbox `nTSecurityDescriptor` Send-As ACEs |
+| `ExchangeSendOnBehalfKpi` | Mailboxes with Send on Behalf delegation | Exchange mailbox `publicDelegates` |
 
 > A KPI that errors or cannot be collected causes its rule(s) to be reported as **Not Applicable** rather than failing.

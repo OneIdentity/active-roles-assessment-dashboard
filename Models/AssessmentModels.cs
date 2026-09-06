@@ -24,7 +24,8 @@ public enum AssessmentType
     Dspt,
     DfeCyber,
     PciDss,
-    ActiveRoles
+    ActiveRoles,
+    Exchange
 }
 
 /// <summary>Display metadata for assessment types (labels shown in the UI and stored files).</summary>
@@ -50,7 +51,8 @@ public static class AssessmentTypeInfo
         AssessmentType.Dspt,
         AssessmentType.DfeCyber,
         AssessmentType.PciDss,
-        AssessmentType.ActiveRoles
+        AssessmentType.ActiveRoles,
+        AssessmentType.Exchange
     };
 
     public static string DisplayName(AssessmentType type) => type switch
@@ -74,12 +76,13 @@ public static class AssessmentTypeInfo
         AssessmentType.DfeCyber => "DfE Cyber Standards (Account & Access Management)",
         AssessmentType.PciDss => "PCI DSS (Requirements 7 & 8 - Access Control)",
         AssessmentType.ActiveRoles => "Active Roles Configuration",
+        AssessmentType.Exchange => "Exchange (On-Premises)",
         _ => type.ToString()
     };
 
     /// <summary>
     /// Optional scope/disclaimer text for an assessment type. Returned as a non-empty string
-    /// only for frameworks that need an explicit scope statement (currently GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT and DfE Cyber Standards); empty otherwise.
+    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE Cyber Standards, NIST SP 800-171 and Exchange); empty otherwise.
     /// Shown as a banner in the Assessments UI and as a leading section in exported reports.
     /// </summary>
     public static string Description(AssessmentType type) => type switch
@@ -181,6 +184,15 @@ public static class AssessmentTypeInfo
             "Protection 3.10, or Awareness and Training 3.2). It is an identity and access hygiene indicator only " +
             "and is not a determination of NIST SP 800-171 compliance, a NIST SP 800-171A assessment, or a CMMC " +
             "assessment.",
+        AssessmentType.Exchange =>
+            "This assessment evaluates on-premises Exchange identity, mailbox and messaging-hygiene indicators " +
+            "surfaced through Active Roles, focusing on mailbox governance (unmanaged mailboxes without a manager, " +
+            "orphaned mailboxes on disabled accounts, mailboxes with litigation hold disabled), distribution/mail-" +
+            "enabled group governance (groups without an owner, empty distribution groups), and mailbox delegation " +
+            "(Full Access, Send As, Send on Behalf). It reads Exchange recipient and directory attributes only and " +
+            "does NOT assess mail flow, transport rules, connectors, anti-spam/anti-malware, client access, TLS/" +
+            "encryption, journaling content, Exchange server patch level, or Exchange Online / Microsoft 365 " +
+            "workloads, and it is not a determination of Exchange security posture.",
         _ => string.Empty
     };
 }
@@ -388,6 +400,31 @@ public static class AssessmentRuleLibrary
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials,
         AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.PciDss, AssessmentType.Nist171
     };
+
+    // Exchange mailbox delegation (Full Access, Send As, Send on Behalf) is an
+    // excessive-access / least-privilege and accountability concern that cuts across the
+    // regulatory frameworks. Deliberately EXCLUDES the product-specific Active Directory,
+    // Entra ID and Active Roles assessments (per scope): those focus on their own directory
+    // objects, whereas mailbox delegation is an Exchange data-access surface. Every framework
+    // that already carries least-privilege / access-control rules is included so mailbox
+    // permission sprawl is reflected in their access-control posture. The product-scoped
+    // Exchange assessment is included so delegation also contributes to the Exchange scorecard.
+    private static readonly AssessmentType[] ExchangeDelegation =
+    {
+        AssessmentType.Exchange,
+        AssessmentType.Nis2, AssessmentType.Cis, AssessmentType.Nist,
+        AssessmentType.Nen7510, AssessmentType.Iso27001, AssessmentType.Gdpr,
+        AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
+        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials,
+        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.PciDss,
+        AssessmentType.Nist171
+    };
+
+    // Product-scoped Exchange assessment. Mailbox and messaging-hygiene findings that only
+    // make sense under the Exchange lens (unmanaged/orphaned mailboxes, litigation-hold gaps,
+    // distribution-group ownership/emptiness). These give admins a focused "how healthy is my
+    // Exchange org?" scorecard analogous to the Active Directory and Active Roles assessments.
+    private static readonly AssessmentType[] ExchangeOnly = { AssessmentType.Exchange };
 
     public static readonly IReadOnlyList<AssessmentRule> All = new List<AssessmentRule>
     {
@@ -1284,6 +1321,110 @@ public static class AssessmentRuleLibrary
             Types = DfeCyberOnly,
             WarnThreshold = 5, FailThreshold = 20,
             Recommendation = "The DfE cyber standards expect accounts to be removed or disabled when no longer required. Disable or deprovision accounts that have been inactive beyond your defined threshold, particularly for leavers, to reduce the attack surface."
+        },
+
+        // --- Exchange mailbox & messaging hygiene ----------------------------
+        // Product-scoped Exchange findings surfaced by the Exchange dashboard's risk KPIs.
+        // These feed the dedicated Exchange assessment only (ExchangeOnly); the cross-framework
+        // access-control lens is carried separately by the mailbox-delegation rules below.
+        new()
+        {
+            Id = "EXO-OrphanedMailboxes",
+            Title = "Orphaned mailboxes on disabled accounts",
+            CategoryName = "Exchange Mailbox Hygiene",
+            KpiKey = "ExchangeOrphanedMailboxesKpi",
+            Severity = AssessmentSeverity.High,
+            Types = ExchangeOnly,
+            WarnThreshold = 1, FailThreshold = 10,
+            Recommendation = "Disabled accounts that still have a mailbox retain accessible data and delegation surface. Deprovision or remove mailboxes for disabled accounts, or move their contents to a retained/shared mailbox under an accountable owner."
+        },
+        new()
+        {
+            Id = "EXO-LitigationHoldDisabled",
+            Title = "Mailboxes with litigation hold disabled",
+            CategoryName = "Exchange Mailbox Hygiene",
+            KpiKey = "ExchangeLitigationHoldDisabledKpi",
+            Severity = AssessmentSeverity.Medium,
+            Types = ExchangeOnly,
+            WarnThreshold = 25, FailThreshold = 100,
+            Recommendation = "Where retention or legal-hold requirements apply, enable litigation hold on the relevant mailboxes so content cannot be permanently deleted. Confirm this count against your retention policy scope; a high count is expected only if hold is not required."
+        },
+        new()
+        {
+            Id = "EXO-UnmanagedMailboxes",
+            Title = "Mailboxes without a manager",
+            CategoryName = "Exchange Mailbox Hygiene",
+            KpiKey = "ExchangeMailboxNoManagerKpi",
+            Severity = AssessmentSeverity.Low,
+            Types = ExchangeOnly,
+            WarnThreshold = 10, FailThreshold = 50,
+            Recommendation = "Assign a manager/owner to mailboxes to support access reviews, delegation accountability and lifecycle actions when the owner leaves."
+        },
+        new()
+        {
+            Id = "EXO-GroupsNoOwner",
+            Title = "Distribution / mail-enabled groups without an owner",
+            CategoryName = "Exchange Group Governance",
+            KpiKey = "ExchangeGroupsNoOwnerKpi",
+            Severity = AssessmentSeverity.Medium,
+            Types = ExchangeOnly,
+            WarnThreshold = 1, FailThreshold = 10,
+            Recommendation = "Assign an accountable owner to every distribution and mail-enabled security group so membership and mail-routing changes are reviewed and the group can be re-attested or retired."
+        },
+        new()
+        {
+            Id = "EXO-EmptyDistributionGroups",
+            Title = "Empty distribution groups",
+            CategoryName = "Exchange Group Governance",
+            KpiKey = "ExchangeEmptyDistributionGroupsKpi",
+            Severity = AssessmentSeverity.Low,
+            Types = ExchangeOnly,
+            WarnThreshold = 5, FailThreshold = 25,
+            Recommendation = "Review and remove empty distribution groups. Stale, memberless groups clutter the address book and can be repurposed unnoticed; delete or re-populate them under an accountable owner."
+        },
+
+        // --- Mailbox delegation (Exchange) -----------------------------------
+        // Mailbox delegation grants one identity access to another's mailbox (Full Access),
+        // the ability to send as that mailbox (Send As), or to send on its behalf (Send on
+        // Behalf). Delegation is legitimate but should be minimised and reviewed: excessive
+        // delegation is an access-control / least-privilege weakness and, for mailboxes holding
+        // personal or regulated data, an accountability and data-access concern. These rules
+        // feed the regulatory frameworks AND the product-scoped Exchange assessment (but not the
+        // AD/Entra/Active Roles product assessments). Shared, room and equipment mailbox
+        // self-entries are already excluded from the underlying KPIs, so the counts reflect
+        // user-to-user delegation.
+        new()
+        {
+            Id = "EXO-FullAccessDelegation",
+            Title = "Mailboxes with Full Access delegation",
+            CategoryName = "Mailbox Delegation",
+            KpiKey = "ExchangeFullAccessDelegatesKpi",
+            Severity = AssessmentSeverity.High,
+            Types = ExchangeDelegation,
+            WarnThreshold = 10, FailThreshold = 25,
+            Recommendation = "Review Full Access mailbox delegations. Full Access lets a delegate open and read another user's mailbox, including personal or regulated content. Remove delegations that are no longer required, prefer time-bound or role-based access, and periodically re-attest the remainder."
+        },
+        new()
+        {
+            Id = "EXO-SendAsDelegation",
+            Title = "Mailboxes with Send As delegation",
+            CategoryName = "Mailbox Delegation",
+            KpiKey = "ExchangeSendAsKpi",
+            Severity = AssessmentSeverity.High,
+            Types = ExchangeDelegation,
+            WarnThreshold = 5, FailThreshold = 15,
+            Recommendation = "Review Send As delegations. Send As lets a delegate send mail that appears to originate directly from the mailbox owner, which weakens accountability and enables impersonation. Restrict Send As to explicitly approved cases and remove unused grants."
+        },
+        new()
+        {
+            Id = "EXO-SendOnBehalfDelegation",
+            Title = "Mailboxes with Send on Behalf delegation",
+            CategoryName = "Mailbox Delegation",
+            KpiKey = "ExchangeSendOnBehalfKpi",
+            Severity = AssessmentSeverity.Medium,
+            Types = ExchangeDelegation,
+            WarnThreshold = 10, FailThreshold = 25,
+            Recommendation = "Review Send on Behalf delegations. While messages are marked as sent on behalf of the owner (preserving some accountability), excessive delegation still broadens mailbox access. Remove delegations that are no longer needed and re-attest the remainder periodically."
         }
     };
     /// <summary>Returns the rules applicable to the given assessment type.</summary>
