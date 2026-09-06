@@ -8,6 +8,19 @@
     var entra = Model.Summary.EntraTotals;
     var membershipLoaded = entra.MembershipLoaded;
 
+    // Defensive guard against a redundant second (client-side) membership load. A page can be
+    // served from a per-user session cache that was built BEFORE the shared collector finished
+    // loading Entra membership (MembershipLoaded = false). Once the collector has finished
+    // (snapshot complete and no longer loading), the authoritative data already exists server-side,
+    // so the client loader must not batch-load it all over again. Treat membership as loaded when
+    // the shared snapshot is complete, which turns the client loader into a no-op.
+    if (!membershipLoaded
+        && !Model.ServerMembershipLoading
+        && Model.SupersetMembershipLoaded)
+    {
+        membershipLoaded = true;
+    }
+
     // Total number of Entra group objects whose membership must be lazily loaded. Mirrors the
     // server's group-type classification (Security, Microsoft 365, Distribution, Dynamic Distribution).
     var totalGroupsToLoad =
