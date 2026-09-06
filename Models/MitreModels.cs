@@ -14,6 +14,7 @@ public enum MitreTactic
     CredentialAccess,
     Discovery,
     LateralMovement,
+    Collection,
     Impact
 }
 
@@ -30,6 +31,7 @@ public static class MitreTacticInfo
         MitreTactic.CredentialAccess,
         MitreTactic.Discovery,
         MitreTactic.LateralMovement,
+        MitreTactic.Collection,
         MitreTactic.Impact
     };
 
@@ -43,6 +45,7 @@ public static class MitreTacticInfo
         MitreTactic.CredentialAccess => "Credential Access",
         MitreTactic.Discovery => "Discovery",
         MitreTactic.LateralMovement => "Lateral Movement",
+        MitreTactic.Collection => "Collection",
         MitreTactic.Impact => "Impact",
         _ => tactic.ToString()
     };
@@ -57,6 +60,7 @@ public static class MitreTacticInfo
         MitreTactic.CredentialAccess => "TA0006",
         MitreTactic.Discovery => "TA0007",
         MitreTactic.LateralMovement => "TA0008",
+        MitreTactic.Collection => "TA0009",
         MitreTactic.Impact => "TA0040",
         _ => string.Empty
     };
@@ -300,6 +304,22 @@ public static class MitreTechniqueLibrary
                 new TechniqueKpiMapping { KpiKey = "NoGroupOwner", Rationale = "Unowned groups lack review.", MediumThreshold = 5, HighThreshold = 25 },
                 new TechniqueKpiMapping { KpiKey = "EntraNoGroupOwner", Rationale = "Unowned Entra groups add unreviewed, enumerable access scope.", MediumThreshold = 5, HighThreshold = 25 },
                 new TechniqueKpiMapping { KpiKey = "EmptyGroups", Rationale = "Empty groups add enumeration noise.", MediumThreshold = 10, HighThreshold = 50 }
+            }
+        },
+
+        // --- Collection --------------------------------------------------------
+        new()
+        {
+            Id = "T1114",
+            Name = "Email Collection",
+            Tactic = MitreTactic.Collection,
+            Description = "Mailbox delegation grants one principal access to another user's mailbox. Full Access exposes another user's mail contents for reading/exfiltration, while Send As and Send on Behalf let a principal send mail as (or on behalf of) another identity - enabling impersonation, spoofing, and business email compromise. Broad or unreviewed delegation widens the mail attack surface.",
+            Mitigation = "Review mailbox delegation regularly and grant it least-privilege; remove standing Full Access, Send As, and Send on Behalf rights that are not required; prefer shared mailboxes with governed membership over per-user delegation and alert on delegation changes to high-value mailboxes.",
+            Mappings = new[]
+            {
+                new TechniqueKpiMapping { KpiKey = "ExchangeFullAccessDelegatesKpi", Rationale = "Full Access delegates can read another user's mailbox contents.", MediumThreshold = 5, HighThreshold = 25 },
+                new TechniqueKpiMapping { KpiKey = "ExchangeSendAsKpi", Rationale = "Send As delegates can impersonate the mailbox owner in outbound mail.", MediumThreshold = 1, HighThreshold = 10 },
+                new TechniqueKpiMapping { KpiKey = "ExchangeSendOnBehalfKpi", Rationale = "Send on Behalf delegates can send mail on behalf of another identity.", MediumThreshold = 5, HighThreshold = 25 }
             }
         }
     };
