@@ -71,6 +71,14 @@ public abstract class DashboardPageModel : PageModel
     public int ServerMembershipLoaded => Math.Min(Cache.MembershipTotalCount, Cache.MembershipLoadedCount);
 
     /// <summary>
+    /// True when the shared superset snapshot has Entra group membership fully loaded (the
+    /// background collector has finished). Views use this to suppress a redundant client-side
+    /// membership load when a page is served from a per-user session cache that predates the
+    /// collector completing.
+    /// </summary>
+    public bool SupersetMembershipLoaded => Cache.Current?.Summary?.EntraTotals?.MembershipLoaded ?? false;
+
+    /// <summary>
     /// Shared guard surfaced to views: true when <see cref="Summary"/>'s Entra group membership
     /// is still loading, so membership-dependent Entra Groups KPIs may be inaccurate. Used by the
     /// Snapshots, Assessments, and MITRE Exposure pages to render a staleness warning.
@@ -287,6 +295,38 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected void CacheSummary() =>
         UserSummaryCache.SetSummary(UserCacheKey, JsonSerializer.Serialize(Summary.ToSessionCacheSafe()));
+
+    /// <summary>
+    /// Reconciles a session-cached <see cref="Summary"/> whose Entra group membership has not yet
+    /// been merged (<see cref="EntraTotalsSummary.MembershipDataPending"/>) against the shared
+    /// superset snapshot. When a user first renders a dashboard WHILE the background collector is
+    /// still loading membership, their per-user summary is cached with MembershipLoaded = false and
+    /// the client polls the server-progress endpoint, reloading once the server finishes. On that
+    /// reload the cached summary is served verbatim; without this reconciliation it still reports
+    /// membership as pending, so the client falls through to a full client-side batch load - the
+    /// second, redundant load. If the shared snapshot now has membership loaded, rebuild the
+    /// per-user summary from the superset (re-applying per-user scoping) so the session cache and
+    /// the client loader see membership as fully loaded and the loader becomes a no-op.
+    /// </summary>
+    /// <returns>True if the cached summary was refreshed from the completed superset snapshot.</returns>
+    protected async Task<bool> ReconcileCachedMembershipWithSupersetAsync(string token)
+    {
+        var totals = Summary?.EntraTotals;
+        if (totals is null || !totals.MembershipDataPending)
+            return false;
+
+        // Only worth rebuilding once the shared collector has actually finished membership loading;
+        // while it is still running the client keeps polling server progress and the stale cache is
+        // expected. Rebuilding from the superset re-applies per-user scoping (so non-admins never
+        // see groups outside their delegation) and yields MembershipLoaded = true.
+        var supersetTotals = Cache.Current?.Summary?.EntraTotals;
+        if (Cache.MembershipLoading || supersetTotals is null || !supersetTotals.MembershipLoaded)
+            return false;
+
+        UserSummaryCache.Clear(UserCacheKey);
+        await LoadFullSummaryAsync(token);
+        return true;
+    }
 
     /// <summary>
     /// Lazily loads Entra group membership (the <c>member</c> attribute) and owner

@@ -28,7 +28,13 @@ public class EntraIdModel : DashboardPageModel
         if (!string.IsNullOrEmpty(cachedJson))
         {
             Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
-            ApplyActiveSegmentFilter();
+
+            // If this cached summary predates the shared collector finishing Entra membership
+            // loading, adopt the now-complete superset so the client doesn't redundantly re-run a
+            // full membership batch load after its server-progress poll reloads the page.
+            if (!await ReconcileCachedMembershipWithSupersetAsync(GetAccessToken()!))
+                ApplyActiveSegmentFilter();
+
             return Page();
         }
 
