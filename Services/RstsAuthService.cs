@@ -20,13 +20,21 @@ public class RstsAuthService
     {
         var client = _httpClientFactory.CreateClient("RSTS");
 
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        var form = new Dictionary<string, string>
         {
             ["grant_type"] = "password",
             ["username"] = username,
             ["password"] = password,
             ["resource"] = _config.Resource
-        });
+        };
+
+        // Send the provider scope only when configured. Required when the RSTS has more than one
+        // authentication provider; otherwise omitted so a single-provider RSTS defaults as before.
+        var scope = _config.RstsScope?.Trim();
+        if (!string.IsNullOrEmpty(scope))
+            form["scope"] = scope;
+
+        var content = new FormUrlEncodedContent(form);
 
         try
         {

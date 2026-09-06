@@ -43,6 +43,9 @@ public class SetupModel : PageModel
     public string RstsUrl { get; set; } = string.Empty;
 
     [BindProperty]
+    public string RstsScope { get; set; } = string.Empty;
+
+    [BindProperty]
     public string ServiceAccountUsername { get; set; } = string.Empty;
 
     [BindProperty]
@@ -163,6 +166,7 @@ public class SetupModel : PageModel
             {
                 activeRoles["ApiBaseUrl"] = apiUrl;
                 activeRoles["RstsUrl"] = rstsUrl;
+                activeRoles["RstsScope"] = RstsScope?.Trim() ?? "";
                 activeRoles["WebInterfaceUrl"] = WebInterfaceUrl?.Trim() ?? "";
                 activeRoles["CustomNoGroupOwnerBaseDn"] = CustomNoGroupOwnerBaseDn?.Trim() ?? "";
                 activeRoles["CustomNoManagerUserBaseDn"] = CustomNoManagerUserBaseDn?.Trim() ?? "";

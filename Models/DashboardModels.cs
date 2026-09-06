@@ -902,6 +902,15 @@ public class ActiveRolesConfig
 {
     public string WebInterfaceUrl { get; set; } = string.Empty;
     public string RstsUrl { get; set; } = string.Empty;
+
+    // Full RSTS provider scope string sent as the OAuth2 'scope' parameter on the token request,
+    // e.g. "rsts:sts:primaryproviderid:ad". Required only when the RSTS has more than one
+    // authentication provider configured (the RSTS then cannot default to a single provider).
+    // Everything up to the last colon is fixed; the trailing segment is the unique provider id
+    // ("ad" for the default provider, or a GUID string for additional providers). When empty, no
+    // 'scope' parameter is sent and the RSTS defaults to its single configured provider.
+    public string RstsScope { get; set; } = string.Empty;
+
     public string ApiBaseUrl { get; set; } = string.Empty;
     public string Resource { get; set; } = string.Empty;
     public bool IgnoreSslErrors { get; set; }

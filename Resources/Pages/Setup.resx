@@ -56,6 +56,8 @@
   <data name="RestApiUrlHint" xml:space="preserve"><value>The base URL of the Active Roles REST API. This setting is mandatory.</value></data>
   <data name="RstsUrl" xml:space="preserve"><value>RSTS Token URL</value></data>
   <data name="RstsUrlHint" xml:space="preserve"><value>The RSTS OAuth2 token endpoint URL. This setting is mandatory.</value></data>
+  <data name="RstsScope" xml:space="preserve"><value>RSTS Provider Scope</value></data>
+  <data name="RstsScopeHint" xml:space="preserve"><value>Optional. The full RSTS provider scope string (e.g. rsts:sts:primaryproviderid:ad). Required only when the RSTS has more than one authentication provider. Leave blank for a single-provider RSTS.</value></data>
   <data name="WebInterface" xml:space="preserve"><value>Web Interface</value></data>
   <data name="WebInterfaceSubtitle" xml:space="preserve"><value>Optionally configure the Active Roles Web Interface URL for deep linking.</value></data>
   <data name="WebInterfaceUrl" xml:space="preserve"><value>Web Interface URL</value></data>
