@@ -16,6 +16,8 @@
   <data name="Col_Rules" xml:space="preserve"><value>Regeln</value></data>
   <data name="Col_Enabled" xml:space="preserve"><value>Aktiviert</value></data>
   <data name="Col_Automation" xml:space="preserve"><value>Automatisierung</value></data>
+  <data name="Col_LastRunTime" xml:space="preserve"><value>Letzte Ausführung (UTC)</value></data>
+  <data name="Col_NextRunTime" xml:space="preserve"><value>Nächste Ausführung (UTC)</value></data>
   <data name="Col_LdapDisplayName" xml:space="preserve"><value>LDAP-Anzeigename</value></data>
   <data name="Col_Multivalued" xml:space="preserve"><value>Mehrwertig</value></data>
   <data name="Col_SqlAlias" xml:space="preserve"><value>SQL-Alias</value></data>
@@ -34,6 +36,12 @@
   <data name="Empty_GroupFamilies" xml:space="preserve"><value>Keine Gruppenfamilien gefunden</value></data>
   <data name="Empty_ManagedUnits" xml:space="preserve"><value>Keine verwalteten Einheiten gefunden</value></data>
   <data name="Empty_Workflows" xml:space="preserve"><value>Keine Workflows gefunden</value></data>
+  <data name="Empty_ScheduledTasks" xml:space="preserve"><value>Keine geplanten Aufgaben gefunden</value></data>
+  <data name="Empty_EmptyAccessTemplates" xml:space="preserve"><value>Keine leeren Zugriffsvorlagen gefunden</value></data>
+  <data name="Empty_PolicyObjectsNoRules" xml:space="preserve"><value>Keine Richtlinienobjekte ohne Regeln gefunden</value></data>
+  <data name="Empty_UnlinkedAccessTemplates" xml:space="preserve"><value>Keine nicht verknüpften benutzerdefinierten Zugriffsvorlagen gefunden</value></data>
+  <data name="Empty_DenyAccessTemplates" xml:space="preserve"><value>Keine Zugriffsvorlagen mit Verweigerungsberechtigungen gefunden</value></data>
+  <data name="Empty_UnlinkedPolicyObjects" xml:space="preserve"><value>Keine nicht verknüpften benutzerdefinierten Richtlinienobjekte gefunden</value></data>
   <data name="Empty_VirtualAttributes" xml:space="preserve"><value>Keine virtuellen Attribute gefunden</value></data>
   <data name="Empty_ConfigDatabases" xml:space="preserve"><value>Keine Konfigurationsdatenbanken gefunden</value></data>
   <data name="Empty_HistoryDatabases" xml:space="preserve"><value>Keine Verlaufsdatenbanken gefunden</value></data>

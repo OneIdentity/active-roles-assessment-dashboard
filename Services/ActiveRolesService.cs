@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
@@ -939,6 +940,12 @@ public class ActiveRolesService
             tasks.Add(("HistoryDatabases", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.HistoryDatabases = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
+        if (settings.IsKpiEnabled("ARConfiguration", "ScheduledTasks"))
+        {
+            var t = GetScheduledTasksAsync(token);
+            tasks.Add(("ScheduledTasks", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScheduledTasks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
         if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjects"))
         {
             var t = GetPolicyObjectsAsync(token);
@@ -950,6 +957,36 @@ public class ActiveRolesService
             var t = GetAccessTemplatesAsync(token);
             tasks.Add(("AccessTemplates", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "EmptyAccessTemplates"))
+        {
+            var t = GetEmptyAccessTemplatesAsync(token);
+            tasks.Add(("EmptyAccessTemplates", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjectsNoRules"))
+        {
+            var t = GetPolicyObjectsNoRulesAsync(token);
+            tasks.Add(("PolicyObjectsNoRules", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectsNoRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "UnlinkedAccessTemplates"))
+        {
+            var t = GetUnlinkedAccessTemplatesAsync(token);
+            tasks.Add(("UnlinkedAccessTemplates", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UnlinkedAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "DenyAccessTemplates"))
+        {
+            var t = GetDenyAccessTemplatesAsync(token);
+            tasks.Add(("DenyAccessTemplates", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DenyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "UnlinkedPolicyObjects"))
+        {
+            var t = GetUnlinkedPolicyObjectsAsync(token);
+            tasks.Add(("UnlinkedPolicyObjects", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UnlinkedPolicyObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
         if (settings.IsKpiEnabled("ARConfiguration", "AccessTemplateLinks"))
         {
@@ -2113,6 +2150,49 @@ public class ActiveRolesService
         return result;
     }
 
+    public async Task<ScheduledTaskSummary> GetScheduledTasksAsync(string token)
+    {
+        var result = new ScheduledTaskSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.ScheduledTasks.Searches[0]);
+            result.TotalCount = items.Count;
+            result.Items = items.Select(i => new ScheduledTaskInfo
+            {
+                Name = GetAttr(i, "name"),
+                Dn = GetAttr(i, "distinguishedName"),
+                LastRunTime = ParseArTime(GetAttr(i, "edsaLastRunTime")),
+                NextRunTime = ParseArTime(GetAttr(i, "edsvaNextRunTime")),
+                IsEnabled = !string.Equals(GetAttr(i, "edsaDisableSchedule"), "true", StringComparison.OrdinalIgnoreCase),
+                Guid = GetAttr(i, "objectGuid")
+            }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Parses a Windows FILETIME (100ns ticks since 1601, as used by AR edsa*Time attributes)
+    // into a UTC DateTime. Returns null for empty/zero/unparseable values.
+    private static DateTime? ParseFileTime(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        if (!long.TryParse(raw, out var ticks) || ticks <= 0) return null;
+        try { return DateTime.FromFileTimeUtc(ticks); }
+        catch { return null; }
+    }
+
+    // Parses an AR time attribute that may be either an ISO 8601 timestamp
+    // (e.g. "2026-09-06T06:42:22Z", as returned for scheduled-task times) or a
+    // Windows FILETIME tick value. Returns a UTC DateTime, or null if unparseable.
+    private static DateTime? ParseArTime(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        if (DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var dto))
+            return dto.UtcDateTime;
+        return ParseFileTime(raw);
+    }
+
     public async Task<VirtualAttributeSummary> GetVirtualAttributesAsync(string token)
     {
         var result = new VirtualAttributeSummary();
@@ -2198,6 +2278,146 @@ public class ActiveRolesService
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
         return result;
     }
+
+    // Access templates whose permission list (edsaATEList) is absent or empty. These carry no
+    // ACEs and therefore grant nothing when linked - a governance/risk signal (dead templates).
+    public async Task<AccessTemplateSummary> GetEmptyAccessTemplatesAsync(string token)
+    {
+        var result = new AccessTemplateSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.EmptyAccessTemplates.Searches[0]);
+            var empty = items.Where(i => GetMultiValuedAttr(i, "edsaATEList").Count == 0).ToList();
+            result.TotalCount = empty.Count;
+            result.Items = empty.Select(i => new AccessTemplateInfo { Name = GetAttr(i, "name"),
+                                                                      Dn = GetAttr(i, "distinguishedName"),
+                                                                      Guid = GetAttr(i, "objectGuid") }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Policy objects that define no policy rules (edsaAPEListXML absent or with zero entries).
+    // A rule-less policy object does nothing when linked - a governance/risk signal.
+    public async Task<PolicyObjectSummary> GetPolicyObjectsNoRulesAsync(string token)
+    {
+        var result = new PolicyObjectSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.PolicyObjectsNoRules.Searches[0]);
+            var noRules = items.Where(i => CountApeRules(GetAttr(i, "edsaAPEListXML")) == 0).ToList();
+            result.TotalCount = noRules.Count;
+            result.Items = noRules.Select(i => new PolicyObjectInfo { Name = GetAttr(i, "name"),
+                                                                      Dn = GetAttr(i, "distinguishedName"),
+                                                                      Guid = GetAttr(i, "objectGuid"),
+                                                                      RuleCount = 0 }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // User-created access templates (edsaIsPredefined=FALSE, edsaSystemObject=FALSE) that are not
+    // referenced by any Access Template Link. An unlinked template grants nothing - a governance signal.
+    public async Task<AccessTemplateSummary> GetUnlinkedAccessTemplatesAsync(string token)
+    {
+        var result = new AccessTemplateSummary();
+        try
+        {
+            var templates = await ExecuteKpiSearchAsync(token, KpiInfo.UnlinkedAccessTemplates.Searches[0]);
+            var links = await ExecuteKpiSearchAsync(token, KpiInfo.AccessTemplateLinks.Searches[0]);
+            var linkedGuids = links
+                .Select(l => NormalizeGuid(GetAttr(l, "edsaAccessTemplateGUID")))
+                .Where(g => !string.IsNullOrEmpty(g))
+                .ToHashSet();
+
+            var unlinked = templates
+                .Where(t => !linkedGuids.Contains(NormalizeGuid(GetAttr(t, "objectGUID"))))
+                .ToList();
+            result.TotalCount = unlinked.Count;
+            result.Items = unlinked.Select(t => new AccessTemplateInfo { Name = GetAttr(t, "name"),
+                                                                         Dn = GetAttr(t, "distinguishedName"),
+                                                                         Guid = GetAttr(t, "objectGUID") }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Access templates whose permission list (edsaATEList) contains at least one Deny ACE (type D/OD).
+    // Deny permissions in a template can silently block access when linked - a governance/risk signal.
+    public async Task<AccessTemplateSummary> GetDenyAccessTemplatesAsync(string token)
+    {
+        var result = new AccessTemplateSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.DenyAccessTemplates.Searches[0]);
+            var deny = items.Where(i => GetMultiValuedAttr(i, "edsaATEList").Any(AceListHasDeny)).ToList();
+            result.TotalCount = deny.Count;
+            result.Items = deny.Select(i => new AccessTemplateInfo { Name = GetAttr(i, "name"),
+                                                                     Dn = GetAttr(i, "distinguishedName"),
+                                                                     Guid = GetAttr(i, "objectGUID") }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // User-created policy objects that are not referenced by any Policy Object Link,
+    // i.e. not linked to a directory object - a governance signal.
+    public async Task<PolicyObjectSummary> GetUnlinkedPolicyObjectsAsync(string token)
+    {
+        var result = new PolicyObjectSummary();
+        try
+        {
+            var policies = await ExecuteKpiSearchAsync(token, KpiInfo.UnlinkedPolicyObjects.Searches[0]);
+            var links = await ExecuteKpiSearchAsync(token, new KpiSearchDefinition
+            {
+                BaseDn = "CN=AP Links,CN=Configuration",
+                Filter = "(objectClass=edsPolicyObjectLink)",
+                Attributes = "name,edsaAPOGUID"
+            });
+            var linkedGuids = links
+                .Select(l => NormalizeGuid(GetAttr(l, "edsaAPOGUID")))
+                .Where(g => !string.IsNullOrEmpty(g))
+                .ToHashSet();
+
+            var unlinked = policies
+                .Where(p => !linkedGuids.Contains(NormalizeGuid(GetAttr(p, "objectGuid"))))
+                .ToList();
+            result.TotalCount = unlinked.Count;
+            result.Items = unlinked.Select(p => new PolicyObjectInfo { Name = GetAttr(p, "name"),
+                                                                       Dn = GetAttr(p, "distinguishedName"),
+                                                                       Guid = GetAttr(p, "objectGuid") }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Normalizes a GUID string for comparison: strips braces/whitespace and lowercases.
+    private static string NormalizeGuid(string guid)
+    {
+        if (string.IsNullOrWhiteSpace(guid)) return string.Empty;
+        return guid.Trim().Trim('{', '}').Trim().ToLowerInvariant();
+    }
+
+    // Returns true if an edsaATEList value contains at least one Deny ACE ([D;...] or [OD;...]).
+    private static bool AceListHasDeny(string aceList)
+    {
+        if (string.IsNullOrEmpty(aceList)) return false;
+        int start = -1;
+        for (var i = 0; i < aceList.Length; i++)
+        {
+            if (aceList[i] == '[') start = i + 1;
+            else if (aceList[i] == ']' && start >= 0)
+            {
+                var aceType = aceList[start..i].Split(';')[0].Trim();
+                if (aceType.Equals("D", StringComparison.OrdinalIgnoreCase)
+                    || aceType.Equals("OD", StringComparison.OrdinalIgnoreCase))
+                    return true;
+                start = -1;
+            }
+        }
+        return false;
+    }
+
 
     public async Task<AccessTemplateLinkSummary> GetAccessTemplateLinksAsync(string token)
     {
@@ -3592,7 +3812,12 @@ public class ActiveRolesService
     private async Task<List<JsonElement>> SearchObjectsAsync(string token, string baseDn, string filter, string scope, string attributes)
     {
         var client = CreateClient(token);
-        var url = $"{BaseUrl}/objects?base={EscapeAmpersand(baseDn)}&filter={EscapeAmpersand(filter)}&scope={scope}&{BuildAttributesQuery(attributes)}";
+        // The filter and base DN are query-string values that can contain reserved characters
+        // (most importantly the LDAP AND operator '&' in filters like "(&(objectClass=...)...)").
+        // A raw '&' would be interpreted by the server as a query-string separator, producing a
+        // malformed request (HTTP 400). Uri.EscapeDataString percent-encodes '&' (to %26) and any
+        // other reserved characters so the value survives transport intact.
+        var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(baseDn)}&filter={Uri.EscapeDataString(filter)}&scope={scope}&{BuildAttributesQuery(attributes)}";
         var allItems = new List<JsonElement>();
         var pageNumber = 0;
 

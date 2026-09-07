@@ -137,6 +137,16 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.CustomThenAtoZ
     };
 
+    public static readonly CategoryInfo ARGovernance = new()
+    {
+        Key = "ARGovernance",
+        DisplayName = "Governance and Risk",
+        DashboardKey = "ActiveRoles",
+        SortOrder = -1,
+        KpiSortOrder = CategorySortOrder.AtoZ,
+        IsRiskCategory = true
+    };
+
     public static readonly CategoryInfo ADGovernance = new()
     {
         Key = "ADGovernance",
@@ -301,7 +311,7 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
+    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
 
     private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
 
@@ -1273,10 +1283,16 @@ public class KpiInfo
     public static readonly KpiInfo ManagedUnits = new() { Key = "ManagedUnits", DisplayName = "Managed Units", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "managedunits", SortOrder = 107, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
     public static readonly KpiInfo PolicyObjectLinks = new() { Key = "PolicyObjectLinks", DisplayName = "Policy Object Links", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "polinks", SortOrder = 108, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARConfiguration", CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
+    public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
+    public static readonly KpiInfo PolicyObjectsNoRules = new() { Key = "PolicyObjectsNoRules", DisplayName = "Policy Objects With No Rules", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "policyobjectsnorules", SortOrder = 116, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
+    public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
+    public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
+    public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
     public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued" }] };
     public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
     public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
     public static readonly KpiInfo HistoryDatabases = new() { Key = "HistoryDatabases", DisplayName = "History Databases", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "historydatabases", SortOrder = 113, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Management History Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsMHReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationRole" }] };
+    public static readonly KpiInfo ScheduledTasks = new() { Key = "ScheduledTasks", DisplayName = "Scheduled Tasks", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "scheduledtasks", SortOrder = 114, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Scheduled Tasks,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsScheduledTask)", Attributes = "name,distinguishedName,edsaLastRunTime,edsvaNextRunTime,edsaDisableSchedule" }] };
 
     // AD Governance KPIs
     public static readonly KpiInfo NoGroupOwner = new() { Key = "NoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "ADGroupsCategory", CssColor = "amber", SectionId = "nogroupowner", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoGroupOwner}", Attributes = "name,distinguishedName" }] };
@@ -1406,7 +1422,7 @@ public class KpiInfo
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
-        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases,
+        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
@@ -1529,6 +1545,7 @@ public class KpiSettings
 {
     public bool OverviewEnabled { get; set; } = true;
     public bool ARConfigurationEnabled { get; set; } = true;
+    public bool ARGovernanceEnabled { get; set; } = true;
     public bool ADGovernanceEnabled { get; set; } = true;
     public bool EntraIDGovernanceEnabled { get; set; } = true;
     public bool EntraUserAccountsEnabled { get; set; } = true;
@@ -1547,10 +1564,16 @@ public class KpiSettings
     public bool VirtualAttributesEnabled { get; set; } = true;
     public bool ConfigDatabasesEnabled { get; set; } = true;
     public bool HistoryDatabasesEnabled { get; set; } = true;
+    public bool ScheduledTasksEnabled { get; set; } = true;
     public bool PolicyObjectsEnabled { get; set; } = true;
     public bool PolicyObjectLinksEnabled { get; set; } = true;
     public bool AccessTemplatesEnabled { get; set; } = true;
     public bool AccessTemplateLinksEnabled { get; set; } = true;
+    public bool EmptyAccessTemplatesEnabled { get; set; } = true;
+    public bool PolicyObjectsNoRulesEnabled { get; set; } = true;
+    public bool UnlinkedAccessTemplatesEnabled { get; set; } = true;
+    public bool DenyAccessTemplatesEnabled { get; set; } = true;
+    public bool UnlinkedPolicyObjectsEnabled { get; set; } = true;
     public bool ManagedObjectsEnabled { get; set; } = true;
 
     public bool NoGroupOwnerEnabled { get; set; } = true;
@@ -1660,6 +1683,7 @@ public class KpiSettings
     {
         "Overview" => OverviewEnabled,
         "ARConfiguration" => ARConfigurationEnabled,
+        "ARGovernance" => ARGovernanceEnabled,
         "ADGovernance" => ADGovernanceEnabled,
         "EntraIDGovernance" => EntraIDGovernanceEnabled,
         "EntraUserAccounts" => EntraUserAccountsEnabled,
@@ -1695,10 +1719,16 @@ public class KpiSettings
             "VirtualAttributes" => VirtualAttributesEnabled,
             "ConfigDatabases" => ConfigDatabasesEnabled,
             "HistoryDatabases" => HistoryDatabasesEnabled,
+            "ScheduledTasks" => ScheduledTasksEnabled,
             "PolicyObjects" => PolicyObjectsEnabled,
             "PolicyObjectLinks" => PolicyObjectLinksEnabled,
             "AccessTemplates" => AccessTemplatesEnabled,
             "AccessTemplateLinks" => AccessTemplateLinksEnabled,
+            "EmptyAccessTemplates" => EmptyAccessTemplatesEnabled,
+            "PolicyObjectsNoRules" => PolicyObjectsNoRulesEnabled,
+            "UnlinkedAccessTemplates" => UnlinkedAccessTemplatesEnabled,
+            "DenyAccessTemplates" => DenyAccessTemplatesEnabled,
+            "UnlinkedPolicyObjects" => UnlinkedPolicyObjectsEnabled,
             "ManagedObjects" => ManagedObjectsEnabled,
             "NoGroupOwner" => NoGroupOwnerEnabled,
             "NeverLoggedIn" => NeverLoggedInEnabled,
@@ -1854,10 +1884,16 @@ public class DashboardSummary
     public VirtualAttributeSummary VirtualAttributes { get; set; } = new();
     public ConfigDatabaseSummary ConfigDatabases { get; set; } = new();
     public HistoryDatabaseSummary HistoryDatabases { get; set; } = new();
+    public ScheduledTaskSummary ScheduledTasks { get; set; } = new();
     public PolicyObjectSummary PolicyObjects { get; set; } = new();
     public PolicyObjectLinkSummary PolicyObjectLinks { get; set; } = new();
     public AccessTemplateSummary AccessTemplates { get; set; } = new();
     public AccessTemplateLinkSummary AccessTemplateLinks { get; set; } = new();
+    public AccessTemplateSummary EmptyAccessTemplates { get; set; } = new();
+    public PolicyObjectSummary PolicyObjectsNoRules { get; set; } = new();
+    public AccessTemplateSummary UnlinkedAccessTemplates { get; set; } = new();
+    public AccessTemplateSummary DenyAccessTemplates { get; set; } = new();
+    public PolicyObjectSummary UnlinkedPolicyObjects { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
     public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
@@ -2165,6 +2201,12 @@ public class DashboardSummary
         "VirtualAttributes" => (VirtualAttributes.TotalCount, VirtualAttributes.Error),
         "ConfigDatabases" => (ConfigDatabases.TotalCount, ConfigDatabases.Error),
         "HistoryDatabases" => (HistoryDatabases.TotalCount, HistoryDatabases.Error),
+        "ScheduledTasks" => (ScheduledTasks.TotalCount, ScheduledTasks.Error),
+        "EmptyAccessTemplates" => (EmptyAccessTemplates.TotalCount, EmptyAccessTemplates.Error),
+        "PolicyObjectsNoRules" => (PolicyObjectsNoRules.TotalCount, PolicyObjectsNoRules.Error),
+        "UnlinkedAccessTemplates" => (UnlinkedAccessTemplates.TotalCount, UnlinkedAccessTemplates.Error),
+        "DenyAccessTemplates" => (DenyAccessTemplates.TotalCount, DenyAccessTemplates.Error),
+        "UnlinkedPolicyObjects" => (UnlinkedPolicyObjects.TotalCount, UnlinkedPolicyObjects.Error),
         "Workflows" => (Workflows.TotalCount, Workflows.Error),
         "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
         "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
@@ -2866,6 +2908,23 @@ public class WorkflowInfo
     public string Guid { get; set; } = string.Empty;
     public bool IsEnabled { get; set; } = false;
     public bool IsAutomationWorkflow { get; set; } = false;
+}
+
+public class ScheduledTaskSummary
+{
+    public int TotalCount { get; set; }
+    public List<ScheduledTaskInfo> Items { get; set; } = new();
+    public string? Error { get; set; }
+}
+
+public class ScheduledTaskInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public string Dn { get; set; } = string.Empty;
+    public string Guid { get; set; } = string.Empty;
+    public DateTime? LastRunTime { get; set; }
+    public DateTime? NextRunTime { get; set; }
+    public bool IsEnabled { get; set; } = true;
 }
 
 public class VirtualAttributeSummary

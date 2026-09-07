@@ -95,6 +95,15 @@ public class DrillDownController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("scheduledtasks")]
+    public async Task<IActionResult> GetScheduledTasks()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetScheduledTasksAsync(token);
+        return Ok(result);
+    }
+
     [HttpGet("virtualattrs")]
     public async Task<IActionResult> GetVirtualAttributes()
     {
@@ -119,6 +128,51 @@ public class DrillDownController : ControllerBase
         var token = GetToken();
         if (string.IsNullOrEmpty(token)) return Unauthorized();
         var result = await _arService.GetAccessTemplatesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("emptyaccesstemplates")]
+    public async Task<IActionResult> GetEmptyAccessTemplates()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetEmptyAccessTemplatesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("policyobjectsnorules")]
+    public async Task<IActionResult> GetPolicyObjectsNoRules()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetPolicyObjectsNoRulesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("unlinkedaccesstemplates")]
+    public async Task<IActionResult> GetUnlinkedAccessTemplates()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetUnlinkedAccessTemplatesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("denyaccesstemplates")]
+    public async Task<IActionResult> GetDenyAccessTemplates()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetDenyAccessTemplatesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("unlinkedpolicyobjects")]
+    public async Task<IActionResult> GetUnlinkedPolicyObjects()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetUnlinkedPolicyObjectsAsync(token);
         return Ok(result);
     }
 }

@@ -27,6 +27,12 @@
   <data name="Cat_ADOverview" xml:space="preserve"><value>Vue d'ensemble</value></data>
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Vue d'ensemble</value></data>
   <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuration d'Active Roles</value></data>
+  <data name="Cat_ARGovernance" xml:space="preserve"><value>Gouvernance et risques</value></data>
+  <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Modèles d'accès vides</value></data>
+  <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Objets de stratégie sans règles</value></data>
+  <data name="Kpi_UnlinkedAccessTemplates" xml:space="preserve"><value>Modèles d'accès créés par l'utilisateur non liés</value></data>
+  <data name="Kpi_DenyAccessTemplates" xml:space="preserve"><value>Modèles d'accès avec autorisations de refus</value></data>
+  <data name="Kpi_UnlinkedPolicyObjects" xml:space="preserve"><value>Objets de stratégie créés par l'utilisateur non liés</value></data>
   <data name="Cat_ADGovernance" xml:space="preserve"><value>Gouvernance et risques</value></data>
   <data name="Cat_PrivilegedGroups" xml:space="preserve"><value>Groupes privilégiés</value></data>
   <data name="Cat_ADUserAccountsCategory" xml:space="preserve"><value>Comptes d'utilisateurs</value></data>
