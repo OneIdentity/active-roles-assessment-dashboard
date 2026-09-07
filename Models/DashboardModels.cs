@@ -1285,6 +1285,9 @@ public class KpiInfo
     public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARConfiguration", CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
     public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
     public static readonly KpiInfo PolicyObjectsNoRules = new() { Key = "PolicyObjectsNoRules", DisplayName = "Policy Objects With No Rules", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "policyobjectsnorules", SortOrder = 116, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
+    public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
+    public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
+    public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
     public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued" }] };
     public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
     public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
@@ -1419,7 +1422,7 @@ public class KpiInfo
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
-        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules,
+        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
@@ -1568,6 +1571,9 @@ public class KpiSettings
     public bool AccessTemplateLinksEnabled { get; set; } = true;
     public bool EmptyAccessTemplatesEnabled { get; set; } = true;
     public bool PolicyObjectsNoRulesEnabled { get; set; } = true;
+    public bool UnlinkedAccessTemplatesEnabled { get; set; } = true;
+    public bool DenyAccessTemplatesEnabled { get; set; } = true;
+    public bool UnlinkedPolicyObjectsEnabled { get; set; } = true;
     public bool ManagedObjectsEnabled { get; set; } = true;
 
     public bool NoGroupOwnerEnabled { get; set; } = true;
@@ -1720,6 +1726,9 @@ public class KpiSettings
             "AccessTemplateLinks" => AccessTemplateLinksEnabled,
             "EmptyAccessTemplates" => EmptyAccessTemplatesEnabled,
             "PolicyObjectsNoRules" => PolicyObjectsNoRulesEnabled,
+            "UnlinkedAccessTemplates" => UnlinkedAccessTemplatesEnabled,
+            "DenyAccessTemplates" => DenyAccessTemplatesEnabled,
+            "UnlinkedPolicyObjects" => UnlinkedPolicyObjectsEnabled,
             "ManagedObjects" => ManagedObjectsEnabled,
             "NoGroupOwner" => NoGroupOwnerEnabled,
             "NeverLoggedIn" => NeverLoggedInEnabled,
@@ -1882,6 +1891,9 @@ public class DashboardSummary
     public AccessTemplateLinkSummary AccessTemplateLinks { get; set; } = new();
     public AccessTemplateSummary EmptyAccessTemplates { get; set; } = new();
     public PolicyObjectSummary PolicyObjectsNoRules { get; set; } = new();
+    public AccessTemplateSummary UnlinkedAccessTemplates { get; set; } = new();
+    public AccessTemplateSummary DenyAccessTemplates { get; set; } = new();
+    public PolicyObjectSummary UnlinkedPolicyObjects { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
     public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
@@ -2192,6 +2204,9 @@ public class DashboardSummary
         "ScheduledTasks" => (ScheduledTasks.TotalCount, ScheduledTasks.Error),
         "EmptyAccessTemplates" => (EmptyAccessTemplates.TotalCount, EmptyAccessTemplates.Error),
         "PolicyObjectsNoRules" => (PolicyObjectsNoRules.TotalCount, PolicyObjectsNoRules.Error),
+        "UnlinkedAccessTemplates" => (UnlinkedAccessTemplates.TotalCount, UnlinkedAccessTemplates.Error),
+        "DenyAccessTemplates" => (DenyAccessTemplates.TotalCount, DenyAccessTemplates.Error),
+        "UnlinkedPolicyObjects" => (UnlinkedPolicyObjects.TotalCount, UnlinkedPolicyObjects.Error),
         "Workflows" => (Workflows.TotalCount, Workflows.Error),
         "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
         "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),

@@ -269,6 +269,30 @@
                         <input type="hidden" name="KpiSettings.PolicyObjectsNoRulesEnabled" value="false" />
                     </div>
                     <div class="toggle-row">
+                        <span class="toggle-label">Unlinked User-Created Access Templates</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.UnlinkedAccessTemplatesEnabled" value="true" @(Model.KpiSettings.UnlinkedAccessTemplatesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.UnlinkedAccessTemplatesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Access Templates With Deny Permissions</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DenyAccessTemplatesEnabled" value="true" @(Model.KpiSettings.DenyAccessTemplatesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DenyAccessTemplatesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Unlinked User-Created Policy Objects</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.UnlinkedPolicyObjectsEnabled" value="true" @(Model.KpiSettings.UnlinkedPolicyObjectsEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.UnlinkedPolicyObjectsEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
                         <span class="toggle-label">Workflows</span>
                         <label class="toggle-switch">
                             <input type="checkbox" name="KpiSettings.WorkflowsEnabled" value="true" @(Model.KpiSettings.WorkflowsEnabled ? "checked" : "") />

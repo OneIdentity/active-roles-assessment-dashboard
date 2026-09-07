@@ -41,6 +41,9 @@
   <data name="Empty_AccessTemplates" xml:space="preserve"><value>Nessun modello di accesso trovato</value></data>
   <data name="Empty_EmptyAccessTemplates" xml:space="preserve"><value>Nessun modello di accesso vuoto trovato</value></data>
   <data name="Empty_PolicyObjectsNoRules" xml:space="preserve"><value>Nessun oggetto criterio senza regole trovato</value></data>
+  <data name="Empty_UnlinkedAccessTemplates" xml:space="preserve"><value>Nessun modello di accesso creato dall'utente non collegato trovato</value></data>
+  <data name="Empty_DenyAccessTemplates" xml:space="preserve"><value>Nessun modello di accesso con autorizzazioni di negazione trovato</value></data>
+  <data name="Empty_UnlinkedPolicyObjects" xml:space="preserve"><value>Nessun oggetto criterio creato dall'utente non collegato trovato</value></data>
   <data name="Empty_AccessTemplateLinks" xml:space="preserve"><value>Nessun collegamento di modello di accesso trovato</value></data>
   <data name="Empty_PolicyObjectLinks" xml:space="preserve"><value>Nessun collegamento di oggetto criterio trovato</value></data>
   <data name="Tip_OpenWebInterface" xml:space="preserve"><value>Apri nell'interfaccia web</value></data>

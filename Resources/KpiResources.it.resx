@@ -30,6 +30,9 @@
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Governance e rischi</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Modelli di accesso vuoti</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Oggetti criterio senza regole</value></data>
+  <data name="Kpi_UnlinkedAccessTemplates" xml:space="preserve"><value>Modelli di accesso creati dall'utente non collegati</value></data>
+  <data name="Kpi_DenyAccessTemplates" xml:space="preserve"><value>Modelli di accesso con autorizzazioni di negazione</value></data>
+  <data name="Kpi_UnlinkedPolicyObjects" xml:space="preserve"><value>Oggetti criterio creati dall'utente non collegati</value></data>
   <data name="Cat_ADGovernance" xml:space="preserve"><value>Governance e rischi</value></data>
   <data name="Cat_PrivilegedGroups" xml:space="preserve"><value>Gruppi con privilegi</value></data>
   <data name="Cat_ADUserAccountsCategory" xml:space="preserve"><value>Account utente</value></data>

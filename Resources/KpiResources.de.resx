@@ -30,6 +30,9 @@
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Governance und Risiko</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Leere Zugriffsvorlagen</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Richtlinienobjekte ohne Regeln</value></data>
+  <data name="Kpi_UnlinkedAccessTemplates" xml:space="preserve"><value>Nicht verknüpfte benutzerdefinierte Zugriffsvorlagen</value></data>
+  <data name="Kpi_DenyAccessTemplates" xml:space="preserve"><value>Zugriffsvorlagen mit Verweigerungsberechtigungen</value></data>
+  <data name="Kpi_UnlinkedPolicyObjects" xml:space="preserve"><value>Nicht verknüpfte benutzerdefinierte Richtlinienobjekte</value></data>
   <data name="Cat_ADGovernance" xml:space="preserve"><value>Governance und Risiko</value></data>
   <data name="Cat_PrivilegedGroups" xml:space="preserve"><value>Privilegierte Gruppen</value></data>
   <data name="Cat_ADUserAccountsCategory" xml:space="preserve"><value>Benutzerkonten</value></data>

@@ -148,4 +148,31 @@ public class DrillDownController : ControllerBase
         var result = await _arService.GetPolicyObjectsNoRulesAsync(token);
         return Ok(result);
     }
+
+    [HttpGet("unlinkedaccesstemplates")]
+    public async Task<IActionResult> GetUnlinkedAccessTemplates()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetUnlinkedAccessTemplatesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("denyaccesstemplates")]
+    public async Task<IActionResult> GetDenyAccessTemplates()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetDenyAccessTemplatesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("unlinkedpolicyobjects")]
+    public async Task<IActionResult> GetUnlinkedPolicyObjects()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetUnlinkedPolicyObjectsAsync(token);
+        return Ok(result);
+    }
 }

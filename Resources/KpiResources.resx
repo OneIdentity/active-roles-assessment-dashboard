@@ -85,6 +85,9 @@
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Governance and Risk</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Empty Access Templates</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Policy Objects With No Rules</value></data>
+  <data name="Kpi_UnlinkedAccessTemplates" xml:space="preserve"><value>Unlinked User-Created Access Templates</value></data>
+  <data name="Kpi_DenyAccessTemplates" xml:space="preserve"><value>Access Templates With Deny Permissions</value></data>
+  <data name="Kpi_UnlinkedPolicyObjects" xml:space="preserve"><value>Unlinked User-Created Policy Objects</value></data>
   <data name="Cat_ADGovernance" xml:space="preserve"><value>Governance and Risk</value></data>
   <data name="Cat_PrivilegedGroups" xml:space="preserve"><value>Privileged Groups</value></data>
   <data name="Cat_ADUserAccountsCategory" xml:space="preserve"><value>User Accounts</value></data>

@@ -39,6 +39,9 @@
   <data name="Empty_ScheduledTasks" xml:space="preserve"><value>Keine geplanten Aufgaben gefunden</value></data>
   <data name="Empty_EmptyAccessTemplates" xml:space="preserve"><value>Keine leeren Zugriffsvorlagen gefunden</value></data>
   <data name="Empty_PolicyObjectsNoRules" xml:space="preserve"><value>Keine Richtlinienobjekte ohne Regeln gefunden</value></data>
+  <data name="Empty_UnlinkedAccessTemplates" xml:space="preserve"><value>Keine nicht verknüpften benutzerdefinierten Zugriffsvorlagen gefunden</value></data>
+  <data name="Empty_DenyAccessTemplates" xml:space="preserve"><value>Keine Zugriffsvorlagen mit Verweigerungsberechtigungen gefunden</value></data>
+  <data name="Empty_UnlinkedPolicyObjects" xml:space="preserve"><value>Keine nicht verknüpften benutzerdefinierten Richtlinienobjekte gefunden</value></data>
   <data name="Empty_VirtualAttributes" xml:space="preserve"><value>Keine virtuellen Attribute gefunden</value></data>
   <data name="Empty_ConfigDatabases" xml:space="preserve"><value>Keine Konfigurationsdatenbanken gefunden</value></data>
   <data name="Empty_HistoryDatabases" xml:space="preserve"><value>Keine Verlaufsdatenbanken gefunden</value></data>

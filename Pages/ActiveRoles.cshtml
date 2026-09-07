@@ -610,6 +610,93 @@
         </div>
         }
 
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "UnlinkedAccessTemplates"))
+        {
+        <div class="panel" id="panel-unlinkedaccesstemplates">
+            <h2><span class="sec-icon">U</span> @KpiInfo.UnlinkedAccessTemplates.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.UnlinkedAccessTemplates.Error != null)
+                {
+                    <p class="muted">@Model.Summary.UnlinkedAccessTemplates.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var a in Model.Summary.UnlinkedAccessTemplates.Items)
+                        {
+                            <tr><td>@a.Name</td><td class="dn-cell">@a.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.UnlinkedAccessTemplates.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_UnlinkedAccessTemplates"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "DenyAccessTemplates"))
+        {
+        <div class="panel" id="panel-denyaccesstemplates">
+            <h2><span class="sec-icon">D</span> @KpiInfo.DenyAccessTemplates.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.DenyAccessTemplates.Error != null)
+                {
+                    <p class="muted">@Model.Summary.DenyAccessTemplates.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var a in Model.Summary.DenyAccessTemplates.Items)
+                        {
+                            <tr><td>@a.Name</td><td class="dn-cell">@a.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.DenyAccessTemplates.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_DenyAccessTemplates"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "UnlinkedPolicyObjects"))
+        {
+        <div class="panel" id="panel-unlinkedpolicyobjects">
+            <h2><span class="sec-icon">P</span> @KpiInfo.UnlinkedPolicyObjects.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.UnlinkedPolicyObjects.Error != null)
+                {
+                    <p class="muted">@Model.Summary.UnlinkedPolicyObjects.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var p in Model.Summary.UnlinkedPolicyObjects.Items)
+                        {
+                            <tr><td>@p.Name</td><td class="dn-cell">@p.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.UnlinkedPolicyObjects.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_UnlinkedPolicyObjects"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplateLinks"))
         {
         <div class="panel" id="panel-atlinks">
