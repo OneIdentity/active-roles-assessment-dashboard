@@ -16,6 +16,8 @@
   <data name="Col_Rules" xml:space="preserve"><value>Reglas</value></data>
   <data name="Col_Enabled" xml:space="preserve"><value>Habilitado</value></data>
   <data name="Col_Automation" xml:space="preserve"><value>Automatización</value></data>
+  <data name="Col_LastRunTime" xml:space="preserve"><value>Última ejecución (UTC)</value></data>
+  <data name="Col_NextRunTime" xml:space="preserve"><value>Próxima ejecución (UTC)</value></data>
   <data name="Col_LdapDisplayName" xml:space="preserve"><value>Nombre para mostrar LDAP</value></data>
   <data name="Col_Multivalued" xml:space="preserve"><value>Multivalor</value></data>
   <data name="Col_SqlAlias" xml:space="preserve"><value>Alias SQL</value></data>
@@ -34,6 +36,9 @@
   <data name="Empty_GroupFamilies" xml:space="preserve"><value>No se encontraron familias de grupos</value></data>
   <data name="Empty_ManagedUnits" xml:space="preserve"><value>No se encontraron unidades gestionadas</value></data>
   <data name="Empty_Workflows" xml:space="preserve"><value>No se encontraron flujos de trabajo</value></data>
+  <data name="Empty_ScheduledTasks" xml:space="preserve"><value>No se encontraron tareas programadas</value></data>
+  <data name="Empty_EmptyAccessTemplates" xml:space="preserve"><value>No se encontraron plantillas de acceso vacías</value></data>
+  <data name="Empty_PolicyObjectsNoRules" xml:space="preserve"><value>No se encontraron objetos de directiva sin reglas</value></data>
   <data name="Empty_VirtualAttributes" xml:space="preserve"><value>No se encontraron atributos virtuales</value></data>
   <data name="Empty_ConfigDatabases" xml:space="preserve"><value>No se encontraron bases de datos de configuración</value></data>
   <data name="Empty_HistoryDatabases" xml:space="preserve"><value>No se encontraron bases de datos de historial</value></data>

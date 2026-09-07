@@ -32,23 +32,43 @@
     <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
-    @if (Model.IsActiveRolesAdmin && Model.KpiSettings.ARConfigurationEnabled)
+    @if (Model.IsActiveRolesAdmin)
     {
-    <div class="kpi-category">
-        <h2 class="kpi-category-title"><span>@CategoryInfo.ARConfiguration.DisplayName</span><button type="button" class="btn-collapse" onclick="toggleCategory(this)" title="Collapse">&#9650;</button></h2>
-        <div class="kpi-grid">
-            @foreach (var kpi in KpiInfo.ForCategory(CategoryInfo.ARConfiguration))
+        var sortedCategories = CategoryInfo.ForDashboard(DashboardInfo.ActiveRoles)
+            .Where(c => Model.KpiSettings.IsCategoryEnabled(c.Key))
+            .ToList();
+        var renderedCount = 0;
+
+        foreach (var category in sortedCategories)
+        {
+            if (renderedCount > 0)
             {
-                if (!Model.KpiSettings.IsKpiEnabled(CategoryInfo.ARConfiguration.Key, kpi.Key)) { continue; }
-                var result = Model.Summary.GetKpiResult(kpi.Key);
-            <div class="kpi @kpi.CssColor" data-section="@kpi.SectionId">
-                <div class="lbl">@kpi.Label</div>
-                <div class="val">@(result.Error ?? result.Count.ToString())</div>
-            </div>
+                <hr class="kpi-separator" />
             }
+            // Overview and Governance and Risk are expanded by default; all others collapse.
+            var expanded = category.IsOverviewCategory || category.IsRiskCategory;
+            var collapsedClass = expanded ? "" : " collapsed";
+            var btnCollapsedClass = expanded ? "" : " collapsed";
+            var btnTitle = expanded ? "Collapse" : "Expand";
+            renderedCount++;
+
+            var kpis = KpiInfo.ForCategory(category);
+        <div class="kpi-category@(collapsedClass)">
+            <h2 class="kpi-category-title"><span>@category.DisplayName</span><button type="button" class="btn-collapse@(btnCollapsedClass)" onclick="toggleCategory(this)" title="@btnTitle">&#9650;</button></h2>
+            <div class="kpi-grid">
+                @foreach (var kpi in kpis)
+                {
+                    if (!Model.KpiSettings.IsKpiEnabled(category.Key, kpi.Key)) { continue; }
+                    var result = Model.Summary.GetKpiResult(kpi.Key);
+                <div class="kpi @kpi.CssColor" data-section="@kpi.SectionId">
+                    <div class="lbl">@kpi.Label</div>
+                    <div class="val">@(result.Error ?? result.Count.ToString())</div>
+                </div>
+                }
+            </div>
+            @await Html.PartialAsync("_CategoryCharts", (category, Model.Summary, Model.KpiSettings))
         </div>
-        @await Html.PartialAsync("_CategoryCharts", (CategoryInfo.ARConfiguration, Model.Summary, Model.KpiSettings))
-    </div>
+        }
     }
 
     <hr class="kpi-separator" />
@@ -358,6 +378,35 @@
         </div>
         }
 
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ScheduledTasks"))
+        {
+        <div class="panel" id="panel-scheduledtasks">
+            <h2><span class="sec-icon">T</span> @KpiInfo.ScheduledTasks.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.ScheduledTasks.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ScheduledTasks.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_LastRunTime"]</th><th>@Localizer["Col_NextRunTime"]</th><th>@Localizer["Col_Enabled"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var t in Model.Summary.ScheduledTasks.Items)
+                        {
+                            <tr><td>@t.Name</td><td class="dn-cell">@t.Dn</td><td>@(t.LastRunTime?.ToString("u") ?? "-")</td><td>@(t.NextRunTime?.ToString("u") ?? "-")</td><td>@t.IsEnabled</td></tr>
+                        }
+                        @if (!Model.Summary.ScheduledTasks.Items.Any())
+                        {
+                            <tr><td colspan="5" class="empty-row">@Localizer["Empty_ScheduledTasks"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
         @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "VirtualAttributes"))
         {
         <div class="panel" id="panel-virtualattrs">
@@ -495,6 +544,64 @@
                         @if (!Model.Summary.AccessTemplates.Items.Any())
                         {
                             <tr><td colspan="2" class="empty-row">@Localizer["Empty_AccessTemplates"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "EmptyAccessTemplates"))
+        {
+        <div class="panel" id="panel-emptyaccesstemplates">
+            <h2><span class="sec-icon">E</span> @KpiInfo.EmptyAccessTemplates.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.EmptyAccessTemplates.Error != null)
+                {
+                    <p class="muted">@Model.Summary.EmptyAccessTemplates.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var a in Model.Summary.EmptyAccessTemplates.Items)
+                        {
+                            <tr><td>@a.Name</td><td class="dn-cell">@a.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.EmptyAccessTemplates.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_EmptyAccessTemplates"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectsNoRules"))
+        {
+        <div class="panel" id="panel-policyobjectsnorules">
+            <h2><span class="sec-icon">N</span> @KpiInfo.PolicyObjectsNoRules.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.PolicyObjectsNoRules.Error != null)
+                {
+                    <p class="muted">@Model.Summary.PolicyObjectsNoRules.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var p in Model.Summary.PolicyObjectsNoRules.Items)
+                        {
+                            <tr><td>@p.Name</td><td class="dn-cell">@p.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.PolicyObjectsNoRules.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_PolicyObjectsNoRules"]</td></tr>
                         }
                         </tbody>
                     </table>

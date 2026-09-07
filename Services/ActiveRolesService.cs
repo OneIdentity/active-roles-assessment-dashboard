@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
@@ -939,6 +940,12 @@ public class ActiveRolesService
             tasks.Add(("HistoryDatabases", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.HistoryDatabases = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
+        if (settings.IsKpiEnabled("ARConfiguration", "ScheduledTasks"))
+        {
+            var t = GetScheduledTasksAsync(token);
+            tasks.Add(("ScheduledTasks", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScheduledTasks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
         if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjects"))
         {
             var t = GetPolicyObjectsAsync(token);
@@ -950,6 +957,18 @@ public class ActiveRolesService
             var t = GetAccessTemplatesAsync(token);
             tasks.Add(("AccessTemplates", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "EmptyAccessTemplates"))
+        {
+            var t = GetEmptyAccessTemplatesAsync(token);
+            tasks.Add(("EmptyAccessTemplates", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjectsNoRules"))
+        {
+            var t = GetPolicyObjectsNoRulesAsync(token);
+            tasks.Add(("PolicyObjectsNoRules", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectsNoRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
         if (settings.IsKpiEnabled("ARConfiguration", "AccessTemplateLinks"))
         {
@@ -2113,6 +2132,49 @@ public class ActiveRolesService
         return result;
     }
 
+    public async Task<ScheduledTaskSummary> GetScheduledTasksAsync(string token)
+    {
+        var result = new ScheduledTaskSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.ScheduledTasks.Searches[0]);
+            result.TotalCount = items.Count;
+            result.Items = items.Select(i => new ScheduledTaskInfo
+            {
+                Name = GetAttr(i, "name"),
+                Dn = GetAttr(i, "distinguishedName"),
+                LastRunTime = ParseArTime(GetAttr(i, "edsaLastRunTime")),
+                NextRunTime = ParseArTime(GetAttr(i, "edsvaNextRunTime")),
+                IsEnabled = !string.Equals(GetAttr(i, "edsaDisableSchedule"), "true", StringComparison.OrdinalIgnoreCase),
+                Guid = GetAttr(i, "objectGuid")
+            }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Parses a Windows FILETIME (100ns ticks since 1601, as used by AR edsa*Time attributes)
+    // into a UTC DateTime. Returns null for empty/zero/unparseable values.
+    private static DateTime? ParseFileTime(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        if (!long.TryParse(raw, out var ticks) || ticks <= 0) return null;
+        try { return DateTime.FromFileTimeUtc(ticks); }
+        catch { return null; }
+    }
+
+    // Parses an AR time attribute that may be either an ISO 8601 timestamp
+    // (e.g. "2026-09-06T06:42:22Z", as returned for scheduled-task times) or a
+    // Windows FILETIME tick value. Returns a UTC DateTime, or null if unparseable.
+    private static DateTime? ParseArTime(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        if (DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var dto))
+            return dto.UtcDateTime;
+        return ParseFileTime(raw);
+    }
+
     public async Task<VirtualAttributeSummary> GetVirtualAttributesAsync(string token)
     {
         var result = new VirtualAttributeSummary();
@@ -2198,6 +2260,44 @@ public class ActiveRolesService
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
         return result;
     }
+
+    // Access templates whose permission list (edsaATEList) is absent or empty. These carry no
+    // ACEs and therefore grant nothing when linked - a governance/risk signal (dead templates).
+    public async Task<AccessTemplateSummary> GetEmptyAccessTemplatesAsync(string token)
+    {
+        var result = new AccessTemplateSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.EmptyAccessTemplates.Searches[0]);
+            var empty = items.Where(i => GetMultiValuedAttr(i, "edsaATEList").Count == 0).ToList();
+            result.TotalCount = empty.Count;
+            result.Items = empty.Select(i => new AccessTemplateInfo { Name = GetAttr(i, "name"),
+                                                                      Dn = GetAttr(i, "distinguishedName"),
+                                                                      Guid = GetAttr(i, "objectGuid") }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Policy objects that define no policy rules (edsaAPEListXML absent or with zero entries).
+    // A rule-less policy object does nothing when linked - a governance/risk signal.
+    public async Task<PolicyObjectSummary> GetPolicyObjectsNoRulesAsync(string token)
+    {
+        var result = new PolicyObjectSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.PolicyObjectsNoRules.Searches[0]);
+            var noRules = items.Where(i => CountApeRules(GetAttr(i, "edsaAPEListXML")) == 0).ToList();
+            result.TotalCount = noRules.Count;
+            result.Items = noRules.Select(i => new PolicyObjectInfo { Name = GetAttr(i, "name"),
+                                                                      Dn = GetAttr(i, "distinguishedName"),
+                                                                      Guid = GetAttr(i, "objectGuid"),
+                                                                      RuleCount = 0 }).ToList();
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
 
     public async Task<AccessTemplateLinkSummary> GetAccessTemplateLinksAsync(string token)
     {

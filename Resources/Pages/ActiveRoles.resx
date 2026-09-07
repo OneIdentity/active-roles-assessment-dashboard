@@ -17,6 +17,8 @@
   <data name="Col_Rules" xml:space="preserve"><value>Rules</value></data>
   <data name="Col_Enabled" xml:space="preserve"><value>Enabled</value></data>
   <data name="Col_Automation" xml:space="preserve"><value>Automation</value></data>
+  <data name="Col_LastRunTime" xml:space="preserve"><value>Last Run Time (UTC)</value></data>
+  <data name="Col_NextRunTime" xml:space="preserve"><value>Next Run Time (UTC)</value></data>
   <data name="Col_LdapDisplayName" xml:space="preserve"><value>LDAP Display Name</value></data>
   <data name="Col_Multivalued" xml:space="preserve"><value>Multivalued</value></data>
   <data name="Col_SqlAlias" xml:space="preserve"><value>SQL Alias</value></data>
@@ -36,6 +38,9 @@
   <data name="Empty_GroupFamilies" xml:space="preserve"><value>No group families found</value></data>
   <data name="Empty_ManagedUnits" xml:space="preserve"><value>No managed units found</value></data>
   <data name="Empty_Workflows" xml:space="preserve"><value>No workflows found</value></data>
+  <data name="Empty_ScheduledTasks" xml:space="preserve"><value>No scheduled tasks found</value></data>
+  <data name="Empty_EmptyAccessTemplates" xml:space="preserve"><value>No empty access templates found</value></data>
+  <data name="Empty_PolicyObjectsNoRules" xml:space="preserve"><value>No policy objects without rules found</value></data>
   <data name="Empty_VirtualAttributes" xml:space="preserve"><value>No virtual attributes found</value></data>
   <data name="Empty_ConfigDatabases" xml:space="preserve"><value>No config databases found</value></data>
   <data name="Empty_HistoryDatabases" xml:space="preserve"><value>No history databases found</value></data>
