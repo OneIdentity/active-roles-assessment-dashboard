@@ -217,8 +217,37 @@
     // shown only where an entitlement is configured, sitting above each bar.
     var thresholdData = cats.map(function(c) { return c.threshold > 0 ? c.threshold : null; });
 
+    // Draws each entitlement marker as a horizontal line spanning the exact pixel
+    // width of the bar beneath it, so the marker width matches the data point rather
+    // than using a fixed point size that looks too narrow.
+    var thresholdMarkerPlugin = {
+        id: 'thresholdMarker',
+        afterDatasetsDraw: function(chart) {
+            var barMeta = chart.getDatasetMeta(0);
+            var lineMeta = chart.getDatasetMeta(1);
+            if (!barMeta || !lineMeta || lineMeta.hidden) return;
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.strokeStyle = entitlementColor;
+            ctx.lineWidth = 3;
+            lineMeta.data.forEach(function(point, i) {
+                if (thresholdData[i] === null || thresholdData[i] === undefined) return;
+                var bar = barMeta.data[i];
+                if (!bar) return;
+                var halfWidth = (bar.width || 0) / 2;
+                var y = point.y;
+                ctx.beginPath();
+                ctx.moveTo(bar.x - halfWidth, y);
+                ctx.lineTo(bar.x + halfWidth, y);
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+    };
+
     new Chart(canvas, {
         type: 'bar',
+        plugins: [thresholdMarkerPlugin],
         data: {
             labels: labels,
             datasets: [
@@ -237,7 +266,8 @@
                     data: thresholdData,
                     borderColor: entitlementColor,
                     backgroundColor: entitlementColor,
-                    pointRadius: 11,
+                    pointRadius: 0,
+                    pointHoverRadius: 11,
                     pointStyle: 'line',
                     pointBorderWidth: 3,
                     showLine: false,
