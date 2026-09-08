@@ -1041,7 +1041,7 @@ public class DefaultFiltersConfig
     public string UserAccountExpired { get; set; } = "(&(objectClass=user)(objectCategory=person)(edsvaAccountIsExpired=TRUE))";
     public string UserAccountLockedOut { get; set; } = "(&(objectClass=user)(objectCategory=person)(lockoutTime>=1))";
     public string EmptyGroups { get; set; } = "(&(objectClass=group)(!(member=*)))";
-    public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=APP-ACTIVEROLES-ADMINS))";
+    public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=YOUR-ADMIN-GROUP))";
     public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
     public string ADGroups { get; set; } = "(objectClass=group)";
 
