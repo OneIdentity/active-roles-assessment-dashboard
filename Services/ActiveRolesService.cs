@@ -3280,8 +3280,11 @@ public class ActiveRolesService
         try
         {
             var config = _configMonitor.CurrentValue;
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.ActiveRolesAdmins;
+            // Resolution precedence (matches the AR Admins KPI path): start from the default
+            // filter/base (the configured DefaultFilters:ActiveRolesAdmins value, or the hard-coded
+            // initializer when unset), then let a non-empty Custom override win.
+            var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, config.DefaultActiveDirectoryDN);
+            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultFilters.ActiveRolesAdmins);
             var admins = await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
 
             _logger.LogInformation("IsUserActiveRolesAdminAsync: Admin group members ({Count}): {Members}",
