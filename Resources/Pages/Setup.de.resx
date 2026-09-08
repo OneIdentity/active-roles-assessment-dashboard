@@ -68,6 +68,14 @@
   <data name="LanguageHint" xml:space="preserve"><value>Im Laufe der Zeit werden weitere Sprachen hinzugefügt. Sie können dies später in den Einstellungen ändern.</value></data>
   <data name="KpiConfig" xml:space="preserve"><value>KPI-Konfiguration</value></data>
   <data name="KpiSubtitle" xml:space="preserve"><value>Alle KPI-Einstellungen sind optional. Leer lassen, um Standardwerte zu verwenden.</value></data>
+  <data name="RoleMappingConfig" xml:space="preserve"><value>Rollengruppenzuordnung</value></data>
+  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Ordnen Sie Dashboard-Rollen Active Directory-Gruppen zu. Mitglieder jeder Gruppe erhalten die entsprechende Rolle. Leer lassen, um Standardwerte zu verwenden.</value></data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Dashboard-Administratoren – LDAP-Filter</value></data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>Mitglieder erhalten die Rolle „Dashboard-Administrator“ (alle Berechtigungen).</value></data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditoren – LDAP-Filter</value></data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>Mitglieder erhalten die Rolle „Auditor“.</value></data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Hauptbenutzer – LDAP-Filter</value></data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>Mitglieder erhalten die Rolle „Hauptbenutzer“.</value></data>
   <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Active Roles-Administratoren - Basis-DN</value></data>
   <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Active Roles-Administratoren - LDAP-Filter</value></data>
   <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Ohne Gruppenbesitzer - Basis-DN</value></data>

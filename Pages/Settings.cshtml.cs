@@ -21,7 +21,7 @@ public class SettingsModel : PageModel
     private readonly PerUserSummaryCache _summaryCache;
     private readonly ServiceAccountSecretProtector _secretProtector;
 
-    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector)
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector, RoleService roleService)
     {
         _arConfig = arConfig;
         _userSettingsService = userSettingsService;
@@ -29,7 +29,10 @@ public class SettingsModel : PageModel
         _localizer = localizer;
         _summaryCache = summaryCache;
         _secretProtector = secretProtector;
+        _roleService = roleService;
     }
+
+    private readonly RoleService _roleService;
 
     [BindProperty]
     public string WebInterfaceUrl { get; set; } = string.Empty;
@@ -137,6 +140,25 @@ public class SettingsModel : PageModel
     [BindProperty]
     public int LicensedTotalObjects { get; set; }
 
+    /// <summary>
+    /// Posted permission grants encoded as "Role:Permission" tokens (one per selected checkbox).
+    /// The Dashboard Administrator role is fixed to full permissions and is ignored on save.
+    /// </summary>
+    [BindProperty]
+    public List<string> RolePermissionGrants { get; set; } = new();
+
+    /// <summary>Current effective role/permission matrix (loaded from encrypted config, merged with defaults).</summary>
+    public IReadOnlyDictionary<DashboardRole, IReadOnlySet<DashboardPermission>> RoleMatrix { get; private set; }
+        = new Dictionary<DashboardRole, IReadOnlySet<DashboardPermission>>();
+
+    public IReadOnlyList<DashboardRole> DisplayRoles => RolePermissionRegistry.AllRoles;
+    public IReadOnlyList<DashboardPermission> DisplayPermissions => RolePermissionRegistry.AllPermissions;
+
+    public string RoleName(DashboardRole role) => RolePermissionRegistry.RoleDisplay[role].DefaultName;
+    public string PermissionName(DashboardPermission permission) => RolePermissionRegistry.PermissionDisplay[permission].DefaultName;
+
+    public bool IsRoleFixed(DashboardRole role) => role == DashboardRole.DashboardAdministrator;
+
     public ActiveRolesConfig Defaults => _arConfig.CurrentValue;
 
     public bool SettingsChanged { get; set; }
@@ -150,7 +172,7 @@ public class SettingsModel : PageModel
         IsActiveRolesAdmin = bool.TryParse(HttpContext.Session.GetString("IsActiveRolesAdmin"), out var val) && val;
         var config = _arConfig.CurrentValue;
         WebInterfaceUrl = config.WebInterfaceUrl;
-
+        RoleMatrix = _roleService.GetMatrix();
         var username = User.Identity?.Name ?? "";
         var userSettings = _userSettingsService.Load(username);
 
@@ -330,6 +352,34 @@ public class SettingsModel : PageModel
                 defaultFilters["ActiveRolesAdmins"] = DefaultActiveRolesAdminsFilter?.Trim() ?? "";
                 defaultFilters["ADUserAccounts"] = DefaultADUserAccountsFilter?.Trim() ?? "";
                 defaultFilters["ADGroups"] = DefaultADGroupsFilter?.Trim() ?? "";
+
+                // Role/permission matrix. Rebuild from posted "Role:Permission" grants, ignoring
+                // unknown tokens. The Dashboard Administrator role is fixed to full permissions
+                // and cannot be edited; ProtectMatrix re-forces it regardless of posted values.
+                var newMatrix = new Dictionary<DashboardRole, IReadOnlySet<DashboardPermission>>();
+                foreach (var role in RolePermissionRegistry.AllRoles)
+                {
+                    newMatrix[role] = new HashSet<DashboardPermission>();
+                }
+                foreach (var grant in RolePermissionGrants ?? new List<string>())
+                {
+                    if (string.IsNullOrWhiteSpace(grant)) continue;
+                    var parts = grant.Split(':', 2);
+                    if (parts.Length != 2) continue;
+                    if (Enum.TryParse<DashboardRole>(parts[0], out var role) &&
+                        Enum.TryParse<DashboardPermission>(parts[1], out var permission) &&
+                        newMatrix.TryGetValue(role, out var set) && set is HashSet<DashboardPermission> hs)
+                    {
+                        hs.Add(permission);
+                    }
+                }
+                var rolesSection = activeRoles["Roles"]?.AsObject();
+                if (rolesSection is null)
+                {
+                    rolesSection = new JsonObject();
+                    activeRoles["Roles"] = rolesSection;
+                }
+                rolesSection["ProtectedMatrix"] = _roleService.ProtectMatrix(newMatrix);
 
                 // App-wide default language
                 activeRoles["DefaultLanguage"] = DefaultLanguage?.Trim() ?? "";

@@ -99,6 +99,18 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
 	<value>Standardfilter</value>
   </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+    <value>Rollenverwaltung</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+    <value>Weisen Sie jeder Rolle Berechtigungen zu. Rollen und Berechtigungen sind fest vorgegeben. Die Rolle „Dashboard-Administrator“ besitzt stets alle Berechtigungen und kann nicht geändert werden.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+    <value>Berechtigung</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+    <value>Die Rolle „Dashboard-Administrator“ besitzt stets alle Berechtigungen und kann nicht geändert werden.</value>
+  </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
 	<value>Filter für Gruppen ohne Besitzer</value>
   </data>

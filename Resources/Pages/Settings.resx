@@ -99,6 +99,18 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
 	<value>Default Filters</value>
   </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+	<value>Role Management</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+	<value>Assign permissions to each role. Roles and permissions are fixed. The Dashboard Administrator role always has full permissions and cannot be changed.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+	<value>Permission</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+	<value>The Dashboard Administrator role always has full permissions and cannot be changed.</value>
+  </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
 	<value>Groups without an owner filter</value>
   </data>

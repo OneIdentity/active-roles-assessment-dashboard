@@ -67,7 +67,15 @@
   <data name="DisplayLanguage" xml:space="preserve"><value>Langue d'affichage</value></data>
   <data name="LanguageHint" xml:space="preserve"><value>D'autres langues seront ajoutées au fil du temps. Vous pouvez modifier ce paramètre ultérieurement dans les Paramètres.</value></data>
   <data name="KpiConfig" xml:space="preserve"><value>Configuration des KPI</value></data>
-  <data name="KpiSubtitle" xml:space="preserve"><value>Tous les paramètres KPI sont facultatifs. Laissez vide pour utiliser les valeurs par défaut.</value></data>
+  <data name="RoleMappingConfig" xml:space="preserve"><value>Mappage des groupes de rôles</value></data>
+  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Associez les rôles du tableau de bord à des groupes Active Directory. Les membres de chaque groupe se voient attribuer le rôle correspondant. Laissez vide pour utiliser les valeurs par défaut.</value></data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Administrateurs du tableau de bord - Filtre LDAP</value></data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>Les membres reçoivent le rôle Administrateur du tableau de bord (toutes les autorisations).</value></data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditeurs - Filtre LDAP</value></data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>Les membres reçoivent le rôle Auditeur.</value></data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Utilisateurs avancés - Filtre LDAP</value></data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>Les membres reçoivent le rôle Utilisateur avancé.</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Tous les paramètres de KPI sont facultatifs. Laissez vide pour utiliser les valeurs par défaut.</value></data>
   <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Administrateurs Active Roles - DN de base</value></data>
   <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Administrateurs Active Roles - Filtre LDAP</value></data>
   <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Sans propriétaire de groupe - DN de base</value></data>

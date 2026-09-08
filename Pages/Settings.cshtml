@@ -893,6 +893,55 @@
             </div>
         </div>
 
+        @if (Model.IsActiveRolesAdmin)
+        {
+            <div class="settings-card">
+                <div class="section-header collapsed" onclick="toggleSection(this)">
+                    <h2>@Localizer["Card_RoleManagement"]</h2>
+                    <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                </div>
+                <div class="section-body collapsed">
+                    <p class="hint">@Localizer["RoleManagementHint"]</p>
+                    <div class="role-matrix" style="overflow-x:auto;">
+                        <table class="role-matrix-table" style="border-collapse:collapse;width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;padding:8px;">@Localizer["Col_Permission"]</th>
+                                    @foreach (var role in Model.DisplayRoles)
+                                    {
+                                        <th style="text-align:center;padding:8px;">@Model.RoleName(role)</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var permission in Model.DisplayPermissions)
+                                {
+                                    <tr>
+                                        <td style="text-align:left;padding:8px;">@Model.PermissionName(permission)</td>
+                                        @foreach (var role in Model.DisplayRoles)
+                                        {
+                                            var isChecked = Model.RoleMatrix.TryGetValue(role, out var perms) && perms.Contains(permission);
+                                            var isFixed = Model.IsRoleFixed(role);
+                                            <td style="text-align:center;padding:8px;">
+                                                @if (isFixed)
+                                                {
+                                                    <input type="checkbox" checked disabled title="@Localizer["RoleFixedTooltip"]" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="RolePermissionGrants" value="@role:@permission" checked="@isChecked" />
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_KpiConfiguration"]</h2>

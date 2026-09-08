@@ -17,6 +17,7 @@ public class SupersetLoaderHostedService : BackgroundService
     private readonly ServiceAccountTokenProvider _tokenProvider;
     private readonly ActiveRolesService _arService;
     private readonly ArPermissionModelService _permissionModelService;
+    private readonly PerUserSummaryCache _userCache;
     private readonly IOptionsMonitor<ActiveRolesConfig> _config;
     private readonly ILogger<SupersetLoaderHostedService> _logger;
 
@@ -28,6 +29,7 @@ public class SupersetLoaderHostedService : BackgroundService
         ServiceAccountTokenProvider tokenProvider,
         ActiveRolesService arService,
         ArPermissionModelService permissionModelService,
+        PerUserSummaryCache userCache,
         IOptionsMonitor<ActiveRolesConfig> config,
         ILogger<SupersetLoaderHostedService> logger)
     {
@@ -35,6 +37,7 @@ public class SupersetLoaderHostedService : BackgroundService
         _tokenProvider = tokenProvider;
         _arService = arService;
         _permissionModelService = permissionModelService;
+        _userCache = userCache;
         _config = config;
         _logger = logger;
     }
@@ -130,6 +133,11 @@ public class SupersetLoaderHostedService : BackgroundService
             var snapshot = new DashboardSupersetSnapshot(summary, DateTimeOffset.UtcNow);
             _cache.Publish(snapshot, permissionModel);
             _logger.LogInformation("Superset published at {Time:o} (Entra membership loading next).", snapshot.CollectedAtUtc);
+
+            // A (re)built superset is the second lifecycle point (after login) at which per-user
+            // directory facts are re-evaluated. Advancing the epoch invalidates every user's cached
+            // admin flag / dashboard role so they are recomputed on their next request.
+            _userCache.InvalidateDirectoryFacts();
 
             // Enrich Entra group membership once, into the already-published shared superset, so it
             // is computed a single time at startup/refresh rather than lazily per user session. This

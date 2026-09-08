@@ -17,13 +17,15 @@ public class LoginModel : PageModel
     private readonly IStringLocalizer<LoginModel> _localizer;
     private readonly UserSettingsService _userSettings;
     private readonly DashboardCacheHolder _cache;
+    private readonly DirectoryFactsResolver _directoryFacts;
 
-    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings, DashboardCacheHolder cache)
+    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings, DashboardCacheHolder cache, DirectoryFactsResolver directoryFacts)
     {
         _authService = authService;
         _localizer = localizer;
         _userSettings = userSettings;
         _cache = cache;
+        _directoryFacts = directoryFacts;
     }
 
     [BindProperty]
@@ -71,6 +73,16 @@ public class LoginModel : PageModel
         // Store token in session to avoid cookie size limits truncating the token
         HttpContext.Session.SetString("AccessToken", tokenResult.AccessToken);
         HttpContext.Session.SetString("TokenExpiry", DateTime.UtcNow.AddSeconds(tokenResult.ExpiresIn).ToString("o"));
+
+        // Evaluate the user's directory facts (Active Roles admin flag + dashboard role) ONCE here,
+        // at login, rather than lazily on every dashboard request. A single group-graph enumeration
+        // is shared across the admin and role checks. The results are cached at app scope and mirrored
+        // into session, tagged with the directory-facts epoch so a superset rebuild forces a
+        // re-evaluation on the user's next request.
+        var facts = await _directoryFacts.ResolveAsync(tokenResult.AccessToken, Username);
+        HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
+        HttpContext.Session.SetString("DashboardRole", facts.Role.ToString());
+        HttpContext.Session.SetString("DirectoryFactsEpoch", facts.Epoch.ToString());
 
         var claims = new List<Claim>
         {

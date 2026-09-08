@@ -54,6 +54,25 @@ public abstract class DashboardPageModel : PageModel
     public int StaleAccountThresholdDays => ArConfig.CurrentValue.StaleAccountThresholdDays > 0 ? ArConfig.CurrentValue.StaleAccountThresholdDays : 90;
     public bool IsActiveRolesAdmin { get; set; }
 
+    /// <summary>
+    /// The dashboard role assigned to the current user (evaluated after the admin check and cached
+    /// alongside the admin flag). Preparatory only for now - not yet used to guard functionality.
+    /// </summary>
+    public DashboardRole DashboardRole { get; set; } = DashboardRole.User;
+
+    /// <summary>The effective permission set carried by <see cref="DashboardRole"/>.</summary>
+    public IReadOnlySet<DashboardPermission> DashboardPermissions { get; set; } =
+        new HashSet<DashboardPermission>();
+
+    /// <summary>True when the current user's role carries the given permission.</summary>
+    public bool HasPermission(DashboardPermission permission) => DashboardPermissions.Contains(permission);
+
+    /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
+    protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
+
+    /// <summary>Directory-facts resolver from the request container (see <see cref="Cache"/> rationale).</summary>
+    protected DirectoryFactsResolver DirectoryFacts => HttpContext.RequestServices.GetRequiredService<DirectoryFactsResolver>();
+
     /// <summary>Number of groups the client requests per lazy-membership batch (min 1).</summary>
     public int MembershipBatchSize => Math.Max(1, ArConfig.CurrentValue.Entra.MembershipBatchSize);
 
@@ -134,28 +153,37 @@ public abstract class DashboardPageModel : PageModel
             return RedirectToPage("/Login");
         }
 
-        var adminFlag = HttpContext.Session.GetString("IsActiveRolesAdmin");
-        if (adminFlag != null)
+        // Directory facts (admin flag + dashboard role) are evaluated once at login and again after
+        // a superset rebuild, not on every request. Prefer the session values, but only while they
+        // match the current directory-facts epoch; a superset rebuild advances the epoch, making the
+        // session values stale and forcing a single re-evaluation here.
+        var currentEpoch = DirectoryFacts.CurrentEpoch;
+        var sessionEpoch = HttpContext.Session.GetString("DirectoryFactsEpoch");
+        var sessionAdmin = HttpContext.Session.GetString("IsActiveRolesAdmin");
+        var sessionRole = HttpContext.Session.GetString("DashboardRole");
+
+        DashboardRole role;
+        if (sessionEpoch == currentEpoch.ToString()
+            && sessionAdmin != null
+            && sessionRole != null
+            && Enum.TryParse(sessionRole, out DashboardRole parsedRole))
         {
-            IsActiveRolesAdmin = bool.TryParse(adminFlag, out var val) && val;
+            IsActiveRolesAdmin = bool.TryParse(sessionAdmin, out var val) && val;
+            role = parsedRole;
         }
         else
         {
-            // Prefer the app-level per-user cache (survives logout/login) so the directory
-            // membership check runs at most once per cache lifetime, not on every login.
-            var cachedAdmin = UserSummaryCache.GetAdmin(username);
-            if (cachedAdmin is bool known)
-            {
-                IsActiveRolesAdmin = known;
-            }
-            else
-            {
-                IsActiveRolesAdmin = await ArService.IsUserActiveRolesAdminAsync(token, username);
-                UserSummaryCache.SetAdmin(username, IsActiveRolesAdmin);
-            }
+            var facts = await DirectoryFacts.ResolveAsync(token, username);
+            IsActiveRolesAdmin = facts.IsActiveRolesAdmin;
+            role = facts.Role;
 
-            HttpContext.Session.SetString("IsActiveRolesAdmin", IsActiveRolesAdmin.ToString());
+            HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
+            HttpContext.Session.SetString("DashboardRole", facts.Role.ToString());
+            HttpContext.Session.SetString("DirectoryFactsEpoch", facts.Epoch.ToString());
         }
+
+        DashboardRole = role;
+        DashboardPermissions = RoleService.GetPermissions(role);
 
         return null;
     }
