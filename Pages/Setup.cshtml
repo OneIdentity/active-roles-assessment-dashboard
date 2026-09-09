@@ -166,6 +166,25 @@
             <!-- Page 5: KPI Configuration -->
             <div class="wizard-page" data-page="4">
                 <div class="setup-card">
+                    <h2>@Localizer["RoleMappingConfig"]</h2>
+                    <p class="subtitle">@Localizer["RoleMappingSubtitle"]</p>
+                    <div class="form-group">
+                        <label for="DashboardAdminsFilter">@Localizer["Lbl_DashboardAdminsFilter"]</label>
+                        <input type="text" id="DashboardAdminsFilter" name="DashboardAdminsFilter" value="@Model.DashboardAdminsFilter" placeholder="@Model.Defaults.DefaultFilters.DashboardAdmins" />
+                        <p class="hint">@Localizer["Hint_DashboardAdminsFilter"]</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="AuditorsFilter">@Localizer["Lbl_AuditorsFilter"]</label>
+                        <input type="text" id="AuditorsFilter" name="AuditorsFilter" value="@Model.AuditorsFilter" placeholder="@Model.Defaults.DefaultFilters.Auditors" />
+                        <p class="hint">@Localizer["Hint_AuditorsFilter"]</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="PowerUsersFilter">@Localizer["Lbl_PowerUsersFilter"]</label>
+                        <input type="text" id="PowerUsersFilter" name="PowerUsersFilter" value="@Model.PowerUsersFilter" placeholder="@Model.Defaults.DefaultFilters.PowerUsers" />
+                        <p class="hint">@Localizer["Hint_PowerUsersFilter"]</p>
+                    </div>
+                </div>
+                <div class="setup-card">
                     <h2>@Localizer["KpiConfig"]</h2>
                     <p class="subtitle">@Localizer["KpiSubtitle"]</p>
                     <div class="form-group">

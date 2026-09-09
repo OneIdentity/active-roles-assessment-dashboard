@@ -50,6 +50,10 @@ public class AttackExposureModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
+        // Block direct navigation for users whose role lacks ViewExposureReport.
+        if (!CanViewExposureReport)
+            return RedirectToPage("/Index");
+
         // Prefer the session-cached dashboard summary so the exposure view reflects the same
         // Entra membership state as the dashboard. Re-fetching here would always report
         // membership as pending (the eager path never expands membership), which would both
@@ -81,6 +85,10 @@ public class AttackExposureModel : DashboardPageModel
 
     private async Task BuildComparisonIfRequestedAsync()
     {
+        // Comparing exposure reports is restricted to users holding CompareExposureReports.
+        if (!CanCompareExposureReports)
+            return;
+
         if (string.IsNullOrWhiteSpace(FromId))
             return;
 

@@ -67,7 +67,15 @@
   <data name="DisplayLanguage" xml:space="preserve"><value>Megjelenítési nyelv</value></data>
   <data name="LanguageHint" xml:space="preserve"><value>Idővel további nyelvek kerülnek hozzáadásra. Ezt később a Beállításokban módosíthatja.</value></data>
   <data name="KpiConfig" xml:space="preserve"><value>KPI konfiguráció</value></data>
-  <data name="KpiSubtitle" xml:space="preserve"><value>Minden KPI beállítás nem kötelező. Hagyja üresen az alapértelmezett értékek használatához.</value></data>
+  <data name="RoleMappingConfig" xml:space="preserve"><value>Szerepkörcsoport-hozzárendelés</value></data>
+  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Rendelje hozzá az irányítópult szerepköreit Active Directory-csoportokhoz. Az egyes csoportok tagjai megkapják a megfelelő szerepkört. Hagyja üresen az alapértelmezett értékek használatához.</value></data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Irányítópult-rendszergazdák – LDAP-szűrő</value></data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>A tagok megkapják az Irányítópult-rendszergazda szerepkört (teljes jogosultság).</value></data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditorok – LDAP-szűrő</value></data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>A tagok megkapják az Auditor szerepkört.</value></data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Kiemelt felhasználók – LDAP-szűrő</value></data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>A tagok megkapják a Kiemelt felhasználó szerepkört.</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Minden KPI-beállítás opcionális. Hagyja üresen az alapértelmezett értékek használatához.</value></data>
   <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Active Roles rendszergazdák - Alap DN</value></data>
   <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Active Roles rendszergazdák - LDAP szűrő</value></data>
   <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Nincs csoporttulajdonos - Alap DN</value></data>

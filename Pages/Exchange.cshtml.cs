@@ -19,10 +19,11 @@ public class ExchangeModel : DashboardPageModel
         if (redirect != null) return redirect;
 
         // Gate the whole dashboard: it is only visible when Exchange is deployed (at least one
-        // msExchExchangeServer that is not a transport-only server) AND the viewer is an Active
-        // Roles admin or a member of an Exchange administrative security group ("Organization
-        // Management" / "View-Only Organization Management"). Everyone else is sent back to the
-        // main dashboard.
+        // msExchExchangeServer that is not a transport-only server) AND the viewer holds the View
+        // Exchange dashboard permission, is an Active Roles admin, or is a member of an Exchange
+        // administrative security group ("Organization Management" / "View-Only Organization
+        // Management"). Everyone else is sent back to the main dashboard so the page cannot be
+        // reached by navigating directly to the URL.
         if (!await CanViewExchangeAsync(HttpContext.RequestAborted))
             return RedirectToPage("/Index");
 

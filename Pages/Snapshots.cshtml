@@ -48,8 +48,8 @@
             <h2>@Localizer["TakeSnapshot"]</h2>
             <p class="snap-hint">@Localizer["TakeSnapshotHint"]</p>
             <form method="post" asp-page-handler="Capture" class="snap-capture-form" id="snapCaptureForm">
-                <input type="text" name="label" maxlength="80" placeholder="@Localizer["OptionalLabelPlaceholder"]" class="snap-input" />
-                <button type="submit" class="snap-btn snap-btn-primary">@Localizer["CaptureSnapshot"]</button>
+                <input type="text" name="label" maxlength="80" placeholder="@Localizer["OptionalLabelPlaceholder"]" class="snap-input" @(Model.CanRunAndSaveSnapshots ? null : "disabled") />
+                <button type="submit" class="snap-btn snap-btn-primary" disabled="@(!Model.CanRunAndSaveSnapshots)">@Localizer["CaptureSnapshot"]</button>
             </form>
         </section>
 
@@ -64,7 +64,7 @@
                 <form method="get" class="snap-compare-form" id="snapCompareForm">
                     <label>
                         <span>@Localizer["Baseline"]</span>
-                        <select name="FromId" class="snap-input" id="snapFromId">
+                        <select name="FromId" class="snap-input" id="snapFromId"@(Model.CanCompareSnapshots ? "" : " disabled")>
                             @foreach (var h in Model.Snapshots)
                             {
                                 <option value="@h.Id" selected="@(h.Id == Model.FromId)">@SnapshotsModel_Label(h)</option>
@@ -73,7 +73,7 @@
                     </label>
                     <label>
                         <span>@Localizer["CompareTo"]</span>
-                        <select name="ToId" class="snap-input" id="snapToId">
+                        <select name="ToId" class="snap-input" id="snapToId"@(Model.CanCompareSnapshots ? "" : " disabled")>
                             <option value="current" selected="@(string.Equals(Model.ToId, "current", StringComparison.OrdinalIgnoreCase))">@Localizer["CurrentLive"]</option>
                             @foreach (var h in Model.Snapshots)
                             {
@@ -81,7 +81,7 @@
                             }
                         </select>
                     </label>
-                    <button type="submit" class="snap-btn snap-btn-primary" id="snapCompareBtn">@Localizer["Compare"]</button>
+                    <button type="submit"@(Model.CanCompareSnapshots ? "" : " disabled") class="snap-btn snap-btn-primary" id="snapCompareBtn">@Localizer["Compare"]</button>
                 </form>
             }
         </section>
@@ -114,12 +114,21 @@
                             <td>@(h.CreatedBy ?? "—")</td>
                             <td class="snap-num">@h.KpiCount</td>
                             <td class="snap-row-actions">
-                                <a href="@(pathBase)/Snapshots?FromId=@h.Id&ToId=current" class="snap-icon-btn snap-compare-link" title="@Localizer["Tip_CompareToCurrent"]" aria-label="@Localizer["Tip_CompareToCurrent"]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                                </a>
+                                @if (Model.CanCompareSnapshots)
+                                {
+                                    <a href="@(pathBase)/Snapshots?FromId=@h.Id&ToId=current" class="snap-icon-btn snap-compare-link" title="@Localizer["Tip_CompareToCurrent"]" aria-label="@Localizer["Tip_CompareToCurrent"]">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="snap-icon-btn snap-icon-disabled" title="@Localizer["Tip_CompareToCurrent"]" aria-label="@Localizer["Tip_CompareToCurrent"]" aria-disabled="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                    </span>
+                                }
                                 <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["ConfirmDelete"].Value)));">
                                     <input type="hidden" name="id" value="@h.Id" />
-                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["Tip_DeleteSnapshot"]" aria-label="@Localizer["Tip_DeleteSnapshot"]">
+                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["Tip_DeleteSnapshot"]" aria-label="@Localizer["Tip_DeleteSnapshot"]" disabled="@(!Model.CanDeleteSnapshots)">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                     </button>
                                 </form>
@@ -258,8 +267,10 @@
         var compareBtn = document.getElementById('snapCompareBtn');
         var compareForm = document.getElementById('snapCompareForm');
         if (fromSel && toSel && compareBtn) {
+            var canCompare = @(Model.CanCompareSnapshots ? "true" : "false");
             var syncCompare = function () {
-                compareBtn.disabled = (fromSel.value === toSel.value);
+                // Never re-enable when the user's role lacks CompareSnapshots.
+                compareBtn.disabled = !canCompare || (fromSel.value === toSel.value);
             };
             fromSel.addEventListener('change', syncCompare);
             toSel.addEventListener('change', syncCompare);

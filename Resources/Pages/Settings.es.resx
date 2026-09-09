@@ -96,6 +96,18 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
     <value>Filtros predeterminados</value>
   </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+    <value>Gestión de roles</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+    <value>Asigne permisos a cada rol. Los roles y permisos son fijos. El rol de Administrador del panel siempre tiene todos los permisos y no se puede cambiar.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+    <value>Permiso</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+    <value>El rol de Administrador del panel siempre tiene todos los permisos y no se puede cambiar.</value>
+  </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
     <value>Filtro de grupos sin propietario</value>
   </data>
@@ -206,5 +218,11 @@
   </data>
   <data name="SaveSettings" xml:space="preserve">
 	<value>Guardar configuración</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+	<value>No tiene permiso para ver o cambiar la configuración.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+	<value>Puede ver esta configuración del sistema, pero no tiene permiso para cambiarla.</value>
   </data>
 </root>

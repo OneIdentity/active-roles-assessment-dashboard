@@ -12,6 +12,29 @@
     var dashboardKey = ViewData["DashboardKey"] as string ?? "";
     var showAdminRebuild = ViewData["ShowAdminRebuild"] as bool? ?? false;
     var cacheRebuildInProgress = ViewData["CacheRebuildInProgress"] as bool? ?? false;
+    // Show the Settings gear only when the current user's role grants some settings access.
+    // Defaults to true when the flag is absent so pages that don't compute it are unaffected;
+    // the Settings page enforces access server-side regardless.
+    var showSettings = ViewData["ShowSettings"] as bool? ?? true;
+    // Show the Snapshots camera only when the current user's role grants ViewSnapshots.
+    // Defaults to true when the flag is absent so pages that don't compute it are unaffected;
+    // the Snapshots page enforces access server-side regardless.
+    var showSnapshots = ViewData["ShowSnapshots"] as bool? ?? true;
+    // Show the Exposure Report target icon only when the current user's role grants
+    // ViewExposureReport. Defaults to true when the flag is absent; the page enforces access
+    // server-side regardless.
+    var showAttackExposure = ViewData["ShowAttackExposure"] as bool? ?? true;
+    // Show the Assessments shield icon only when the current user's role grants ViewAssessments.
+    // Defaults to true when the flag is absent; the Assessments page enforces access server-side
+    // regardless.
+    var showAssessments = ViewData["ShowAssessments"] as bool? ?? true;
+    // Show the Export button only when the current user's role grants ExportDashboardData. Read
+    // from the live dashboard page model when available (so it stays in sync with the summary),
+    // falling back to the ViewData flag published by InitializePageAsync. Defaults to true when
+    // neither is present so pages that don't compute it are unaffected; the /Export handler
+    // enforces access server-side regardless.
+    var dashboardModel = Model as ActiveRolesDashboard.Pages.DashboardPageModel;
+    var showExport = dashboardModel?.CanExportDashboardData ?? ViewData["ShowExport"] as bool? ?? true;
 }
 <div class="hdr-right">
     <span class="hdr-user">@User.Identity?.Name</span>
@@ -27,7 +50,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </a>
     }
-    @if (!string.IsNullOrEmpty(dashboardKey))
+    @if (!string.IsNullOrEmpty(dashboardKey) && showExport)
     {
         <button type="button" class="btn-icon" title="@Localizer["Export"]" id="btnExport">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -39,7 +62,7 @@
     @if (showAdminRebuild)
     {
         <form method="post" asp-page-handler="Refresh" class="hdr-inline-form" id="rebuildCacheForm">
-            <button type="submit" class="btn-icon" title="@Localizer["RebuildCache"]" id="btnRebuildCache" @(cacheRebuildInProgress ? "disabled" : "") aria-disabled="@(cacheRebuildInProgress ? "true" : "false")">
+            <button type="submit" class="btn-icon @(cacheRebuildInProgress ? "btn-icon-spinning" : "")" title="@Localizer["RebuildCache"]" id="btnRebuildCache" @(cacheRebuildInProgress ? "disabled" : "") aria-disabled="@(cacheRebuildInProgress ? "true" : "false")">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
             </button>
         </form>
@@ -54,27 +77,47 @@
                 form.addEventListener('submit', function () {
                     btn.disabled = true;
                     btn.setAttribute('aria-disabled', 'true');
+                    btn.classList.add('btn-icon-spinning');
+                    // Signal any in-flight Entra membership loader to yield to the rebuild, and
+                    // clear its progress badge so the two flows don't compete. Persist the flag to
+                    // sessionStorage so it survives the POST->redirect->reload: on the reloaded
+                    // page the membership loader can see the rebuild is active before it starts.
+                    window.cacheRebuildInFlight = true;
+                    try { sessionStorage.setItem('cacheRebuildInFlight', '1'); } catch (e) { }
+                    if (window.membershipBadge) window.membershipBadge.hide();
                 });
             })();
         </script>
     }
-    <a href="@(appBase)/Assessments" class="btn-icon" title="@Localizer["Assessment"]">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-    </a>
-    <a href="@(appBase)/AttackExposure" class="btn-icon" title="@Localizer["AttackExposure"]">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-    </a>
-    <a href="@(appBase)/Snapshots" class="btn-icon" title="@Localizer["Snapshots"]">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    </a>
-    <a href="@(appBase)/Settings" class="btn-icon" title="@Localizer["Settings"]">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
-    </a>
+    @if (showAssessments)
+    {
+        <a href="@(appBase)/Assessments" class="btn-icon" title="@Localizer["Assessment"]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </a>
+    }
+    @if (showAttackExposure)
+    {
+        <a href="@(appBase)/AttackExposure" class="btn-icon" title="@Localizer["AttackExposure"]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </a>
+    }
+    @if (showSnapshots)
+    {
+        <a href="@(appBase)/Snapshots" class="btn-icon" title="@Localizer["Snapshots"]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </a>
+    }
+    @if (showSettings)
+    {
+        <a href="@(appBase)/Settings" class="btn-icon" title="@Localizer["Settings"]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
+        </a>
+    }
     <a href="@(appBase)/Logout" class="btn-icon" title="@Localizer["SignOut"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </a>
 </div>
-@if (!string.IsNullOrEmpty(dashboardKey))
+@if (!string.IsNullOrEmpty(dashboardKey) && showExport)
 {
     <partial name="_ExportDialog" view-data="ViewData" />
 }

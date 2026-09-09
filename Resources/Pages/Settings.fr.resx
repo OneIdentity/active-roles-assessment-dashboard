@@ -96,6 +96,18 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
     <value>Filtres par défaut</value>
   </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+    <value>Gestion des rôles</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+    <value>Attribuez des autorisations à chaque rôle. Les rôles et les autorisations sont fixes. Le rôle Administrateur du tableau de bord dispose toujours de toutes les autorisations et ne peut pas être modifié.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+    <value>Autorisation</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+    <value>Le rôle Administrateur du tableau de bord dispose toujours de toutes les autorisations et ne peut pas être modifié.</value>
+  </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
     <value>Filtre des groupes sans propriétaire</value>
   </data>
@@ -206,5 +218,11 @@
   </data>
   <data name="SaveSettings" xml:space="preserve">
 	<value>Enregistrer les paramètres</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+	<value>Vous n'avez pas l'autorisation d'afficher ou de modifier les paramètres.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+	<value>Vous pouvez consulter ces paramètres système mais vous n'êtes pas autorisé à les modifier.</value>
   </data>
 </root>

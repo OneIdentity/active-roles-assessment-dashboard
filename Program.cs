@@ -81,6 +81,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
 
 builder.Services.AddSingleton<ActiveRolesDashboard.Services.ServiceAccountSecretProtector>();
+builder.Services.AddSingleton<ActiveRolesDashboard.Services.RolePermissionProtector>();
 
 var arConfig = builder.Configuration.GetSection("ActiveRoles").Get<ActiveRolesConfig>()!;
 
@@ -110,6 +111,7 @@ builder.Services.AddHttpClient("ActiveRolesApi")
 
 builder.Services.AddSingleton<RstsAuthService>();
 builder.Services.AddSingleton<ActiveRolesService>();
+builder.Services.AddSingleton<RoleService>();
 builder.Services.AddSingleton<UserSettingsService>();
 builder.Services.AddSingleton<SnapshotService>();
 builder.Services.AddSingleton<AssessmentService>();
@@ -175,6 +177,7 @@ builder.Services.AddSession(options =>
 // in Session, which bloated the session entry and dropped the auth token). Requires IMemoryCache.
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<PerUserSummaryCache>();
+builder.Services.AddSingleton<DirectoryFactsResolver>();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddRazorPages(options =>

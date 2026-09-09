@@ -54,6 +54,177 @@ public abstract class DashboardPageModel : PageModel
     public int StaleAccountThresholdDays => ArConfig.CurrentValue.StaleAccountThresholdDays > 0 ? ArConfig.CurrentValue.StaleAccountThresholdDays : 90;
     public bool IsActiveRolesAdmin { get; set; }
 
+    /// <summary>
+    /// The dashboard role assigned to the current user (evaluated after the admin check and cached
+    /// alongside the admin flag). Preparatory only for now - not yet used to guard functionality.
+    /// </summary>
+    public DashboardRole DashboardRole { get; set; } = DashboardRole.User;
+
+    /// <summary>The effective permission set carried by <see cref="DashboardRole"/>.</summary>
+    public IReadOnlySet<DashboardPermission> DashboardPermissions { get; set; } =
+        new HashSet<DashboardPermission>();
+
+    /// <summary>True when the current user's role carries the given permission.</summary>
+    public bool HasPermission(DashboardPermission permission) => DashboardPermissions.Contains(permission);
+
+    /// <summary>
+    /// True when the current viewer sees the full (unfiltered) superset rather than a per-user
+    /// projection scoped to their Active Roles delegation. Active Roles administrators always do;
+    /// so does any role whose permissions do NOT carry
+    /// <see cref="DashboardPermission.UseDelegatedPermissionsForVisibility"/> (e.g. Auditors, who
+    /// have full read visibility across the environment). Only roles that explicitly opt into
+    /// delegated visibility (e.g. Power Users) are SID-filtered.
+    /// </summary>
+    public bool UsesFullVisibility =>
+        IsActiveRolesAdmin || !HasPermission(DashboardPermission.UseDelegatedPermissionsForVisibility);
+
+    /// <summary>
+    /// True when the user may view the Active Roles configuration dashboard. Active Roles
+    /// administrators always may; so does any role granted
+    /// <see cref="DashboardPermission.ViewActiveRolesDashboard"/> (e.g. Auditors).
+    /// </summary>
+    public bool CanViewActiveRolesDashboard =>
+        IsActiveRolesAdmin || HasPermission(DashboardPermission.ViewActiveRolesDashboard);
+
+    /// <summary>
+    /// True when the user may view the Active Directory dashboard. A user sees it when their role
+    /// grants <see cref="DashboardPermission.ViewActiveDirectoryDashboard"/>, OR when they have
+    /// delegated visibility to some AD data (at least one in-scope domain, i.e.
+    /// <see cref="DashboardSummary.AdVisible"/>). If neither holds, the dashboard is hidden and
+    /// direct navigation is blocked. Note: this depends on <see cref="Summary"/> being populated,
+    /// so evaluate it after the summary has been loaded.
+    /// </summary>
+    public bool CanViewActiveDirectoryDashboard =>
+        HasPermission(DashboardPermission.ViewActiveDirectoryDashboard) || Summary.AdVisible;
+
+    /// <summary>
+    /// True when the user may view the Entra ID dashboard. A user sees it when their role grants
+    /// <see cref="DashboardPermission.ViewEntraIdDashboard"/>, OR when they have delegated
+    /// visibility to some Entra data (at least one in-scope tenant, i.e.
+    /// <see cref="DashboardSummary.EntraVisible"/>). If neither holds, the dashboard is hidden and
+    /// direct navigation is blocked. Note: this depends on <see cref="Summary"/> being populated,
+    /// so evaluate it after the summary has been loaded.
+    /// </summary>
+    public bool CanViewEntraIdDashboard =>
+        HasPermission(DashboardPermission.ViewEntraIdDashboard) || Summary.EntraVisible;
+
+    /// <summary>
+    /// True when the user may view the Licensing dashboard. A user sees it when their role grants
+    /// <see cref="DashboardPermission.ViewLicensingDashboard"/>, OR when they have delegated read
+    /// visibility to the licensing statistics data. This mirrors the value computed into
+    /// <see cref="DashboardSummary.LicensingVisible"/> by the summary loader (which already folds in
+    /// the View permission, Active Roles admin, and the delegated-read check), so the tile, page
+    /// guard, and export share one rule. Note: this depends on <see cref="Summary"/> being
+    /// populated, so evaluate it after the summary has been loaded. The authoritative page-load
+    /// gate remains <see cref="CanViewLicensingAsync"/>, which does not require a loaded summary.
+    /// </summary>
+    public bool CanViewLicensingDashboard =>
+        HasPermission(DashboardPermission.ViewLicensingDashboard) || Summary.LicensingVisible;
+
+    /// <summary>
+    /// True when the user may view the Exchange dashboard. A user sees it when Exchange is deployed
+    /// AND (their role grants <see cref="DashboardPermission.ViewExchangeDashboard"/>, they are an
+    /// Active Roles admin, or they are a member of an Exchange administrative group). This mirrors
+    /// the value computed into <see cref="DashboardSummary.ExchangeVisible"/> by the summary loader,
+    /// so the tile, page guard, and export share one rule. Note: this depends on
+    /// <see cref="Summary"/> being populated, so evaluate it after the summary has been loaded. The
+    /// authoritative page-load gate remains <see cref="CanViewExchangeAsync"/>, which resolves the
+    /// deployment/membership signals directly and does not require a loaded summary.
+    /// </summary>
+    public bool CanViewExchangeDashboard => Summary.ExchangeVisible;
+
+    /// <summary>True when the user may open the Settings page (any settings permission).</summary>
+    public bool CanAccessSettings => RolePermissionRegistry.CanAccessSettings(DashboardPermissions);
+
+    /// <summary>True when the user may view/change the User settings category.</summary>
+    public bool CanManageUserSettings => RolePermissionRegistry.CanManageUserSettings(DashboardPermissions);
+
+    /// <summary>True when the user may view the System settings category.</summary>
+    public bool CanViewSystemSettings => RolePermissionRegistry.CanViewSystemSettings(DashboardPermissions);
+
+    /// <summary>True when the user may modify the System settings category.</summary>
+    public bool CanManageSystemSettings => RolePermissionRegistry.CanManageSystemSettings(DashboardPermissions);
+
+    /// <summary>
+    /// True when the user may view the Snapshots page (its button and page). Granted by
+    /// <see cref="DashboardPermission.ViewSnapshots"/>. Direct navigation is blocked when false.
+    /// </summary>
+    public bool CanViewSnapshots => HasPermission(DashboardPermission.ViewSnapshots);
+
+    /// <summary>True when the user may run and save new snapshots.</summary>
+    public bool CanRunAndSaveSnapshots => HasPermission(DashboardPermission.RunAndSaveSnapshots);
+
+    /// <summary>True when the user may delete saved snapshots.</summary>
+    public bool CanDeleteSnapshots => HasPermission(DashboardPermission.DeleteSnapshots);
+
+    /// <summary>True when the user may compare snapshots.</summary>
+    public bool CanCompareSnapshots => HasPermission(DashboardPermission.CompareSnapshots);
+
+    /// <summary>
+    /// True when the user may view the Attack Exposure report (its button and page). Granted by
+    /// <see cref="DashboardPermission.ViewExposureReport"/>. Direct navigation is blocked when false.
+    /// </summary>
+    public bool CanViewExposureReport => HasPermission(DashboardPermission.ViewExposureReport);
+
+    /// <summary>True when the user may compare exposure reports.</summary>
+    public bool CanCompareExposureReports => HasPermission(DashboardPermission.CompareExposureReports);
+
+    /// <summary>
+    /// True when the user may view the Assessments page (its toolbar button and page). Granted by
+    /// <see cref="DashboardPermission.ViewAssessments"/>. Direct navigation is blocked when false.
+    /// </summary>
+    public bool CanViewAssessments => HasPermission(DashboardPermission.ViewAssessments);
+
+    /// <summary>True when the user may run and save new assessments.</summary>
+    public bool CanRunAndSaveAssessments => HasPermission(DashboardPermission.RunAndSaveAssessments);
+
+    /// <summary>True when the user may export a saved assessment as a document.</summary>
+    public bool CanExportAssessments => HasPermission(DashboardPermission.ExportAssessments);
+
+    /// <summary>True when the user may compare assessments.</summary>
+    public bool CanCompareAssessments => HasPermission(DashboardPermission.CompareAssessments);
+
+    /// <summary>True when the user may delete saved assessments.</summary>
+    public bool CanDeleteAssessments => HasPermission(DashboardPermission.DeleteAssessments);
+
+    /// <summary>
+    /// True when the user may rebuild the shared cache. Active Roles admins always may; otherwise
+    /// the role must grant <see cref="DashboardPermission.RebuildCache"/>. Controls both the
+    /// Rebuild Cache button's visibility and the server-side rebuild handler.
+    /// </summary>
+    public bool CanRebuildCache =>
+        IsActiveRolesAdmin || HasPermission(DashboardPermission.RebuildCache);
+
+    /// <summary>
+    /// True when the user may export dashboard data (the Export toolbar button and dialog). Active
+    /// Roles admins always may; otherwise the role must grant
+    /// <see cref="DashboardPermission.ExportDashboardData"/>. The Export button is hidden when false
+    /// and the /Export handler independently enforces this server-side.
+    /// </summary>
+    public bool CanExportDashboardData =>
+        RolePermissionRegistry.CanExportDashboardData(DashboardPermissions, IsActiveRolesAdmin);
+
+    /// <summary>
+    /// The set of dashboard keys the current user may export, computed from their view permissions
+    /// and the loaded <see cref="Summary"/> visibility flags (so the export dialog only lists
+    /// dashboards, categories, and KPIs the user is allowed to see). Empty when the user cannot
+    /// export. Evaluate after the summary has been loaded.
+    /// </summary>
+    public IReadOnlySet<string> ExportableDashboardKeys =>
+        RolePermissionRegistry.GetExportableDashboardKeys(
+            DashboardPermissions,
+            IsActiveRolesAdmin,
+            Summary.AdVisible,
+            Summary.EntraVisible,
+            Summary.ExchangeVisible,
+            Summary.LicensingVisible);
+
+    /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
+    protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
+
+    /// <summary>Directory-facts resolver from the request container (see <see cref="Cache"/> rationale).</summary>
+    protected DirectoryFactsResolver DirectoryFacts => HttpContext.RequestServices.GetRequiredService<DirectoryFactsResolver>();
+
     /// <summary>Number of groups the client requests per lazy-membership batch (min 1).</summary>
     public int MembershipBatchSize => Math.Max(1, ArConfig.CurrentValue.Entra.MembershipBatchSize);
 
@@ -134,28 +305,64 @@ public abstract class DashboardPageModel : PageModel
             return RedirectToPage("/Login");
         }
 
-        var adminFlag = HttpContext.Session.GetString("IsActiveRolesAdmin");
-        if (adminFlag != null)
+        // Directory facts (admin flag + dashboard role) are evaluated once at login and again after
+        // a superset rebuild, not on every request. Prefer the session values, but only while they
+        // match the current directory-facts epoch; a superset rebuild advances the epoch, making the
+        // session values stale and forcing a single re-evaluation here.
+        var currentEpoch = DirectoryFacts.CurrentEpoch;
+        var sessionEpoch = HttpContext.Session.GetString("DirectoryFactsEpoch");
+        var sessionAdmin = HttpContext.Session.GetString("IsActiveRolesAdmin");
+        var sessionRole = HttpContext.Session.GetString("DashboardRole");
+
+        DashboardRole role;
+        if (sessionEpoch == currentEpoch.ToString()
+            && sessionAdmin != null
+            && sessionRole != null
+            && Enum.TryParse(sessionRole, out DashboardRole parsedRole))
         {
-            IsActiveRolesAdmin = bool.TryParse(adminFlag, out var val) && val;
+            IsActiveRolesAdmin = bool.TryParse(sessionAdmin, out var val) && val;
+            role = parsedRole;
         }
         else
         {
-            // Prefer the app-level per-user cache (survives logout/login) so the directory
-            // membership check runs at most once per cache lifetime, not on every login.
-            var cachedAdmin = UserSummaryCache.GetAdmin(username);
-            if (cachedAdmin is bool known)
-            {
-                IsActiveRolesAdmin = known;
-            }
-            else
-            {
-                IsActiveRolesAdmin = await ArService.IsUserActiveRolesAdminAsync(token, username);
-                UserSummaryCache.SetAdmin(username, IsActiveRolesAdmin);
-            }
+            var facts = await DirectoryFacts.ResolveAsync(token, username);
+            IsActiveRolesAdmin = facts.IsActiveRolesAdmin;
+            role = facts.Role;
 
-            HttpContext.Session.SetString("IsActiveRolesAdmin", IsActiveRolesAdmin.ToString());
+            HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
+            HttpContext.Session.SetString("DashboardRole", facts.Role.ToString());
+            HttpContext.Session.SetString("DirectoryFactsEpoch", facts.Epoch.ToString());
         }
+
+        DashboardRole = role;
+        DashboardPermissions = RoleService.GetPermissions(role);
+
+        // Publish settings-button visibility to the shared header/toolbar (which reads ViewData).
+        // The gear is shown only when the user's role grants some settings access; the Settings
+        // page itself independently enforces this server-side.
+        ViewData["ShowSettings"] = CanAccessSettings;
+
+        // Publish snapshots-button visibility to the shared toolbar. The camera icon is shown
+        // only when the user's role grants ViewSnapshots; the Snapshots page itself independently
+        // enforces this server-side.
+        ViewData["ShowSnapshots"] = CanViewSnapshots;
+
+        // Publish exposure-report-button visibility to the shared toolbar. The target icon is
+        // shown only when the user's role grants ViewExposureReport; the AttackExposure page
+        // itself independently enforces this server-side.
+        ViewData["ShowAttackExposure"] = CanViewExposureReport;
+
+        // Publish assessments-button visibility to the shared toolbar. The shield icon is shown
+        // only when the user's role grants ViewAssessments; the Assessments page itself
+        // independently enforces this server-side.
+        ViewData["ShowAssessments"] = CanViewAssessments;
+
+        // Publish export-button visibility to the shared toolbar. The download icon is shown only
+        // when the user's role grants ExportDashboardData (or they are an Active Roles admin); the
+        // /Export handler independently enforces this server-side. The exportable dashboard-key set
+        // depends on the loaded summary, so the toolbar/dialog partials read it from the live model
+        // (ExportableDashboardKeys) at render time rather than from ViewData here.
+        ViewData["ShowExport"] = CanExportDashboardData;
 
         return null;
     }
@@ -204,7 +411,12 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected async Task<bool> CanViewLicensingAsync(CancellationToken ct = default)
     {
-        if (IsActiveRolesAdmin)
+        // An explicit View Licensing dashboard permission always grants access, regardless of
+        // delegated data visibility (mirrors the Active Roles dashboard rule).
+        if (HasPermission(DashboardPermission.ViewLicensingDashboard))
+            return true;
+
+        if (UsesFullVisibility)
             return true;
 
         var model = Cache.PermissionModel;
@@ -248,8 +460,13 @@ public abstract class DashboardPageModel : PageModel
         if (!deployed)
             return false;
 
-        // (2) Active Roles admins may always see it once deployed.
-        if (IsActiveRolesAdmin)
+        // (2) An explicit View Exchange dashboard permission grants access once Exchange is
+        // deployed (mirrors the Active Roles dashboard rule); so do Active Roles admins and other
+        // full-visibility roles (e.g. Auditors).
+        if (HasPermission(DashboardPermission.ViewExchangeDashboard))
+            return true;
+
+        if (UsesFullVisibility)
             return true;
 
         // Otherwise the viewer must be a member of an Exchange administrative group. Cache the
@@ -547,10 +764,12 @@ public abstract class DashboardPageModel : PageModel
         }
         else
         {
-            // Serve from the shared service-account superset. Admins see the unfiltered data;
-            // everyone else sees a per-user projection scoped to their AR delegation.
+            // Serve from the shared service-account superset. Admins and full-visibility roles
+            // (e.g. Auditors, which lack UseDelegatedPermissionsForVisibility) see the unfiltered
+            // data; delegated roles (e.g. Power Users) see a per-user projection scoped to their AR
+            // delegation.
             var model = Cache.PermissionModel;
-            var viewer = IsActiveRolesAdmin ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
+            var viewer = UsesFullVisibility ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
 
             Summary = (viewer is not null && model is not null)
                 ? PerUserFilter.Filter(superset, viewer, model)
@@ -558,8 +777,10 @@ public abstract class DashboardPageModel : PageModel
 
             // The Licensing dashboard is gated on read access to edsManagedObjectStatisticsData.
             // Admins (and the cache-cold fallback above) keep the default true; a non-admin viewer
-            // must be granted List Object + Read objectClass (or Read all properties) on that class.
-            Summary.LicensingVisible = viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
+            // must EITHER be granted the View Licensing dashboard permission OR have List Object +
+            // Read objectClass (or Read all properties) on that class.
+            Summary.LicensingVisible = HasPermission(DashboardPermission.ViewLicensingDashboard)
+                || viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
 
             // The Exchange dashboard is gated on Exchange being deployed AND the viewer being an
             // Active Roles admin or a member of an Exchange administrative group. CanViewExchangeAsync

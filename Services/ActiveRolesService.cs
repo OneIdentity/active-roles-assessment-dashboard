@@ -21,6 +21,60 @@ public class ActiveRolesService
         _logger = logger;
     }
 
+    // Very short-lived memo of the full AD group graph, used ONLY by the membership-check path
+    // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
+    // plus up to three dashboard role-group checks - shares one full (objectClass=group) enumeration
+    // instead of re-running it per check. Also absorbs repeated checks from client polling before the
+    // per-user admin/role caches latch. The superset collector still calls GetADGroupsAsync directly
+    // (uncached) so a manual rebuild always re-enumerates. Keyed by token because the enumeration is
+    // performed with the caller's read scope.
+    private readonly SemaphoreSlim _groupGraphMemoLock = new(1, 1);
+    private static readonly TimeSpan GroupGraphMemoTtl = TimeSpan.FromSeconds(60);
+    private string? _groupGraphMemoToken;
+    private DateTimeOffset _groupGraphMemoAtUtc;
+    private ADGroupsSummary? _groupGraphMemo;
+
+    /// <summary>
+    /// Returns the full AD group graph for the membership-check path, reusing a recent result
+    /// (within <see cref="GroupGraphMemoTtl"/>, same token) to avoid redundant full enumerations.
+    /// </summary>
+    private async Task<ADGroupsSummary> GetADGroupsForMembershipAsync(string token)
+    {
+        var now = DateTimeOffset.UtcNow;
+        if (_groupGraphMemo != null &&
+            _groupGraphMemoToken == token &&
+            now - _groupGraphMemoAtUtc < GroupGraphMemoTtl)
+        {
+            return _groupGraphMemo;
+        }
+
+        await _groupGraphMemoLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            now = DateTimeOffset.UtcNow;
+            if (_groupGraphMemo != null &&
+                _groupGraphMemoToken == token &&
+                now - _groupGraphMemoAtUtc < GroupGraphMemoTtl)
+            {
+                return _groupGraphMemo;
+            }
+
+            var groups = await GetADGroupsAsync(token).ConfigureAwait(false);
+            // Only memoize a good result so a transient failure isn't cached for the full TTL.
+            if (groups.Error == null)
+            {
+                _groupGraphMemo = groups;
+                _groupGraphMemoToken = token;
+                _groupGraphMemoAtUtc = now;
+            }
+            return groups;
+        }
+        finally
+        {
+            _groupGraphMemoLock.Release();
+        }
+    }
+
     private string BaseUrl => _configMonitor.CurrentValue.ApiBaseUrl.TrimEnd('/');
 
     private HttpClient CreateClient(string token)
@@ -3277,63 +3331,210 @@ public class ActiveRolesService
 
     public async Task<bool> IsUserActiveRolesAdminAsync(string token, string username)
     {
+        var config = _configMonitor.CurrentValue;
+        // Resolution precedence (matches the AR Admins KPI path): start from the configured
+        // default filter/base, then let a non-empty Custom override win.
+        var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, config.DefaultActiveDirectoryDN);
+        var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultFilters.ActiveRolesAdmins);
+
+        // Resolve the user's DN once, then check membership of the AR admins group using the
+        // server-computed edsaMember/edsaMemberIndirect attributes on that single group - avoiding
+        // a full directory group-graph enumeration.
+        var userDn = await ResolveUserDnAsync(token, username, baseDn);
+        if (string.IsNullOrEmpty(userDn))
+            return false;
+
+        return await IsDnMemberOfGroupFilterAsync(
+            token, userDn, baseDn, filter, "IsUserActiveRolesAdminAsync");
+    }
+
+    /// <summary>
+    /// Returns true when the named user is a (transitive) member of the group resolved by the
+    /// given LDAP <paramref name="filter"/> under <paramref name="baseDn"/>. Resolves the group's
+    /// members via <see cref="GetPrivilegedGroupMembersAsync"/> and the user's DN by
+    /// sAMAccountName, then compares normalized DNs. Returns false on any error or when the group
+    /// or user cannot be resolved. Used for both the Active Roles admin check and dashboard role
+    /// evaluation.
+    /// </summary>
+    public async Task<bool> IsUserMemberOfGroupFilterAsync(
+        string token, string username, string baseDn, string filter, string logContext = "IsUserMemberOfGroupFilterAsync")
+    {
         try
         {
-            var config = _configMonitor.CurrentValue;
-            // Resolution precedence (matches the AR Admins KPI path): start from the default
-            // filter/base (the configured DefaultFilters:ActiveRolesAdmins value, or the hard-coded
-            // initializer when unset), then let a non-empty Custom override win.
-            var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultFilters.ActiveRolesAdmins);
-            var admins = await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
-
-            _logger.LogInformation("IsUserActiveRolesAdminAsync: Admin group members ({Count}): {Members}",
-                admins.Items.Count,
-                string.Join("; ", admins.Items.Select(m => $"{m.Name} [{m.Dn}] ({m.MembershipType})")));
-
-            if (admins.Error != null || admins.Items.Count == 0)
+            if (string.IsNullOrWhiteSpace(filter))
             {
-                _logger.LogWarning("IsUserActiveRolesAdminAsync: No admins found or error: {Error}", admins.Error ?? "Empty list");
+                _logger.LogInformation("{Context}: No filter configured; treating as no members.", logContext);
                 return false;
             }
 
-            // Extract the bare username (remove domain prefix if present)
-            var name = username;
-            var slashIndex = name.IndexOf('\\');
-            if (slashIndex >= 0) name = name[(slashIndex + 1)..];
-            var atIndex = name.IndexOf('@');
-            if (atIndex >= 0) name = name[..atIndex];
+            var members = await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
 
-            // Look up the user's DN by sAMAccountName and compare against member DNs
-            var userSearch = await SearchObjectsAsync(token, baseDn,
-                $"(&(objectClass=user)(sAMAccountName={name}))", "sub", "distinguishedName");
-            if (userSearch.Count > 0)
+            _logger.LogInformation("{Context}: Group members ({Count}): {Members}",
+                logContext,
+                members.Items.Count,
+                string.Join("; ", members.Items.Select(m => $"{m.Name} [{m.Dn}] ({m.MembershipType})")));
+
+            if (members.Error != null || members.Items.Count == 0)
             {
-                var userDn = GetAttr(userSearch[0], "distinguishedName");
-                _logger.LogInformation("IsUserActiveRolesAdminAsync: User '{Username}' resolved to DN: {UserDn}", name, userDn);
-
-                if (!string.IsNullOrEmpty(userDn))
-                {
-                    var normalizedUserDn = NormalizeAdDn(userDn);
-                    var isAdmin = admins.Items.Any(m =>
-                        NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
-
-                    _logger.LogInformation("IsUserActiveRolesAdminAsync: Normalized user DN: {NormalizedDn}, IsAdmin: {IsAdmin}",
-                        normalizedUserDn, isAdmin);
-
-                    return isAdmin;
-                }
+                _logger.LogWarning("{Context}: No members found or error: {Error}", logContext, members.Error ?? "Empty list");
+                return false;
             }
-            else
+
+            // Look up the user's DN (ResolveUserDnAsync handles domain/UPN stripping, LDAP escaping,
+            // and the AR provider's case-sensitive samAccountName casing fallback) and compare against
+            // member DNs.
+            var normalizedUserDn = await ResolveUserDnAsync(token, username, baseDn);
+            if (!string.IsNullOrEmpty(normalizedUserDn))
             {
-                _logger.LogWarning("IsUserActiveRolesAdminAsync: No user found for sAMAccountName '{Username}'", name);
+                _logger.LogInformation("{Context}: User '{Username}' resolved to DN: {UserDn}", logContext, username, normalizedUserDn);
+
+                var isMember = members.Items.Any(m =>
+                    NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
+
+                _logger.LogInformation("{Context}: Normalized user DN: {NormalizedDn}, IsMember: {IsMember}",
+                    logContext, normalizedUserDn, isMember);
+
+                return isMember;
+            }
+
+            _logger.LogWarning("{Context}: No user found for '{Username}'", logContext, username);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "{Context}: Exception while checking membership for '{Username}'", logContext, username);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Resolves the distinguished name of the user identified by <paramref name="username"/>
+    /// (sAMAccountName, optionally with a domain prefix or UPN suffix) under
+    /// <paramref name="baseDn"/>. Returns the normalized DN, or null when the user cannot be found.
+    /// A single directory search; used by the login-time role/admin evaluation so the user is
+    /// resolved once and reused across every group-membership check.
+    /// </summary>
+    public async Task<string?> ResolveUserDnAsync(string token, string username, string? baseDn = null)
+    {
+        var config = _configMonitor.CurrentValue;
+        baseDn ??= config.DefaultActiveDirectoryDN;
+
+        // Extract the bare username (remove domain prefix / UPN suffix if present).
+        var name = username;
+        var slashIndex = name.IndexOf('\\');
+        if (slashIndex >= 0) name = name[(slashIndex + 1)..];
+        var atIndex = name.IndexOf('@');
+        if (atIndex >= 0) name = name[..atIndex];
+
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        var escaped = EscapeLdapFilterValue(name);
+
+        // The AR REST virtual 'CN=Active Directory' provider is CASE-SENSITIVE on the attribute name
+        // in the filter and exposes the account attribute as 'samAccountName' (lowercase s/a), not the
+        // standard AD 'sAMAccountName'. Using the wrong casing silently returns zero rows. Try the AR
+        // casing first, then the standard casing, then a class-agnostic fallback, so a resolvable
+        // account is never silently missed (this previously downgraded valid auditors to the User role).
+        //
+        // IMPORTANT: request the SAME safe attribute set that ArPermissionModelService uses to
+        // successfully resolve this exact account. Requesting 'distinguishedName' as the ONLY search
+        // attribute triggers an AR REST quirk on the virtual provider that silently returns zero rows
+        // (mirroring the documented 'tokenGroups' search bug); requesting the standard object
+        // attributes returns the object, whose DN we then read from 'distinguishedName'.
+        const string resolveAttrs = "objectGUID,objectSid,objectClass,sAMAccountName,distinguishedName";
+
+        var userSearch = await SearchObjectsAsync(token, baseDn,
+            $"(&(objectClass=user)(samAccountName={escaped}))", "sub", resolveAttrs);
+
+        if (userSearch.Count == 0)
+        {
+            userSearch = await SearchObjectsAsync(token, baseDn,
+                $"(&(objectClass=user)(sAMAccountName={escaped}))", "sub", resolveAttrs);
+        }
+
+        if (userSearch.Count == 0)
+        {
+            userSearch = await SearchObjectsAsync(token, baseDn,
+                $"(samAccountName={escaped})", "sub", resolveAttrs);
+        }
+
+        // Final fallback: the AR REST virtual 'CN=Active Directory' provider matches the sAMAccountName
+        // *value* CASE-SENSITIVELY, so a login of 'secaudit' fails to match a stored 'SecAudit'. Active
+        // Directory itself treats sAMAccountName case-insensitively, so we use Ambiguous Name Resolution
+        // (anr), which is case-insensitive, and then confirm the match client-side (also case-insensitively)
+        // to avoid picking up an unrelated ANR hit.
+        if (userSearch.Count == 0)
+        {
+            var anrHits = await SearchObjectsAsync(token, baseDn,
+                $"(&(objectClass=user)(anr={escaped}))", "sub", resolveAttrs);
+
+            userSearch = anrHits
+                .Where(u => string.Equals(GetAttr(u, "sAMAccountName"), name, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(GetAttr(u, "samAccountName"), name, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        if (userSearch.Count == 0)
+        {
+            _logger.LogWarning("ResolveUserDnAsync: No user found for sAMAccountName '{Username}'.", name);
+            return null;
+        }
+
+        var userDn = GetAttr(userSearch[0], "distinguishedName");
+        if (string.IsNullOrEmpty(userDn))
+            userDn = GetAttr(userSearch[0], "dn");
+        return string.IsNullOrEmpty(userDn) ? null : NormalizeAdDn(userDn);
+    }
+
+    /// <summary>
+    /// Returns true when the (already-resolved, normalized) <paramref name="userDn"/> is a member -
+    /// direct or indirect - of the group resolved by <paramref name="filter"/> under
+    /// <paramref name="baseDn"/>.
+    ///
+    /// Unlike <see cref="IsUserMemberOfGroupFilterAsync"/>, this does NOT enumerate the entire group
+    /// graph to compute the transitive closure. Instead it queries ONLY the target group and reads
+    /// Active Roles' server-computed virtual attributes <c>edsaMember</c> (direct) and
+    /// <c>edsaMemberIndirect</c> (transitive), which is a single, cheap HTTP search. Requesting
+    /// <c>edsaMemberIndirect</c> is only expensive/failure-prone when asked for across ALL groups
+    /// (as the bulk KPI collector does); for a handful of named role groups it is the correct and
+    /// efficient source. Intended for the login-time admin/role checks.
+    /// </summary>
+    public async Task<bool> IsDnMemberOfGroupFilterAsync(
+        string token, string userDn, string baseDn, string filter, string logContext = "IsDnMemberOfGroupFilterAsync")
+    {
+        if (string.IsNullOrWhiteSpace(filter) || string.IsNullOrWhiteSpace(userDn))
+            return false;
+
+        try
+        {
+            var groups = await SearchObjectsAsync(token, baseDn, filter, "sub",
+                "distinguishedName,edsaMember,edsaMemberIndirect");
+
+            if (groups.Count == 0)
+            {
+                _logger.LogInformation("{Context}: No group matched filter '{Filter}'.", logContext, filter);
+                return false;
+            }
+
+            foreach (var group in groups)
+            {
+                foreach (var attr in new[] { "edsaMember", "edsaMemberIndirect" })
+                {
+                    var memberDns = GetMultiValuedAttr(group, attr);
+                    if (memberDns.Any(dn => NormalizeAdDn(dn).Equals(userDn, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _logger.LogInformation("{Context}: User DN '{UserDn}' is a member (via {Attr}).", logContext, userDn, attr);
+                        return true;
+                    }
+                }
             }
 
             return false;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "IsUserActiveRolesAdminAsync: Exception while checking admin status for '{Username}'", username);
+            _logger.LogError(ex, "{Context}: Exception while checking membership for DN '{UserDn}'.", logContext, userDn);
             return false;
         }
     }
@@ -3379,27 +3580,16 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
 
-            // Resolve the viewer's DN once (by sAMAccountName) so it can be compared against the
-            // members of either Exchange administrative group.
-            var name = username;
-            var slashIndex = name.IndexOf('\\');
-            if (slashIndex >= 0) name = name[(slashIndex + 1)..];
-            var atIndex = name.IndexOf('@');
-            if (atIndex >= 0) name = name[..atIndex];
-
-            var userSearch = await SearchObjectsAsync(token, baseDn,
-                $"(&(objectClass=user)(sAMAccountName={name}))", "sub", "distinguishedName");
-            if (userSearch.Count == 0)
+            // Resolve the viewer's DN once (by sAMAccountName), then perform a targeted membership
+            // check against each Exchange administrative group. This reads only the specific group
+            // (edsaMember/edsaMemberIndirect) rather than enumerating every AD group, so it stays
+            // cheap even on a non-admin dashboard request when the shared superset is already built.
+            var userDn = await ResolveUserDnAsync(token, username, baseDn);
+            if (string.IsNullOrEmpty(userDn))
             {
-                _logger.LogWarning("IsUserExchangeAdminAsync: No user found for sAMAccountName '{Username}'.", name);
+                _logger.LogWarning("IsUserExchangeAdminAsync: No user found for '{Username}'.", username);
                 return false;
             }
-
-            var userDn = GetAttr(userSearch[0], "distinguishedName");
-            if (string.IsNullOrEmpty(userDn))
-                return false;
-
-            var normalizedUserDn = NormalizeAdDn(userDn);
 
             foreach (var groupFilter in new[]
             {
@@ -3409,15 +3599,10 @@ public class ActiveRolesService
             {
                 if (string.IsNullOrWhiteSpace(groupFilter)) continue;
 
-                var members = await GetPrivilegedGroupMembersAsync(token, baseDn, groupFilter);
-                if (members.Error != null || members.Items.Count == 0) continue;
-
-                var isMember = members.Items.Any(m =>
-                    NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
-                if (isMember)
+                if (await IsDnMemberOfGroupFilterAsync(token, userDn, baseDn, groupFilter, "IsUserExchangeAdminAsync"))
                 {
                     _logger.LogInformation("IsUserExchangeAdminAsync: User '{Username}' is a member of an Exchange admin group (filter '{Filter}').",
-                        name, groupFilter);
+                        username, groupFilter);
                     return true;
                 }
             }
@@ -3492,8 +3677,9 @@ public class ActiveRolesService
 
             // Fetch the full group set once so nested (indirect) membership can be resolved across
             // groups that are not themselves in the filtered result. This is the same dataset the
-            // Total Groups KPI builds, and the calculation reproduces AR's edsaMemberIndirect.
-            var allGroups = await GetADGroupsAsync(token);
+            // Total Groups KPI builds, and the calculation reproduces AR's edsaMemberIndirect. A
+            // short-lived memo lets one login's admin + role-group checks share a single enumeration.
+            var allGroups = await GetADGroupsForMembershipAsync(token);
             var indirectByDn = allGroups.IndirectByDn;
 
             var allMembers = new List<PrivilegedGroupMemberInfo>();

@@ -76,6 +76,13 @@ public class SetupModel : PageModel
     public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
 
     [BindProperty]
+    public string DashboardAdminsFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string AuditorsFilter { get; set; } = string.Empty;
+    [BindProperty]
+    public string PowerUsersFilter { get; set; } = string.Empty;
+
+    [BindProperty]
     public int LicensedDomainObjects { get; set; }
     [BindProperty]
     public int LicensedPartitionObjects { get; set; }
@@ -100,6 +107,11 @@ public class SetupModel : PageModel
         Language = SupportedLanguage.All.Any(l => l.Code == _arConfig.CurrentValue.DefaultLanguage)
             ? _arConfig.CurrentValue.DefaultLanguage
             : SupportedLanguage.DefaultCode;
+
+        var filters = _arConfig.CurrentValue.DefaultFilters;
+        DashboardAdminsFilter = filters.DashboardAdmins;
+        AuditorsFilter = filters.Auditors;
+        PowerUsersFilter = filters.PowerUsers;
 
         return Page();
     }
@@ -197,6 +209,22 @@ public class SetupModel : PageModel
                 }
                 serviceAccount["Username"] = saUsername;
                 serviceAccount["ProtectedPassword"] = protectedPassword;
+
+                // Persist the role-group membership filters used to evaluate dashboard roles.
+                // Empty inputs fall back to the coded defaults so a role is never left unmapped.
+                var defaultFilters = activeRoles["DefaultFilters"]?.AsObject();
+                if (defaultFilters is null)
+                {
+                    defaultFilters = new JsonObject();
+                    activeRoles["DefaultFilters"] = defaultFilters;
+                }
+                var defaults = new DefaultFiltersConfig();
+                var dashboardAdminsFilter = DashboardAdminsFilter?.Trim();
+                var auditorsFilter = AuditorsFilter?.Trim();
+                var powerUsersFilter = PowerUsersFilter?.Trim();
+                defaultFilters["DashboardAdmins"] = string.IsNullOrWhiteSpace(dashboardAdminsFilter) ? defaults.DashboardAdmins : dashboardAdminsFilter;
+                defaultFilters["Auditors"] = string.IsNullOrWhiteSpace(auditorsFilter) ? defaults.Auditors : auditorsFilter;
+                defaultFilters["PowerUsers"] = string.IsNullOrWhiteSpace(powerUsersFilter) ? defaults.PowerUsers : powerUsersFilter;
             }
             var options = new JsonSerializerOptions
             {

@@ -81,6 +81,14 @@
     <a href="@(HttpContext.Request.PathBase)/" class="back-link" id="backLink">&larr; @Localizer["BackToDashboard"]</a>
 
     <form method="post">
+        @if (!Model.CanAccessSettings)
+        {
+            <div class="settings-card">
+                <div class="msg">@Localizer["AccessDenied"]</div>
+            </div>
+        }
+        @if (Model.CanManageUserSettings)
+        {
         <div class="settings-category">
             <div class="category-header" onclick="toggleSection(this)">
                 <h2>@SettingsCategoryInfo.User.DisplayName</h2>
@@ -734,8 +742,10 @@
         </div>
             </div>
         </div>
+        </div>
+        }
 
-        @if (Model.IsActiveRolesAdmin)
+        @if (Model.CanViewSystemSettings)
         {
         <div class="settings-category">
             <div class="category-header collapsed" onclick="toggleSection(this)">
@@ -743,6 +753,11 @@
                 <button type="button" class="category-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
             </div>
             <div class="category-body collapsed">
+        @if (!Model.CanManageSystemSettings)
+        {
+            <p class="hint">@Localizer["SystemSettingsReadOnly"]</p>
+        }
+        <fieldset class="settings-fieldset" style="border:none;padding:0;margin:0;min-width:0;" @(Model.CanManageSystemSettings ? "" : "disabled")>
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
@@ -893,6 +908,55 @@
             </div>
         </div>
 
+        @if (Model.IsActiveRolesAdmin)
+        {
+            <div class="settings-card">
+                        <div class="section-header collapsed" onclick="toggleSection(this)">
+                            <h2>@Localizer["Card_RoleManagement"]</h2>
+                    <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                </div>
+                <div class="section-body collapsed">
+                    <p class="hint">@Localizer["RoleManagementHint"]</p>
+                    <div class="role-matrix" style="overflow-x:auto;">
+                        <table class="role-matrix-table" style="border-collapse:collapse;width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;padding:8px;">@Localizer["Col_Permission"]</th>
+                                    @foreach (var role in Model.DisplayRoles)
+                                    {
+                                        <th style="text-align:center;padding:8px;">@Model.RoleName(role)</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var permission in Model.DisplayPermissions)
+                                {
+                                    <tr>
+                                        <td style="text-align:left;padding:8px;">@Model.PermissionName(permission)</td>
+                                        @foreach (var role in Model.DisplayRoles)
+                                        {
+                                            var isChecked = Model.RoleMatrix.TryGetValue(role, out var perms) && perms.Contains(permission);
+                                            var isFixed = Model.IsRoleFixed(role);
+                                            <td style="text-align:center;padding:8px;">
+                                                @if (isFixed)
+                                                {
+                                                    <input type="checkbox" checked disabled title="@Localizer["RoleFixedTooltip"]" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="RolePermissionGrants" value="@role:@permission" checked="@isChecked" />
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_KpiConfiguration"]</h2>
@@ -1014,12 +1078,16 @@
                 </div>
             </div>
         </div>
+        </fieldset>
             </div>
         </div>
         }
 
         <div class="settings-card">
-            <button type="submit" class="btn-save">@Localizer["SaveSettings"]</button>
+            @if (Model.CanManageUserSettings || Model.CanManageSystemSettings)
+            {
+                <button type="submit" class="btn-save">@Localizer["SaveSettings"]</button>
+            }
             @if (Model.Message != null)
             {
                 <div class="msg">@Model.Message</div>

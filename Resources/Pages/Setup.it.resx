@@ -67,7 +67,15 @@
   <data name="DisplayLanguage" xml:space="preserve"><value>Lingua di visualizzazione</value></data>
   <data name="LanguageHint" xml:space="preserve"><value>Altre lingue verranno aggiunte nel tempo. Puoi modificarla in seguito nelle Impostazioni.</value></data>
   <data name="KpiConfig" xml:space="preserve"><value>Configurazione KPI</value></data>
-  <data name="KpiSubtitle" xml:space="preserve"><value>Tutte le impostazioni KPI sono facoltative. Lascia vuoto per usare i valori predefiniti.</value></data>
+  <data name="RoleMappingConfig" xml:space="preserve"><value>Mappatura dei gruppi di ruoli</value></data>
+  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Associa i ruoli della dashboard ai gruppi di Active Directory. I membri di ciascun gruppo ottengono il ruolo corrispondente. Lasciare vuoto per usare i valori predefiniti.</value></data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Amministratori della dashboard - Filtro LDAP</value></data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>I membri ricevono il ruolo Amministratore della dashboard (autorizzazioni complete).</value></data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditor - Filtro LDAP</value></data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>I membri ricevono il ruolo Auditor.</value></data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Utenti esperti - Filtro LDAP</value></data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>I membri ricevono il ruolo Utente esperto.</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Tutte le impostazioni KPI sono facoltative. Lasciare vuoto per usare i valori predefiniti.</value></data>
   <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Amministratori Active Roles - DN di base</value></data>
   <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Amministratori Active Roles - Filtro LDAP</value></data>
   <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Senza proprietario del gruppo - DN di base</value></data>

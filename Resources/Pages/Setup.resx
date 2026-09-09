@@ -68,6 +68,14 @@
   <data name="LanguageHint" xml:space="preserve"><value>More languages will be added over time. You can change this later in Settings.</value></data>
   <data name="KpiConfig" xml:space="preserve"><value>KPI Configuration</value></data>
   <data name="KpiSubtitle" xml:space="preserve"><value>All KPI settings are optional. Leave blank to use defaults.</value></data>
+  <data name="RoleMappingConfig" xml:space="preserve"><value>Role Group Mapping</value></data>
+  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Map dashboard roles to Active Directory groups. Members of each group are granted the corresponding role. Leave blank to use defaults.</value></data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Dashboard Admins - LDAP Filter</value></data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>Members receive the Dashboard Administrator role (full permissions).</value></data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditors - LDAP Filter</value></data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>Members receive the Auditor role.</value></data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Power Users - LDAP Filter</value></data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>Members receive the Power User role.</value></data>
   <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Active Roles Admins - Base DN</value></data>
   <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Active Roles Admins - LDAP Filter</value></data>
   <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>No Group Owner - Base DN</value></data>

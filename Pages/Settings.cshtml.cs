@@ -21,7 +21,7 @@ public class SettingsModel : PageModel
     private readonly PerUserSummaryCache _summaryCache;
     private readonly ServiceAccountSecretProtector _secretProtector;
 
-    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector)
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector, RoleService roleService, DirectoryFactsResolver directoryFacts)
     {
         _arConfig = arConfig;
         _userSettingsService = userSettingsService;
@@ -29,7 +29,12 @@ public class SettingsModel : PageModel
         _localizer = localizer;
         _summaryCache = summaryCache;
         _secretProtector = secretProtector;
+        _roleService = roleService;
+        _directoryFacts = directoryFacts;
     }
+
+    private readonly RoleService _roleService;
+    private readonly DirectoryFactsResolver _directoryFacts;
 
     [BindProperty]
     public string WebInterfaceUrl { get; set; } = string.Empty;
@@ -137,20 +142,100 @@ public class SettingsModel : PageModel
     [BindProperty]
     public int LicensedTotalObjects { get; set; }
 
+    /// <summary>
+    /// Posted permission grants encoded as "Role:Permission" tokens (one per selected checkbox).
+    /// The Dashboard Administrator role is fixed to full permissions and is ignored on save.
+    /// </summary>
+    [BindProperty]
+    public List<string> RolePermissionGrants { get; set; } = new();
+
+    /// <summary>Current effective role/permission matrix (loaded from encrypted config, merged with defaults).</summary>
+    public IReadOnlyDictionary<DashboardRole, IReadOnlySet<DashboardPermission>> RoleMatrix { get; private set; }
+        = new Dictionary<DashboardRole, IReadOnlySet<DashboardPermission>>();
+
+    public IReadOnlyList<DashboardRole> DisplayRoles => RolePermissionRegistry.AllRoles;
+    public IReadOnlyList<DashboardPermission> DisplayPermissions => RolePermissionRegistry.AllPermissions;
+
+    public string RoleName(DashboardRole role) => RolePermissionRegistry.RoleDisplay[role].DefaultName;
+    public string PermissionName(DashboardPermission permission) => RolePermissionRegistry.PermissionDisplay[permission].DefaultName;
+
+    public bool IsRoleFixed(DashboardRole role) => role == DashboardRole.DashboardAdministrator;
+
     public ActiveRolesConfig Defaults => _arConfig.CurrentValue;
 
     public bool SettingsChanged { get; set; }
     public bool IsActiveRolesAdmin { get; set; }
     public bool RestartRequired { get; set; }
 
+    /// <summary>The current user's resolved effective permission set (from their dashboard role).</summary>
+    public IReadOnlySet<DashboardPermission> Permissions { get; private set; } =
+        new HashSet<DashboardPermission>();
+
+    /// <summary>True when the user may open the Settings page at all (any settings permission).</summary>
+    public bool CanAccessSettings => RolePermissionRegistry.CanAccessSettings(Permissions);
+
+    /// <summary>True when the user may view/change the User settings category.</summary>
+    public bool CanManageUserSettings => RolePermissionRegistry.CanManageUserSettings(Permissions);
+
+    /// <summary>True when the user may view the System settings category (view or manage).</summary>
+    public bool CanViewSystemSettings => RolePermissionRegistry.CanViewSystemSettings(Permissions);
+
+    /// <summary>True when the user may modify the System settings category.</summary>
+    public bool CanManageSystemSettings => RolePermissionRegistry.CanManageSystemSettings(Permissions);
+
+    /// <summary>
+    /// Resolves the current user's Active Roles admin flag, dashboard role, and effective
+    /// permission set, populating <see cref="IsActiveRolesAdmin"/> and <see cref="Permissions"/>.
+    /// Mirrors the epoch-aware session logic in <c>DashboardPageModel.InitializePageAsync</c> so
+    /// the Settings page enforces the same role facts server-side.
+    /// </summary>
+    private async Task ResolvePermissionsAsync()
+    {
+        var username = User.Identity?.Name ?? "";
+        var token = HttpContext.Session.GetString("AccessToken");
+
+        var currentEpoch = _directoryFacts.CurrentEpoch;
+        var sessionEpoch = HttpContext.Session.GetString("DirectoryFactsEpoch");
+        var sessionAdmin = HttpContext.Session.GetString("IsActiveRolesAdmin");
+        var sessionRole = HttpContext.Session.GetString("DashboardRole");
+
+        DashboardRole role;
+        if (sessionEpoch == currentEpoch.ToString()
+            && sessionAdmin != null
+            && sessionRole != null
+            && Enum.TryParse(sessionRole, out DashboardRole parsedRole))
+        {
+            IsActiveRolesAdmin = bool.TryParse(sessionAdmin, out var val) && val;
+            role = parsedRole;
+        }
+        else if (!string.IsNullOrEmpty(token))
+        {
+            var facts = await _directoryFacts.ResolveAsync(token, username);
+            IsActiveRolesAdmin = facts.IsActiveRolesAdmin;
+            role = facts.Role;
+
+            HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
+            HttpContext.Session.SetString("DashboardRole", facts.Role.ToString());
+            HttpContext.Session.SetString("DirectoryFactsEpoch", facts.Epoch.ToString());
+        }
+        else
+        {
+            // No token available; fall back to the least-privileged base role.
+            IsActiveRolesAdmin = false;
+            role = DashboardRole.User;
+        }
+
+        Permissions = _roleService.GetPermissions(role);
+    }
+
     public string? Message { get; set; }
 
-    public void OnGet()
+    public async Task OnGet()
     {
-        IsActiveRolesAdmin = bool.TryParse(HttpContext.Session.GetString("IsActiveRolesAdmin"), out var val) && val;
+        await ResolvePermissionsAsync();
         var config = _arConfig.CurrentValue;
         WebInterfaceUrl = config.WebInterfaceUrl;
-
+        RoleMatrix = _roleService.GetMatrix();
         var username = User.Identity?.Name ?? "";
         var userSettings = _userSettingsService.Load(username);
 
@@ -212,8 +297,18 @@ public class SettingsModel : PageModel
         LicensedTotalObjects = config.Licensing.TotalObjects;
     }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPost()
     {
+        await ResolvePermissionsAsync();
+
+        // Server-side authorization: a user with no settings permission cannot change anything,
+        // even by POSTing directly to the page. Re-render with the access-denied state.
+        if (!CanAccessSettings)
+        {
+            Message = _localizer["AccessDenied"];
+            return Page();
+        }
+
         if (AutoRefreshMinutes < 0)
             AutoRefreshMinutes = 0;
 
@@ -240,36 +335,45 @@ public class SettingsModel : PageModel
 
         // Detect changes to connection settings that only take effect after a restart.
         var config = _arConfig.CurrentValue;
-        RestartRequired =
+        RestartRequired = CanManageSystemSettings && (
             !string.Equals((ApiBaseUrl ?? "").Trim(), config.ApiBaseUrl ?? "", StringComparison.Ordinal) ||
             !string.Equals((RstsUrl ?? "").Trim(), config.RstsUrl ?? "", StringComparison.Ordinal) ||
             !string.Equals((Resource ?? "").Trim(), config.Resource ?? "", StringComparison.Ordinal) ||
             IgnoreSslErrors != config.IgnoreSslErrors ||
             !string.Equals((ServiceAccountUsername ?? "").Trim(), config.ServiceAccount.Username ?? "", StringComparison.Ordinal) ||
-            !string.IsNullOrEmpty(ServiceAccountPassword);
+            !string.IsNullOrEmpty(ServiceAccountPassword));
 
-        // Save visibility settings to user file
         var username = User.Identity?.Name ?? "";
-        var selectedLanguage = SupportedLanguage.All.Any(l => l.Code == Language)
-            ? Language
-            : SupportedLanguage.DefaultCode;
-        var userSettings = new UserSettings
+
+        // User settings (Language, KPI visibility, auto-refresh) require ManageUserSettings.
+        if (CanManageUserSettings)
         {
-            AutoRefreshMinutes = AutoRefreshMinutes,
-            KpiSettings = KpiSettings,
-            Language = selectedLanguage
-        };
-        _userSettingsService.Save(username, userSettings);
+            var selectedLanguage = SupportedLanguage.All.Any(l => l.Code == Language)
+                ? Language
+                : SupportedLanguage.DefaultCode;
+            var userSettings = new UserSettings
+            {
+                AutoRefreshMinutes = AutoRefreshMinutes,
+                KpiSettings = KpiSettings,
+                Language = selectedLanguage
+            };
+            _userSettingsService.Save(username, userSettings);
 
-        // Persist KPI configuration and WebInterfaceUrl to appsettings.json
-        SaveAppSettings();
+            // Also store in session for the dashboard to pick up immediately
+            HttpContext.Session.SetInt32("AutoRefreshMinutes", AutoRefreshMinutes);
+            HttpContext.Session.SetString("KpiSettings", JsonSerializer.Serialize(KpiSettings));
 
-        // Also store in session for the dashboard to pick up immediately
-        HttpContext.Session.SetInt32("AutoRefreshMinutes", AutoRefreshMinutes);
-        HttpContext.Session.SetString("KpiSettings", JsonSerializer.Serialize(KpiSettings));
+            // Clear cached dashboard data since settings changed
+            _summaryCache.Clear(username);
+        }
 
-        // Clear cached dashboard data since settings changed
-        _summaryCache.Clear(username);
+        // System settings (REST API, filters, licensing, etc.) require ManageSystemSettings. The
+        // Role/permission matrix is stricter still: only Dashboard/Active Roles admins may persist
+        // it, so pass that flag through to SaveAppSettings.
+        if (CanManageSystemSettings)
+        {
+            SaveAppSettings(persistRoleMatrix: IsActiveRolesAdmin);
+        }
 
         SettingsChanged = true;
         Message = _localizer["SavedSuccessfully"];
@@ -277,7 +381,7 @@ public class SettingsModel : PageModel
         return Page();
     }
 
-    private void SaveAppSettings()
+    private void SaveAppSettings(bool persistRoleMatrix)
     {
         var appSettingsPath = Path.Combine(_env.ContentRootPath, "appsettings.json");
         var json = System.IO.File.ReadAllText(appSettingsPath);
@@ -330,6 +434,39 @@ public class SettingsModel : PageModel
                 defaultFilters["ActiveRolesAdmins"] = DefaultActiveRolesAdminsFilter?.Trim() ?? "";
                 defaultFilters["ADUserAccounts"] = DefaultADUserAccountsFilter?.Trim() ?? "";
                 defaultFilters["ADGroups"] = DefaultADGroupsFilter?.Trim() ?? "";
+
+                // Role/permission matrix. Rebuild from posted "Role:Permission" grants, ignoring
+                // unknown tokens. The Dashboard Administrator role is fixed to full permissions
+                // and cannot be edited; ProtectMatrix re-forces it regardless of posted values.
+                // Only Dashboard/Active Roles admins may persist the matrix, so skip this write
+                // entirely for non-admins (their POST cannot alter role assignments).
+                if (persistRoleMatrix)
+                {
+                    var newMatrix = new Dictionary<DashboardRole, IReadOnlySet<DashboardPermission>>();
+                    foreach (var role in RolePermissionRegistry.AllRoles)
+                    {
+                        newMatrix[role] = new HashSet<DashboardPermission>();
+                    }
+                    foreach (var grant in RolePermissionGrants ?? new List<string>())
+                    {
+                        if (string.IsNullOrWhiteSpace(grant)) continue;
+                        var parts = grant.Split(':', 2);
+                        if (parts.Length != 2) continue;
+                        if (Enum.TryParse<DashboardRole>(parts[0], out var role) &&
+                            Enum.TryParse<DashboardPermission>(parts[1], out var permission) &&
+                            newMatrix.TryGetValue(role, out var set) && set is HashSet<DashboardPermission> hs)
+                        {
+                            hs.Add(permission);
+                        }
+                    }
+                    var rolesSection = activeRoles["Roles"]?.AsObject();
+                    if (rolesSection is null)
+                    {
+                        rolesSection = new JsonObject();
+                        activeRoles["Roles"] = rolesSection;
+                    }
+                    rolesSection["ProtectedMatrix"] = _roleService.ProtectMatrix(newMatrix);
+                }
 
                 // App-wide default language
                 activeRoles["DefaultLanguage"] = DefaultLanguage?.Trim() ?? "";

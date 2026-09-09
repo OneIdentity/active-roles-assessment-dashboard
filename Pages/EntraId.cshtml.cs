@@ -34,14 +34,20 @@ public class EntraIdModel : DashboardPageModel
             // full membership batch load after its server-progress poll reloads the page.
             if (!await ReconcileCachedMembershipWithSupersetAsync(GetAccessToken()!))
                 ApplyActiveSegmentFilter();
-
-            return Page();
+        }
+        else
+        {
+            // Cache miss (e.g. first navigation lands here directly, or the per-user cache expired):
+            // build the full per-user summary from the shared superset projection and cache it.
+            var token = GetAccessToken()!;
+            await LoadFullSummaryAsync(token);
         }
 
-        // Cache miss (e.g. first navigation lands here directly, or the per-user cache expired):
-        // build the full per-user summary from the shared superset projection and cache it.
-        var token = GetAccessToken()!;
-        await LoadFullSummaryAsync(token);
+        // Gate the dashboard: the viewer must either hold the View Entra ID dashboard permission or
+        // have delegated visibility to some Entra data. Otherwise redirect back to the main
+        // dashboard so the page cannot be reached by navigating directly to the URL.
+        if (!CanViewEntraIdDashboard)
+            return RedirectToPage("/Index");
 
         return Page();
     }

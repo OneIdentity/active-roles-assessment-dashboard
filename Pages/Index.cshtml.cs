@@ -63,7 +63,7 @@ public class IndexModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
-        if (!IsActiveRolesAdmin)
+        if (!CanRebuildCache)
             return Forbid();
 
         HttpContext.RequestServices
@@ -90,7 +90,7 @@ public class IndexModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return new JsonResult(new { authorized = false });
 
-        if (!IsActiveRolesAdmin)
+        if (!CanRebuildCache)
             return new JsonResult(new { authorized = false });
 
         return new JsonResult(new

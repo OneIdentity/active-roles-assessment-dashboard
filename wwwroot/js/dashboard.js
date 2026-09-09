@@ -756,6 +756,19 @@ initCategoryCharts();
     // Already loaded server-side (e.g. back-navigation with cached enriched data): nothing to do.
     if (config.getAttribute('data-loaded') === 'true') return;
 
+    // A cache rebuild takes precedence over membership loading. Because a rebuild is a form POST
+    // that redirects back here with a full page reload, the live in-memory flag is lost; the
+    // sessionStorage marker (set on the Rebuild Cache click) survives that reload. If a rebuild is
+    // active, don't start loading at all: the rebuild republishes the whole superset (including
+    // membership) and owns the final refresh and toasts.
+    var rebuildActive = window.cacheRebuildInFlight === true;
+    try { rebuildActive = rebuildActive || sessionStorage.getItem('cacheRebuildInFlight') === '1'; } catch (e) { }
+    if (rebuildActive) {
+        window.cacheRebuildInFlight = true;
+        if (window.membershipBadge) window.membershipBadge.hide();
+        return;
+    }
+
     var endpoint = config.getAttribute('data-endpoint');
     var batchEndpoint = config.getAttribute('data-batch-endpoint');
     if (!endpoint && !batchEndpoint) return;
@@ -872,12 +885,24 @@ initCategoryCharts();
         if (window.showToast) window.showToast(strings.toastLoading, 'info');
 
         var pollProgress = function () {
+            // If a cache rebuild was triggered (e.g. the user clicked Rebuild Cache while
+            // membership was still loading), yield: the rebuild republishes the whole superset
+            // (including membership) and owns the final page refresh. Stop polling and don't
+            // reload, so the two flows don't compete or double-fire toasts.
+            if (window.cacheRebuildInFlight) {
+                if (window.membershipBadge) window.membershipBadge.hide();
+                return;
+            }
             fetch(progressEndpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (resp) {
                     if (!resp.ok) throw new Error('HTTP ' + resp.status);
                     return resp.json();
                 })
                 .then(function (data) {
+                    if (window.cacheRebuildInFlight) {
+                        if (window.membershipBadge) window.membershipBadge.hide();
+                        return;
+                    }
                     var remaining = (typeof data.remaining === 'number') ? data.remaining : 0;
                     if (window.membershipBadge) window.membershipBadge.set(remaining);
 
@@ -907,6 +932,10 @@ initCategoryCharts();
                 return resp.json();
             })
             .then(function (data) {
+                if (window.cacheRebuildInFlight) {
+                    if (window.membershipBadge) window.membershipBadge.hide();
+                    return;
+                }
                 renderRows('emptyGroups', data.emptyGroups);
                 renderRows('noGroupOwner', data.noGroupOwner);
                 renderRows('guestContaining', data.guestContaining);
@@ -955,12 +984,24 @@ initCategoryCharts();
     }
 
     function loadBatch(skip) {
+        // A cache rebuild takes precedence: it republishes the whole superset (including
+        // membership) and owns the final refresh/toast. Stop the batch chain and yield.
+        if (window.cacheRebuildInFlight) {
+            cancelStartToast();
+            if (window.membershipBadge) window.membershipBadge.hide();
+            return;
+        }
         fetch(batchUrl(skip, batchSize), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(function (resp) {
                 if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 return resp.json();
             })
             .then(function (data) {
+                if (window.cacheRebuildInFlight) {
+                    cancelStartToast();
+                    if (window.membershipBadge) window.membershipBadge.hide();
+                    return;
+                }
                 // Payloads are cumulative (recomputed from all groups loaded so far).
                 renderRows('emptyGroups', data.emptyGroups);
                 renderRows('noGroupOwner', data.noGroupOwner);

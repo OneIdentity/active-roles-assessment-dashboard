@@ -100,6 +100,9 @@ tbody tr:hover { background: #f8fafc; }
 .loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: #374151; }
 .spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* Spin the rebuild-cache icon while a rebuild is in progress, mirroring the Entra
+   group-membership loading indicator. */
+.btn-icon.btn-icon-spinning svg { animation: spin 1.6s linear infinite; transform-origin: center; }
 .category-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; margin-top: 18px; }
 .category-charts-toolbar { display: flex; justify-content: flex-end; margin-top: 18px; }
 .btn-chart-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 8px; color: #374151; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: background .15s, border-color .15s; }
@@ -193,6 +196,7 @@ tbody tr:hover { background: #f8fafc; }
 .snap-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; text-decoration: none; }
 .snap-icon-btn:hover { background: #f3f4f6; color: #111827; }
 .snap-icon-danger { color: #b91c1c; border-color: #fecaca; }
+.snap-icon-btn:disabled, .snap-icon-btn.snap-icon-disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .snap-icon-danger:hover { background: #fef2f2; color: #991b1b; }
 /* Change-column directional indicators */
 .snap-ind { display: inline-block; margin-right: 4px; font-size: .78rem; }
@@ -334,8 +338,11 @@ tbody tr:hover { background: #f8fafc; }
 .exp-cmp-summary { display: flex; flex-wrap: wrap; gap: 16px; font-size: .82rem; font-weight: 600; margin-bottom: 8px; }
 .exp-cmp-tactics { display: flex; flex-direction: column; gap: 16px; }
 .exp-cmp-tactic-head { font-weight: 700; color: #111827; margin-bottom: 4px; }
-.exp-cmp-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
-.exp-cmp-table th, .exp-cmp-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #f0f1f3; }
+.exp-cmp-table { width: 100%; border-collapse: collapse; font-size: .8rem; table-layout: fixed; }
+.exp-cmp-table th, .exp-cmp-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #f0f1f3; overflow: hidden; text-overflow: ellipsis; }
+.exp-cmp-table col.exp-col-tech { width: auto; }
+.exp-cmp-table col.exp-col-level { width: 22%; }
+.exp-cmp-table col.exp-col-arrow { width: 8%; }
 .exp-cmp-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: #6b7280; }
 .exp-cmp-arrow { text-align: center; font-weight: 700; }
 .exp-cmp-tid { color: #6b7280; font-family: monospace; margin-right: 6px; }

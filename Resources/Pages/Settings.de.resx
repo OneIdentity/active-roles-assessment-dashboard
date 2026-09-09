@@ -87,6 +87,12 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Einstellungen speichern</value>
   </data>
+  <data name="AccessDenied" xml:space="preserve">
+	<value>Sie haben keine Berechtigung, Einstellungen anzuzeigen oder zu ändern.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+	<value>Sie können diese Systemeinstellungen anzeigen, aber nicht ändern.</value>
+  </data>
   <data name="Card_RestApi" xml:space="preserve">
 	<value>REST-API-Konfiguration</value>
   </data>
@@ -98,6 +104,18 @@
   </data>
   <data name="Card_DefaultFilters" xml:space="preserve">
 	<value>Standardfilter</value>
+  </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+    <value>Rollenverwaltung</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+    <value>Weisen Sie jeder Rolle Berechtigungen zu. Rollen und Berechtigungen sind fest vorgegeben. Die Rolle „Dashboard-Administrator“ besitzt stets alle Berechtigungen und kann nicht geändert werden.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+    <value>Berechtigung</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+    <value>Die Rolle „Dashboard-Administrator“ besitzt stets alle Berechtigungen und kann nicht geändert werden.</value>
   </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
 	<value>Filter für Gruppen ohne Besitzer</value>

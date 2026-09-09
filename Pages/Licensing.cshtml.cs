@@ -31,9 +31,10 @@ public class LicensingModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
-        // Gate the whole dashboard: only Active Roles admins and viewers granted read on
-        // edsManagedObjectStatisticsData (List Object + Read objectClass, or Read all properties)
-        // may see Licensing. Everyone else is sent back to the main dashboard.
+        // Gate the whole dashboard: a viewer may see Licensing when they hold the View Licensing
+        // dashboard permission, are an Active Roles admin, or are granted read on
+        // edsManagedObjectStatisticsData (List Object + Read objectClass, or Read all properties).
+        // Everyone else is sent back to the main dashboard so the page cannot be reached by URL.
         if (!await CanViewLicensingAsync(HttpContext.RequestAborted))
             return RedirectToPage("/Index");
 

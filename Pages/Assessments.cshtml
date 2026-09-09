@@ -62,7 +62,7 @@
                     <span>@Localizer["LabelOptional"]</span>
                     <input type="text" name="label" maxlength="80" placeholder="@Localizer["LabelPlaceholder"]" class="snap-input" />
                 </label>
-                <button type="submit" class="snap-btn snap-btn-primary" id="asmtRunBtn">@Localizer["RunAndSave"]</button>
+                <button type="submit" class="snap-btn snap-btn-primary" id="asmtRunBtn"@(Model.CanRunAndSaveAssessments ? "" : " disabled")>@Localizer["RunAndSave"]</button>
             </form>
         </section>
 
@@ -95,7 +95,7 @@
                             }
                         </select>
                     </label>
-                    <button type="submit" class="snap-btn snap-btn-primary" id="asmtCompareBtn">@Localizer["Compare"]</button>
+                    <button type="submit" class="snap-btn snap-btn-primary" id="asmtCompareBtn"@(Model.CanCompareAssessments ? "" : " disabled")>@Localizer["Compare"]</button>
                 </form>
             }
         </section>
@@ -174,16 +174,22 @@
                                 <a href="@(pathBase)/Assessments?Type=@Model.Type&Id=@h.Id" class="snap-icon-btn" title="@Localizer["ViewAssessment"]" aria-label="@Localizer["ViewAssessment"]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <a href="@(pathBase)/Assessments?Type=@Model.Type&FromId=@h.Id&ToId=current" class="snap-icon-btn asmt-compare-link" title="@Localizer["CompareToCurrent"]" aria-label="@Localizer["CompareToCurrent"]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                                </a>
-                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('@Localizer["ConfirmDelete"]');">
-                                    <input type="hidden" name="id" value="@h.Id" />
-                                    <input type="hidden" name="Type" value="@Model.Type" />
-                                    <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["DeleteAssessment"]" aria-label="@Localizer["DeleteAssessment"]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                                    </button>
-                                </form>
+                                @if (Model.CanCompareAssessments)
+                                {
+                                    <a href="@(pathBase)/Assessments?Type=@Model.Type&FromId=@h.Id&ToId=current" class="snap-icon-btn asmt-compare-link" title="@Localizer["CompareToCurrent"]" aria-label="@Localizer["CompareToCurrent"]">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                    </a>
+                                }
+                                @if (Model.CanDeleteAssessments)
+                                {
+                                    <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('@Localizer["ConfirmDelete"]');">
+                                        <input type="hidden" name="id" value="@h.Id" />
+                                        <input type="hidden" name="Type" value="@Model.Type" />
+                                        <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["DeleteAssessment"]" aria-label="@Localizer["DeleteAssessment"]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }
@@ -281,26 +287,29 @@
                     @if (a.NotApplicableCount > 0) { <span class="snap-pill">@a.NotApplicableCount @Localizer["NotApplicableShort"]</span> }
                 </div>
             </div>
-            <div class="asmt-export">
-                <form method="post" asp-page-handler="Export" class="snap-inline-form">
-                    <input type="hidden" name="id" value="@a.Id" />
-                    <input type="hidden" name="Type" value="@a.Type" />
-                    <input type="hidden" name="format" value="Pdf" />
-                    <button type="submit" class="snap-icon-btn" title="@Localizer["SaveAsPdf"]" aria-label="@Localizer["SaveAsPdf"]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <span class="asmt-export-label">PDF</span>
-                    </button>
-                </form>
-                <form method="post" asp-page-handler="Export" class="snap-inline-form">
-                    <input type="hidden" name="id" value="@a.Id" />
-                    <input type="hidden" name="Type" value="@a.Type" />
-                    <input type="hidden" name="format" value="Word" />
-                    <button type="submit" class="snap-icon-btn" title="@Localizer["SaveAsWord"]" aria-label="@Localizer["SaveAsWord"]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-                        <span class="asmt-export-label">Word</span>
-                    </button>
-                </form>
-            </div>
+            @if (Model.CanExportAssessments)
+            {
+                <div class="asmt-export">
+                    <form method="post" asp-page-handler="Export" class="snap-inline-form">
+                        <input type="hidden" name="id" value="@a.Id" />
+                        <input type="hidden" name="Type" value="@a.Type" />
+                        <input type="hidden" name="format" value="Pdf" />
+                        <button type="submit" class="snap-icon-btn" title="@Localizer["SaveAsPdf"]" aria-label="@Localizer["SaveAsPdf"]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span class="asmt-export-label">PDF</span>
+                        </button>
+                    </form>
+                    <form method="post" asp-page-handler="Export" class="snap-inline-form">
+                        <input type="hidden" name="id" value="@a.Id" />
+                        <input type="hidden" name="Type" value="@a.Type" />
+                        <input type="hidden" name="format" value="Word" />
+                        <button type="submit" class="snap-icon-btn" title="@Localizer["SaveAsWord"]" aria-label="@Localizer["SaveAsWord"]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                            <span class="asmt-export-label">Word</span>
+                        </button>
+                    </form>
+                </div>
+            }
         </section>
 
         @foreach (var category in a.Categories)
@@ -400,10 +409,14 @@
         var typeSelect = document.getElementById('asmtTypeSelect');
         var runBtn = document.getElementById('asmtRunBtn');
         var membershipPending = typeSelect && typeSelect.getAttribute('data-membership-pending') === 'true';
+        // Preserve a server-applied permission disable: users lacking RunAndSaveAssessments must
+        // never have the Run button re-enabled by the membership-loading sync below.
+        var runLockedByPermission = !!(runBtn && runBtn.disabled);
 
         // True when the currently selected assessment is blocked because it depends on Entra
         // group membership that is still loading.
         function isRunBlocked() {
+            if (runLockedByPermission) return true;
             if (!membershipPending || !typeSelect) return false;
             var opt = typeSelect.options[typeSelect.selectedIndex];
             return !!(opt && opt.getAttribute('data-entra-dependent') === 'true');
@@ -427,8 +440,11 @@
         var compareBtn = document.getElementById('asmtCompareBtn');
         var compareForm = document.getElementById('asmtCompareForm');
         if (fromSel && toSel && compareBtn) {
+            // Preserve a server-applied permission disable: users lacking CompareAssessments must
+            // never have the button re-enabled by the same-run check below.
+            var compareLockedByPermission = compareBtn.disabled;
             var syncCompare = function () {
-                compareBtn.disabled = (fromSel.value === toSel.value);
+                compareBtn.disabled = compareLockedByPermission || (fromSel.value === toSel.value);
             };
             fromSel.addEventListener('change', syncCompare);
             toSel.addEventListener('change', syncCompare);

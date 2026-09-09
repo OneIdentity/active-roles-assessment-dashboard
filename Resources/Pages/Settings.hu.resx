@@ -27,6 +27,18 @@
   <data name="Card_KpiConfiguration" xml:space="preserve">
 	<value>KPI konfiguráció</value>
   </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+	<value>Szerepkörkezelés</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+	<value>Rendeljen jogosultságokat az egyes szerepkörökhöz. A szerepkörök és a jogosultságok rögzítettek. Az Irányítópult-rendszergazda szerepkör mindig teljes jogosultsággal rendelkezik, és nem módosítható.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+	<value>Jogosultság</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+	<value>Az Irányítópult-rendszergazda szerepkör mindig teljes jogosultsággal rendelkezik, és nem módosítható.</value>
+  </data>
   <data name="Card_KpiVisibility" xml:space="preserve">
 	<value>KPI láthatóság</value>
   </data>

@@ -991,6 +991,11 @@ public class ActiveRolesConfig
     // Background superset/data refresh scheduling. Kept separate from ServiceAccount
     // because it concerns the refresh schedule, not the collection credentials.
     public DataRefreshConfig DataRefresh { get; set; } = new();
+
+    // Role/permission model. The per-role permission assignments are stored ENCRYPTED as a
+    // single Data-Protection blob (see RoleService); the fixed roles/permissions themselves are
+    // defined in code (RolePermissionRegistry) and cannot be added to or removed.
+    public RolesConfig Roles { get; set; } = new();
 }
 
 /// <summary>
@@ -1007,6 +1012,23 @@ public class ServiceAccountConfig
     /// Use the one-time protect utility to produce this value.
     /// </summary>
     public string ProtectedPassword { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Persistence container for the editable role/permission matrix. The matrix is serialized to
+/// JSON and stored ENCRYPTED via ASP.NET Core Data Protection in <see cref="ProtectedMatrix"/>
+/// (see <c>RoleService</c> for encode/decode). The fixed roles and permissions themselves are
+/// defined in code (<c>RolePermissionRegistry</c>); only the per-role permission assignments are
+/// editable, and the Dashboard Administrator row is always full permissions. When
+/// <see cref="ProtectedMatrix"/> is empty the default matrix from the registry is used.
+/// </summary>
+public class RolesConfig
+{
+    /// <summary>
+    /// The role -> permission matrix serialized to JSON and protected via Data Protection.
+    /// Empty means "not configured" - the code default matrix is used.
+    /// </summary>
+    public string ProtectedMatrix { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -1041,8 +1063,22 @@ public class DefaultFiltersConfig
     public string UserAccountExpired { get; set; } = "(&(objectClass=user)(objectCategory=person)(edsvaAccountIsExpired=TRUE))";
     public string UserAccountLockedOut { get; set; } = "(&(objectClass=user)(objectCategory=person)(lockoutTime>=1))";
     public string EmptyGroups { get; set; } = "(&(objectClass=group)(!(member=*)))";
-    public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=YOUR-ADMIN-GROUP))";
-    public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
+public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=YOUR-ADMIN-GROUP))";
+
+/// <summary>
+/// Resolves the Dashboard Admins role group whose members are assigned the Dashboard
+/// Administrator role. Note: Active Roles admins are always Dashboard Administrators
+/// regardless of this group, so membership here is not required for them.
+/// </summary>
+public string DashboardAdmins { get; set; } = "(&(objectClass=group)(name=APP-DASHBOARD-ADMINS))";
+
+/// <summary>Resolves the Auditors role group whose members are assigned the Auditor role.</summary>
+public string Auditors { get; set; } = "(&(objectClass=group)(name=APP-DASHBOARD-AUDITORS))";
+
+/// <summary>Resolves the Power Users role group whose members are assigned the Power User role.</summary>
+public string PowerUsers { get; set; } = "(&(objectClass=group)(name=APP-DASHBOARD-POWERUSERS))";
+
+public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
     public string ADGroups { get; set; } = "(objectClass=group)";
 
     /// <summary>

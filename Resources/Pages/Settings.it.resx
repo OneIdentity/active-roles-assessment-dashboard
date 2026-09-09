@@ -96,6 +96,18 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
     <value>Filtri predefiniti</value>
   </data>
+  <data name="Card_RoleManagement" xml:space="preserve">
+    <value>Gestione dei ruoli</value>
+  </data>
+  <data name="RoleManagementHint" xml:space="preserve">
+    <value>Assegna le autorizzazioni a ciascun ruolo. I ruoli e le autorizzazioni sono fissi. Il ruolo Amministratore della dashboard dispone sempre di tutte le autorizzazioni e non può essere modificato.</value>
+  </data>
+  <data name="Col_Permission" xml:space="preserve">
+    <value>Autorizzazione</value>
+  </data>
+  <data name="RoleFixedTooltip" xml:space="preserve">
+    <value>Il ruolo Amministratore della dashboard dispone sempre di tutte le autorizzazioni e non può essere modificato.</value>
+  </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
     <value>Filtro gruppi senza proprietario</value>
   </data>

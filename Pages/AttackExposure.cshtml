@@ -107,10 +107,10 @@
         }
         else
         {
-            <form method="get" class="exp-compare-form">
+            <form method="get" class="exp-compare-form" id="expCompareForm">
                 <label>
                     @Localizer["Baseline"]
-                    <select name="FromId">
+                    <select name="FromId" id="expFromId"@(Model.CanCompareExposureReports ? "" : " disabled")>
                         <option value="">@Localizer["SelectPlaceholder"]</option>
                         @foreach (var s in Model.Snapshots)
                         {
@@ -123,7 +123,7 @@
                 </label>
                 <label>
                     @Localizer["CompareTo"]
-                    <select name="ToId">
+                    <select name="ToId" id="expToId"@(Model.CanCompareExposureReports ? "" : " disabled")>
                         <option value="current" selected="@(Model.ToId == "current" || string.IsNullOrEmpty(Model.ToId))">@Localizer["CurrentLive"]</option>
                         @foreach (var s in Model.Snapshots)
                         {
@@ -134,7 +134,7 @@
                         }
                     </select>
                 </label>
-                <button type="submit" class="snap-btn snap-btn-primary">@Localizer["Compare"]</button>
+                <button type="submit" id="expCompareBtn"@(Model.CanCompareExposureReports ? "" : " disabled") class="snap-btn snap-btn-primary">@Localizer["Compare"]</button>
             </form>
 
             @if (Model.Comparison != null)
@@ -160,6 +160,12 @@
                                 <span class="atk-tactic-id">@MitreTacticInfo.Id(t.Tactic)</span>
                             </div>
                             <table class="exp-cmp-table">
+                                <colgroup>
+                                    <col class="exp-col-tech" />
+                                    <col class="exp-col-level" />
+                                    <col class="exp-col-arrow" />
+                                    <col class="exp-col-level" />
+                                </colgroup>
                                 <thead>
                                     <tr><th>@Localizer["Col_Technique"]</th><th>@Localizer["Col_Baseline"]</th><th></th><th>@Localizer["Col_Compared"]</th></tr>
                                 </thead>
@@ -252,5 +258,22 @@
 </div>
 @await Html.PartialAsync("_ToastAndMembership")
 <script src="js/dashboard.js" asp-append-version="true"></script>
+    <script>
+        // Keep the Compare button disabled until a Baseline snapshot is chosen (the baseline
+        // has a "select" placeholder with an empty value). The server also rejects an empty
+        // FromId, and users without CompareExposureReports are gated separately.
+        (function () {
+            var canCompare = @(Model.CanCompareExposureReports ? "true" : "false");
+            var fromSel = document.getElementById('expFromId');
+            var compareBtn = document.getElementById('expCompareBtn');
+            if (fromSel && compareBtn) {
+                var syncCompare = function () {
+                    compareBtn.disabled = !canCompare || !fromSel.value;
+                };
+                fromSel.addEventListener('change', syncCompare);
+                syncCompare();
+            }
+        })();
+    </script>
 </body>
 </html>

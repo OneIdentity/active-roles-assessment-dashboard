@@ -67,7 +67,15 @@
   <data name="DisplayLanguage" xml:space="preserve"><value>Idioma de visualización</value></data>
   <data name="LanguageHint" xml:space="preserve"><value>Se añadirán más idiomas con el tiempo. Puede cambiarlo más adelante en Configuración.</value></data>
   <data name="KpiConfig" xml:space="preserve"><value>Configuración de KPI</value></data>
-  <data name="KpiSubtitle" xml:space="preserve"><value>Todas las configuraciones de KPI son opcionales. Déjelo en blanco para usar los valores predeterminados.</value></data>
+  <data name="RoleMappingConfig" xml:space="preserve"><value>Asignación de grupos de roles</value></data>
+  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Asigne roles del panel a grupos de Active Directory. Los miembros de cada grupo reciben el rol correspondiente. Deje en blanco para usar los valores predeterminados.</value></data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Administradores del panel: filtro LDAP</value></data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>Los miembros reciben el rol de Administrador del panel (todos los permisos).</value></data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditores: filtro LDAP</value></data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>Los miembros reciben el rol de Auditor.</value></data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Usuarios avanzados: filtro LDAP</value></data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>Los miembros reciben el rol de Usuario avanzado.</value></data>
+  <data name="KpiSubtitle" xml:space="preserve"><value>Todos los ajustes de KPI son opcionales. Deje en blanco para usar los valores predeterminados.</value></data>
   <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Administradores de Active Roles - DN base</value></data>
   <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Administradores de Active Roles - Filtro LDAP</value></data>
   <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Sin propietario de grupo - DN base</value></data>

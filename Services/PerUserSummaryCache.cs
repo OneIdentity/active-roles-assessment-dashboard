@@ -26,7 +26,27 @@ public sealed class PerUserSummaryCache
     // Aligned with the session IdleTimeout (see AddSession in Program.cs).
     private static readonly TimeSpan Lifetime = TimeSpan.FromHours(8);
 
+    // Monotonic "directory facts" epoch. Incremented whenever the shared superset is (re)published,
+    // signalling that directory-derived per-user facts (the Active Roles admin flag and dashboard
+    // role) may be stale and must be re-evaluated. Cached admin/role values carry the epoch at which
+    // they were resolved and are treated as absent once the epoch advances. This gives O(1) global
+    // invalidation across all users without enumerating cache keys.
+    private long _directoryFactsEpoch;
+
     public PerUserSummaryCache(IMemoryCache cache) => _cache = cache;
+
+    /// <summary>
+    /// The current directory-facts epoch. Callers that persist the admin flag / role elsewhere
+    /// (e.g. in Session) should record this alongside the value and discard the value when the
+    /// epoch no longer matches <see cref="DirectoryFactsEpoch"/>.
+    /// </summary>
+    public long DirectoryFactsEpoch => Interlocked.Read(ref _directoryFactsEpoch);
+
+    /// <summary>
+    /// Advances the directory-facts epoch, invalidating every user's cached admin flag and role so
+    /// they are re-evaluated on next use. Called after a superset (re)build.
+    /// </summary>
+    public void InvalidateDirectoryFacts() => Interlocked.Increment(ref _directoryFactsEpoch);
 
     /// <summary>Gets the cached full dashboard summary JSON for the user, or null if absent.</summary>
     public string? GetSummary(string user) => Read(SummaryKey(user));
@@ -45,11 +65,22 @@ public sealed class PerUserSummaryCache
     /// resolved. Cached at app scope (not Session) so it survives logout/login and the directory
     /// membership check runs at most once per cache lifetime rather than on every login.
     /// </summary>
-    public bool? GetAdmin(string user) => _cache.TryGetValue(AdminKey(user), out bool value) ? value : null;
+    public bool? GetAdmin(string user) => _cache.TryGetValue(AdminKey(user), out (long Epoch, bool Value) e) && e.Epoch == DirectoryFactsEpoch ? e.Value : null;
 
     /// <summary>Stores the resolved "is Active Roles administrator" flag for the user.</summary>
     public void SetAdmin(string user, bool isAdmin) =>
-        _cache.Set(AdminKey(user), isAdmin, new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
+        _cache.Set(AdminKey(user), (DirectoryFactsEpoch, isAdmin), new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
+
+    /// <summary>
+    /// Gets the cached resolved dashboard role name for the user, or null if not yet resolved.
+    /// Cached at app scope (not Session) alongside the admin flag so the role-group membership
+    /// checks run at most once per cache lifetime rather than on every login.
+    /// </summary>
+    public string? GetRole(string user) => _cache.TryGetValue(RoleKey(user), out (long Epoch, string? Value) e) && e.Epoch == DirectoryFactsEpoch ? e.Value : null;
+
+    /// <summary>Stores the resolved dashboard role name for the user.</summary>
+    public void SetRole(string user, string role) =>
+        _cache.Set(RoleKey(user), (DirectoryFactsEpoch, role), new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
 
     /// <summary>
     /// Gets the cached organization-wide "is Exchange deployed" flag, or null if not yet resolved.
@@ -67,6 +98,7 @@ public sealed class PerUserSummaryCache
         _cache.Remove(SummaryKey(user));
         _cache.Remove(OverviewKey(user));
         _cache.Remove(AdminKey(user));
+        _cache.Remove(RoleKey(user));
     }
 
     private const string ExchangeDeployedKey = "org-exchange-deployed";
@@ -81,6 +113,8 @@ public sealed class PerUserSummaryCache
     private static string OverviewKey(string user) => $"pu-overview::{Normalize(user)}";
 
     private static string AdminKey(string user) => $"pu-admin::{Normalize(user)}";
+
+    private static string RoleKey(string user) => $"pu-role::{Normalize(user)}";
 
     private static string Normalize(string user) => (user ?? string.Empty).ToLowerInvariant();
 }
