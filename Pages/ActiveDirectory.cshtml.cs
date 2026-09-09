@@ -29,13 +29,20 @@ public class ActiveDirectoryModel : DashboardPageModel
         {
             Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
             ApplyActiveSegmentFilter();
-            return Page();
+        }
+        else
+        {
+            // Cache miss (e.g. first navigation lands here directly, or the per-user cache expired):
+            // build the full per-user summary from the shared superset projection and cache it.
+            var token = GetAccessToken()!;
+            await LoadFullSummaryAsync(token);
         }
 
-        // Cache miss (e.g. first navigation lands here directly, or the per-user cache expired):
-        // build the full per-user summary from the shared superset projection and cache it.
-        var token = GetAccessToken()!;
-        await LoadFullSummaryAsync(token);
+        // Gate the dashboard: the viewer must either hold the View Active Directory dashboard
+        // permission or have delegated visibility to some AD data. Otherwise redirect back to the
+        // main dashboard so the page cannot be reached by navigating directly to the URL.
+        if (!CanViewActiveDirectoryDashboard)
+            return RedirectToPage("/Index");
 
         return Page();
     }

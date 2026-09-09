@@ -65,16 +65,17 @@
                 if (!Model.CanViewActiveRolesDashboard) { continue; }
             }
             else if (dash.RequiresAdmin && !Model.IsActiveRolesAdmin) { continue; }
-            // Hide the Active Directory tile when no domain is selected, and the Entra ID
-            // tile when no tenant is selected (empty selection resolves to "none").
-            if (dash.Key == "ActiveDirectory" && !Model.Summary.AdVisible) { continue; }
-            if (dash.Key == "EntraId" && !Model.Summary.EntraVisible) { continue; }
-            // Hide the Licensing tile from viewers without read access to
-            // edsManagedObjectStatisticsData (admins always keep it).
-            if (dash.Key == "Licensing" && !Model.Summary.LicensingVisible) { continue; }
-            // Hide the Exchange tile unless Exchange is deployed AND the viewer is an AR admin or a
-            // member of an Exchange administrative group (Organization Management / View-Only).
-            if (dash.Key == "Exchange" && !Model.Summary.ExchangeVisible) { continue; }
+            // The Active Directory and Entra ID dashboards are visible when the user's role grants
+            // the corresponding View permission, OR when they have delegated visibility to some of
+            // that data (at least one in-scope domain/tenant). Otherwise the tile is hidden.
+            if (dash.Key == "ActiveDirectory" && !Model.CanViewActiveDirectoryDashboard) { continue; }
+            if (dash.Key == "EntraId" && !Model.CanViewEntraIdDashboard) { continue; }
+            // The Licensing dashboard is visible when the user has the View Licensing permission or
+            // delegated read on the licensing statistics data (admins always keep it).
+            if (dash.Key == "Licensing" && !Model.CanViewLicensingDashboard) { continue; }
+            // The Exchange dashboard is visible when Exchange is deployed AND the viewer has the View
+            // Exchange permission, is an AR admin, or is a member of an Exchange administrative group.
+            if (dash.Key == "Exchange" && !Model.CanViewExchangeDashboard) { continue; }
             <a href="@(HttpContext.Request.PathBase)@dash.Url" class="dashboard-tile">
                 <img src="@dash.Image" alt="@dash.Title" />
                 <h3>@dash.Title</h3>

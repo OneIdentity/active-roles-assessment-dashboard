@@ -86,6 +86,53 @@ public abstract class DashboardPageModel : PageModel
     public bool CanViewActiveRolesDashboard =>
         IsActiveRolesAdmin || HasPermission(DashboardPermission.ViewActiveRolesDashboard);
 
+    /// <summary>
+    /// True when the user may view the Active Directory dashboard. A user sees it when their role
+    /// grants <see cref="DashboardPermission.ViewActiveDirectoryDashboard"/>, OR when they have
+    /// delegated visibility to some AD data (at least one in-scope domain, i.e.
+    /// <see cref="DashboardSummary.AdVisible"/>). If neither holds, the dashboard is hidden and
+    /// direct navigation is blocked. Note: this depends on <see cref="Summary"/> being populated,
+    /// so evaluate it after the summary has been loaded.
+    /// </summary>
+    public bool CanViewActiveDirectoryDashboard =>
+        HasPermission(DashboardPermission.ViewActiveDirectoryDashboard) || Summary.AdVisible;
+
+    /// <summary>
+    /// True when the user may view the Entra ID dashboard. A user sees it when their role grants
+    /// <see cref="DashboardPermission.ViewEntraIdDashboard"/>, OR when they have delegated
+    /// visibility to some Entra data (at least one in-scope tenant, i.e.
+    /// <see cref="DashboardSummary.EntraVisible"/>). If neither holds, the dashboard is hidden and
+    /// direct navigation is blocked. Note: this depends on <see cref="Summary"/> being populated,
+    /// so evaluate it after the summary has been loaded.
+    /// </summary>
+    public bool CanViewEntraIdDashboard =>
+        HasPermission(DashboardPermission.ViewEntraIdDashboard) || Summary.EntraVisible;
+
+    /// <summary>
+    /// True when the user may view the Licensing dashboard. A user sees it when their role grants
+    /// <see cref="DashboardPermission.ViewLicensingDashboard"/>, OR when they have delegated read
+    /// visibility to the licensing statistics data. This mirrors the value computed into
+    /// <see cref="DashboardSummary.LicensingVisible"/> by the summary loader (which already folds in
+    /// the View permission, Active Roles admin, and the delegated-read check), so the tile, page
+    /// guard, and export share one rule. Note: this depends on <see cref="Summary"/> being
+    /// populated, so evaluate it after the summary has been loaded. The authoritative page-load
+    /// gate remains <see cref="CanViewLicensingAsync"/>, which does not require a loaded summary.
+    /// </summary>
+    public bool CanViewLicensingDashboard =>
+        HasPermission(DashboardPermission.ViewLicensingDashboard) || Summary.LicensingVisible;
+
+    /// <summary>
+    /// True when the user may view the Exchange dashboard. A user sees it when Exchange is deployed
+    /// AND (their role grants <see cref="DashboardPermission.ViewExchangeDashboard"/>, they are an
+    /// Active Roles admin, or they are a member of an Exchange administrative group). This mirrors
+    /// the value computed into <see cref="DashboardSummary.ExchangeVisible"/> by the summary loader,
+    /// so the tile, page guard, and export share one rule. Note: this depends on
+    /// <see cref="Summary"/> being populated, so evaluate it after the summary has been loaded. The
+    /// authoritative page-load gate remains <see cref="CanViewExchangeAsync"/>, which resolves the
+    /// deployment/membership signals directly and does not require a loaded summary.
+    /// </summary>
+    public bool CanViewExchangeDashboard => Summary.ExchangeVisible;
+
     /// <summary>True when the user may open the Settings page (any settings permission).</summary>
     public bool CanAccessSettings => RolePermissionRegistry.CanAccessSettings(DashboardPermissions);
 
@@ -268,6 +315,11 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected async Task<bool> CanViewLicensingAsync(CancellationToken ct = default)
     {
+        // An explicit View Licensing dashboard permission always grants access, regardless of
+        // delegated data visibility (mirrors the Active Roles dashboard rule).
+        if (HasPermission(DashboardPermission.ViewLicensingDashboard))
+            return true;
+
         if (UsesFullVisibility)
             return true;
 
@@ -312,8 +364,12 @@ public abstract class DashboardPageModel : PageModel
         if (!deployed)
             return false;
 
-        // (2) Active Roles admins and full-visibility roles (e.g. Auditors) may always see it
-        // once deployed.
+        // (2) An explicit View Exchange dashboard permission grants access once Exchange is
+        // deployed (mirrors the Active Roles dashboard rule); so do Active Roles admins and other
+        // full-visibility roles (e.g. Auditors).
+        if (HasPermission(DashboardPermission.ViewExchangeDashboard))
+            return true;
+
         if (UsesFullVisibility)
             return true;
 
@@ -625,8 +681,10 @@ public abstract class DashboardPageModel : PageModel
 
             // The Licensing dashboard is gated on read access to edsManagedObjectStatisticsData.
             // Admins (and the cache-cold fallback above) keep the default true; a non-admin viewer
-            // must be granted List Object + Read objectClass (or Read all properties) on that class.
-            Summary.LicensingVisible = viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
+            // must EITHER be granted the View Licensing dashboard permission OR have List Object +
+            // Read objectClass (or Read all properties) on that class.
+            Summary.LicensingVisible = HasPermission(DashboardPermission.ViewLicensingDashboard)
+                || viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
 
             // The Exchange dashboard is gated on Exchange being deployed AND the viewer being an
             // Active Roles admin or a member of an Exchange administrative group. CanViewExchangeAsync
