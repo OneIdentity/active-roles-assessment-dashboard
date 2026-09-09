@@ -51,7 +51,7 @@
     @if (showAdminRebuild)
     {
         <form method="post" asp-page-handler="Refresh" class="hdr-inline-form" id="rebuildCacheForm">
-            <button type="submit" class="btn-icon" title="@Localizer["RebuildCache"]" id="btnRebuildCache" @(cacheRebuildInProgress ? "disabled" : "") aria-disabled="@(cacheRebuildInProgress ? "true" : "false")">
+            <button type="submit" class="btn-icon @(cacheRebuildInProgress ? "btn-icon-spinning" : "")" title="@Localizer["RebuildCache"]" id="btnRebuildCache" @(cacheRebuildInProgress ? "disabled" : "") aria-disabled="@(cacheRebuildInProgress ? "true" : "false")">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
             </button>
         </form>
@@ -66,6 +66,14 @@
                 form.addEventListener('submit', function () {
                     btn.disabled = true;
                     btn.setAttribute('aria-disabled', 'true');
+                    btn.classList.add('btn-icon-spinning');
+                    // Signal any in-flight Entra membership loader to yield to the rebuild, and
+                    // clear its progress badge so the two flows don't compete. Persist the flag to
+                    // sessionStorage so it survives the POST->redirect->reload: on the reloaded
+                    // page the membership loader can see the rebuild is active before it starts.
+                    window.cacheRebuildInFlight = true;
+                    try { sessionStorage.setItem('cacheRebuildInFlight', '1'); } catch (e) { }
+                    if (window.membershipBadge) window.membershipBadge.hide();
                 });
             })();
         </script>

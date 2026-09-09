@@ -169,6 +169,14 @@ public abstract class DashboardPageModel : PageModel
     /// <summary>True when the user may compare exposure reports.</summary>
     public bool CanCompareExposureReports => HasPermission(DashboardPermission.CompareExposureReports);
 
+    /// <summary>
+    /// True when the user may rebuild the shared cache. Active Roles admins always may; otherwise
+    /// the role must grant <see cref="DashboardPermission.RebuildCache"/>. Controls both the
+    /// Rebuild Cache button's visibility and the server-side rebuild handler.
+    /// </summary>
+    public bool CanRebuildCache =>
+        IsActiveRolesAdmin || HasPermission(DashboardPermission.RebuildCache);
+
     /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
     protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
 

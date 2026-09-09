@@ -100,6 +100,9 @@ tbody tr:hover { background: #f8fafc; }
 .loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: #374151; }
 .spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* Spin the rebuild-cache icon while a rebuild is in progress, mirroring the Entra
+   group-membership loading indicator. */
+.btn-icon.btn-icon-spinning svg { animation: spin 1.6s linear infinite; transform-origin: center; }
 .category-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; margin-top: 18px; }
 .category-charts-toolbar { display: flex; justify-content: flex-end; margin-top: 18px; }
 .btn-chart-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 8px; color: #374151; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: background .15s, border-color .15s; }

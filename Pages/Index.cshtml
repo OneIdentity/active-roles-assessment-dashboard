@@ -25,7 +25,7 @@
     @{
         ViewData["HeaderKey"] = "Index";
         ViewData["RefreshUrl"] = "/"; ViewData["ShowHome"] = false; ViewData["DashboardKey"] = "Main";
-        ViewData["ShowAdminRebuild"] = Model.IsActiveRolesAdmin;
+        ViewData["ShowAdminRebuild"] = Model.CanRebuildCache;
         ViewData["CacheRebuildInProgress"] = Model.CacheRebuildInProgress;
     }
     <partial name="_DashboardHeader" />
@@ -135,17 +135,39 @@
             if (!rebuildBtn) return;
             rebuildBtn.disabled = disabled;
             rebuildBtn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+            // Spin the icon while the rebuild is in flight (disabled), stop when it completes.
+            rebuildBtn.classList.toggle('btn-icon-spinning', disabled);
         }
 
         // A rebuild was just triggered (redirect landed here with ?refreshFrom): keep the button
-        // disabled and announce the start once.
+        // disabled and announce the start once. Mark the rebuild in flight so the Entra membership
+        // loader yields (it must not reload the page or fire its own toast mid-rebuild).
+        window.cacheRebuildInFlight = true;
         setRebuildDisabled(true);
-        window.showToast(msgStarted, 'info');
+
+        // Only announce the start once per rebuild. A stray page reload (e.g. the membership
+        // loader) can re-run this block with the same ?refreshFrom baseline; the sessionStorage
+        // marker prevents the "started" toast from firing again for the same rebuild.
+        var startedKey = 'cacheRebuildStarted:' + baseline;
+        if (!sessionStorage.getItem(startedKey)) {
+            sessionStorage.setItem(startedKey, '1');
+            window.showToast(msgStarted, 'info');
+        }
 
         function clearMarker() {
             params.delete('refreshFrom');
             var url = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
             window.history.replaceState({}, document.title, url);
+        }
+
+        // Called once the rebuild reaches a terminal state (completed, failed, or auth lost).
+        // Clears the in-flight flag (so the membership loader can resume normally) and the
+        // per-baseline "started" marker (so a future rebuild announces its start again).
+        function finishRebuild() {
+            window.cacheRebuildInFlight = false;
+            try { sessionStorage.removeItem('cacheRebuildInFlight'); } catch (e) { }
+            sessionStorage.removeItem(startedKey);
+            setRebuildDisabled(false);
         }
 
         var attempts = 0;
@@ -155,11 +177,11 @@
             fetch(appBase + '/?handler=RefreshStatus', { headers: { 'Accept': 'application/json' } })
                 .then(function (r) { return r.ok ? r.json() : null; })
                 .then(function (data) {
-                    if (!data || data.authorized === false) { clearInterval(timer); clearMarker(); setRebuildDisabled(false); return; }
+                    if (!data || data.authorized === false) { clearInterval(timer); clearMarker(); finishRebuild(); return; }
                     if (data.sequence > baseline || attempts >= maxAttempts) {
                         clearInterval(timer);
                         clearMarker();
-                        setRebuildDisabled(false);
+                        finishRebuild();
                         if (data.failed) {
                             window.showToast(data.error ? (msgFailed + ' ' + data.error) : msgFailed, 'error');
                         } else if (data.sequence > baseline) {
