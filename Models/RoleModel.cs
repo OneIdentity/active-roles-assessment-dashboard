@@ -51,11 +51,7 @@ public enum DashboardPermission
     DeleteAssessments = 19,
     RebuildCache = 20,
     ExportAssessments = 21,
-    ExportDashboardData = 22,
-
-    // NOTE: The value of this permission is questionable - a user who can see a group can
-    // already view the group tree. Retained for completeness; flagged for later removal.
-    ViewGroupTree = 21
+    ExportDashboardData = 22
 }
 
 /// <summary>
@@ -140,8 +136,7 @@ public static class RolePermissionRegistry
                 DashboardPermission.CompareAssessments,
                 DashboardPermission.ExportAssessments,
                 DashboardPermission.ExportDashboardData,
-                DashboardPermission.RebuildCache,
-                DashboardPermission.ViewGroupTree
+                DashboardPermission.RebuildCache
             },
             [DashboardRole.PowerUser] = new HashSet<DashboardPermission>
             {
@@ -149,15 +144,13 @@ public static class RolePermissionRegistry
                 DashboardPermission.ViewSystemSettings,
                 DashboardPermission.UseDelegatedPermissionsForVisibility,
                 DashboardPermission.RefreshCurrentDashboard,
-                DashboardPermission.ExportDashboardData,
-                DashboardPermission.ViewGroupTree
+                DashboardPermission.ExportDashboardData
             },
             [DashboardRole.User] = new HashSet<DashboardPermission>
             {
                 DashboardPermission.ManageUserSettings,
                 DashboardPermission.UseDelegatedPermissionsForVisibility,
-                DashboardPermission.RefreshCurrentDashboard,
-                DashboardPermission.ViewGroupTree
+                DashboardPermission.RefreshCurrentDashboard
             }
         };
 
@@ -197,8 +190,7 @@ public static class RolePermissionRegistry
             [DashboardPermission.DeleteAssessments] = new("Perm_DeleteAssessments", "Delete assessments"),
             [DashboardPermission.ExportAssessments] = new("Perm_ExportAssessments", "Export assessments"),
             [DashboardPermission.ExportDashboardData] = new("Perm_ExportDashboardData", "Export Dashboard Data"),
-            [DashboardPermission.RebuildCache] = new("Perm_RebuildCache", "Rebuild cache"),
-            [DashboardPermission.ViewGroupTree] = new("Perm_ViewGroupTree", "View Group tree")
+            [DashboardPermission.RebuildCache] = new("Perm_RebuildCache", "Rebuild cache")
         };
 
     /// <summary>
