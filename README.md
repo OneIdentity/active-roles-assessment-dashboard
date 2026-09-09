@@ -161,6 +161,7 @@ Feature reference documents live under [`docs/`](docs/):
 - [Snapshots.md](docs/Snapshots.md) — snapshot capture, storage, comparison, and trends.
 - [Assessments.md](docs/Assessments.md) — assessment types, rules, scoring, and compare.
 - [Exposure.md](docs/Exposure.md) — MITRE ATT&CK technique-to-KPI mappings and exposure scoring.
+- [RolesAndPermissions.md](docs/RolesAndPermissions.md) — roles, permissions, the default role → permission matrix, role resolution, and enforcement.
 - [ConfigSettings.md](docs/ConfigSettings.md) — full reference for every `appsettings.json` configuration setting.
 - [Deployment.md](docs/Deployment.md) — deploying to a target IIS server, the deploy script, and protecting the service-account secret.
 - [Localization.md](docs/Localization.md) — localization architecture, resource conventions, and how to add languages or translations.
