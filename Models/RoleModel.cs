@@ -50,6 +50,7 @@ public enum DashboardPermission
     CompareAssessments = 18,
     DeleteAssessments = 19,
     RebuildCache = 20,
+    ExportAssessments = 21,
 
     // NOTE: The value of this permission is questionable - a user who can see a group can
     // already view the group tree. Retained for completeness; flagged for later removal.
@@ -136,6 +137,7 @@ public static class RolePermissionRegistry
                 DashboardPermission.ViewAssessments,
                 DashboardPermission.RunAndSaveAssessments,
                 DashboardPermission.CompareAssessments,
+                DashboardPermission.ExportAssessments,
                 DashboardPermission.RebuildCache,
                 DashboardPermission.ViewGroupTree
             },
@@ -145,9 +147,6 @@ public static class RolePermissionRegistry
                 DashboardPermission.ViewSystemSettings,
                 DashboardPermission.UseDelegatedPermissionsForVisibility,
                 DashboardPermission.RefreshCurrentDashboard,
-                DashboardPermission.ViewAssessments,
-                DashboardPermission.RunAndSaveAssessments,
-                DashboardPermission.CompareAssessments,
                 DashboardPermission.ViewGroupTree
             },
             [DashboardRole.User] = new HashSet<DashboardPermission>
@@ -155,7 +154,6 @@ public static class RolePermissionRegistry
                 DashboardPermission.ManageUserSettings,
                 DashboardPermission.UseDelegatedPermissionsForVisibility,
                 DashboardPermission.RefreshCurrentDashboard,
-                DashboardPermission.ViewAssessments,
                 DashboardPermission.ViewGroupTree
             }
         };
@@ -194,6 +192,7 @@ public static class RolePermissionRegistry
             [DashboardPermission.RunAndSaveAssessments] = new("Perm_RunAndSaveAssessments", "Run & Save assessments"),
             [DashboardPermission.CompareAssessments] = new("Perm_CompareAssessments", "Compare assessments"),
             [DashboardPermission.DeleteAssessments] = new("Perm_DeleteAssessments", "Delete assessments"),
+            [DashboardPermission.ExportAssessments] = new("Perm_ExportAssessments", "Export assessments"),
             [DashboardPermission.RebuildCache] = new("Perm_RebuildCache", "Rebuild cache"),
             [DashboardPermission.ViewGroupTree] = new("Perm_ViewGroupTree", "View Group tree")
         };

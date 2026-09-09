@@ -170,6 +170,24 @@ public abstract class DashboardPageModel : PageModel
     public bool CanCompareExposureReports => HasPermission(DashboardPermission.CompareExposureReports);
 
     /// <summary>
+    /// True when the user may view the Assessments page (its toolbar button and page). Granted by
+    /// <see cref="DashboardPermission.ViewAssessments"/>. Direct navigation is blocked when false.
+    /// </summary>
+    public bool CanViewAssessments => HasPermission(DashboardPermission.ViewAssessments);
+
+    /// <summary>True when the user may run and save new assessments.</summary>
+    public bool CanRunAndSaveAssessments => HasPermission(DashboardPermission.RunAndSaveAssessments);
+
+    /// <summary>True when the user may export a saved assessment as a document.</summary>
+    public bool CanExportAssessments => HasPermission(DashboardPermission.ExportAssessments);
+
+    /// <summary>True when the user may compare assessments.</summary>
+    public bool CanCompareAssessments => HasPermission(DashboardPermission.CompareAssessments);
+
+    /// <summary>True when the user may delete saved assessments.</summary>
+    public bool CanDeleteAssessments => HasPermission(DashboardPermission.DeleteAssessments);
+
+    /// <summary>
     /// True when the user may rebuild the shared cache. Active Roles admins always may; otherwise
     /// the role must grant <see cref="DashboardPermission.RebuildCache"/>. Controls both the
     /// Rebuild Cache button's visibility and the server-side rebuild handler.
@@ -309,6 +327,11 @@ public abstract class DashboardPageModel : PageModel
         // shown only when the user's role grants ViewExposureReport; the AttackExposure page
         // itself independently enforces this server-side.
         ViewData["ShowAttackExposure"] = CanViewExposureReport;
+
+        // Publish assessments-button visibility to the shared toolbar. The shield icon is shown
+        // only when the user's role grants ViewAssessments; the Assessments page itself
+        // independently enforces this server-side.
+        ViewData["ShowAssessments"] = CanViewAssessments;
 
         return null;
     }

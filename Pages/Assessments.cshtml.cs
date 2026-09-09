@@ -59,6 +59,10 @@ public class AssessmentsModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
+        // Block direct navigation for users whose role lacks ViewAssessments.
+        if (!CanViewAssessments)
+            return RedirectToPage("/Index");
+
         // Load the dashboard summary so the page knows whether Entra group membership is still
         // loading. Without this, EntraMembershipDataPending is always false on GET and the
         // "Run & save" button is never disabled for membership-dependent assessments (the
@@ -99,6 +103,11 @@ public class AssessmentsModel : DashboardPageModel
     private async Task BuildComparisonIfRequestedAsync()
     {
         if (string.IsNullOrWhiteSpace(FromId) || string.IsNullOrWhiteSpace(ToId))
+            return;
+
+        // Enforce the compare permission server-side so a crafted FromId/ToId query string can't
+        // produce a comparison for a user whose role lacks CompareAssessments.
+        if (!CanCompareAssessments)
             return;
 
         var from = await _assessments.LoadAsync(FromId);
@@ -151,6 +160,10 @@ public class AssessmentsModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
+        // Enforce the run-and-save permission server-side; the UI also disables the Run button.
+        if (!CanRunAndSaveAssessments)
+            return RedirectToPage("/Index");
+
         var token = GetAccessToken()!;
 
         // Prefer the session-cached summary: once lazy Entra group membership finishes loading it
@@ -191,6 +204,10 @@ public class AssessmentsModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
+        // Enforce the delete permission server-side; the UI also disables the delete button.
+        if (!CanDeleteAssessments)
+            return RedirectToPage("/Index");
+
         StatusMessage = _assessments.Delete(id) ? "Assessment deleted." : "Assessment not found.";
         return RedirectToPage(new { Type });
     }
@@ -200,6 +217,10 @@ public class AssessmentsModel : DashboardPageModel
     {
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
+
+        // Enforce the export permission server-side; the UI also hides the export controls.
+        if (!CanExportAssessments)
+            return RedirectToPage("/Index");
 
         var assessment = await _assessments.LoadAsync(id);
         if (assessment == null)
