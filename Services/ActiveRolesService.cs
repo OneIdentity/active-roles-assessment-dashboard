@@ -4029,20 +4029,34 @@ public class ActiveRolesService
                     pageNumber, (int)response.StatusCode, errorBody);
             }
             response.EnsureSuccessStatusCode();
-            var body = await response.Content.ReadAsStringAsync();
-            // The full response body can be enormous for large result sets (e.g. thousands
-            // of group DNs and membership lists). Dumping it floods the log, so only emit
-            // the raw body at Debug when it is reasonably small; otherwise log its size.
+
+            // Large result sets (thousands of group DNs and membership lists) can produce
+            // response bodies of hundreds of MB. Reading the whole body into a string and then
+            // re-parsing it allocates two very large objects on the Large Object Heap per page,
+            // which drives runaway working-set/LOH growth. Stream the payload straight into the
+            // JSON parser so nothing large is materialized on the heap. Only when Debug logging
+            // is enabled do we buffer the body to a string (so the existing size-capped raw-body
+            // logging still works).
+            JsonDocument doc;
             if (_logger.IsEnabled(LogLevel.Debug))
             {
+                var body = await response.Content.ReadAsStringAsync();
                 const int maxBodyLogChars = 8192;
                 if (body.Length <= maxBodyLogChars)
                     _logger.LogDebug("ActiveRoles API response body (page {Page}): {Body}", pageNumber, body);
                 else
                     _logger.LogDebug("ActiveRoles API response body (page {Page}) suppressed: {Size} chars (exceeds {Max}).", pageNumber, body.Length, maxBodyLogChars);
+
+                doc = JsonDocument.Parse(body);
+            }
+            else
+            {
+                using var stream = await response.Content.ReadAsStreamAsync();
+                doc = await JsonDocument.ParseAsync(stream);
             }
 
-            using var doc = JsonDocument.Parse(body);
+            using (doc)
+            {
 
             var pageItemCount = 0;
             if (doc.RootElement.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
@@ -4075,6 +4089,7 @@ public class ActiveRolesService
             else
             {
                 url = null;
+            }
             }
         }
 
