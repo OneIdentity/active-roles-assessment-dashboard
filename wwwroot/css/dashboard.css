@@ -335,8 +335,11 @@ tbody tr:hover { background: #f8fafc; }
 .exp-cmp-summary { display: flex; flex-wrap: wrap; gap: 16px; font-size: .82rem; font-weight: 600; margin-bottom: 8px; }
 .exp-cmp-tactics { display: flex; flex-direction: column; gap: 16px; }
 .exp-cmp-tactic-head { font-weight: 700; color: #111827; margin-bottom: 4px; }
-.exp-cmp-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
-.exp-cmp-table th, .exp-cmp-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #f0f1f3; }
+.exp-cmp-table { width: 100%; border-collapse: collapse; font-size: .8rem; table-layout: fixed; }
+.exp-cmp-table th, .exp-cmp-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #f0f1f3; overflow: hidden; text-overflow: ellipsis; }
+.exp-cmp-table col.exp-col-tech { width: auto; }
+.exp-cmp-table col.exp-col-level { width: 22%; }
+.exp-cmp-table col.exp-col-arrow { width: 8%; }
 .exp-cmp-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: #6b7280; }
 .exp-cmp-arrow { text-align: center; font-weight: 700; }
 .exp-cmp-tid { color: #6b7280; font-family: monospace; margin-right: 6px; }
