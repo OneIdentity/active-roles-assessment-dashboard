@@ -110,7 +110,7 @@
             <form method="get" class="exp-compare-form">
                 <label>
                     @Localizer["Baseline"]
-                    <select name="FromId">
+                    <select name="FromId"@(Model.CanCompareExposureReports ? "" : " disabled")>
                         <option value="">@Localizer["SelectPlaceholder"]</option>
                         @foreach (var s in Model.Snapshots)
                         {
@@ -123,7 +123,7 @@
                 </label>
                 <label>
                     @Localizer["CompareTo"]
-                    <select name="ToId">
+                    <select name="ToId"@(Model.CanCompareExposureReports ? "" : " disabled")>
                         <option value="current" selected="@(Model.ToId == "current" || string.IsNullOrEmpty(Model.ToId))">@Localizer["CurrentLive"]</option>
                         @foreach (var s in Model.Snapshots)
                         {
@@ -134,7 +134,7 @@
                         }
                     </select>
                 </label>
-                <button type="submit" class="snap-btn snap-btn-primary">@Localizer["Compare"]</button>
+                <button type="submit"@(Model.CanCompareExposureReports ? "" : " disabled") class="snap-btn snap-btn-primary">@Localizer["Compare"]</button>
             </form>
 
             @if (Model.Comparison != null)

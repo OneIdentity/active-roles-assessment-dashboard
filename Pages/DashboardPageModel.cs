@@ -160,6 +160,15 @@ public abstract class DashboardPageModel : PageModel
     /// <summary>True when the user may compare snapshots.</summary>
     public bool CanCompareSnapshots => HasPermission(DashboardPermission.CompareSnapshots);
 
+    /// <summary>
+    /// True when the user may view the Attack Exposure report (its button and page). Granted by
+    /// <see cref="DashboardPermission.ViewExposureReport"/>. Direct navigation is blocked when false.
+    /// </summary>
+    public bool CanViewExposureReport => HasPermission(DashboardPermission.ViewExposureReport);
+
+    /// <summary>True when the user may compare exposure reports.</summary>
+    public bool CanCompareExposureReports => HasPermission(DashboardPermission.CompareExposureReports);
+
     /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
     protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
 
@@ -287,6 +296,11 @@ public abstract class DashboardPageModel : PageModel
         // only when the user's role grants ViewSnapshots; the Snapshots page itself independently
         // enforces this server-side.
         ViewData["ShowSnapshots"] = CanViewSnapshots;
+
+        // Publish exposure-report-button visibility to the shared toolbar. The target icon is
+        // shown only when the user's role grants ViewExposureReport; the AttackExposure page
+        // itself independently enforces this server-side.
+        ViewData["ShowAttackExposure"] = CanViewExposureReport;
 
         return null;
     }
