@@ -51,6 +51,7 @@ public enum DashboardPermission
     DeleteAssessments = 19,
     RebuildCache = 20,
     ExportAssessments = 21,
+    ExportDashboardData = 22,
 
     // NOTE: The value of this permission is questionable - a user who can see a group can
     // already view the group tree. Retained for completeness; flagged for later removal.
@@ -138,6 +139,7 @@ public static class RolePermissionRegistry
                 DashboardPermission.RunAndSaveAssessments,
                 DashboardPermission.CompareAssessments,
                 DashboardPermission.ExportAssessments,
+                DashboardPermission.ExportDashboardData,
                 DashboardPermission.RebuildCache,
                 DashboardPermission.ViewGroupTree
             },
@@ -147,6 +149,7 @@ public static class RolePermissionRegistry
                 DashboardPermission.ViewSystemSettings,
                 DashboardPermission.UseDelegatedPermissionsForVisibility,
                 DashboardPermission.RefreshCurrentDashboard,
+                DashboardPermission.ExportDashboardData,
                 DashboardPermission.ViewGroupTree
             },
             [DashboardRole.User] = new HashSet<DashboardPermission>
@@ -193,6 +196,7 @@ public static class RolePermissionRegistry
             [DashboardPermission.CompareAssessments] = new("Perm_CompareAssessments", "Compare assessments"),
             [DashboardPermission.DeleteAssessments] = new("Perm_DeleteAssessments", "Delete assessments"),
             [DashboardPermission.ExportAssessments] = new("Perm_ExportAssessments", "Export assessments"),
+            [DashboardPermission.ExportDashboardData] = new("Perm_ExportDashboardData", "Export Dashboard Data"),
             [DashboardPermission.RebuildCache] = new("Perm_RebuildCache", "Rebuild cache"),
             [DashboardPermission.ViewGroupTree] = new("Perm_ViewGroupTree", "View Group tree")
         };
@@ -229,4 +233,50 @@ public static class RolePermissionRegistry
         DefaultMatrix.TryGetValue(role, out var perms)
             ? new HashSet<DashboardPermission>(perms)
             : new HashSet<DashboardPermission>();
+
+    /// <summary>
+    /// True when the supplied permission set (or Active Roles admin) may export dashboard data at
+    /// all. Governs the Export toolbar button and the server-side export handler.
+    /// </summary>
+    public static bool CanExportDashboardData(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
+        isActiveRolesAdmin || permissions.Contains(DashboardPermission.ExportDashboardData);
+
+    /// <summary>
+    /// Computes the set of dashboard keys (as used by <c>DashboardInfo.Key</c> plus the aggregate
+    /// "Main" hub) that the current user may export, reusing the same visibility rules that govern
+    /// the dashboards themselves. Active Directory / Entra ID / Exchange / Licensing visibility is
+    /// read from the (already permission-scoped) <paramref name="summary"/> flags, which fold in the
+    /// role View permission, Active Roles admin, and delegated/deployment signals. The "Main"
+    /// aggregate is always included when the user can export at all (it is filtered per child at
+    /// build time). Returns an empty set when the user cannot export.
+    /// </summary>
+    public static IReadOnlySet<string> GetExportableDashboardKeys(
+        IReadOnlySet<DashboardPermission> permissions,
+        bool isActiveRolesAdmin,
+        bool adVisible,
+        bool entraVisible,
+        bool exchangeVisible,
+        bool licensingVisible)
+    {
+        var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!CanExportDashboardData(permissions, isActiveRolesAdmin))
+            return keys;
+
+        // The aggregate main hub is exportable whenever the user can export at all; its child
+        // dashboards are filtered individually below.
+        keys.Add("Main");
+
+        if (isActiveRolesAdmin || permissions.Contains(DashboardPermission.ViewActiveRolesDashboard))
+            keys.Add("ActiveRoles");
+        if (isActiveRolesAdmin || permissions.Contains(DashboardPermission.ViewActiveDirectoryDashboard) || adVisible)
+            keys.Add("ActiveDirectory");
+        if (isActiveRolesAdmin || permissions.Contains(DashboardPermission.ViewEntraIdDashboard) || entraVisible)
+            keys.Add("EntraId");
+        if (exchangeVisible)
+            keys.Add("Exchange");
+        if (isActiveRolesAdmin || permissions.Contains(DashboardPermission.ViewLicensingDashboard) || licensingVisible)
+            keys.Add("Licensing");
+
+        return keys;
+    }
 }

@@ -11,6 +11,15 @@ namespace ActiveRolesDashboard.Services.Reporting;
 public class ReportBuilder
 {
     public ReportModel Build(ReportRequest request, DashboardSummary summary, KpiSettings settings, string generatedBy)
+        => Build(request, summary, settings, generatedBy, allowedDashboardKeys: null);
+
+    /// <summary>
+    /// Builds the report, optionally restricting the exported content to a set of dashboard keys the
+    /// caller is permitted to view. When <paramref name="allowedDashboardKeys"/> is non-null, any
+    /// dashboard/category/KPI whose owning dashboard is not in the set is omitted (aggregate main
+    /// exports silently drop disallowed child dashboards). When null, no view-scoping is applied.
+    /// </summary>
+    public ReportModel Build(ReportRequest request, DashboardSummary summary, KpiSettings settings, string generatedBy, IReadOnlySet<string>? allowedDashboardKeys)
     {
         var dashboard = DashboardInfo.All.FirstOrDefault(d => d.Key == request.DashboardKey);
         var model = new ReportModel
@@ -23,30 +32,37 @@ public class ReportBuilder
         switch (request.Scope)
         {
             case ReportScope.Kpi:
-                BuildKpiScope(request, summary, settings, dashboard, model);
+                BuildKpiScope(request, summary, settings, dashboard, model, allowedDashboardKeys);
                 break;
             case ReportScope.Category:
-                BuildCategoryScope(request, summary, settings, dashboard, model);
+                BuildCategoryScope(request, summary, settings, dashboard, model, allowedDashboardKeys);
                 break;
             case ReportScope.SubDashboard:
                 // Export a single child dashboard chosen from the aggregate main dashboard.
                 var subKey = request.SubDashboardKey ?? string.Empty;
                 var subDashboard = DashboardInfo.All.FirstOrDefault(d => d.Key == subKey);
-                BuildDashboardScope(summary, settings, subDashboard, subKey, model);
+                BuildDashboardScope(summary, settings, subDashboard, subKey, model, allowedDashboardKeys);
                 break;
             default:
-                BuildDashboardScope(summary, settings, dashboard, request.DashboardKey, model);
+                BuildDashboardScope(summary, settings, dashboard, request.DashboardKey, model, allowedDashboardKeys);
                 break;
         }
 
         return model;
     }
 
-    private static void BuildDashboardScope(DashboardSummary summary, KpiSettings settings, DashboardInfo? dashboard, string dashboardKey, ReportModel model)
+    private static bool IsDashboardAllowed(IReadOnlySet<string>? allowedDashboardKeys, string dashboardKey) =>
+        allowedDashboardKeys == null || allowedDashboardKeys.Contains(dashboardKey);
+
+    private static void BuildDashboardScope(DashboardSummary summary, KpiSettings settings, DashboardInfo? dashboard, string dashboardKey, ReportModel model, IReadOnlySet<string>? allowedDashboardKeys)
     {
         var isMain = dashboardKey == "Main";
         model.Title = isMain ? "Dashboard" : (dashboard?.Title ?? "Dashboard");
         model.Subtitle = isMain ? "Overview" : (dashboard?.Subtitle ?? string.Empty);
+
+        // Enforce the caller's view permissions: a non-aggregate dashboard the user may not view
+        // produces an empty report.
+        if (!isMain && !IsDashboardAllowed(allowedDashboardKeys, dashboardKey)) return;
 
         // Honour the active segment selection: when a source resolves to no selected
         // segments, omit the whole dashboard section from the export.
@@ -64,6 +80,10 @@ public class ReportBuilder
 
         foreach (var category in categories)
         {
+            // Enforce the caller's view permissions for the aggregate export: silently drop
+            // categories belonging to dashboards the user may not view.
+            if (!IsDashboardAllowed(allowedDashboardKeys, category.DashboardKey)) continue;
+
             // Respect segment visibility for the aggregate export: skip AD/Entra
             // categories when their source resolves to no selected segments.
             if (category.DashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) continue;
@@ -78,7 +98,7 @@ public class ReportBuilder
         }
     }
 
-    private static void BuildCategoryScope(ReportRequest request, DashboardSummary summary, KpiSettings settings, DashboardInfo? dashboard, ReportModel model)
+    private static void BuildCategoryScope(ReportRequest request, DashboardSummary summary, KpiSettings settings, DashboardInfo? dashboard, ReportModel model, IReadOnlySet<string>? allowedDashboardKeys)
     {
         var category = CategoryInfo.All.FirstOrDefault(c => c.Key == request.CategoryKey);
 
@@ -93,10 +113,13 @@ public class ReportBuilder
 
         if (category == null || !settings.IsCategoryEnabled(category.Key)) return;
 
+        // Enforce the caller's view permissions on the category's owning dashboard.
+        if (!IsDashboardAllowed(allowedDashboardKeys, category.DashboardKey)) return;
+
         model.Sections.Add(BuildCategorySection(category, summary, settings, model.IncludeDetails));
     }
 
-    private static void BuildKpiScope(ReportRequest request, DashboardSummary summary, KpiSettings settings, DashboardInfo? dashboard, ReportModel model)
+    private static void BuildKpiScope(ReportRequest request, DashboardSummary summary, KpiSettings settings, DashboardInfo? dashboard, ReportModel model, IReadOnlySet<string>? allowedDashboardKeys)
     {
         var kpi = KpiInfo.All.FirstOrDefault(k => k.Key == request.KpiKey);
 
@@ -111,6 +134,9 @@ public class ReportBuilder
         model.Subtitle = owningDashboard?.Title ?? string.Empty;
 
         if (kpi == null) return;
+
+        // Enforce the caller's view permissions on the KPI's owning dashboard.
+        if (kpiCategory != null && !IsDashboardAllowed(allowedDashboardKeys, kpiCategory.DashboardKey)) return;
 
         var section = new ReportSection { Heading = kpi.DisplayName };
 

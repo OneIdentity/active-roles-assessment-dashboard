@@ -195,6 +195,30 @@ public abstract class DashboardPageModel : PageModel
     public bool CanRebuildCache =>
         IsActiveRolesAdmin || HasPermission(DashboardPermission.RebuildCache);
 
+    /// <summary>
+    /// True when the user may export dashboard data (the Export toolbar button and dialog). Active
+    /// Roles admins always may; otherwise the role must grant
+    /// <see cref="DashboardPermission.ExportDashboardData"/>. The Export button is hidden when false
+    /// and the /Export handler independently enforces this server-side.
+    /// </summary>
+    public bool CanExportDashboardData =>
+        RolePermissionRegistry.CanExportDashboardData(DashboardPermissions, IsActiveRolesAdmin);
+
+    /// <summary>
+    /// The set of dashboard keys the current user may export, computed from their view permissions
+    /// and the loaded <see cref="Summary"/> visibility flags (so the export dialog only lists
+    /// dashboards, categories, and KPIs the user is allowed to see). Empty when the user cannot
+    /// export. Evaluate after the summary has been loaded.
+    /// </summary>
+    public IReadOnlySet<string> ExportableDashboardKeys =>
+        RolePermissionRegistry.GetExportableDashboardKeys(
+            DashboardPermissions,
+            IsActiveRolesAdmin,
+            Summary.AdVisible,
+            Summary.EntraVisible,
+            Summary.ExchangeVisible,
+            Summary.LicensingVisible);
+
     /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
     protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
 
@@ -332,6 +356,13 @@ public abstract class DashboardPageModel : PageModel
         // only when the user's role grants ViewAssessments; the Assessments page itself
         // independently enforces this server-side.
         ViewData["ShowAssessments"] = CanViewAssessments;
+
+        // Publish export-button visibility to the shared toolbar. The download icon is shown only
+        // when the user's role grants ExportDashboardData (or they are an Active Roles admin); the
+        // /Export handler independently enforces this server-side. The exportable dashboard-key set
+        // depends on the loaded summary, so the toolbar/dialog partials read it from the live model
+        // (ExportableDashboardKeys) at render time rather than from ViewData here.
+        ViewData["ShowExport"] = CanExportDashboardData;
 
         return null;
     }

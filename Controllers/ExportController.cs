@@ -18,14 +18,16 @@ public class ExportController : ControllerBase
     private readonly UserSettingsService _userSettings;
     private readonly ActiveRolesService _activeRoles;
     private readonly PerUserSummaryCache _summaryCache;
+    private readonly RoleService _roleService;
 
-    public ExportController(ReportBuilder reportBuilder, ReportExporterFactory exporterFactory, UserSettingsService userSettings, ActiveRolesService activeRoles, PerUserSummaryCache summaryCache)
+    public ExportController(ReportBuilder reportBuilder, ReportExporterFactory exporterFactory, UserSettingsService userSettings, ActiveRolesService activeRoles, PerUserSummaryCache summaryCache, RoleService roleService)
     {
         _reportBuilder = reportBuilder;
         _exporterFactory = exporterFactory;
         _userSettings = userSettings;
         _activeRoles = activeRoles;
         _summaryCache = summaryCache;
+        _roleService = roleService;
     }
 
     [HttpPost]
@@ -77,10 +79,37 @@ public class ExportController : ControllerBase
         var segmentFilter = SegmentFilterSession.Get(HttpContext.Session);
         summary.ApplySegmentFilter(segmentFilter);
 
+        // Resolve the caller's role permissions to enforce export governance server-side. The
+        // Export button is hidden without ExportDashboardData, but a crafted POST must also be
+        // rejected here. The allowed dashboard-key set reuses the same visibility rules as the
+        // dashboards themselves (folding in the now segment-filtered summary flags), so a user can
+        // only export dashboards/categories/KPIs they are permitted to view.
+        var isActiveRolesAdmin = string.Equals(HttpContext.Session.GetString("IsActiveRolesAdmin"), "True", StringComparison.OrdinalIgnoreCase);
+        var role = Enum.TryParse<DashboardRole>(HttpContext.Session.GetString("DashboardRole"), out var parsedRole)
+            ? parsedRole
+            : DashboardRole.User;
+        var permissions = _roleService.GetPermissions(role);
+
+        if (!RolePermissionRegistry.CanExportDashboardData(permissions, isActiveRolesAdmin))
+            return Forbid();
+
+        var allowedKeys = RolePermissionRegistry.GetExportableDashboardKeys(
+            permissions,
+            isActiveRolesAdmin,
+            summary.AdVisible,
+            summary.EntraVisible,
+            summary.ExchangeVisible,
+            summary.LicensingVisible);
+
+        // Reject a scope whose owning dashboard the user may not view (403).
+        var requestedDashboardKey = ResolveOwningDashboardKey(request);
+        if (requestedDashboardKey != null && !allowedKeys.Contains(requestedDashboardKey))
+            return Forbid();
+
         if (!_exporterFactory.TryGet(request.Format, out var exporter))
             return BadRequest($"Export format '{request.Format}' is not supported.");
 
-        var model = _reportBuilder.Build(request, summary, settings, username);
+        var model = _reportBuilder.Build(request, summary, settings, username, allowedKeys);
         var bytes = exporter.Export(model);
 
         var fileName = BuildFileName(request, model) + exporter.FileExtension;
@@ -102,6 +131,31 @@ public class ExportController : ControllerBase
         }
 
         return File(bytes, exporter.ContentType, fileName);
+    }
+
+    /// <summary>
+    /// Resolves the dashboard key that owns the requested export scope, so the caller's view
+    /// permissions can be enforced. Returns "Main" for the aggregate dashboard scope (always
+    /// allowed when the user can export at all), or null when the scope cannot be resolved (which
+    /// yields an empty report from the builder rather than a leak).
+    /// </summary>
+    private static string? ResolveOwningDashboardKey(ReportRequest request)
+    {
+        switch (request.Scope)
+        {
+            case ReportScope.SubDashboard:
+                return request.SubDashboardKey;
+            case ReportScope.Category:
+                return CategoryInfo.All.FirstOrDefault(c => c.Key == request.CategoryKey)?.DashboardKey;
+            case ReportScope.Kpi:
+                var kpi = KpiInfo.All.FirstOrDefault(k => k.Key == request.KpiKey);
+                if (kpi == null) return null;
+                return CategoryInfo.All
+                    .FirstOrDefault(c => KpiInfo.ForCategory(c).Any(k => k.Key == kpi.Key))?
+                    .DashboardKey;
+            default:
+                return request.DashboardKey;
+        }
     }
 
     private static string BuildFileName(ReportRequest request, ReportModel model)

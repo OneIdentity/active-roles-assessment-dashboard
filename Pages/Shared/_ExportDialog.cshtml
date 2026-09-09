@@ -5,6 +5,18 @@
     var categories = CategoryInfo.ForExport(dashboardKey);
     var isMain = dashboardKey == "Main";
 
+    // Restrict the exportable dashboards/categories/KPIs to the ones the current user is allowed
+    // to view. Read the allowed key set from the live dashboard page model (summary-aware). When
+    // the model isn't a dashboard page (should not happen where the dialog renders) fall back to
+    // showing everything for the current dashboard - the /Export handler still enforces access
+    // server-side.
+    var exportModel = Model as ActiveRolesDashboard.Pages.DashboardPageModel;
+    var allowedKeys = exportModel?.ExportableDashboardKeys;
+    if (allowedKeys != null)
+    {
+        categories = categories.Where(c => allowedKeys.Contains(c.DashboardKey)).ToList();
+    }
+
     string DashboardLabel(string key) => key == "Main"
         ? "Main"
         : DashboardInfo.All.FirstOrDefault(d => d.Key == key)?.Title ?? key;
