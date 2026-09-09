@@ -199,6 +199,30 @@ public static class RolePermissionRegistry
         };
 
     /// <summary>
+    /// True when the supplied permission set grants access to the Settings page at all: any of
+    /// <see cref="DashboardPermission.ManageUserSettings"/>, <see cref="DashboardPermission.ViewSystemSettings"/>,
+    /// or <see cref="DashboardPermission.ManageSystemSettings"/>. Dashboard/Active Roles admins
+    /// carry these via their fixed permission set, so this single predicate also covers them.
+    /// </summary>
+    public static bool CanAccessSettings(IReadOnlySet<DashboardPermission> permissions) =>
+        permissions.Contains(DashboardPermission.ManageUserSettings)
+        || permissions.Contains(DashboardPermission.ViewSystemSettings)
+        || permissions.Contains(DashboardPermission.ManageSystemSettings);
+
+    /// <summary>True when the user may view and change the User settings category.</summary>
+    public static bool CanManageUserSettings(IReadOnlySet<DashboardPermission> permissions) =>
+        permissions.Contains(DashboardPermission.ManageUserSettings);
+
+    /// <summary>True when the user may view the System settings category (view or manage).</summary>
+    public static bool CanViewSystemSettings(IReadOnlySet<DashboardPermission> permissions) =>
+        permissions.Contains(DashboardPermission.ViewSystemSettings)
+        || permissions.Contains(DashboardPermission.ManageSystemSettings);
+
+    /// <summary>True when the user may modify the System settings category.</summary>
+    public static bool CanManageSystemSettings(IReadOnlySet<DashboardPermission> permissions) =>
+        permissions.Contains(DashboardPermission.ManageSystemSettings);
+
+    /// <summary>
     /// Returns the default permission set for a role (a defensive copy). Falls back to an empty
     /// set for any unmapped role (should not occur for the fixed enum set).
     /// </summary>

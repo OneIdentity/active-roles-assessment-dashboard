@@ -58,7 +58,13 @@
     <div class="dashboard-tiles">
         @foreach (var dash in ActiveRolesDashboard.Models.DashboardInfo.All)
         {
-            if (dash.RequiresAdmin && !Model.IsActiveRolesAdmin) { continue; }
+            // The Active Roles configuration dashboard is normally admin-only, but any role granted
+            // the ViewActiveRolesDashboard permission (e.g. Auditors) may also open it.
+            if (dash.Key == "ActiveRoles")
+            {
+                if (!Model.CanViewActiveRolesDashboard) { continue; }
+            }
+            else if (dash.RequiresAdmin && !Model.IsActiveRolesAdmin) { continue; }
             // Hide the Active Directory tile when no domain is selected, and the Entra ID
             // tile when no tenant is selected (empty selection resolves to "none").
             if (dash.Key == "ActiveDirectory" && !Model.Summary.AdVisible) { continue; }

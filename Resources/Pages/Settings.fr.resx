@@ -219,4 +219,10 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Enregistrer les paramètres</value>
   </data>
+  <data name="AccessDenied" xml:space="preserve">
+	<value>Vous n'avez pas l'autorisation d'afficher ou de modifier les paramètres.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+	<value>Vous pouvez consulter ces paramètres système mais vous n'êtes pas autorisé à les modifier.</value>
+  </data>
 </root>

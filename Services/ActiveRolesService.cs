@@ -3380,38 +3380,24 @@ public class ActiveRolesService
                 return false;
             }
 
-            // Extract the bare username (remove domain prefix / UPN suffix if present)
-            var name = username;
-            var slashIndex = name.IndexOf('\\');
-            if (slashIndex >= 0) name = name[(slashIndex + 1)..];
-            var atIndex = name.IndexOf('@');
-            if (atIndex >= 0) name = name[..atIndex];
-
-            // Look up the user's DN by sAMAccountName and compare against member DNs
-            var userSearch = await SearchObjectsAsync(token, baseDn,
-                $"(&(objectClass=user)(sAMAccountName={name}))", "sub", "distinguishedName");
-            if (userSearch.Count > 0)
+            // Look up the user's DN (ResolveUserDnAsync handles domain/UPN stripping, LDAP escaping,
+            // and the AR provider's case-sensitive samAccountName casing fallback) and compare against
+            // member DNs.
+            var normalizedUserDn = await ResolveUserDnAsync(token, username, baseDn);
+            if (!string.IsNullOrEmpty(normalizedUserDn))
             {
-                var userDn = GetAttr(userSearch[0], "distinguishedName");
-                _logger.LogInformation("{Context}: User '{Username}' resolved to DN: {UserDn}", logContext, name, userDn);
+                _logger.LogInformation("{Context}: User '{Username}' resolved to DN: {UserDn}", logContext, username, normalizedUserDn);
 
-                if (!string.IsNullOrEmpty(userDn))
-                {
-                    var normalizedUserDn = NormalizeAdDn(userDn);
-                    var isMember = members.Items.Any(m =>
-                        NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
+                var isMember = members.Items.Any(m =>
+                    NormalizeAdDn(m.Dn).Equals(normalizedUserDn, StringComparison.OrdinalIgnoreCase));
 
-                    _logger.LogInformation("{Context}: Normalized user DN: {NormalizedDn}, IsMember: {IsMember}",
-                        logContext, normalizedUserDn, isMember);
+                _logger.LogInformation("{Context}: Normalized user DN: {NormalizedDn}, IsMember: {IsMember}",
+                    logContext, normalizedUserDn, isMember);
 
-                    return isMember;
-                }
-            }
-            else
-            {
-                _logger.LogWarning("{Context}: No user found for sAMAccountName '{Username}'", logContext, name);
+                return isMember;
             }
 
+            _logger.LogWarning("{Context}: No user found for '{Username}'", logContext, username);
             return false;
         }
         catch (Exception ex)
@@ -3443,8 +3429,52 @@ public class ActiveRolesService
         if (string.IsNullOrWhiteSpace(name))
             return null;
 
+        var escaped = EscapeLdapFilterValue(name);
+
+        // The AR REST virtual 'CN=Active Directory' provider is CASE-SENSITIVE on the attribute name
+        // in the filter and exposes the account attribute as 'samAccountName' (lowercase s/a), not the
+        // standard AD 'sAMAccountName'. Using the wrong casing silently returns zero rows. Try the AR
+        // casing first, then the standard casing, then a class-agnostic fallback, so a resolvable
+        // account is never silently missed (this previously downgraded valid auditors to the User role).
+        //
+        // IMPORTANT: request the SAME safe attribute set that ArPermissionModelService uses to
+        // successfully resolve this exact account. Requesting 'distinguishedName' as the ONLY search
+        // attribute triggers an AR REST quirk on the virtual provider that silently returns zero rows
+        // (mirroring the documented 'tokenGroups' search bug); requesting the standard object
+        // attributes returns the object, whose DN we then read from 'distinguishedName'.
+        const string resolveAttrs = "objectGUID,objectSid,objectClass,sAMAccountName,distinguishedName";
+
         var userSearch = await SearchObjectsAsync(token, baseDn,
-            $"(&(objectClass=user)(sAMAccountName={name}))", "sub", "distinguishedName");
+            $"(&(objectClass=user)(samAccountName={escaped}))", "sub", resolveAttrs);
+
+        if (userSearch.Count == 0)
+        {
+            userSearch = await SearchObjectsAsync(token, baseDn,
+                $"(&(objectClass=user)(sAMAccountName={escaped}))", "sub", resolveAttrs);
+        }
+
+        if (userSearch.Count == 0)
+        {
+            userSearch = await SearchObjectsAsync(token, baseDn,
+                $"(samAccountName={escaped})", "sub", resolveAttrs);
+        }
+
+        // Final fallback: the AR REST virtual 'CN=Active Directory' provider matches the sAMAccountName
+        // *value* CASE-SENSITIVELY, so a login of 'secaudit' fails to match a stored 'SecAudit'. Active
+        // Directory itself treats sAMAccountName case-insensitively, so we use Ambiguous Name Resolution
+        // (anr), which is case-insensitive, and then confirm the match client-side (also case-insensitively)
+        // to avoid picking up an unrelated ANR hit.
+        if (userSearch.Count == 0)
+        {
+            var anrHits = await SearchObjectsAsync(token, baseDn,
+                $"(&(objectClass=user)(anr={escaped}))", "sub", resolveAttrs);
+
+            userSearch = anrHits
+                .Where(u => string.Equals(GetAttr(u, "sAMAccountName"), name, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(GetAttr(u, "samAccountName"), name, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         if (userSearch.Count == 0)
         {
             _logger.LogWarning("ResolveUserDnAsync: No user found for sAMAccountName '{Username}'.", name);
@@ -3452,6 +3482,8 @@ public class ActiveRolesService
         }
 
         var userDn = GetAttr(userSearch[0], "distinguishedName");
+        if (string.IsNullOrEmpty(userDn))
+            userDn = GetAttr(userSearch[0], "dn");
         return string.IsNullOrEmpty(userDn) ? null : NormalizeAdDn(userDn);
     }
 

@@ -26,6 +26,7 @@ public class RoleService
     private readonly ActiveRolesService _arService;
     private readonly IOptionsMonitor<ActiveRolesConfig> _config;
     private readonly RolePermissionProtector _protector;
+    private readonly ServiceAccountTokenProvider _serviceTokens;
     private readonly ILogger<RoleService> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = false };
@@ -34,11 +35,13 @@ public class RoleService
         ActiveRolesService arService,
         IOptionsMonitor<ActiveRolesConfig> config,
         RolePermissionProtector protector,
+        ServiceAccountTokenProvider serviceTokens,
         ILogger<RoleService> logger)
     {
         _arService = arService;
         _config = config;
         _protector = protector;
+        _serviceTokens = serviceTokens;
         _logger = logger;
     }
 
@@ -161,8 +164,27 @@ public class RoleService
         var baseDn = config.DefaultActiveDirectoryDN;
         var filters = config.DefaultFilters;
 
+        // Directory lookups (DN resolution + group-membership checks) must run under the privileged
+        // service account, NOT the logging-in user's token. A low-privilege user (e.g. an Auditor)
+        // frequently lacks Active Roles read visibility to their own object and the role groups via
+        // the REST virtual 'CN=Active Directory' provider, so their DN silently resolves to zero
+        // results and they get downgraded to the default User role. The service account is what the
+        // superset/permission-model collection already uses successfully. Fall back to the caller's
+        // token only if the service account is unavailable.
+        string directoryToken = token;
+        try
+        {
+            directoryToken = await _serviceTokens.GetTokenAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "ResolveLoginFactsAsync: service-account token unavailable; falling back to the caller's token for '{Username}'.",
+                username);
+        }
+
         // Resolve the viewer's DN once; every group-membership check below reuses it.
-        var userDn = await _arService.ResolveUserDnAsync(token, username);
+        var userDn = await _arService.ResolveUserDnAsync(directoryToken, username);
         if (string.IsNullOrEmpty(userDn))
         {
             _logger.LogWarning("ResolveLoginFactsAsync: could not resolve DN for '{Username}'; defaulting to User role.", username);
@@ -171,17 +193,17 @@ public class RoleService
 
         // Active Roles administrators get full permissions regardless of role-group membership.
         var isAdmin = await _arService.IsDnMemberOfGroupFilterAsync(
-            token, userDn, baseDn, filters.ActiveRolesAdmins, "LoginFacts:ActiveRolesAdmins");
+            directoryToken, userDn, baseDn, filters.ActiveRolesAdmins, "LoginFacts:ActiveRolesAdmins");
         if (isAdmin)
             return (true, DashboardRole.DashboardAdministrator);
 
-        if (await _arService.IsDnMemberOfGroupFilterAsync(token, userDn, baseDn, filters.DashboardAdmins, "LoginFacts:DashboardAdmins"))
+        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, filters.DashboardAdmins, "LoginFacts:DashboardAdmins"))
             return (false, DashboardRole.DashboardAdministrator);
 
-        if (await _arService.IsDnMemberOfGroupFilterAsync(token, userDn, baseDn, filters.Auditors, "LoginFacts:Auditors"))
+        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, filters.Auditors, "LoginFacts:Auditors"))
             return (false, DashboardRole.Auditor);
 
-        if (await _arService.IsDnMemberOfGroupFilterAsync(token, userDn, baseDn, filters.PowerUsers, "LoginFacts:PowerUsers"))
+        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, filters.PowerUsers, "LoginFacts:PowerUsers"))
             return (false, DashboardRole.PowerUser);
 
         return (false, DashboardRole.User);

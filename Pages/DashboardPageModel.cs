@@ -67,6 +67,37 @@ public abstract class DashboardPageModel : PageModel
     /// <summary>True when the current user's role carries the given permission.</summary>
     public bool HasPermission(DashboardPermission permission) => DashboardPermissions.Contains(permission);
 
+    /// <summary>
+    /// True when the current viewer sees the full (unfiltered) superset rather than a per-user
+    /// projection scoped to their Active Roles delegation. Active Roles administrators always do;
+    /// so does any role whose permissions do NOT carry
+    /// <see cref="DashboardPermission.UseDelegatedPermissionsForVisibility"/> (e.g. Auditors, who
+    /// have full read visibility across the environment). Only roles that explicitly opt into
+    /// delegated visibility (e.g. Power Users) are SID-filtered.
+    /// </summary>
+    public bool UsesFullVisibility =>
+        IsActiveRolesAdmin || !HasPermission(DashboardPermission.UseDelegatedPermissionsForVisibility);
+
+    /// <summary>
+    /// True when the user may view the Active Roles configuration dashboard. Active Roles
+    /// administrators always may; so does any role granted
+    /// <see cref="DashboardPermission.ViewActiveRolesDashboard"/> (e.g. Auditors).
+    /// </summary>
+    public bool CanViewActiveRolesDashboard =>
+        IsActiveRolesAdmin || HasPermission(DashboardPermission.ViewActiveRolesDashboard);
+
+    /// <summary>True when the user may open the Settings page (any settings permission).</summary>
+    public bool CanAccessSettings => RolePermissionRegistry.CanAccessSettings(DashboardPermissions);
+
+    /// <summary>True when the user may view/change the User settings category.</summary>
+    public bool CanManageUserSettings => RolePermissionRegistry.CanManageUserSettings(DashboardPermissions);
+
+    /// <summary>True when the user may view the System settings category.</summary>
+    public bool CanViewSystemSettings => RolePermissionRegistry.CanViewSystemSettings(DashboardPermissions);
+
+    /// <summary>True when the user may modify the System settings category.</summary>
+    public bool CanManageSystemSettings => RolePermissionRegistry.CanManageSystemSettings(DashboardPermissions);
+
     /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
     protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
 
@@ -185,6 +216,11 @@ public abstract class DashboardPageModel : PageModel
         DashboardRole = role;
         DashboardPermissions = RoleService.GetPermissions(role);
 
+        // Publish settings-button visibility to the shared header/toolbar (which reads ViewData).
+        // The gear is shown only when the user's role grants some settings access; the Settings
+        // page itself independently enforces this server-side.
+        ViewData["ShowSettings"] = CanAccessSettings;
+
         return null;
     }
 
@@ -232,7 +268,7 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected async Task<bool> CanViewLicensingAsync(CancellationToken ct = default)
     {
-        if (IsActiveRolesAdmin)
+        if (UsesFullVisibility)
             return true;
 
         var model = Cache.PermissionModel;
@@ -276,8 +312,9 @@ public abstract class DashboardPageModel : PageModel
         if (!deployed)
             return false;
 
-        // (2) Active Roles admins may always see it once deployed.
-        if (IsActiveRolesAdmin)
+        // (2) Active Roles admins and full-visibility roles (e.g. Auditors) may always see it
+        // once deployed.
+        if (UsesFullVisibility)
             return true;
 
         // Otherwise the viewer must be a member of an Exchange administrative group. Cache the
@@ -575,10 +612,12 @@ public abstract class DashboardPageModel : PageModel
         }
         else
         {
-            // Serve from the shared service-account superset. Admins see the unfiltered data;
-            // everyone else sees a per-user projection scoped to their AR delegation.
+            // Serve from the shared service-account superset. Admins and full-visibility roles
+            // (e.g. Auditors, which lack UseDelegatedPermissionsForVisibility) see the unfiltered
+            // data; delegated roles (e.g. Power Users) see a per-user projection scoped to their AR
+            // delegation.
             var model = Cache.PermissionModel;
-            var viewer = IsActiveRolesAdmin ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
+            var viewer = UsesFullVisibility ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
 
             Summary = (viewer is not null && model is not null)
                 ? PerUserFilter.Filter(superset, viewer, model)

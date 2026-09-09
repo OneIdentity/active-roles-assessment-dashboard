@@ -87,6 +87,12 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Save Settings</value>
   </data>
+  <data name="AccessDenied" xml:space="preserve">
+	<value>You do not have permission to view or change settings.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+	<value>You can view these system settings but do not have permission to change them.</value>
+  </data>
   <data name="Card_RestApi" xml:space="preserve">
 	<value>REST API Configuration</value>
   </data>

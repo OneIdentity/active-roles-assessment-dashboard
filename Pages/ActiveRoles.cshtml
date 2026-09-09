@@ -32,7 +32,7 @@
     <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
     </div>
 
-    @if (Model.IsActiveRolesAdmin)
+    @if (Model.CanViewActiveRolesDashboard)
     {
         var sortedCategories = CategoryInfo.ForDashboard(DashboardInfo.ActiveRoles)
             .Where(c => Model.KpiSettings.IsCategoryEnabled(c.Key))
@@ -75,7 +75,7 @@
 
     <!-- Drill-down panels -->
     <div class="panel-grid">
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ActiveRolesAdmins"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "ActiveRolesAdmins"))
         {
         <div class="panel" id="panel-aradmins">
             <h2><span class="sec-icon">R</span> @KpiInfo.ActiveRolesAdmins.DisplayName
@@ -138,7 +138,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Domains"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "Domains"))
         {
         <div class="panel" id="panel-domains">
             <h2><span class="sec-icon">D</span> @KpiInfo.Domains.DisplayName</h2>
@@ -189,7 +189,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Servers"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "Servers"))
         {
         <div class="panel" id="panel-servers">
             <h2><span class="sec-icon">S</span> @KpiInfo.Servers.DisplayName</h2>
@@ -218,7 +218,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroups"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroups"))
         {
         <div class="panel" id="panel-dynamicgroups">
             <h2><span class="sec-icon">G</span> @KpiInfo.DynamicGroups.DisplayName</h2>
@@ -267,7 +267,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("ARConfiguration", "GroupFamilies"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("ARConfiguration", "GroupFamilies"))
         {
         <div class="panel" id="panel-groupfamilies">
             <h2><span class="sec-icon">G</span> @KpiInfo.GroupFamilies.DisplayName</h2>
@@ -299,7 +299,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ManagedUnits"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "ManagedUnits"))
         {
         <div class="panel" id="panel-managedunits">
             <h2><span class="sec-icon">M</span> @KpiInfo.ManagedUnits.DisplayName</h2>
@@ -349,7 +349,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "Workflows"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "Workflows"))
         {
         <div class="panel" id="panel-workflows">
             <h2><span class="sec-icon">W</span> @KpiInfo.Workflows.DisplayName</h2>
@@ -378,7 +378,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ScheduledTasks"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "ScheduledTasks"))
         {
         <div class="panel" id="panel-scheduledtasks">
             <h2><span class="sec-icon">T</span> @KpiInfo.ScheduledTasks.DisplayName</h2>
@@ -407,7 +407,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "VirtualAttributes"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "VirtualAttributes"))
         {
         <div class="panel" id="panel-virtualattrs">
             <h2><span class="sec-icon">V</span> @KpiInfo.VirtualAttributes.DisplayName</h2>
@@ -436,7 +436,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "ConfigDatabases"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "ConfigDatabases"))
         {
         <div class="panel" id="panel-configdatabases">
             <h2><span class="sec-icon">C</span> @KpiInfo.ConfigDatabases.DisplayName</h2>
@@ -465,7 +465,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "HistoryDatabases"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "HistoryDatabases"))
         {
         <div class="panel" id="panel-historydatabases">
             <h2><span class="sec-icon">H</span> @KpiInfo.HistoryDatabases.DisplayName</h2>
@@ -494,7 +494,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjects"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjects"))
         {
         <div class="panel" id="panel-policies">
             <h2><span class="sec-icon">P</span> @KpiInfo.PolicyObjects.DisplayName</h2>
@@ -523,7 +523,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplates"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplates"))
         {
         <div class="panel" id="panel-accesstemplates">
             <h2><span class="sec-icon">A</span> @KpiInfo.AccessTemplates.DisplayName</h2>
@@ -552,7 +552,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "EmptyAccessTemplates"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "EmptyAccessTemplates"))
         {
         <div class="panel" id="panel-emptyaccesstemplates">
             <h2><span class="sec-icon">E</span> @KpiInfo.EmptyAccessTemplates.DisplayName</h2>
@@ -581,7 +581,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectsNoRules"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectsNoRules"))
         {
         <div class="panel" id="panel-policyobjectsnorules">
             <h2><span class="sec-icon">N</span> @KpiInfo.PolicyObjectsNoRules.DisplayName</h2>
@@ -610,7 +610,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "UnlinkedAccessTemplates"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "UnlinkedAccessTemplates"))
         {
         <div class="panel" id="panel-unlinkedaccesstemplates">
             <h2><span class="sec-icon">U</span> @KpiInfo.UnlinkedAccessTemplates.DisplayName</h2>
@@ -639,7 +639,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "DenyAccessTemplates"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "DenyAccessTemplates"))
         {
         <div class="panel" id="panel-denyaccesstemplates">
             <h2><span class="sec-icon">D</span> @KpiInfo.DenyAccessTemplates.DisplayName</h2>
@@ -668,7 +668,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "UnlinkedPolicyObjects"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "UnlinkedPolicyObjects"))
         {
         <div class="panel" id="panel-unlinkedpolicyobjects">
             <h2><span class="sec-icon">P</span> @KpiInfo.UnlinkedPolicyObjects.DisplayName</h2>
@@ -697,7 +697,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplateLinks"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplateLinks"))
         {
         <div class="panel" id="panel-atlinks">
             <h2><span class="sec-icon">L</span> @KpiInfo.AccessTemplateLinks.DisplayName</h2>
@@ -731,7 +731,7 @@
         </div>
         }
 
-        @if (Model.IsActiveRolesAdmin && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectLinks"))
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "PolicyObjectLinks"))
         {
         <div class="panel" id="panel-polinks">
             <h2><span class="sec-icon">L</span> @KpiInfo.PolicyObjectLinks.DisplayName</h2>

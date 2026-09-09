@@ -219,4 +219,10 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Guardar configuración</value>
   </data>
+  <data name="AccessDenied" xml:space="preserve">
+	<value>No tiene permiso para ver o cambiar la configuración.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+	<value>Puede ver esta configuración del sistema, pero no tiene permiso para cambiarla.</value>
+  </data>
 </root>
