@@ -193,6 +193,7 @@ tbody tr:hover { background: #f8fafc; }
 .snap-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; text-decoration: none; }
 .snap-icon-btn:hover { background: #f3f4f6; color: #111827; }
 .snap-icon-danger { color: #b91c1c; border-color: #fecaca; }
+.snap-icon-btn:disabled, .snap-icon-btn.snap-icon-disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .snap-icon-danger:hover { background: #fef2f2; color: #991b1b; }
 /* Change-column directional indicators */
 .snap-ind { display: inline-block; margin-right: 4px; font-size: .78rem; }

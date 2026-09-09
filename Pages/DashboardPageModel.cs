@@ -145,6 +145,21 @@ public abstract class DashboardPageModel : PageModel
     /// <summary>True when the user may modify the System settings category.</summary>
     public bool CanManageSystemSettings => RolePermissionRegistry.CanManageSystemSettings(DashboardPermissions);
 
+    /// <summary>
+    /// True when the user may view the Snapshots page (its button and page). Granted by
+    /// <see cref="DashboardPermission.ViewSnapshots"/>. Direct navigation is blocked when false.
+    /// </summary>
+    public bool CanViewSnapshots => HasPermission(DashboardPermission.ViewSnapshots);
+
+    /// <summary>True when the user may run and save new snapshots.</summary>
+    public bool CanRunAndSaveSnapshots => HasPermission(DashboardPermission.RunAndSaveSnapshots);
+
+    /// <summary>True when the user may delete saved snapshots.</summary>
+    public bool CanDeleteSnapshots => HasPermission(DashboardPermission.DeleteSnapshots);
+
+    /// <summary>True when the user may compare snapshots.</summary>
+    public bool CanCompareSnapshots => HasPermission(DashboardPermission.CompareSnapshots);
+
     /// <summary>RoleService resolved from the request container (see <see cref="Cache"/> rationale).</summary>
     protected RoleService RoleService => HttpContext.RequestServices.GetRequiredService<RoleService>();
 
@@ -267,6 +282,11 @@ public abstract class DashboardPageModel : PageModel
         // The gear is shown only when the user's role grants some settings access; the Settings
         // page itself independently enforces this server-side.
         ViewData["ShowSettings"] = CanAccessSettings;
+
+        // Publish snapshots-button visibility to the shared toolbar. The camera icon is shown
+        // only when the user's role grants ViewSnapshots; the Snapshots page itself independently
+        // enforces this server-side.
+        ViewData["ShowSnapshots"] = CanViewSnapshots;
 
         return null;
     }

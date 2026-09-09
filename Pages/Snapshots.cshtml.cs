@@ -38,6 +38,10 @@ public class SnapshotsModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
+        // Block direct navigation for users whose role lacks ViewSnapshots.
+        if (!CanViewSnapshots)
+            return RedirectToPage("/Index");
+
         await LoadSnapshotsAsync();
         await BuildComparisonIfRequestedAsync();
         Trend = await _snapshots.BuildTrendAsync();
@@ -50,6 +54,10 @@ public class SnapshotsModel : DashboardPageModel
     {
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
+
+        // Run & Save is restricted to users holding RunAndSaveSnapshots.
+        if (!CanRunAndSaveSnapshots)
+            return RedirectToPage("/Index");
 
         var token = GetAccessToken()!;
         var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
@@ -77,6 +85,10 @@ public class SnapshotsModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
+        // Deleting a snapshot is restricted to users holding DeleteSnapshots.
+        if (!CanDeleteSnapshots)
+            return RedirectToPage("/Index");
+
         StatusMessage = _snapshots.Delete(id) ? "Snapshot deleted." : "Snapshot not found.";
         return RedirectToPage();
     }
@@ -88,6 +100,10 @@ public class SnapshotsModel : DashboardPageModel
 
     private async Task BuildComparisonIfRequestedAsync()
     {
+        // Comparing snapshots is restricted to users holding CompareSnapshots.
+        if (!CanCompareSnapshots)
+            return;
+
         if (string.IsNullOrWhiteSpace(FromId))
             return;
 
