@@ -97,7 +97,7 @@ Write-Host "==> Copying to $RemotePath (preserving target config + keys)..." -Fo
 # When -IncludeAppSettings is set we copy appsettings.json explicitly AFTERWARDS, so the
 # mirror's /XF exclusion and the intentional seed can't conflict.
 $robocopyArgs = @($publishDir, $RemotePath, "/MIR", "/R:2", "/W:2", "/NFL", "/NDL", "/NP",
-                  "/XD", "App_Data", "/XF", "appsettings.json")
+                  "/XD", "App_Data", "/XF", "appsettings.json", "appsettings.Development.json")
 
 robocopy @robocopyArgs
 # Robocopy exit codes 0-7 are success (8+ are failures).

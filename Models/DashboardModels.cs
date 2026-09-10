@@ -934,13 +934,14 @@ public class ActiveRolesConfig
     // Default UI language / culture code applied before a user selects their own in Settings.
     public string DefaultLanguage { get; set; } = SupportedLanguage.DefaultCode;
 
-    // Single default base DN for all KPI searches
-    public string DefaultActiveDirectoryDN { get; set; } = "CN=Active Directory";
-    public string DefaultARConfigurationDN { get; set; } = "CN=Configuration";
+    // Default base DNs for all KPI searches (grouped under the DefaultDNs section).
+    public DefaultDnsConfig DefaultDNs { get; set; } = new();
 
-    // Base DN under which Active Roles exposes connected Azure/Entra tenants.
-    // Each immediate child container is a tenant (e.g. CN=contoso.onmicrosoft.com,CN=Azure,CN=Configuration).
-    public string DefaultAzureConfigurationDN { get; set; } = "CN=Azure,CN=Configuration";
+    // Pass-through accessors preserve the historic flat property names used throughout the
+    // codebase while the values are now bound from the nested ActiveRoles:DefaultDNs section.
+    public string DefaultActiveDirectoryDN => DefaultDNs.ActiveDirectory;
+    public string DefaultARConfigurationDN => DefaultDNs.ARConfiguration;
+    public string DefaultAzureConfigurationDN => DefaultDNs.AzureConfiguration;
 
     // Maximum depth to expand when walking nested group membership (safety cap).
     public int MaxGroupTreeDepth { get; set; } = 10;
@@ -970,17 +971,24 @@ public class ActiveRolesConfig
     // TotalObjects is the grand-total entitlement across all categories.
     public LicensingConfig Licensing { get; set; } = new();
 
-    // Custom overrides (blank = use default)
-    public string CustomNoGroupOwnerBaseDn { get; set; } = string.Empty;
-    public string CustomNoManagerUserBaseDn { get; set; } = string.Empty;
-    public string CustomNoManagerUserFilter { get; set; } = string.Empty;
-    public string CustomNoManagerServiceAccountBaseDn { get; set; } = string.Empty;
-    public string CustomNoManagerServiceAccountFilter { get; set; } = string.Empty;
-    public string CustomUserAccountExpiredBaseDn { get; set; } = string.Empty;
-    public string CustomUserAccountLockedOutBaseDn { get; set; } = string.Empty;
-    public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
-    public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
-    public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
+    // Custom base DN overrides (grouped under the CustomDNs section; blank = use the default DN).
+    public CustomDnsConfig CustomDNs { get; set; } = new();
+
+    // Custom LDAP filter overrides (grouped under the CustomFilters section; blank = use the default filter).
+    public CustomFiltersConfig CustomFilters { get; set; } = new();
+
+    // Pass-through accessors preserve the historic flat property names used throughout the
+    // codebase while the values are now bound from the nested CustomDNs / CustomFilters sections.
+    public string CustomNoGroupOwnerBaseDn => CustomDNs.NoGroupOwner;
+    public string CustomNoManagerUserBaseDn => CustomDNs.NoManagerUser;
+    public string CustomNoManagerServiceAccountBaseDn => CustomDNs.NoManagerServiceAccount;
+    public string CustomUserAccountExpiredBaseDn => CustomDNs.UserAccountExpired;
+    public string CustomUserAccountLockedOutBaseDn => CustomDNs.UserAccountLockedOut;
+    public string CustomEmptyGroupsBaseDn => CustomDNs.EmptyGroups;
+    public string CustomActiveRolesAdminsBaseDn => CustomDNs.ActiveRolesAdmins;
+    public string CustomNoManagerUserFilter => CustomFilters.NoManagerUser;
+    public string CustomNoManagerServiceAccountFilter => CustomFilters.NoManagerServiceAccount;
+    public string CustomActiveRolesAdminsFilter => CustomFilters.ActiveRolesAdmins;
 
     // Service account used to collect the shared dashboard superset at application startup
     // and on scheduled/manual refresh. End-user tokens cannot read AR configuration
@@ -996,6 +1004,48 @@ public class ActiveRolesConfig
     // single Data-Protection blob (see RoleService); the fixed roles/permissions themselves are
     // defined in code (RolePermissionRegistry) and cannot be added to or removed.
     public RolesConfig Roles { get; set; } = new();
+}
+
+/// <summary>
+/// Default base DNs for KPI searches. Grouped under the "DefaultDNs" configuration section.
+/// </summary>
+public class DefaultDnsConfig
+{
+    // Single default base DN for all Active Directory KPI searches.
+    public string ActiveDirectory { get; set; } = "CN=Active Directory";
+
+    // Default base DN for Active Roles configuration objects.
+    public string ARConfiguration { get; set; } = "CN=Configuration";
+
+    // Base DN under which Active Roles exposes connected Azure/Entra tenants.
+    // Each immediate child container is a tenant (e.g. CN=contoso.onmicrosoft.com,CN=Azure,CN=Configuration).
+    public string AzureConfiguration { get; set; } = "CN=Azure,CN=Configuration";
+}
+
+/// <summary>
+/// Custom base DN overrides. Grouped under the "CustomDNs" configuration section.
+/// Blank means "use the corresponding default DN".
+/// </summary>
+public class CustomDnsConfig
+{
+    public string NoGroupOwner { get; set; } = string.Empty;
+    public string NoManagerUser { get; set; } = string.Empty;
+    public string NoManagerServiceAccount { get; set; } = string.Empty;
+    public string UserAccountExpired { get; set; } = string.Empty;
+    public string UserAccountLockedOut { get; set; } = string.Empty;
+    public string EmptyGroups { get; set; } = string.Empty;
+    public string ActiveRolesAdmins { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Custom LDAP filter overrides. Grouped under the "CustomFilters" configuration section.
+/// Blank means "use the corresponding default filter".
+/// </summary>
+public class CustomFiltersConfig
+{
+    public string NoManagerUser { get; set; } = string.Empty;
+    public string NoManagerServiceAccount { get; set; } = string.Empty;
+    public string ActiveRolesAdmins { get; set; } = string.Empty;
 }
 
 /// <summary>

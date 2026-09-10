@@ -180,21 +180,45 @@ public class SetupModel : PageModel
                 activeRoles["RstsUrl"] = rstsUrl;
                 activeRoles["RstsScope"] = RstsScope?.Trim() ?? "";
                 activeRoles["WebInterfaceUrl"] = WebInterfaceUrl?.Trim() ?? "";
-                activeRoles["CustomNoGroupOwnerBaseDn"] = CustomNoGroupOwnerBaseDn?.Trim() ?? "";
-                activeRoles["CustomNoManagerUserBaseDn"] = CustomNoManagerUserBaseDn?.Trim() ?? "";
-                activeRoles["CustomNoManagerUserFilter"] = CustomNoManagerUserFilter?.Trim() ?? "";
-                activeRoles["CustomNoManagerServiceAccountBaseDn"] = CustomNoManagerServiceAccountBaseDn?.Trim() ?? "";
-                activeRoles["CustomNoManagerServiceAccountFilter"] = CustomNoManagerServiceAccountFilter?.Trim() ?? "";
-                activeRoles["CustomUserAccountExpiredBaseDn"] = CustomUserAccountExpiredBaseDn?.Trim() ?? "";
-                activeRoles["CustomUserAccountLockedOutBaseDn"] = CustomUserAccountLockedOutBaseDn?.Trim() ?? "";
-                activeRoles["CustomEmptyGroupsBaseDn"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
-                activeRoles["CustomActiveRolesAdminsBaseDn"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
-                activeRoles["CustomActiveRolesAdminsFilter"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
-                activeRoles["LicensedDomainObjects"] = Math.Max(0, LicensedDomainObjects);
-                activeRoles["LicensedPartitionObjects"] = Math.Max(0, LicensedPartitionObjects);
-                activeRoles["LicensedAzureObjects"] = Math.Max(0, LicensedAzureObjects);
-                activeRoles["LicensedSaasObjects"] = Math.Max(0, LicensedSaasObjects);
-                activeRoles["LicensedTotalObjects"] = Math.Max(0, LicensedTotalObjects);
+
+                // Custom base DN overrides live under the nested CustomDNs section.
+                var customDns = activeRoles["CustomDNs"]?.AsObject();
+                if (customDns is null)
+                {
+                    customDns = new JsonObject();
+                    activeRoles["CustomDNs"] = customDns;
+                }
+                customDns["NoGroupOwner"] = CustomNoGroupOwnerBaseDn?.Trim() ?? "";
+                customDns["NoManagerUser"] = CustomNoManagerUserBaseDn?.Trim() ?? "";
+                customDns["NoManagerServiceAccount"] = CustomNoManagerServiceAccountBaseDn?.Trim() ?? "";
+                customDns["UserAccountExpired"] = CustomUserAccountExpiredBaseDn?.Trim() ?? "";
+                customDns["UserAccountLockedOut"] = CustomUserAccountLockedOutBaseDn?.Trim() ?? "";
+                customDns["EmptyGroups"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
+                customDns["ActiveRolesAdmins"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
+
+                // Custom LDAP filter overrides live under the nested CustomFilters section.
+                var customFilters = activeRoles["CustomFilters"]?.AsObject();
+                if (customFilters is null)
+                {
+                    customFilters = new JsonObject();
+                    activeRoles["CustomFilters"] = customFilters;
+                }
+                customFilters["NoManagerUser"] = CustomNoManagerUserFilter?.Trim() ?? "";
+                customFilters["NoManagerServiceAccount"] = CustomNoManagerServiceAccountFilter?.Trim() ?? "";
+                customFilters["ActiveRolesAdmins"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
+
+                // Licensed entitlement thresholds live under the nested Licensing section.
+                var licensing = activeRoles["Licensing"]?.AsObject();
+                if (licensing is null)
+                {
+                    licensing = new JsonObject();
+                    activeRoles["Licensing"] = licensing;
+                }
+                licensing["DomainObjects"] = Math.Max(0, LicensedDomainObjects);
+                licensing["PartitionObjects"] = Math.Max(0, LicensedPartitionObjects);
+                licensing["AzureObjects"] = Math.Max(0, LicensedAzureObjects);
+                licensing["SaasObjects"] = Math.Max(0, LicensedSaasObjects);
+                licensing["TotalObjects"] = Math.Max(0, LicensedTotalObjects);
                 activeRoles["DefaultLanguage"] = SupportedLanguage.All.Any(l => l.Code == Language)
                     ? Language
                     : SupportedLanguage.DefaultCode;
