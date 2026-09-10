@@ -38,20 +38,19 @@ public enum DashboardPermission
     ViewExchangeDashboard = 6,
     ViewLicensingDashboard = 7,
     UseDelegatedPermissionsForVisibility = 8,
-    RefreshCurrentDashboard = 9,
-    ViewSnapshots = 10,
-    CompareSnapshots = 11,
-    RunAndSaveSnapshots = 12,
-    DeleteSnapshots = 13,
-    ViewExposureReport = 14,
-    CompareExposureReports = 15,
-    ViewAssessments = 16,
-    RunAndSaveAssessments = 17,
-    CompareAssessments = 18,
-    DeleteAssessments = 19,
-    RebuildCache = 20,
-    ExportAssessments = 21,
-    ExportDashboardData = 22
+    ViewSnapshots = 9,
+    CompareSnapshots = 10,
+    RunAndSaveSnapshots = 11,
+    DeleteSnapshots = 12,
+    ViewExposureReport = 13,
+    CompareExposureReports = 14,
+    ViewAssessments = 15,
+    RunAndSaveAssessments = 16,
+    CompareAssessments = 17,
+    DeleteAssessments = 18,
+    RebuildCache = 19,
+    ExportAssessments = 20,
+    ExportDashboardData = 21
 }
 
 /// <summary>
@@ -125,15 +124,16 @@ public static class RolePermissionRegistry
                 DashboardPermission.ViewEntraIdDashboard,
                 DashboardPermission.ViewExchangeDashboard,
                 DashboardPermission.ViewLicensingDashboard,
-                DashboardPermission.RefreshCurrentDashboard,
                 DashboardPermission.ViewSnapshots,
                 DashboardPermission.CompareSnapshots,
                 DashboardPermission.RunAndSaveSnapshots,
+                DashboardPermission.DeleteSnapshots,
                 DashboardPermission.ViewExposureReport,
                 DashboardPermission.CompareExposureReports,
                 DashboardPermission.ViewAssessments,
                 DashboardPermission.RunAndSaveAssessments,
                 DashboardPermission.CompareAssessments,
+                DashboardPermission.DeleteAssessments,
                 DashboardPermission.ExportAssessments,
                 DashboardPermission.ExportDashboardData,
                 DashboardPermission.RebuildCache
@@ -143,14 +143,12 @@ public static class RolePermissionRegistry
                 DashboardPermission.ManageUserSettings,
                 DashboardPermission.ViewSystemSettings,
                 DashboardPermission.UseDelegatedPermissionsForVisibility,
-                DashboardPermission.RefreshCurrentDashboard,
                 DashboardPermission.ExportDashboardData
             },
             [DashboardRole.User] = new HashSet<DashboardPermission>
             {
                 DashboardPermission.ManageUserSettings,
-                DashboardPermission.UseDelegatedPermissionsForVisibility,
-                DashboardPermission.RefreshCurrentDashboard
+                DashboardPermission.UseDelegatedPermissionsForVisibility
             }
         };
 
@@ -177,7 +175,6 @@ public static class RolePermissionRegistry
             [DashboardPermission.ViewExchangeDashboard] = new("Perm_ViewExchangeDashboard", "View Exchange dashboard"),
             [DashboardPermission.ViewLicensingDashboard] = new("Perm_ViewLicensingDashboard", "View Licensing dashboard"),
             [DashboardPermission.UseDelegatedPermissionsForVisibility] = new("Perm_UseDelegatedPermissionsForVisibility", "Use delegated permissions to determine dashboard visibility"),
-            [DashboardPermission.RefreshCurrentDashboard] = new("Perm_RefreshCurrentDashboard", "Refresh current dashboard"),
             [DashboardPermission.ViewSnapshots] = new("Perm_ViewSnapshots", "View snapshots"),
             [DashboardPermission.CompareSnapshots] = new("Perm_CompareSnapshots", "Compare snapshots"),
             [DashboardPermission.RunAndSaveSnapshots] = new("Perm_RunAndSaveSnapshots", "Run & Save snapshots"),
