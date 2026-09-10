@@ -17,4 +17,10 @@
     <None Include=".github\copilot-instructions.md" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Never publish the local development overrides; they are for local runs only and must
+         not ship to a target server (they would override the target's appsettings.json). -->
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
 </Project>
