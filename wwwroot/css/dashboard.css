@@ -49,6 +49,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .panel { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,.08); width: 100%; display: none; }
 .panel.active { display: block; }
 .panel.panel-static { display: block; }
+/* Collapsible panels (details/summary) */
+.panel-collapsible { padding: 0; overflow: hidden; }
+.panel-collapsible > summary { list-style: none; cursor: pointer; padding: 22px 22px 0; }
+.panel-collapsible > summary::-webkit-details-marker { display: none; }
+.panel-collapsible > summary h2 { margin-bottom: 14px; }
+.panel-collapsible > .panel-content { padding: 0 22px 22px; }
+.panel-caret { margin-left: auto; color: #9ca3af; font-size: .8rem; transition: transform .15s ease; }
+.panel-collapsible[open] > summary .panel-caret { transform: rotate(180deg); }
 .panel h2 { font-size: .92rem; font-weight: 600; color: #374151; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; }
 .sec-icon { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; border-radius: 5px; font-size: .68rem; font-weight: 800; flex-shrink: 0; }
 table { width: 100%; border-collapse: collapse; font-size: .82rem; }
@@ -426,3 +434,55 @@ tr.delta-removed td:first-child { border-left: 3px solid #9ca3af; }
     border-radius: 8px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700;
     line-height: 16px; text-align: center;
 }
+
+/* Performance / connectivity diagnostics panel (Phase 3) */
+#panel-performancetests .perf-controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+#panel-performancetests .perf-controls-selectors { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+/* Dropdown-style selectors matching the domains/tenants multi-select widgets. */
+#panel-performancetests .perf-multi { min-width: 240px; }
+#panel-performancetests .perf-multi-toggle { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #374151; font-size: .85rem; cursor: pointer; text-align: left; }
+#panel-performancetests .perf-multi-toggle:hover { border-color: #9ca3af; }
+#panel-performancetests .perf-multi-label { font-weight: 600; color: #374151; }
+#panel-performancetests .perf-multi .snap-multi-summary { flex: 1 1 auto; color: #2563eb; font-weight: 600; }
+#panel-performancetests .snap-multi-open .snap-multi-caret { transform: rotate(180deg); }
+#panel-performancetests .perf-multi .snap-multi-panel { display: none; padding: 6px; }
+#panel-performancetests .perf-multi.snap-multi-open .snap-multi-panel { display: block; }
+#panel-performancetests .perf-target-list { display: block; padding: 2px 0 0; }
+#panel-performancetests .perf-label { font-size: .78rem; font-weight: 600; color: #6b7280; }
+#panel-performancetests .perf-select { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .85rem; background: #fff; color: #374151; min-width: 160px; }
+#panel-performancetests .perf-select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+#panel-performancetests #perf-status { font-style: normal; font-weight: 600; color: #374151; }
+#panel-performancetests .perf-target-item { font-size: .85rem; color: #374151; display: flex; align-items: center; gap: 6px; }
+
+.perf-badge {
+    display: inline-block; min-width: 52px; padding: 2px 10px; border-radius: 999px;
+    font-size: .72rem; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: .02em;
+}
+.perf-badge.perf-ok { background: #dcfce7; color: #166534; }
+.perf-badge.perf-warn { background: #fef3c7; color: #92400e; }
+.perf-badge.perf-fail { background: #fee2e2; color: #991b1b; }
+.perf-badge.perf-skipped { background: #e5e7eb; color: #4b5563; }
+
+/* Multi-select test-type checkbox group */
+#panel-performancetests .perf-field { display: flex; flex-direction: column; gap: 6px; }
+#panel-performancetests .perf-check-group { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+#panel-performancetests .perf-check { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #374151; cursor: pointer; }
+#panel-performancetests .perf-check-all { font-weight: 600; margin: 8px 0 2px; }
+
+/* Run row with spinner */
+#panel-performancetests .perf-run-row { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+#panel-performancetests #perf-run { display: inline-flex; align-items: center; gap: 8px; }
+#panel-performancetests #perf-run:disabled { opacity: .7; cursor: progress; }
+.perf-spinner {
+    display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.5); border-top-color: #fff;
+    animation: perf-spin .7s linear infinite;
+}
+.perf-spinner.hidden { display: none; }
+@keyframes perf-spin { to { transform: rotate(360deg); } }
+
+/* Latency chart container */
+#panel-performancetests .perf-chart-wrap { margin-top: 18px; }
+#panel-performancetests .perf-chart-title { font-size: .95rem; font-weight: 600; color: #374151; margin: 0 0 8px; }
+#panel-performancetests .perf-chart-canvas-box { position: relative; height: 320px; }
+

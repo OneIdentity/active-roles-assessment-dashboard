@@ -53,4 +53,21 @@
   <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configurer l'URL de l'interface web dans les paramètres</value></data>
   <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>Afficher l'appartenance imbriquée</value></data>
   <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>Aucun membre indirect (imbriqué)</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Col_VerboseLogging" xml:space="preserve"><value>Journalisation détaillée</value></data>
+  <data name="Col_OriginatingService" xml:space="preserve"><value>Service d'origine</value></data>
+  <data name="Col_Expensive" xml:space="preserve"><value>Coûteux</value></data>
+  <data name="Label_ServiceDistribution" xml:space="preserve"><value>Groupes par service d'origine</value></data>
+  <data name="Value_Yes" xml:space="preserve"><value>Oui</value></data>
+  <data name="Value_No" xml:space="preserve"><value>Non</value></data>
+  <data name="Value_On" xml:space="preserve"><value>Activé</value></data>
+  <data name="Value_Off" xml:space="preserve"><value>Désactivé</value></data>
+  <data name="Value_BuiltIn" xml:space="preserve"><value>Intégré</value></data>
+  <data name="Value_Custom" xml:space="preserve"><value>Utilisateur</value></data>
+  <data name="Col_Origin" xml:space="preserve"><value>Origine</value></data>
+  <data name="H_DbTopology" xml:space="preserve"><value>Topologie de base de données et de réplication</value></data>
+  <data name="Col_DbKind" xml:space="preserve"><value>Type de base de données</value></data>
+  <data name="DbKind_Config" xml:space="preserve"><value>Configuration</value></data>
+  <data name="DbKind_History" xml:space="preserve"><value>Historique de gestion</value></data>
+  <data name="DbTopology_None" xml:space="preserve"><value>Aucune base de données trouvée.</value></data>
 </root>

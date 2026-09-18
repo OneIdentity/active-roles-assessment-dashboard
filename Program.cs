@@ -111,6 +111,8 @@ builder.Services.AddHttpClient("ActiveRolesApi")
 
 builder.Services.AddSingleton<RstsAuthService>();
 builder.Services.AddSingleton<ActiveRolesService>();
+builder.Services.AddSingleton<DiagnosticsService>();
+builder.Services.AddSingleton<DiagnosticsTargetProvider>();
 builder.Services.AddSingleton<RoleService>();
 builder.Services.AddSingleton<UserSettingsService>();
 builder.Services.AddSingleton<SnapshotService>();

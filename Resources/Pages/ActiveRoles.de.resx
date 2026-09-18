@@ -53,4 +53,21 @@
   <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Weboberflächen-URL in den Einstellungen konfigurieren</value></data>
   <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>Verschachtelte Mitgliedschaft anzeigen</value></data>
   <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>Keine indirekten (verschachtelten) Mitglieder</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Typ</value></data>
+  <data name="Col_VerboseLogging" xml:space="preserve"><value>Ausführliche Protokollierung</value></data>
+  <data name="Col_OriginatingService" xml:space="preserve"><value>Ursprungsdienst</value></data>
+  <data name="Col_Expensive" xml:space="preserve"><value>Aufwendig</value></data>
+  <data name="Label_ServiceDistribution" xml:space="preserve"><value>Gruppen pro Ursprungsdienst</value></data>
+  <data name="Value_Yes" xml:space="preserve"><value>Ja</value></data>
+  <data name="Value_No" xml:space="preserve"><value>Nein</value></data>
+  <data name="Value_On" xml:space="preserve"><value>Ein</value></data>
+  <data name="Value_Off" xml:space="preserve"><value>Aus</value></data>
+  <data name="Value_BuiltIn" xml:space="preserve"><value>Integriert</value></data>
+  <data name="Value_Custom" xml:space="preserve"><value>Benutzer</value></data>
+  <data name="Col_Origin" xml:space="preserve"><value>Herkunft</value></data>
+  <data name="H_DbTopology" xml:space="preserve"><value>Datenbank- und Replikationstopologie</value></data>
+  <data name="Col_DbKind" xml:space="preserve"><value>Datenbanktyp</value></data>
+  <data name="DbKind_Config" xml:space="preserve"><value>Konfiguration</value></data>
+  <data name="DbKind_History" xml:space="preserve"><value>Verwaltungsverlauf</value></data>
+  <data name="DbTopology_None" xml:space="preserve"><value>Es wurden keine Datenbanken gefunden.</value></data>
 </root>

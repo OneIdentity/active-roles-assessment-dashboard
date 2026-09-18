@@ -301,6 +301,46 @@
                         <input type="hidden" name="KpiSettings.UnlinkedPolicyObjectsEnabled" value="false" />
                     </div>
                     <div class="toggle-row">
+                        <span class="toggle-label">Orphaned Access Template Links</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.OrphanAccessTemplateLinksEnabled" value="true" @(Model.KpiSettings.OrphanAccessTemplateLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.OrphanAccessTemplateLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Orphaned Policy Object Links</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.OrphanPolicyObjectLinksEnabled" value="true" @(Model.KpiSettings.OrphanPolicyObjectLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.OrphanPolicyObjectLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Dynamic Groups With Broken Rules</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.DynamicGroupsBrokenRulesEnabled" value="true" @(Model.KpiSettings.DynamicGroupsBrokenRulesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.DynamicGroupsBrokenRulesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Managed Units With Broken Rules</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ManagedUnitsBrokenRulesEnabled" value="true" @(Model.KpiSettings.ManagedUnitsBrokenRulesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ManagedUnitsBrokenRulesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Script Modules</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.ScriptModulesEnabled" value="true" @(Model.KpiSettings.ScriptModulesEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.ScriptModulesEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
                         <span class="toggle-label">Workflows</span>
                         <label class="toggle-switch">
                             <input type="checkbox" name="KpiSettings.WorkflowsEnabled" value="true" @(Model.KpiSettings.WorkflowsEnabled ? "checked" : "") />
@@ -1011,6 +1051,11 @@
                 <label for="EntraLargeGroupMemberThreshold">@Localizer["Label_LargeGroupThreshold"]</label>
                 <input type="number" id="EntraLargeGroupMemberThreshold" name="EntraLargeGroupMemberThreshold" value="@Model.EntraLargeGroupMemberThreshold" min="1" max="100000" />
                 <p class="hint">@Localizer["Hint_LargeGroupThreshold"]</p>
+            </div>
+            <div class="form-group">
+                <label for="DynamicGroupExpensiveRuleThreshold">@Localizer["Label_DynamicGroupExpensiveThreshold"]</label>
+                <input type="number" id="DynamicGroupExpensiveRuleThreshold" name="DynamicGroupExpensiveRuleThreshold" value="@Model.DynamicGroupExpensiveRuleThreshold" min="1" max="100000" />
+                <p class="hint">@Localizer["Hint_DynamicGroupExpensiveThreshold"]</p>
             </div>
             <div class="form-group">
                 <label for="CustomADUserAccountAttributes">@Localizer["Label_CustomADUserAccountAttributes"]</label>

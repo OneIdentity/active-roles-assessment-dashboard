@@ -142,6 +142,14 @@ public abstract class DashboardPageModel : PageModel
     /// <summary>True when the user may view the System settings category.</summary>
     public bool CanViewSystemSettings => RolePermissionRegistry.CanViewSystemSettings(DashboardPermissions);
 
+    /// <summary>
+    /// True when the user may run the on-demand performance / connectivity diagnostics for the
+    /// given dashboard scope (the Performance Tests panel and the diagnostics endpoints). Each
+    /// dashboard is governed by its own performance permission (or Active Roles admin).
+    /// </summary>
+    public bool CanRunPerformanceTests(DiagnosticsDashboard dashboard) =>
+        RolePermissionRegistry.CanRunPerformanceTests(DashboardPermissions, IsActiveRolesAdmin, dashboard);
+
     /// <summary>True when the user may modify the System settings category.</summary>
     public bool CanManageSystemSettings => RolePermissionRegistry.CanManageSystemSettings(DashboardPermissions);
 

@@ -125,6 +125,7 @@ public class ActiveRolesService
         var config = _configMonitor.CurrentValue;
         var summary = new DashboardSummary();
         summary.EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
+        summary.DynamicGroupExpensiveRuleThreshold = config.DynamicGroupExpensiveRuleThreshold;
 
         var tasks = new List<(string Key, Task Task)>();
 
@@ -220,7 +221,8 @@ public class ActiveRolesService
                     Name = GetAttr(i, "name"),
                     Domain = GetAttr(i, "edsaDomainNetbiosName"),
                     Dn = GetAttr(i, "distinguishedName"),
-                    SiteName = GetAttr(i, "msDS-SiteName")
+                    SiteName = GetAttr(i, "msDS-SiteName"),
+                    IsGlobalCatalog = ParseArBool(GetAttr(i, "msDS-isGC"))
                 }).ToList()
             };
         }
@@ -1054,6 +1056,36 @@ public class ActiveRolesService
             tasks.Add(("PolicyObjectLinks", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
+        if (settings.IsKpiEnabled("ARConfiguration", "OrphanAccessTemplateLinks"))
+        {
+            var t = GetOrphanAccessTemplateLinksAsync(token);
+            tasks.Add(("OrphanAccessTemplateLinks", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OrphanAccessTemplateLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "OrphanPolicyObjectLinks"))
+        {
+            var t = GetOrphanPolicyObjectLinksAsync(token);
+            tasks.Add(("OrphanPolicyObjectLinks", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OrphanPolicyObjectLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "DynamicGroupsBrokenRules"))
+        {
+            var t = GetDynamicGroupsBrokenRulesAsync(token);
+            tasks.Add(("DynamicGroupsBrokenRules", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DynamicGroupsBrokenRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "ManagedUnitsBrokenRules"))
+        {
+            var t = GetManagedUnitsBrokenRulesAsync(token);
+            tasks.Add(("ManagedUnitsBrokenRules", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedUnitsBrokenRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+        if (settings.IsKpiEnabled("ARConfiguration", "ScriptModules"))
+        {
+            var t = GetScriptModulesAsync(token);
+            tasks.Add(("ScriptModules", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScriptModules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
         if (settings.IsKpiEnabled("Licensing", "ManagedObjects"))
         {
             var t = GetManagedObjectsAsync(token);
@@ -1628,7 +1660,7 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
             var filter = "(objectClass=computer)";
-            var attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName";
+            var attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,msDS-isGC";
             var items = await SearchObjectsAsync(token, baseDn, filter, "sub", attributes);
             result.Items = items;
             // Exclude domain controllers (SERVER_TRUST_ACCOUNT = 0x2000)
@@ -2136,8 +2168,12 @@ public class ActiveRolesService
         {
             var items = await ExecuteKpiSearchAsync(token, KpiInfo.Servers.Searches[0]);
             result.TotalCount = items.Count;
+            // NOTE: Configuration/Management-History database names are not attributes of the
+            // AR service object; they live on separate database objects (see the Config/History
+            // Database drilldowns) and are intentionally not joined here to avoid incorrect data.
             result.Items = items.Select(i => new ServerInfo { ServerName = GetAttr(i, "edsaEdmServiceComputerName"), 
                                                               Version = GetAttr(i, "edsvaPublicProductVersion"),
+                                                              VerboseLogging = ParseArBool(GetAttr(i, "edsvaDiagnosticLogTurnedOn")),
                                                               Guid = GetAttr(i, "objectGuid") }).ToList();
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
@@ -2149,11 +2185,27 @@ public class ActiveRolesService
         var result = new DynamicGroupSummary();
         try
         {
+            var threshold = Math.Max(1, _configMonitor.CurrentValue.DynamicGroupExpensiveRuleThreshold);
             var items = await ExecuteKpiSearchAsync(token, KpiInfo.DynamicGroups.Searches[0]);
             result.TotalCount = items.Count;
-            result.Items = items.Select(i => new DynamicGroupInfo { Name = GetAttr(i, "name"), 
-                                                                    Dn = GetAttr(i, "distinguishedName"), 
-                                                                    Guid = GetAttr(i, "objectGuid") }).ToList();
+            result.Items = items.Select(i =>
+            {
+                var ruleCount = CountMembershipRules(GetAttr(i, "edsaDGConditionsList"));
+                return new DynamicGroupInfo
+                {
+                    Name = GetAttr(i, "name"),
+                    Dn = GetAttr(i, "distinguishedName"),
+                    Guid = GetAttr(i, "objectGuid"),
+                    OriginatingService = GetAttr(i, "edsvaDGControllingService"),
+                    RuleCount = ruleCount,
+                    IsExpensive = ruleCount > threshold
+                };
+            }).ToList();
+
+            result.ServiceDistribution = result.Items
+                .Select(g => string.IsNullOrWhiteSpace(g.OriginatingService) ? "(unassigned)" : g.OriginatingService)
+                .GroupBy(s => s)
+                .ToDictionary(g => g.Key, g => g.Count());
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
         return result;
@@ -2257,6 +2309,7 @@ public class ActiveRolesService
             result.Items = items.Select(i => new VirtualAttributeInfo { Name = GetAttr(i, "name"), 
                                                                         LdapDisplayName = GetAttr(i, "lDAPDisplayName"), 
                                                                         IsMultivalued = GetAttr(i, "isSingleValued") == "false", 
+                                                                        IsBuiltIn = ParseArBool(GetAttr(i, "edsaIsPredefined")) && ParseArBool(GetAttr(i, "edsaSystemObject")), 
                                                                         Guid = GetAttr(i, "objectGuid") }).ToList();
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
@@ -2311,6 +2364,7 @@ public class ActiveRolesService
             result.Items = items.Select(i => new PolicyObjectInfo { Name = GetAttr(i, "name"), 
                                                                     Dn = GetAttr(i, "distinguishedName"), 
                                                                     Guid = GetAttr(i, "objectGuid"),
+                                                                    IsBuiltIn = ParseArBool(GetAttr(i, "edsaIsPredefined")) && ParseArBool(GetAttr(i, "edsaSystemObject")),
                                                                     RuleCount = CountApeRules(GetAttr(i, "edsaAPEListXML")) }).ToList();
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
@@ -2327,6 +2381,7 @@ public class ActiveRolesService
             result.Items = items.Select(i => new AccessTemplateInfo { Name = GetAttr(i, "name"), 
                                                                       Dn = GetAttr(i, "distinguishedName"), 
                                                                       Parent = GetAttr(i, "edsvaParentCanonicalName"), 
+                                                                      IsBuiltIn = ParseArBool(GetAttr(i, "edsaIsPredefined")) && ParseArBool(GetAttr(i, "edsaSystemObject")), 
                                                                       Guid = GetAttr(i, "objectGuid") }).ToList();
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
@@ -2534,6 +2589,201 @@ public class ActiveRolesService
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
         return result;
+    }
+
+    // Orphaned Access Template Links: an edsACE link is orphaned when any of its key reference
+    // attributes (edsaAccessTemplateGUID, edsaSecObjectGUID, edsaTrusteeSID) is missing.
+    public async Task<AccessTemplateLinkSummary> GetOrphanAccessTemplateLinksAsync(string token)
+    {
+        var result = new AccessTemplateLinkSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.OrphanAccessTemplateLinks.Searches[0]);
+            var orphans = new List<AccessTemplateLinkInfo>();
+            foreach (var i in items)
+            {
+                var missing = new List<string>();
+                if (string.IsNullOrWhiteSpace(GetAttr(i, "edsaAccessTemplateGUID"))) missing.Add("edsaAccessTemplateGUID");
+                if (string.IsNullOrWhiteSpace(GetAttr(i, "edsaSecObjectGUID"))) missing.Add("edsaSecObjectGUID");
+                if (string.IsNullOrWhiteSpace(GetAttr(i, "edsaTrusteeSID"))) missing.Add("edsaTrusteeSID");
+                if (missing.Count == 0) continue;
+
+                orphans.Add(new AccessTemplateLinkInfo
+                {
+                    Name = GetAttr(i, "name"),
+                    Dn = GetAttr(i, "distinguishedName"),
+                    MissingAttributes = string.Join(", ", missing)
+                });
+            }
+            result.TotalCount = orphans.Count;
+            result.Items = orphans;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Orphaned Policy Object Links: an edsPolicyObjectLink is orphaned when any of its key reference
+    // attributes (edsaAPOGUID, edsaSecObjectGUID) is missing.
+    public async Task<PolicyObjectLinkSummary> GetOrphanPolicyObjectLinksAsync(string token)
+    {
+        var result = new PolicyObjectLinkSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.OrphanPolicyObjectLinks.Searches[0]);
+            var orphans = new List<PolicyObjectLinkInfo>();
+            foreach (var i in items)
+            {
+                var missing = new List<string>();
+                if (string.IsNullOrWhiteSpace(GetAttr(i, "edsaAPOGUID"))) missing.Add("edsaAPOGUID");
+                if (string.IsNullOrWhiteSpace(GetAttr(i, "edsaSecObjectGUID"))) missing.Add("edsaSecObjectGUID");
+                if (missing.Count == 0) continue;
+
+                orphans.Add(new PolicyObjectLinkInfo
+                {
+                    Name = GetAttr(i, "name"),
+                    Dn = GetAttr(i, "distinguishedName"),
+                    MissingAttributes = string.Join(", ", missing)
+                });
+            }
+            result.TotalCount = orphans.Count;
+            result.Items = orphans;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Script Modules (edsScriptModule) under CN=Script Modules,CN=Configuration.
+    // Maps the edsaScriptType enum to a human-readable language and builds a per-language breakdown.
+    public async Task<ScriptModuleSummary> GetScriptModulesAsync(string token)
+    {
+        var result = new ScriptModuleSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, KpiInfo.ScriptModules.Searches[0]);
+            foreach (var i in items)
+            {
+                var language = GetAttr(i, "edsaScriptLanguage");
+                result.Items.Add(new ScriptModuleInfo
+                {
+                    Name = GetAttr(i, "name"),
+                    Dn = GetAttr(i, "distinguishedName"),
+                    Language = language,
+                    Type = MapScriptType(GetAttr(i, "edsaScriptType")),
+                    IsSystem = ParseArBool(GetAttr(i, "edsaSystemObject"))
+                        && ParseArBool(GetAttr(i, "edsaIsPredefined"))
+                });
+
+                var breakdownKey = string.IsNullOrWhiteSpace(language) ? "Unknown" : language;
+                result.LanguageBreakdown[breakdownKey] = result.LanguageBreakdown.TryGetValue(breakdownKey, out var c) ? c + 1 : 1;
+            }
+            result.TotalCount = result.Items.Count;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Maps the edsaScriptType enum value to a human-readable script type name.
+    // Enum order: PolicyScript=0, ScheduledTaskScript=1, LibraryScript=2.
+    private static string MapScriptType(string scriptType)
+    {
+        if (string.IsNullOrWhiteSpace(scriptType)) return "Unknown";
+        return scriptType.Trim() switch
+        {
+            "0" => "PolicyScript",
+            "1" => "ScheduledTaskScript",
+            "2" => "LibraryScript",
+            _ => scriptType.Trim()
+        };
+    }
+
+    // Tolerant boolean parser for Active Roles attribute values, which the REST API may return
+    // as "TRUE"/"FALSE" strings, JSON true/false (rendered "true"/"false"), or 1/0.
+    private static bool ParseArBool(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return false;
+        var v = value.Trim();
+        return v.Equals("TRUE", StringComparison.OrdinalIgnoreCase) || v == "1";
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex GuidTokenRegex =
+        new(@"[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    // Dynamic Groups whose membership condition references a GUID that no longer resolves.
+    // Mirrors the assessment script's Find_Broken_Dynamic_Group_Membership_Rules check.
+    public async Task<BrokenRuleSummary> GetDynamicGroupsBrokenRulesAsync(string token)
+    {
+        return await GetBrokenRulesAsync(token, KpiInfo.DynamicGroupsBrokenRules.Searches[0], "edsaDGConditionsList");
+    }
+
+    // Managed Units whose membership condition references a GUID that no longer resolves.
+    // Mirrors the assessment script's ManagedUnitsWithBrokenRules check.
+    public async Task<BrokenRuleSummary> GetManagedUnitsBrokenRulesAsync(string token)
+    {
+        return await GetBrokenRulesAsync(token, KpiInfo.ManagedUnitsBrokenRules.Searches[0], "edsaMUConditionsList");
+    }
+
+    private async Task<BrokenRuleSummary> GetBrokenRulesAsync(string token, KpiSearchDefinition search, string conditionsAttribute)
+    {
+        var result = new BrokenRuleSummary();
+        try
+        {
+            var items = await ExecuteKpiSearchAsync(token, search);
+            var guidCache = new Dictionary<string, bool>();
+            var broken = new List<BrokenRuleInfo>();
+
+            foreach (var i in items)
+            {
+                var conditions = GetAttr(i, conditionsAttribute);
+                if (string.IsNullOrWhiteSpace(conditions)) continue;
+
+                var hasBroken = false;
+                foreach (System.Text.RegularExpressions.Match m in GuidTokenRegex.Matches(conditions))
+                {
+                    var normalized = NormalizeGuid(m.Value);
+                    if (string.IsNullOrEmpty(normalized)) continue;
+
+                    if (!guidCache.TryGetValue(normalized, out var exists))
+                    {
+                        exists = await GuidExistsAsync(token, normalized);
+                        guidCache[normalized] = exists;
+                    }
+
+                    if (!exists) { hasBroken = true; break; }
+                }
+
+                if (hasBroken)
+                {
+                    broken.Add(new BrokenRuleInfo
+                    {
+                        Name = GetAttr(i, "name"),
+                        Dn = GetAttr(i, "distinguishedName")
+                    });
+                }
+            }
+
+            result.TotalCount = broken.Count;
+            result.Items = broken;
+        }
+        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
+        return result;
+    }
+
+    // Returns true if an object with the given GUID resolves in the directory.
+    private async Task<bool> GuidExistsAsync(string token, string guid)
+    {
+        try
+        {
+            var doc = await GetObjectDetailsAsync(token, guid, "name");
+            if (doc != null)
+            {
+                using (doc)
+                {
+                    return !string.IsNullOrEmpty(GetAttr(doc.RootElement, "name"));
+                }
+            }
+        }
+        catch { }
+        return false;
     }
 
     private async Task<string> ResolveSidToNameAsync(string token, string sid)

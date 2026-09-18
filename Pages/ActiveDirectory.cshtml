@@ -77,7 +77,15 @@
         @await Html.PartialAsync("_ADDrillDownPanels")
     </div>
 
-    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+    <hr class="kpi-separator" />
+
+    @if (Model.CanRunPerformanceTests(DiagnosticsDashboard.ActiveDirectory))
+    {
+        ViewData["PerfDashboard"] = "ActiveDirectory";
+        @await Html.PartialAsync("_PerformanceTests")
+    }
+
+    <footer class="footer">Active Roles Dashboard
 </div>
 @await Html.PartialAsync("_EntraMembershipConfig")
 @await Html.PartialAsync("_ToastAndMembership")

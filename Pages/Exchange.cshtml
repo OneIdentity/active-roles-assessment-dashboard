@@ -79,7 +79,13 @@
         @await Html.PartialAsync("_ExchangeDrillDownPanels")
     </div>
 
-    <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
+    @if (Model.CanRunPerformanceTests(DiagnosticsDashboard.Exchange))
+    {
+        ViewData["PerfDashboard"] = "Exchange";
+        @await Html.PartialAsync("_PerformanceTests")
+    }
+
+    <footer class="footer">
 </div>
 <script src="js/chart.umd.min.js" asp-append-version="true"></script>
 <script src="js/dashboard.js" asp-append-version="true"></script>

@@ -56,4 +56,21 @@
   <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Állítsa be a webes felület URL-jét a Beállításokban</value></data>
   <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>Beágyazott tagság megtekintése</value></data>
   <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>Nincsenek közvetett (beágyazott) tagok</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Típus</value></data>
+  <data name="Col_VerboseLogging" xml:space="preserve"><value>Részletes naplózás</value></data>
+  <data name="Col_OriginatingService" xml:space="preserve"><value>Forrásszolgáltatás</value></data>
+  <data name="Col_Expensive" xml:space="preserve"><value>Erőforrás-igényes</value></data>
+  <data name="Label_ServiceDistribution" xml:space="preserve"><value>Csoportok forrásszolgáltatásonként</value></data>
+  <data name="Value_Yes" xml:space="preserve"><value>Igen</value></data>
+  <data name="Value_No" xml:space="preserve"><value>Nem</value></data>
+  <data name="Value_On" xml:space="preserve"><value>Be</value></data>
+  <data name="Value_Off" xml:space="preserve"><value>Ki</value></data>
+  <data name="Value_BuiltIn" xml:space="preserve"><value>Beépített</value></data>
+  <data name="Value_Custom" xml:space="preserve"><value>Felhasználó</value></data>
+  <data name="Col_Origin" xml:space="preserve"><value>Eredet</value></data>
+  <data name="H_DbTopology" xml:space="preserve"><value>Adatbázis- és replikációs topológia</value></data>
+  <data name="Col_DbKind" xml:space="preserve"><value>Adatbázis típusa</value></data>
+  <data name="DbKind_Config" xml:space="preserve"><value>Konfiguráció</value></data>
+  <data name="DbKind_History" xml:space="preserve"><value>Felügyeleti előzmények</value></data>
+  <data name="DbTopology_None" xml:space="preserve"><value>Nem található adatbázis.</value></data>
 </root>
