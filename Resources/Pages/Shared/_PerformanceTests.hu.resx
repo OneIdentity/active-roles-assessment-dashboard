@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="H_PerformanceTests" xml:space="preserve"><value>Teljesítmény- és kapcsolati tesztek</value></data>
+  <data name="PerfTests_Intro" xml:space="preserve"><value>Igény szerint futtasson kapcsolati és késleltetési vizsgálatokat az irányítópult által használt kiszolgálókon. Az eredmények élőek, és nem kerülnek gyorsítótárba.</value></data>
+  <data name="PerfTests_ServerType" xml:space="preserve"><value>Kiszolgáló típusa</value></data>
+  <data name="PerfTests_TestType" xml:space="preserve"><value>Teszt típusa</value></data>
+  <data name="PerfTests_All" xml:space="preserve"><value>Mind</value></data>
+  <data name="PerfTests_Run" xml:space="preserve"><value>Tesztek futtatása</value></data>
+  <data name="PerfTests_RunSelected" xml:space="preserve"><value>Kijelöltek futtatása</value></data>
+  <data name="PerfTests_SelectTargets" xml:space="preserve"><value>Adott célok kiválasztása</value></data>
+  <data name="PerfTests_NoResults" xml:space="preserve"><value>Nincs megjeleníthető eredmény.</value></data>
+  <data name="PerfTests_Running" xml:space="preserve"><value>Tesztek futtatása…</value></data>
+  <data name="PerfTests_ChartTitle" xml:space="preserve"><value>Késleltetés tesztenként (ms)</value></data>
+  <data name="PerfTest_Ping" xml:space="preserve"><value>Ping / TCP</value></data>
+  <data name="PerfTest_LdapBind" xml:space="preserve"><value>LDAP-kötés</value></data>
+  <data name="PerfTest_RestGet" xml:space="preserve"><value>REST API</value></data>
+  <data name="PerfTest_RstsAuth" xml:space="preserve"><value>STS-hitelesítés</value></data>
+  <data name="PerfTest_WebHttp" xml:space="preserve"><value>Webes felület</value></data>
+  <data name="PerfTest_EntraOpenId" xml:space="preserve"><value>Entra OpenID</value></data>
+  <data name="PerfTest_SqlQuery" xml:space="preserve"><value>SQL-lekérdezés</value></data>
+  <data name="Col_Target" xml:space="preserve"><value>Cél</value></data>
+  <data name="Col_ServerType" xml:space="preserve"><value>Kiszolgáló típusa</value></data>
+  <data name="Col_TestType" xml:space="preserve"><value>Teszt</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Állapot</value></data>
+  <data name="Col_Latency" xml:space="preserve"><value>Késleltetés</value></data>
+  <data name="Col_Detail" xml:space="preserve"><value>Részlet</value></data>
+</root>

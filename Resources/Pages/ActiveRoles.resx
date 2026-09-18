@@ -44,6 +44,27 @@
   <data name="Empty_UnlinkedAccessTemplates" xml:space="preserve"><value>No unlinked user-created access templates found</value></data>
   <data name="Empty_DenyAccessTemplates" xml:space="preserve"><value>No access templates with deny permissions found</value></data>
   <data name="Empty_UnlinkedPolicyObjects" xml:space="preserve"><value>No unlinked user-created policy objects found</value></data>
+  <data name="Col_MissingAttributes" xml:space="preserve"><value>Missing Attribute(s)</value></data>
+  <data name="Col_Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Label_LanguageBreakdown" xml:space="preserve"><value>By language</value></data>
+  <data name="Empty_OrphanAccessTemplateLinks" xml:space="preserve"><value>No orphaned access template links found</value></data>
+  <data name="Empty_OrphanPolicyObjectLinks" xml:space="preserve"><value>No orphaned policy object links found</value></data>
+  <data name="Empty_DynamicGroupsBrokenRules" xml:space="preserve"><value>No dynamic groups with broken rules found</value></data>
+  <data name="Empty_ManagedUnitsBrokenRules" xml:space="preserve"><value>No managed units with broken rules found</value></data>
+  <data name="Empty_ScriptModules" xml:space="preserve"><value>No script modules found</value></data>
+  <data name="Col_SystemScript" xml:space="preserve"><value>System Script</value></data>
+  <data name="Col_Origin" xml:space="preserve"><value>Origin</value></data>
+  <data name="Value_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Value_No" xml:space="preserve"><value>No</value></data>
+  <data name="Value_On" xml:space="preserve"><value>On</value></data>
+  <data name="Value_Off" xml:space="preserve"><value>Off</value></data>
+  <data name="Value_BuiltIn" xml:space="preserve"><value>Built-in</value></data>
+  <data name="Value_Custom" xml:space="preserve"><value>User</value></data>
+  <data name="Col_VerboseLogging" xml:space="preserve"><value>Verbose Logging</value></data>
+  <data name="Col_OriginatingService" xml:space="preserve"><value>Originating Service</value></data>
+  <data name="Col_Expensive" xml:space="preserve"><value>Expensive</value></data>
+  <data name="Label_ServiceDistribution" xml:space="preserve"><value>Groups per originating service</value></data>
   <data name="Empty_VirtualAttributes" xml:space="preserve"><value>No virtual attributes found</value></data>
   <data name="Empty_ConfigDatabases" xml:space="preserve"><value>No config databases found</value></data>
   <data name="Empty_HistoryDatabases" xml:space="preserve"><value>No history databases found</value></data>
@@ -56,4 +77,9 @@
   <data name="Tip_ConfigureWebUrl" xml:space="preserve"><value>Configure Web Interface URL in Settings</value></data>
   <data name="Tip_ViewNestedMembership" xml:space="preserve"><value>View nested membership</value></data>
   <data name="Tip_NoIndirectMembers" xml:space="preserve"><value>No indirect (nested) members</value></data>
+  <data name="H_DbTopology" xml:space="preserve"><value>Database &amp; Replication Topology</value></data>
+  <data name="Col_DbKind" xml:space="preserve"><value>Database Kind</value></data>
+  <data name="DbKind_Config" xml:space="preserve"><value>Configuration</value></data>
+  <data name="DbKind_History" xml:space="preserve"><value>Management History</value></data>
+  <data name="DbTopology_None" xml:space="preserve"><value>No databases were found.</value></data>
 </root>

@@ -57,6 +57,9 @@ public class SettingsModel : PageModel
     public int EntraLargeGroupMemberThreshold { get; set; }
 
     [BindProperty]
+    public int DynamicGroupExpensiveRuleThreshold { get; set; }
+
+    [BindProperty]
     public KpiSettings KpiSettings { get; set; } = new();
 
     [BindProperty]
@@ -257,6 +260,7 @@ public class SettingsModel : PageModel
         CustomActiveRolesAdminsBaseDn = config.CustomActiveRolesAdminsBaseDn;
         CustomActiveRolesAdminsFilter = config.CustomActiveRolesAdminsFilter;
         EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
+        DynamicGroupExpensiveRuleThreshold = config.DynamicGroupExpensiveRuleThreshold;
 
         // REST API Configuration
         ApiBaseUrl = config.ApiBaseUrl;
@@ -314,6 +318,9 @@ public class SettingsModel : PageModel
 
         if (EntraLargeGroupMemberThreshold < 1)
             EntraLargeGroupMemberThreshold = 1;
+
+        if (DynamicGroupExpensiveRuleThreshold < 1)
+            DynamicGroupExpensiveRuleThreshold = 1;
 
         // Clamp licensing thresholds to non-negative values.
         LicensedDomainObjects = Math.Max(0, LicensedDomainObjects);
@@ -427,6 +434,9 @@ public class SettingsModel : PageModel
                     activeRoles["Entra"] = entra;
                 }
                 entra["LargeGroupMemberThreshold"] = EntraLargeGroupMemberThreshold;
+
+                // Dynamic Groups "expensive" rule-count threshold (flat ActiveRoles property).
+                activeRoles["DynamicGroupExpensiveRuleThreshold"] = DynamicGroupExpensiveRuleThreshold;
 
                 // REST API Configuration (takes effect after a restart)
                 activeRoles["ApiBaseUrl"] = ApiBaseUrl?.Trim() ?? "";

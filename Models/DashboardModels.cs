@@ -961,6 +961,10 @@ public class ActiveRolesConfig
     // considered stale (used by the StaleUsers KPI and the HYG-StaleAccounts rule).
     public int StaleAccountThresholdDays { get; set; } = 90;
 
+    // Number of membership rules above which a dynamic group is flagged as "expensive"
+    // (evaluation cost grows with rule count). Surfaced in the Dynamic Groups drilldown.
+    public int DynamicGroupExpensiveRuleThreshold { get; set; } = 10;
+
     // Entra group-membership loading and large-group tuning (grouped under the Entra section).
     public EntraConfig Entra { get; set; } = new();
 
@@ -1360,21 +1364,26 @@ public class KpiInfo
 
     // AR Configuration KPIs
     public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
-    public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARConfiguration", CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion" }] };
+    public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARConfiguration", CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion,edsvaDiagnosticLogTurnedOn" }] };
     public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
     public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName" }] };
-    public static readonly KpiInfo DynamicGroups = new() { Key = "DynamicGroups", DisplayName = "Dynamic Groups", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "dynamicgroups", SortOrder = 105, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo DynamicGroups = new() { Key = "DynamicGroups", DisplayName = "Dynamic Groups", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "dynamicgroups", SortOrder = 105, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList,edsvaDGControllingService" }] };
     public static readonly KpiInfo GroupFamilies = new() { Key = "GroupFamilies", DisplayName = "Group Families", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "groupfamilies", SortOrder = 106, HasDrilldown = true };
     public static readonly KpiInfo ManagedUnits = new() { Key = "ManagedUnits", DisplayName = "Managed Units", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "managedunits", SortOrder = 107, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
     public static readonly KpiInfo PolicyObjectLinks = new() { Key = "PolicyObjectLinks", DisplayName = "Policy Object Links", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "polinks", SortOrder = 108, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARConfiguration", CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
+    public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARConfiguration", CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
     public static readonly KpiInfo PolicyObjectsNoRules = new() { Key = "PolicyObjectsNoRules", DisplayName = "Policy Objects With No Rules", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "policyobjectsnorules", SortOrder = 116, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
     public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
     public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
     public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
-    public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued" }] };
+    public static readonly KpiInfo OrphanAccessTemplateLinks = new() { Key = "OrphanAccessTemplateLinks", DisplayName = "Orphaned Access Template Links", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "orphanaccesstemplatelinks", SortOrder = 120, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaAccessTemplateGUID,edsaSecObjectGUID,edsaTrusteeSID" }] };
+    public static readonly KpiInfo OrphanPolicyObjectLinks = new() { Key = "OrphanPolicyObjectLinks", DisplayName = "Orphaned Policy Object Links", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "orphanpolicyobjectlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName,edsaAPOGUID,edsaSecObjectGUID" }] };
+    public static readonly KpiInfo DynamicGroupsBrokenRules = new() { Key = "DynamicGroupsBrokenRules", DisplayName = "Dynamic Groups With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "dynamicgroupsbrokenrules", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList" }] };
+    public static readonly KpiInfo ManagedUnitsBrokenRules = new() { Key = "ManagedUnitsBrokenRules", DisplayName = "Managed Units With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "managedunitsbrokenrules", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
+    public static readonly KpiInfo ScriptModules = new() { Key = "ScriptModules", DisplayName = "Script Modules", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "scriptmodules", SortOrder = 124, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Script Modules,CN=Configuration", Filter = "(objectClass=edsScriptModule)", Attributes = "name,distinguishedName,edsaScriptLanguage,edsaScriptType,edsaSystemObject,edsaIsPredefined" }] };
+    public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
     public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
     public static readonly KpiInfo HistoryDatabases = new() { Key = "HistoryDatabases", DisplayName = "History Databases", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "historydatabases", SortOrder = 113, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Management History Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsMHReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationRole" }] };
@@ -1508,7 +1517,7 @@ public class KpiInfo
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
-        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects,
+        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
@@ -1658,8 +1667,12 @@ public class KpiSettings
     public bool EmptyAccessTemplatesEnabled { get; set; } = true;
     public bool PolicyObjectsNoRulesEnabled { get; set; } = true;
     public bool UnlinkedAccessTemplatesEnabled { get; set; } = true;
-    public bool DenyAccessTemplatesEnabled { get; set; } = true;
-    public bool UnlinkedPolicyObjectsEnabled { get; set; } = true;
+    public bool DenyAccessTemplatesEnabled { get; set; } = true;    public bool UnlinkedPolicyObjectsEnabled { get; set; } = true;
+    public bool OrphanAccessTemplateLinksEnabled { get; set; } = true;
+    public bool OrphanPolicyObjectLinksEnabled { get; set; } = true;
+    public bool DynamicGroupsBrokenRulesEnabled { get; set; } = true;
+    public bool ManagedUnitsBrokenRulesEnabled { get; set; } = true;
+    public bool ScriptModulesEnabled { get; set; } = true;
     public bool ManagedObjectsEnabled { get; set; } = true;
 
     public bool NoGroupOwnerEnabled { get; set; } = true;
@@ -1815,6 +1828,11 @@ public class KpiSettings
             "UnlinkedAccessTemplates" => UnlinkedAccessTemplatesEnabled,
             "DenyAccessTemplates" => DenyAccessTemplatesEnabled,
             "UnlinkedPolicyObjects" => UnlinkedPolicyObjectsEnabled,
+            "OrphanAccessTemplateLinks" => OrphanAccessTemplateLinksEnabled,
+            "OrphanPolicyObjectLinks" => OrphanPolicyObjectLinksEnabled,
+            "DynamicGroupsBrokenRules" => DynamicGroupsBrokenRulesEnabled,
+            "ManagedUnitsBrokenRules" => ManagedUnitsBrokenRulesEnabled,
+            "ScriptModules" => ScriptModulesEnabled,
             "ManagedObjects" => ManagedObjectsEnabled,
             "NoGroupOwner" => NoGroupOwnerEnabled,
             "NeverLoggedIn" => NeverLoggedInEnabled,
@@ -1920,6 +1938,13 @@ public class DashboardSummary
     public int EntraLargeGroupMemberThreshold { get; set; } = 100;
 
     /// <summary>
+    /// Membership-rule count above which a dynamic group is treated as "expensive" for the
+    /// Dynamic Groups drilldown. Populated from <c>ActiveRolesConfig.DynamicGroupExpensiveRuleThreshold</c>
+    /// when the summary is built.
+    /// </summary>
+    public int DynamicGroupExpensiveRuleThreshold { get; set; } = 10;
+
+    /// <summary>
     /// Returns a shallow copy of this summary that is safe to persist in the (size-sensitive)
     /// session store. The AD Groups collection has its bulky native <c>member</c> DN arrays
     /// stripped from each raw item (membership counts are preserved separately), which prevents
@@ -1980,6 +2005,11 @@ public class DashboardSummary
     public AccessTemplateSummary UnlinkedAccessTemplates { get; set; } = new();
     public AccessTemplateSummary DenyAccessTemplates { get; set; } = new();
     public PolicyObjectSummary UnlinkedPolicyObjects { get; set; } = new();
+    public AccessTemplateLinkSummary OrphanAccessTemplateLinks { get; set; } = new();
+    public PolicyObjectLinkSummary OrphanPolicyObjectLinks { get; set; } = new();
+    public BrokenRuleSummary DynamicGroupsBrokenRules { get; set; } = new();
+    public BrokenRuleSummary ManagedUnitsBrokenRules { get; set; } = new();
+    public ScriptModuleSummary ScriptModules { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
     public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
@@ -2293,6 +2323,11 @@ public class DashboardSummary
         "UnlinkedAccessTemplates" => (UnlinkedAccessTemplates.TotalCount, UnlinkedAccessTemplates.Error),
         "DenyAccessTemplates" => (DenyAccessTemplates.TotalCount, DenyAccessTemplates.Error),
         "UnlinkedPolicyObjects" => (UnlinkedPolicyObjects.TotalCount, UnlinkedPolicyObjects.Error),
+        "OrphanAccessTemplateLinks" => (OrphanAccessTemplateLinks.TotalCount, OrphanAccessTemplateLinks.Error),
+        "OrphanPolicyObjectLinks" => (OrphanPolicyObjectLinks.TotalCount, OrphanPolicyObjectLinks.Error),
+        "DynamicGroupsBrokenRules" => (DynamicGroupsBrokenRules.TotalCount, DynamicGroupsBrokenRules.Error),
+        "ManagedUnitsBrokenRules" => (ManagedUnitsBrokenRules.TotalCount, ManagedUnitsBrokenRules.Error),
+        "ScriptModules" => (ScriptModules.TotalCount, ScriptModules.Error),
         "Workflows" => (Workflows.TotalCount, Workflows.Error),
         "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
         "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
@@ -2932,6 +2967,7 @@ public class ServerInfo : IPermissionScoped
 {
     public string ServerName { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
+    public bool VerboseLogging { get; set; } = false;
     public string Guid { get; set; } = string.Empty;
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
@@ -2943,6 +2979,9 @@ public class DynamicGroupSummary
     public int TotalCount { get; set; }
     public List<DynamicGroupInfo> Items { get; set; } = new();
     public string? Error { get; set; }
+
+    /// <summary>Count of dynamic groups per originating (controlling) service.</summary>
+    public Dictionary<string, int> ServiceDistribution { get; set; } = new();
 }
 
 public class DynamicGroupInfo
@@ -2950,6 +2989,9 @@ public class DynamicGroupInfo
     public string Name { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+    public string OriginatingService { get; set; } = string.Empty;
+    public int RuleCount { get; set; }
+    public bool IsExpensive { get; set; } = false;
 }
 
 public class GroupFamilySummary
@@ -3025,6 +3067,7 @@ public class VirtualAttributeInfo
     public string Name { get; set; } = string.Empty;
     public string LdapDisplayName { get; set; } = string.Empty;
     public bool IsMultivalued { get; set; } = false;
+    public bool IsBuiltIn { get; set; } = false;
     public string Guid { get; set; } = string.Empty;
 }
 
@@ -3073,6 +3116,7 @@ public class PolicyObjectInfo
     public string Dn { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
     public int RuleCount { get; set; }
+    public bool IsBuiltIn { get; set; } = false;
 }
 
 public class AccessTemplateSummary
@@ -3088,6 +3132,7 @@ public class AccessTemplateInfo
     public string Dn { get; set; } = string.Empty;
     public string Parent { get; set; } = string.Empty;
     public string Guid { get; set; } = string.Empty;
+    public bool IsBuiltIn { get; set; } = false;
 }
 
 public class ManagedObjectSummary
@@ -3198,6 +3243,12 @@ public class AccessTemplateLinkInfo
     /// (edsaIsPredefined=TRUE and edsaSystemObject=TRUE), rather than a user-defined delegation.
     /// </summary>
     public bool IsPredefined { get; set; }
+
+    /// <summary>
+    /// Comma-separated list of key attributes that are missing, marking the link as orphaned.
+    /// Empty when the link is healthy.
+    /// </summary>
+    public string MissingAttributes { get; set; } = string.Empty;
 }
 
 public class PolicyObjectLinkSummary
@@ -3211,6 +3262,47 @@ public class PolicyObjectLinkInfo
 {
     public string Name { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Comma-separated list of key attributes that are missing, marking the link as orphaned.
+    /// Empty when the link is healthy.
+    /// </summary>
+    public string MissingAttributes { get; set; } = string.Empty;
+}
+
+public class BrokenRuleSummary
+{
+    public int TotalCount { get; set; }
+    public List<BrokenRuleInfo> Items { get; set; } = new();
+    public string? Error { get; set; }
+}
+
+public class BrokenRuleInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public string Dn { get; set; } = string.Empty;
+}
+
+public class ScriptModuleSummary
+{
+    public int TotalCount { get; set; }
+    public List<ScriptModuleInfo> Items { get; set; } = new();
+
+    /// <summary>Per-language counts, keyed by the human-readable language name.</summary>
+    public Dictionary<string, int> LanguageBreakdown { get; set; } = new();
+    public string? Error { get; set; }
+}
+
+public class ScriptModuleInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public string Dn { get; set; } = string.Empty;
+    public string Language { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>True when the module is an Active Roles system/predefined script
+    /// (edsaSystemObject=TRUE and edsaIsPredefined=TRUE).</summary>
+    public bool IsSystem { get; set; }
 }
 
 public class OverviewTotalsCache
@@ -3234,6 +3326,9 @@ public class DomainControllerInfo : IPermissionScoped
     public string Domain { get; set; } = string.Empty;
     public string Dn { get; set; } = string.Empty;
     public string SiteName { get; set; } = string.Empty;
+
+    /// <summary>True when the domain controller is also a Global Catalog (msDS-isGC = TRUE).</summary>
+    public bool IsGlobalCatalog { get; set; }
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;

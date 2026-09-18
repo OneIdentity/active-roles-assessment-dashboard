@@ -1,0 +1,107 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    // The including page passes its dashboard scope via ViewData["PerfDashboard"]
+    // (e.g. "ActiveRoles", "ActiveDirectory", "EntraId", "Exchange"). This maps to the
+    // DiagnosticsDashboard enum consumed by the api/diagnostics endpoints.
+    var perfDashboard = (ViewData["PerfDashboard"] as string) ?? "ActiveRoles";
+
+    // Only surface the test types that actually apply to the current dashboard scope,
+    // mirroring the applicable tests produced by DiagnosticsTargetProvider. Each entry is
+    // (value, localization key).
+    var allTestTypes = new (string Value, string Key)[]
+    {
+        ("Ping", "PerfTest_Ping"),
+        ("LdapBind", "PerfTest_LdapBind"),
+        ("RestGet", "PerfTest_RestGet"),
+        ("RstsAuth", "PerfTest_RstsAuth"),
+        ("WebHttp", "PerfTest_WebHttp"),
+        ("EntraOpenId", "PerfTest_EntraOpenId"),
+        ("SqlQuery", "PerfTest_SqlQuery")
+    };
+    var applicableByDashboard = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["ActiveRoles"] = new[] { "Ping", "LdapBind", "RestGet", "RstsAuth", "WebHttp", "SqlQuery" },
+        ["ActiveDirectory"] = new[] { "Ping", "LdapBind" },
+        ["EntraId"] = new[] { "EntraOpenId", "RestGet" },
+        ["Exchange"] = new[] { "Ping", "WebHttp" }
+    };
+    var applicable = applicableByDashboard.TryGetValue(perfDashboard, out var scoped)
+        ? scoped
+        : allTestTypes.Select(t => t.Value).ToArray();
+    var testTypes = allTestTypes.Where(t => applicable.Contains(t.Value)).ToList();
+}
+
+<details class="panel panel-static panel-collapsible" id="panel-performancetests" data-perf-dashboard="@perfDashboard"
+     data-perf-run="@Localizer["PerfTests_Run"]" data-perf-running="@Localizer["PerfTests_Running"]"
+     data-perf-chart-latency="@Localizer["Col_Latency"]">
+    <summary><h2><span class="sec-icon">P</span> @Localizer["H_PerformanceTests"]<span class="panel-caret" aria-hidden="true">&#9662;</span></h2></summary>
+    <div class="panel-content">
+        <p class="muted">@Localizer["PerfTests_Intro"]</p>
+
+        <div class="perf-controls">
+            <div class="perf-controls-selectors">
+                <div class="snap-multi perf-multi" id="perf-testtypes-multi">
+                    <button type="button" class="perf-multi-toggle snap-multi-toggle">
+                        <span class="perf-multi-label">@Localizer["PerfTests_TestType"]</span>
+                        <span class="snap-multi-summary" id="perf-testtypes-summary"></span>
+                        <span class="snap-multi-caret" aria-hidden="true">&#9662;</span>
+                    </button>
+                    <div class="snap-multi-panel" id="perf-testtypes">
+                        @foreach (var t in testTypes)
+                        {
+                            <label class="snap-multi-item perf-check">
+                                <input type="checkbox" class="perf-testtype-cb" value="@t.Value" checked />
+                                <span>@Localizer[t.Key]</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="snap-multi perf-multi" id="perf-targets-multi">
+                    <button type="button" class="perf-multi-toggle snap-multi-toggle">
+                        <span class="perf-multi-label">@Localizer["PerfTests_SelectTargets"]</span>
+                        <span class="snap-multi-summary" id="perf-targets-summary"></span>
+                        <span class="snap-multi-caret" aria-hidden="true">&#9662;</span>
+                    </button>
+                    <div class="snap-multi-panel" id="perf-targets-panel">
+                        <label class="snap-multi-item perf-check perf-check-all">
+                            <input type="checkbox" id="perf-target-all" checked />
+                            <span>@Localizer["PerfTests_All"]</span>
+                        </label>
+                        <div id="perf-target-list" class="perf-target-list"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="perf-run-row">
+                <button type="button" id="perf-run" class="btn-primary">
+                    <span class="perf-spinner hidden" id="perf-spinner" aria-hidden="true"></span>
+                    <span id="perf-run-label">@Localizer["PerfTests_Run"]</span>
+                </button>
+                <span id="perf-status" class="muted" role="status" aria-live="polite"></span>
+            </div>
+        </div>
+
+        <table id="perf-results" class="hidden">
+            <thead>
+                <tr>
+                    <th>@Localizer["Col_Target"]</th>
+                    <th>@Localizer["Col_ServerType"]</th>
+                    <th>@Localizer["Col_TestType"]</th>
+                    <th>@Localizer["Col_Status"]</th>
+                    <th>@Localizer["Col_Latency"]</th>
+                    <th>@Localizer["Col_Detail"]</th>
+                </tr>
+            </thead>
+            <tbody id="perf-results-body"></tbody>
+        </table>
+        <p id="perf-empty" class="muted hidden">@Localizer["PerfTests_NoResults"]</p>
+
+        <div id="perf-chart-wrap" class="perf-chart-wrap hidden">
+            <h3 class="perf-chart-title">@Localizer["PerfTests_ChartTitle"]</h3>
+            <div class="perf-chart-canvas-box">
+                <canvas id="perf-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</details>

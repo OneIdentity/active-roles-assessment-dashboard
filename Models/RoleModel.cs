@@ -50,7 +50,11 @@ public enum DashboardPermission
     DeleteAssessments = 18,
     RebuildCache = 19,
     ExportAssessments = 20,
-    ExportDashboardData = 21
+    ExportDashboardData = 21,
+    RunActiveRolesPerformanceTests = 22,
+    RunActiveDirectoryPerformanceTests = 23,
+    RunEntraIdPerformanceTests = 24,
+    RunExchangePerformanceTests = 25
 }
 
 /// <summary>
@@ -187,7 +191,11 @@ public static class RolePermissionRegistry
             [DashboardPermission.DeleteAssessments] = new("Perm_DeleteAssessments", "Delete assessments"),
             [DashboardPermission.ExportAssessments] = new("Perm_ExportAssessments", "Export assessments"),
             [DashboardPermission.ExportDashboardData] = new("Perm_ExportDashboardData", "Export Dashboard Data"),
-            [DashboardPermission.RebuildCache] = new("Perm_RebuildCache", "Rebuild cache")
+            [DashboardPermission.RebuildCache] = new("Perm_RebuildCache", "Rebuild cache"),
+            [DashboardPermission.RunActiveRolesPerformanceTests] = new("Perm_RunActiveRolesPerformanceTests", "Run Active Roles performance tests"),
+            [DashboardPermission.RunActiveDirectoryPerformanceTests] = new("Perm_RunActiveDirectoryPerformanceTests", "Run Active Directory performance tests"),
+            [DashboardPermission.RunEntraIdPerformanceTests] = new("Perm_RunEntraIdPerformanceTests", "Run Entra Id performance tests"),
+            [DashboardPermission.RunExchangePerformanceTests] = new("Perm_RunExchangePerformanceTests", "Run Exchange performance tests")
         };
 
     /// <summary>
@@ -229,6 +237,27 @@ public static class RolePermissionRegistry
     /// </summary>
     public static bool CanExportDashboardData(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
         isActiveRolesAdmin || permissions.Contains(DashboardPermission.ExportDashboardData);
+
+    /// <summary>
+    /// Maps a diagnostics dashboard scope to the performance permission that governs it.
+    /// </summary>
+    public static DashboardPermission PerformancePermissionFor(DiagnosticsDashboard dashboard) => dashboard switch
+    {
+        DiagnosticsDashboard.ActiveRoles => DashboardPermission.RunActiveRolesPerformanceTests,
+        DiagnosticsDashboard.ActiveDirectory => DashboardPermission.RunActiveDirectoryPerformanceTests,
+        DiagnosticsDashboard.EntraId => DashboardPermission.RunEntraIdPerformanceTests,
+        DiagnosticsDashboard.Exchange => DashboardPermission.RunExchangePerformanceTests,
+        _ => DashboardPermission.RunActiveRolesPerformanceTests
+    };
+
+    /// <summary>
+    /// True when the supplied permission set (or Active Roles admin) may run the on-demand
+    /// performance / connectivity diagnostics for the given dashboard scope. Each dashboard's
+    /// performance permission is granted to Dashboard Administrators by default. Governs the
+    /// Performance Tests panel and the server-side diagnostics endpoints.
+    /// </summary>
+    public static bool CanRunPerformanceTests(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin, DiagnosticsDashboard dashboard) =>
+        isActiveRolesAdmin || permissions.Contains(PerformancePermissionFor(dashboard));
 
     /// <summary>
     /// Computes the set of dashboard keys (as used by <c>DashboardInfo.Key</c> plus the aggregate

@@ -81,6 +81,12 @@
   <data name="Hint_LargeGroupThreshold" xml:space="preserve">
 	<value>Entra groups with at least this many direct members are flagged by the Large Groups KPI. Default 100.</value>
   </data>
+  <data name="Label_DynamicGroupExpensiveThreshold" xml:space="preserve">
+	<value>Dynamic Groups - Expensive rule threshold</value>
+  </data>
+  <data name="Hint_DynamicGroupExpensiveThreshold" xml:space="preserve">
+	<value>Dynamic groups with more membership rules than this are flagged as "expensive" in the Dynamic Groups drilldown. Default 10.</value>
+  </data>
   <data name="BackToDashboard" xml:space="preserve">
 	<value>Back to Dashboard</value>
   </data>

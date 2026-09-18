@@ -85,6 +85,14 @@
 
     @await Html.PartialAsync("_EntraMembershipConfig")
 
+    <hr class="kpi-separator" />
+
+    @if (Model.CanRunPerformanceTests(DiagnosticsDashboard.EntraId))
+    {
+        ViewData["PerfDashboard"] = "EntraId";
+        @await Html.PartialAsync("_PerformanceTests")
+    }
+
     <footer class="footer">@Localizer["Footer", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")]</footer>
 </div>
 @await Html.PartialAsync("_ToastAndMembership")

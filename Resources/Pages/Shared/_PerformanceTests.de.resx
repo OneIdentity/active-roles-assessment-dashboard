@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="H_PerformanceTests" xml:space="preserve"><value>Leistungs- und Verbindungstests</value></data>
+  <data name="PerfTests_Intro" xml:space="preserve"><value>Führen Sie bei Bedarf Verbindungs- und Latenzprüfungen für die von diesem Dashboard verwendeten Server aus. Die Ergebnisse sind live und werden nicht zwischengespeichert.</value></data>
+  <data name="PerfTests_ServerType" xml:space="preserve"><value>Servertyp</value></data>
+  <data name="PerfTests_TestType" xml:space="preserve"><value>Testtyp</value></data>
+  <data name="PerfTests_All" xml:space="preserve"><value>Alle</value></data>
+  <data name="PerfTests_Run" xml:space="preserve"><value>Tests ausführen</value></data>
+  <data name="PerfTests_RunSelected" xml:space="preserve"><value>Auswahl ausführen</value></data>
+  <data name="PerfTests_SelectTargets" xml:space="preserve"><value>Bestimmte Ziele auswählen</value></data>
+  <data name="PerfTests_NoResults" xml:space="preserve"><value>Keine Ergebnisse zum Anzeigen.</value></data>
+  <data name="PerfTests_Running" xml:space="preserve"><value>Tests werden ausgeführt…</value></data>
+  <data name="PerfTests_ChartTitle" xml:space="preserve"><value>Latenz pro Test (ms)</value></data>
+  <data name="PerfTest_Ping" xml:space="preserve"><value>Ping / TCP</value></data>
+  <data name="PerfTest_LdapBind" xml:space="preserve"><value>LDAP-Bindung</value></data>
+  <data name="PerfTest_RestGet" xml:space="preserve"><value>REST-API</value></data>
+  <data name="PerfTest_RstsAuth" xml:space="preserve"><value>STS-Authentifizierung</value></data>
+  <data name="PerfTest_WebHttp" xml:space="preserve"><value>Weboberfläche</value></data>
+  <data name="PerfTest_EntraOpenId" xml:space="preserve"><value>Entra OpenID</value></data>
+  <data name="PerfTest_SqlQuery" xml:space="preserve"><value>SQL-Abfrage</value></data>
+  <data name="Col_Target" xml:space="preserve"><value>Ziel</value></data>
+  <data name="Col_ServerType" xml:space="preserve"><value>Servertyp</value></data>
+  <data name="Col_TestType" xml:space="preserve"><value>Test</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Col_Latency" xml:space="preserve"><value>Latenz</value></data>
+  <data name="Col_Detail" xml:space="preserve"><value>Detail</value></data>
+</root>

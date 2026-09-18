@@ -1034,4 +1034,290 @@ initCategoryCharts();
     loadBatch(alreadyLoaded);
 })();
 
+// ---------------------------------------------------------------------------
+// Performance / connectivity diagnostics (Phase 3).
+// On-demand probes against api/diagnostics. Results are live and never cached.
+// ---------------------------------------------------------------------------
+(function () {
+    const panel = document.getElementById('panel-performancetests');
+    if (!panel) return;
+
+    const dashboard = panel.getAttribute('data-perf-dashboard') || 'ActiveRoles';
+    const runBtn = document.getElementById('perf-run');
+    const runLabel = document.getElementById('perf-run-label');
+    const spinner = document.getElementById('perf-spinner');
+    const statusEl = document.getElementById('perf-status');
+    const targetList = document.getElementById('perf-target-list');
+    const targetAll = document.getElementById('perf-target-all');
+    const resultsTable = document.getElementById('perf-results');
+    const resultsBody = document.getElementById('perf-results-body');
+    const emptyMsg = document.getElementById('perf-empty');
+    const chartWrap = document.getElementById('perf-chart-wrap');
+    const chartCanvas = document.getElementById('perf-chart');
+    const runText = panel.getAttribute('data-perf-run') || 'Run tests';
+    const runningText = panel.getAttribute('data-perf-running') || 'Running tests\u2026';
+    const latencyAxisText = panel.getAttribute('data-perf-chart-latency') || 'Latency';
+    let perfChart = null;
+
+    // Which test types are checked (client-side filter over the applicable set).
+    function selectedTestTypes() {
+        return [...document.querySelectorAll('.perf-testtype-cb:checked')].map(cb => cb.value);
+    }
+
+    function statusClass(status) {
+        switch (status) {
+            case 'Ok': return 'perf-ok';
+            case 'Warn': return 'perf-warn';
+            case 'Fail': return 'perf-fail';
+            default: return 'perf-skipped';
+        }
+    }
+
+    // Load discoverable targets so the user can pick server types / individual targets.
+    function loadTargets() {
+        fetch('/api/diagnostics/targets?dashboard=' + encodeURIComponent(dashboard), { credentials: 'same-origin' })
+            .then(r => r.json())
+            .then(data => {
+                if (!Array.isArray(data)) { targetList.textContent = (data && data.error) || ''; return; }
+                targetList.innerHTML = '';
+                data.forEach(t => {
+                    const label = document.createElement('label');
+                    label.className = 'perf-target-item';
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.className = 'perf-target-cb';
+                    cb.checked = true;
+                    cb.value = t.id;
+                    cb.setAttribute('data-servertype', t.serverType);
+                    label.appendChild(cb);
+                    label.appendChild(document.createTextNode(' ' + t.name + ' (' + t.serverType + ')'));
+                    targetList.appendChild(label);
+                });
+                syncTargetAll();
+            })
+            .catch(() => { /* leave the list empty; run still works with filters */ });
+    }
+
+    function selectedTargetIds() {
+        return [...targetList.querySelectorAll('.perf-target-cb:checked')].map(cb => cb.value);
+    }
+
+    // Keep the "All" targets toggle in sync with the individual checkboxes.
+    function syncTargetAll() {
+        if (!targetAll) return;
+        const all = [...targetList.querySelectorAll('.perf-target-cb')];
+        const checked = all.filter(cb => cb.checked);
+        targetAll.checked = all.length > 0 && checked.length === all.length;
+        targetAll.indeterminate = checked.length > 0 && checked.length < all.length;
+        updateSummaries();
+    }
+
+    // Summarise the dropdown selections (e.g. "All", "3 selected") like the domain/tenant widgets.
+    function summariseChecks(checkboxes) {
+        const all = [...checkboxes];
+        const checked = all.filter(cb => cb.checked);
+        if (all.length === 0) return '';
+        if (checked.length === all.length) return 'All';
+        if (checked.length === 0) return 'None';
+        return checked.length + ' selected';
+    }
+
+    function updateSummaries() {
+        const ttSummary = document.getElementById('perf-testtypes-summary');
+        if (ttSummary) ttSummary.textContent = summariseChecks(document.querySelectorAll('.perf-testtype-cb'));
+        const tgtSummary = document.getElementById('perf-targets-summary');
+        if (tgtSummary) tgtSummary.textContent = summariseChecks(targetList.querySelectorAll('.perf-target-cb'));
+    }
+
+    function renderResults(result) {
+        resultsBody.innerHTML = '';
+        const wanted = selectedTestTypes();
+        let probes = (result && result.probes) || [];
+        // Client-side filter: only show the test types the user selected.
+        if (wanted.length > 0) {
+            probes = probes.filter(p => wanted.indexOf(p.testType) !== -1);
+        }
+        if (probes.length === 0) {
+            resultsTable.classList.add('hidden');
+            emptyMsg.classList.remove('hidden');
+            renderChart([]);
+            return;
+        }
+        emptyMsg.classList.add('hidden');
+        resultsTable.classList.remove('hidden');
+        let ok = 0, warn = 0, fail = 0;
+        probes.forEach(p => {
+            if (p.status === 'Ok') ok++; else if (p.status === 'Warn') warn++; else if (p.status === 'Fail') fail++;
+            const tr = document.createElement('tr');
+            const latency = (p.latencyMs === null || p.latencyMs === undefined) ? '' : (p.latencyMs + ' ms');
+            tr.innerHTML =
+                '<td>' + escapeHtml(p.targetName) + '</td>' +
+                '<td>' + escapeHtml(p.serverType) + '</td>' +
+                '<td>' + escapeHtml(p.testType) + '</td>' +
+                '<td><span class="perf-badge ' + statusClass(p.status) + '">' + escapeHtml(p.status) + '</span></td>' +
+                '<td>' + escapeHtml(latency) + '</td>' +
+                '<td>' + escapeHtml(p.message || '') + '</td>';
+            resultsBody.appendChild(tr);
+        });
+        if (statusEl) {
+            statusEl.textContent = 'OK ' + ok + ' / Warn ' + warn + ' / Fail ' + fail;
+        }
+        renderChart(probes);
+    }
+
+    // Clustered ("grouped") column chart of latency: targets on the x-axis, one
+    // dataset (column series) per test type. Chart.js is 2-D only, so this is a
+    // clustered column chart rather than a true 3-D chart.
+    function renderChart(probes) {
+        if (!chartCanvas || typeof Chart === 'undefined') { return; }
+        const withLatency = probes.filter(p => typeof p.latencyMs === 'number');
+        if (withLatency.length === 0) {
+            if (perfChart) { perfChart.destroy(); perfChart = null; }
+            chartWrap.classList.add('hidden');
+            return;
+        }
+        const targets = [];
+        const tests = [];
+        withLatency.forEach(p => {
+            if (targets.indexOf(p.targetName) === -1) targets.push(p.targetName);
+            if (tests.indexOf(p.testType) === -1) tests.push(p.testType);
+        });
+        const colors = ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#0d9488', '#db2777', '#475569'];
+        // Group by TEST TYPE on the x-axis with one column series per target/server, so
+        // latency is compared like-for-like across servers (a Ping is only comparable to
+        // another Ping). A logarithmic y-axis keeps fast probes readable next to slow ones.
+        // Log scales cannot plot 0, so sub-1ms values are floored to 0.5 for display while
+        // the tooltip reports the true measured latency.
+        const datasets = targets.map((tName, idx) => {
+            const actuals = tests.map(test => {
+                const found = withLatency.find(p => p.targetName === tName && p.testType === test);
+                return found ? found.latencyMs : null;
+            });
+            return {
+                label: tName,
+                // Numeric data with nulls for missing (target,test) pairs. Log scales cannot
+                // plot 0, so floor sub-1ms values to 0.5 for display; actualLatency keeps the
+                // real value for the tooltip.
+                data: actuals.map(v => v === null ? null : Math.max(v, 0.5)),
+                actualLatency: actuals,
+                backgroundColor: colors[idx % colors.length],
+                borderColor: '#0f172a',
+                borderWidth: 1,
+                borderSkipped: false
+            };
+        });
+        chartWrap.classList.remove('hidden');
+        if (perfChart) { perfChart.destroy(); }
+        perfChart = new Chart(chartCanvas, {
+            type: 'bar',
+            data: { labels: tests, datasets: datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const actual = ctx.dataset.actualLatency ? ctx.dataset.actualLatency[ctx.dataIndex] : ctx.parsed.y;
+                                return ctx.dataset.label + ': ' + actual + ' ms';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: {
+                        type: 'logarithmic',
+                        title: { display: true, text: latencyAxisText + ' (ms, log scale)' },
+                        ticks: { callback: function (v) { return Number(v.toString()); } }
+                    }
+                }
+            }
+        });
+    }
+
+    function escapeHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function setRunning(isRunning) {
+        runBtn.disabled = isRunning;
+        if (spinner) spinner.classList.toggle('hidden', !isRunning);
+        if (runLabel) runLabel.textContent = isRunning ? runningText : runText;
+    }
+
+    function run(targetIds) {
+        const body = {
+            dashboard: dashboard,
+            serverType: null,
+            testType: null,
+            targetIds: targetIds || []
+        };
+        setRunning(true);
+        if (statusEl) statusEl.textContent = '';
+        fetch('/api/diagnostics/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(body)
+        })
+            .then(r => r.json())
+            .then(result => {
+                if (result && result.error) {
+                    if (statusEl) statusEl.textContent = result.error;
+                    resultsTable.classList.add('hidden');
+                    emptyMsg.classList.remove('hidden');
+                    return;
+                }
+                renderResults(result);
+            })
+            .catch(err => {
+                if (statusEl) statusEl.textContent = 'Error: ' + err.message;
+            })
+            .finally(() => {
+                setRunning(false);
+            });
+    }
+
+    // "All" targets toggle drives every individual checkbox.
+    if (targetAll) {
+        targetAll.addEventListener('change', () => {
+            targetList.querySelectorAll('.perf-target-cb').forEach(cb => { cb.checked = targetAll.checked; });
+            targetAll.indeterminate = false;
+        });
+    }
+    targetList.addEventListener('change', syncTargetAll);
+
+    // Dropdown open/close behaviour matching the domains/tenants multi-select widgets.
+    document.querySelectorAll('#panel-performancetests .perf-multi').forEach(multi => {
+        const toggle = multi.querySelector('.perf-multi-toggle');
+        if (!toggle) return;
+        toggle.addEventListener('click', e => {
+            e.stopPropagation();
+            const isOpen = multi.classList.toggle('snap-multi-open');
+            document.querySelectorAll('#panel-performancetests .perf-multi.snap-multi-open').forEach(m => {
+                if (m !== multi) m.classList.remove('snap-multi-open');
+            });
+            // Keep panel open state consistent even if toggle returned false above.
+            multi.classList.toggle('snap-multi-open', isOpen);
+        });
+    });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#panel-performancetests .perf-multi')) {
+            document.querySelectorAll('#panel-performancetests .perf-multi.snap-multi-open')
+                .forEach(m => m.classList.remove('snap-multi-open'));
+        }
+    });
+    // Update the test-type summary as selections change.
+    document.querySelectorAll('.perf-testtype-cb').forEach(cb => cb.addEventListener('change', updateSummaries));
+    updateSummaries();
+
+    // Single Run button: probe the checked targets when any are selected, otherwise run
+    // the full (filter-scoped) set. Test-type selection is applied client-side.
+    runBtn.addEventListener('click', () => run(selectedTargetIds()));
+
+    loadTargets();
+})();
 

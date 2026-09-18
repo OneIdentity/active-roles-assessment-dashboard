@@ -201,15 +201,15 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>@Localizer["Col_ServerName"]</th><th>@Localizer["Col_Version"]</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_ServerName"]</th><th>@Localizer["Col_Version"]</th><th>@Localizer["Col_VerboseLogging"]</th></tr></thead>
                         <tbody>
                         @foreach (var s in Model.Summary.Servers.Items)
                         {
-                            <tr><td>@s.ServerName</td><td>@s.Version</td></tr>
+                            <tr><td>@s.ServerName</td><td>@s.Version</td><td>@Localizer[s.VerboseLogging ? "Value_On" : "Value_Off"]</td></tr>
                         }
                         @if (!Model.Summary.Servers.Items.Any())
                         {
-                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_Servers"]</td></tr>
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_Servers"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -229,14 +229,21 @@
                 }
                 else
                 {
+                    @if (Model.Summary.DynamicGroups.ServiceDistribution.Any())
+                    {
+                        <p class="muted">@Localizer["Label_ServiceDistribution"]: @string.Join(", ", Model.Summary.DynamicGroups.ServiceDistribution.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key} ({kv.Value})"))</p>
+                    }
                     <table>
-                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th style="width:40px;"></th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_OriginatingService"]</th><th>@Localizer["Col_Rules"]</th><th>@Localizer["Col_Expensive"]</th><th style="width:40px;"></th></tr></thead>
                         <tbody>
                         @foreach (var g in Model.Summary.DynamicGroups.Items)
                         {
                             <tr>
                                 <td>@g.Name</td>
                                 <td class="dn-cell">@g.Dn</td>
+                                <td>@(string.IsNullOrWhiteSpace(g.OriginatingService) ? "-" : g.OriginatingService)</td>
+                                <td>@g.RuleCount</td>
+                                <td>@(g.IsExpensive ? Localizer["Value_Yes"] : Localizer["Value_No"])</td>
                                 <td>
                                     @if (!string.IsNullOrEmpty(g.Dn))
                                     {
@@ -258,7 +265,7 @@
                         }
                         @if (!Model.Summary.DynamicGroups.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_DynamicGroups"]</td></tr>
+                            <tr><td colspan="6" class="empty-row">@Localizer["Empty_DynamicGroups"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -419,15 +426,15 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_LdapDisplayName"]</th><th>@Localizer["Col_Multivalued"]</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_LdapDisplayName"]</th><th>@Localizer["Col_Multivalued"]</th><th>@Localizer["Col_Type"]</th></tr></thead>
                         <tbody>
                         @foreach (var v in Model.Summary.VirtualAttributes.Items)
                         {
-                            <tr><td>@v.Name</td><td>@v.LdapDisplayName</td><td>@v.IsMultivalued</td></tr>
+                            <tr><td>@v.Name</td><td>@v.LdapDisplayName</td><td>@v.IsMultivalued</td><td>@Localizer[v.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
                         }
                         @if (!Model.Summary.VirtualAttributes.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_VirtualAttributes"]</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_VirtualAttributes"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -506,15 +513,15 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Rules"]</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Rules"]</th><th>@Localizer["Col_Type"]</th></tr></thead>
                         <tbody>
                         @foreach (var p in Model.Summary.PolicyObjects.Items)
                         {
-                            <tr><td>@p.Name</td><td class="dn-cell">@p.Dn</td><td>@p.RuleCount</td></tr>
+                            <tr><td>@p.Name</td><td class="dn-cell">@p.Dn</td><td>@p.RuleCount</td><td>@Localizer[p.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
                         }
                         @if (!Model.Summary.PolicyObjects.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_PolicyObjects"]</td></tr>
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_PolicyObjects"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -535,15 +542,15 @@
                 else
                 {
                     <table>
-                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Parent"]</th></tr></thead>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Parent"]</th><th>@Localizer["Col_Type"]</th></tr></thead>
                         <tbody>
                         @foreach (var a in Model.Summary.AccessTemplates.Items)
                         {
-                            <tr><td>@a.Name</td><td><span class="type-pill">@a.Parent</span></td></tr>
+                            <tr><td>@a.Name</td><td><span class="type-pill">@a.Parent</span></td><td>@Localizer[a.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
                         }
                         @if (!Model.Summary.AccessTemplates.Items.Any())
                         {
-                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_AccessTemplates"]</td></tr>
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_AccessTemplates"]</td></tr>
                         }
                         </tbody>
                     </table>
@@ -697,6 +704,158 @@
         </div>
         }
 
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "OrphanAccessTemplateLinks"))
+        {
+        <div class="panel" id="panel-orphanaccesstemplatelinks">
+            <h2><span class="sec-icon">O</span> @KpiInfo.OrphanAccessTemplateLinks.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.OrphanAccessTemplateLinks.Error != null)
+                {
+                    <p class="muted">@Model.Summary.OrphanAccessTemplateLinks.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_MissingAttributes"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var l in Model.Summary.OrphanAccessTemplateLinks.Items)
+                        {
+                            <tr><td>@l.Name</td><td class="dn-cell">@l.Dn</td><td>@l.MissingAttributes</td></tr>
+                        }
+                        @if (!Model.Summary.OrphanAccessTemplateLinks.Items.Any())
+                        {
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_OrphanAccessTemplateLinks"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "OrphanPolicyObjectLinks"))
+        {
+        <div class="panel" id="panel-orphanpolicyobjectlinks">
+            <h2><span class="sec-icon">O</span> @KpiInfo.OrphanPolicyObjectLinks.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.OrphanPolicyObjectLinks.Error != null)
+                {
+                    <p class="muted">@Model.Summary.OrphanPolicyObjectLinks.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_MissingAttributes"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var l in Model.Summary.OrphanPolicyObjectLinks.Items)
+                        {
+                            <tr><td>@l.Name</td><td class="dn-cell">@l.Dn</td><td>@l.MissingAttributes</td></tr>
+                        }
+                        @if (!Model.Summary.OrphanPolicyObjectLinks.Items.Any())
+                        {
+                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_OrphanPolicyObjectLinks"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroupsBrokenRules"))
+        {
+        <div class="panel" id="panel-dynamicgroupsbrokenrules">
+            <h2><span class="sec-icon">B</span> @KpiInfo.DynamicGroupsBrokenRules.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.DynamicGroupsBrokenRules.Error != null)
+                {
+                    <p class="muted">@Model.Summary.DynamicGroupsBrokenRules.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var g in Model.Summary.DynamicGroupsBrokenRules.Items)
+                        {
+                            <tr><td>@g.Name</td><td class="dn-cell">@g.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.DynamicGroupsBrokenRules.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_DynamicGroupsBrokenRules"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "ManagedUnitsBrokenRules"))
+        {
+        <div class="panel" id="panel-managedunitsbrokenrules">
+            <h2><span class="sec-icon">B</span> @KpiInfo.ManagedUnitsBrokenRules.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.ManagedUnitsBrokenRules.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ManagedUnitsBrokenRules.Error</p>
+                }
+                else
+                {
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var m in Model.Summary.ManagedUnitsBrokenRules.Items)
+                        {
+                            <tr><td>@m.Name</td><td class="dn-cell">@m.Dn</td></tr>
+                        }
+                        @if (!Model.Summary.ManagedUnitsBrokenRules.Items.Any())
+                        {
+                            <tr><td colspan="2" class="empty-row">@Localizer["Empty_ManagedUnitsBrokenRules"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
+        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "ScriptModules"))
+        {
+        <div class="panel" id="panel-scriptmodules">
+            <h2><span class="sec-icon">S</span> @KpiInfo.ScriptModules.DisplayName</h2>
+            <div class="panel-content">
+                @if (Model.Summary.ScriptModules.Error != null)
+                {
+                    <p class="muted">@Model.Summary.ScriptModules.Error</p>
+                }
+                else
+                {
+                    @if (Model.Summary.ScriptModules.LanguageBreakdown.Any())
+                    {
+                        <p class="muted">
+                            @Localizer["Label_LanguageBreakdown"]:
+                            @string.Join(", ", Model.Summary.ScriptModules.LanguageBreakdown.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key} ({kv.Value})"))
+                        </p>
+                    }
+                    <table>
+                        <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Language"]</th><th>@Localizer["Col_Type"]</th><th>@Localizer["Col_Origin"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var s in Model.Summary.ScriptModules.Items)
+                        {
+                            <tr><td>@s.Name</td><td>@s.Language</td><td>@s.Type</td><td>@Localizer[s.IsSystem ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
+                        }
+                        @if (!Model.Summary.ScriptModules.Items.Any())
+                        {
+                            <tr><td colspan="4" class="empty-row">@Localizer["Empty_ScriptModules"]</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        }
+
         @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "AccessTemplateLinks"))
         {
         <div class="panel" id="panel-atlinks">
@@ -764,6 +923,60 @@
         }
 
     </div>
+
+    <details class="panel panel-static panel-collapsible" id="panel-dbtopology">
+        <summary><h2><span class="sec-icon">D</span> @Localizer["H_DbTopology"]<span class="panel-caret" aria-hidden="true">&#9662;</span></h2></summary>
+        <div class="panel-content">
+            @{
+                var allDbs = Model.Summary.ConfigDatabases.Items
+                    .Select(i => (Kind: Localizer["DbKind_Config"].Value, i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationRole))
+                    .Concat(Model.Summary.HistoryDatabases.Items
+                        .Select(i => (Kind: Localizer["DbKind_History"].Value, i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationRole)))
+                    .ToList();
+                var dbError = Model.Summary.ConfigDatabases.Error ?? Model.Summary.HistoryDatabases.Error;
+            }
+            @if (dbError != null)
+            {
+                <p class="muted">@dbError</p>
+            }
+            else if (allDbs.Count == 0)
+            {
+                <p class="muted">@Localizer["DbTopology_None"]</p>
+            }
+            else
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>@Localizer["Col_DbKind"]</th>
+                            <th>@Localizer["Col_SqlAlias"]</th>
+                            <th>@Localizer["Col_DatabaseName"]</th>
+                            <th>@Localizer["Col_DatabaseType"]</th>
+                            <th>@Localizer["Col_ReplicationRole"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var db in allDbs.OrderBy(d => d.ReplicationRole).ThenBy(d => d.DatabaseName))
+                        {
+                            <tr>
+                                <td>@db.Kind</td>
+                                <td>@db.SqlAlias</td>
+                                <td>@db.DatabaseName</td>
+                                <td>@db.DatabaseType</td>
+                                <td>@db.ReplicationRole</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </details>
+
+    @if (Model.CanRunPerformanceTests(DiagnosticsDashboard.ActiveRoles))
+    {
+        ViewData["PerfDashboard"] = "ActiveRoles";
+        @await Html.PartialAsync("_PerformanceTests")
+    }
 
     <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
 </div>

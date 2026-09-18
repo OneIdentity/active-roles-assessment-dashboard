@@ -175,4 +175,49 @@ public class DrillDownController : ControllerBase
         var result = await _arService.GetUnlinkedPolicyObjectsAsync(token);
         return Ok(result);
     }
+
+    [HttpGet("orphanaccesstemplatelinks")]
+    public async Task<IActionResult> GetOrphanAccessTemplateLinks()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetOrphanAccessTemplateLinksAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("orphanpolicyobjectlinks")]
+    public async Task<IActionResult> GetOrphanPolicyObjectLinks()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetOrphanPolicyObjectLinksAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("dynamicgroupsbrokenrules")]
+    public async Task<IActionResult> GetDynamicGroupsBrokenRules()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetDynamicGroupsBrokenRulesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("managedunitsbrokenrules")]
+    public async Task<IActionResult> GetManagedUnitsBrokenRules()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetManagedUnitsBrokenRulesAsync(token);
+        return Ok(result);
+    }
+
+    [HttpGet("scriptmodules")]
+    public async Task<IActionResult> GetScriptModules()
+    {
+        var token = GetToken();
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var result = await _arService.GetScriptModulesAsync(token);
+        return Ok(result);
+    }
 }
