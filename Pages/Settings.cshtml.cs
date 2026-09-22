@@ -80,8 +80,6 @@ public class SettingsModel : PageModel
     public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
     [BindProperty]
     public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
 
     // REST API Configuration (restart required)
     [BindProperty]
@@ -107,11 +105,21 @@ public class SettingsModel : PageModel
     [BindProperty]
     public string DefaultEmptyGroupsFilter { get; set; } = string.Empty;
     [BindProperty]
-    public string DefaultActiveRolesAdminsFilter { get; set; } = string.Empty;
-    [BindProperty]
     public string DefaultADUserAccountsFilter { get; set; } = string.Empty;
     [BindProperty]
     public string DefaultADGroupsFilter { get; set; } = string.Empty;
+
+    // Role/admin groups (stored by NAME under the RoleGroups section) plus the AD/Entra flag.
+    [BindProperty]
+    public RoleGroupDirectoryType RoleGroupsDirectoryType { get; set; } = RoleGroupDirectoryType.ActiveDirectory;
+    [BindProperty]
+    public string ActiveRolesAdminsGroup { get; set; } = string.Empty;
+    [BindProperty]
+    public string DashboardAdminsGroup { get; set; } = string.Empty;
+    [BindProperty]
+    public string AuditorsGroup { get; set; } = string.Empty;
+    [BindProperty]
+    public string PowerUsersGroup { get; set; } = string.Empty;
 
     // App-wide default language (distinct from the per-user Language setting)
     [BindProperty]
@@ -258,7 +266,6 @@ public class SettingsModel : PageModel
         CustomUserAccountLockedOutBaseDn = config.CustomUserAccountLockedOutBaseDn;
         CustomEmptyGroupsBaseDn = config.CustomEmptyGroupsBaseDn;
         CustomActiveRolesAdminsBaseDn = config.CustomActiveRolesAdminsBaseDn;
-        CustomActiveRolesAdminsFilter = config.CustomActiveRolesAdminsFilter;
         EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
         DynamicGroupExpensiveRuleThreshold = config.DynamicGroupExpensiveRuleThreshold;
 
@@ -275,9 +282,15 @@ public class SettingsModel : PageModel
         DefaultUserAccountExpiredFilter = config.DefaultFilters.UserAccountExpired;
         DefaultUserAccountLockedOutFilter = config.DefaultFilters.UserAccountLockedOut;
         DefaultEmptyGroupsFilter = config.DefaultFilters.EmptyGroups;
-        DefaultActiveRolesAdminsFilter = config.DefaultFilters.ActiveRolesAdmins;
         DefaultADUserAccountsFilter = config.DefaultFilters.ADUserAccounts;
         DefaultADGroupsFilter = config.DefaultFilters.ADGroups;
+
+        // Role/admin groups (by name) + directory-type flag
+        RoleGroupsDirectoryType = config.RoleGroups.DirectoryType;
+        ActiveRolesAdminsGroup = config.RoleGroups.ActiveRolesAdmins;
+        DashboardAdminsGroup = config.RoleGroups.DashboardAdmins;
+        AuditorsGroup = config.RoleGroups.Auditors;
+        PowerUsersGroup = config.RoleGroups.PowerUsers;
 
         // App-wide default language
         DefaultLanguage = config.DefaultLanguage;
@@ -424,7 +437,6 @@ public class SettingsModel : PageModel
                 }
                 customFilters["NoManagerUser"] = CustomNoManagerUserFilter?.Trim() ?? "";
                 customFilters["NoManagerServiceAccount"] = CustomNoManagerServiceAccountFilter?.Trim() ?? "";
-                customFilters["ActiveRolesAdmins"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
 
                 // Entra membership tuning (stored in its own Entra section).
                 var entra = activeRoles["Entra"]?.AsObject();
@@ -457,9 +469,21 @@ public class SettingsModel : PageModel
                 defaultFilters["UserAccountExpired"] = DefaultUserAccountExpiredFilter?.Trim() ?? "";
                 defaultFilters["UserAccountLockedOut"] = DefaultUserAccountLockedOutFilter?.Trim() ?? "";
                 defaultFilters["EmptyGroups"] = DefaultEmptyGroupsFilter?.Trim() ?? "";
-                defaultFilters["ActiveRolesAdmins"] = DefaultActiveRolesAdminsFilter?.Trim() ?? "";
                 defaultFilters["ADUserAccounts"] = DefaultADUserAccountsFilter?.Trim() ?? "";
                 defaultFilters["ADGroups"] = DefaultADGroupsFilter?.Trim() ?? "";
+
+                // Role/admin groups stored by NAME under the RoleGroups section, plus the AD/Entra flag.
+                var roleGroups = activeRoles["RoleGroups"]?.AsObject();
+                if (roleGroups is null)
+                {
+                    roleGroups = new JsonObject();
+                    activeRoles["RoleGroups"] = roleGroups;
+                }
+                roleGroups["DirectoryType"] = RoleGroupsDirectoryType.ToString();
+                roleGroups["ActiveRolesAdmins"] = ActiveRolesAdminsGroup?.Trim() ?? "";
+                roleGroups["DashboardAdmins"] = DashboardAdminsGroup?.Trim() ?? "";
+                roleGroups["Auditors"] = AuditorsGroup?.Trim() ?? "";
+                roleGroups["PowerUsers"] = PowerUsersGroup?.Trim() ?? "";
 
                 // Role/permission matrix. Rebuild from posted "Role:Permission" grants, ignoring
                 // unknown tokens. The Dashboard Administrator role is fixed to full permissions

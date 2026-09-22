@@ -70,6 +70,16 @@
   <data name="KpiSubtitle" xml:space="preserve"><value>All KPI settings are optional. Leave blank to use defaults.</value></data>
   <data name="RoleMappingConfig" xml:space="preserve"><value>Role Group Mapping</value></data>
   <data name="RoleMappingSubtitle" xml:space="preserve"><value>Map dashboard roles to Active Directory groups. Members of each group are granted the corresponding role. Leave blank to use defaults.</value></data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve"><value>Directory Type</value></data>
+  <data name="Hint_RoleGroupsDirectoryType" xml:space="preserve"><value>Whether the role/admin groups are Active Directory or Entra based. This determines the search base DN and how the group filter is built.</value></data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve"><value>Active Roles Admins - Group Name</value></data>
+  <data name="Hint_ActiveRolesAdminsGroup" xml:space="preserve"><value>Members receive full administrator permissions.</value></data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve"><value>Dashboard Admins - Group Name</value></data>
+  <data name="Hint_DashboardAdminsGroup" xml:space="preserve"><value>Members receive the Dashboard Administrator role (full permissions).</value></data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve"><value>Auditors - Group Name</value></data>
+  <data name="Hint_AuditorsGroup" xml:space="preserve"><value>Members receive the Auditor role.</value></data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve"><value>Power Users - Group Name</value></data>
+  <data name="Hint_PowerUsersGroup" xml:space="preserve"><value>Members receive the Power User role.</value></data>
   <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Dashboard Admins - LDAP Filter</value></data>
   <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>Members receive the Dashboard Administrator role (full permissions).</value></data>
   <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditors - LDAP Filter</value></data>

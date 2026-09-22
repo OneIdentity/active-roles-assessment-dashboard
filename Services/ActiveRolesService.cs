@@ -949,8 +949,8 @@ public class ActiveRolesService
 
         if (settings.IsKpiEnabled("ARConfiguration", "ActiveRolesAdmins"))
         {
-            var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, config.DefaultActiveDirectoryDN);
-            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultFilters.ActiveRolesAdmins);
+            var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, ResolveRoleGroupBaseDn());
+            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins));
             var t = GetActiveRolesAdminsAsync(token, baseDn, filter);
             tasks.Add(("ActiveRolesAdmins", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ActiveRolesAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -3585,8 +3585,8 @@ public class ActiveRolesService
         var config = _configMonitor.CurrentValue;
         // Resolution precedence (matches the AR Admins KPI path): start from the configured
         // default filter/base, then let a non-empty Custom override win.
-        var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, config.DefaultActiveDirectoryDN);
-        var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, config.DefaultFilters.ActiveRolesAdmins);
+        var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, ResolveRoleGroupBaseDn());
+        var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins));
 
         // Resolve the user's DN once, then check membership of the AR admins group using the
         // server-computed edsaMember/edsaMemberIndirect attributes on that single group - avoiding
@@ -4172,6 +4172,42 @@ public class ActiveRolesService
             .Replace("(", "\\28")
             .Replace(")", "\\29")
             .Replace("\0", "\\00");
+    }
+
+    /// <summary>
+    /// Builds the LDAP filter that matches the dashboard role/admin group with the given
+    /// <paramref name="groupName"/>, using the object class(es) appropriate for the configured
+    /// <see cref="RoleGroupsConfig.DirectoryType"/>. The name is LDAP-escaped. Returns an empty
+    /// string when <paramref name="groupName"/> is blank so callers can skip the search entirely.
+    ///
+    /// AD groups match <c>(&amp;(objectClass=group)(name=&lt;name&gt;))</c>; Entra groups are exposed
+    /// by Active Roles as <c>edsAzureSecurityGroup</c> / <c>edsAzureO365Group</c>, so both classes
+    /// are matched: <c>(&amp;(|(objectClass=edsAzureSecurityGroup)(objectClass=edsAzureO365Group))(name=&lt;name&gt;))</c>.
+    /// </summary>
+    public string BuildRoleGroupFilter(string? groupName)
+    {
+        if (string.IsNullOrWhiteSpace(groupName))
+            return string.Empty;
+
+        var escaped = EscapeLdapFilterValue(groupName.Trim());
+        var directoryType = _configMonitor.CurrentValue.RoleGroups.DirectoryType;
+
+        return directoryType == RoleGroupDirectoryType.Entra
+            ? $"(&(|(objectClass=edsAzureSecurityGroup)(objectClass=edsAzureO365Group))(name={escaped}))"
+            : $"(&(objectClass=group)(name={escaped}))";
+    }
+
+    /// <summary>
+    /// Resolves the base DN that role/admin group searches run under, based on the configured
+    /// <see cref="RoleGroupsConfig.DirectoryType"/>: the default Active Directory DN for AD groups,
+    /// or the Azure/Entra configuration DN (CN=Azure,CN=Configuration) for Entra groups.
+    /// </summary>
+    public string ResolveRoleGroupBaseDn()
+    {
+        var config = _configMonitor.CurrentValue;
+        return config.RoleGroups.DirectoryType == RoleGroupDirectoryType.Entra
+            ? config.DefaultAzureConfigurationDN
+            : config.DefaultActiveDirectoryDN;
     }
 
     /// <summary>

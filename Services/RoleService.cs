@@ -135,16 +135,16 @@ public class RoleService
             return DashboardRole.DashboardAdministrator;
 
         var config = _config.CurrentValue;
-        var baseDn = config.DefaultActiveDirectoryDN;
-        var filters = config.DefaultFilters;
+        var roleGroups = config.RoleGroups;
+        var baseDn = _arService.ResolveRoleGroupBaseDn();
 
-        if (await _arService.IsUserMemberOfGroupFilterAsync(token, username, baseDn, filters.DashboardAdmins, "EvaluateRole:DashboardAdmins"))
+        if (await _arService.IsUserMemberOfGroupFilterAsync(token, username, baseDn, _arService.BuildRoleGroupFilter(roleGroups.DashboardAdmins), "EvaluateRole:DashboardAdmins"))
             return DashboardRole.DashboardAdministrator;
 
-        if (await _arService.IsUserMemberOfGroupFilterAsync(token, username, baseDn, filters.Auditors, "EvaluateRole:Auditors"))
+        if (await _arService.IsUserMemberOfGroupFilterAsync(token, username, baseDn, _arService.BuildRoleGroupFilter(roleGroups.Auditors), "EvaluateRole:Auditors"))
             return DashboardRole.Auditor;
 
-        if (await _arService.IsUserMemberOfGroupFilterAsync(token, username, baseDn, filters.PowerUsers, "EvaluateRole:PowerUsers"))
+        if (await _arService.IsUserMemberOfGroupFilterAsync(token, username, baseDn, _arService.BuildRoleGroupFilter(roleGroups.PowerUsers), "EvaluateRole:PowerUsers"))
             return DashboardRole.PowerUser;
 
         return DashboardRole.User;
@@ -161,8 +161,15 @@ public class RoleService
     public async Task<(bool IsActiveRolesAdmin, DashboardRole Role)> ResolveLoginFactsAsync(string token, string username)
     {
         var config = _config.CurrentValue;
-        var baseDn = config.DefaultActiveDirectoryDN;
-        var filters = config.DefaultFilters;
+        var roleGroups = config.RoleGroups;
+
+        // Role/admin groups are stored by NAME; the search base DN and LDAP filter are composed from
+        // the group name plus the section's AD/Entra directory-type flag.
+        var baseDn = _arService.ResolveRoleGroupBaseDn();
+        var adminsFilter = _arService.BuildRoleGroupFilter(roleGroups.ActiveRolesAdmins);
+        var dashboardAdminsFilter = _arService.BuildRoleGroupFilter(roleGroups.DashboardAdmins);
+        var auditorsFilter = _arService.BuildRoleGroupFilter(roleGroups.Auditors);
+        var powerUsersFilter = _arService.BuildRoleGroupFilter(roleGroups.PowerUsers);
 
         // Directory lookups (DN resolution + group-membership checks) must run under the privileged
         // service account, NOT the logging-in user's token. A low-privilege user (e.g. an Auditor)
@@ -193,17 +200,17 @@ public class RoleService
 
         // Active Roles administrators get full permissions regardless of role-group membership.
         var isAdmin = await _arService.IsDnMemberOfGroupFilterAsync(
-            directoryToken, userDn, baseDn, filters.ActiveRolesAdmins, "LoginFacts:ActiveRolesAdmins");
+            directoryToken, userDn, baseDn, adminsFilter, "LoginFacts:ActiveRolesAdmins");
         if (isAdmin)
             return (true, DashboardRole.DashboardAdministrator);
 
-        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, filters.DashboardAdmins, "LoginFacts:DashboardAdmins"))
+        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, dashboardAdminsFilter, "LoginFacts:DashboardAdmins"))
             return (false, DashboardRole.DashboardAdministrator);
 
-        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, filters.Auditors, "LoginFacts:Auditors"))
+        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, auditorsFilter, "LoginFacts:Auditors"))
             return (false, DashboardRole.Auditor);
 
-        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, filters.PowerUsers, "LoginFacts:PowerUsers"))
+        if (await _arService.IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, powerUsersFilter, "LoginFacts:PowerUsers"))
             return (false, DashboardRole.PowerUser);
 
         return (false, DashboardRole.User);

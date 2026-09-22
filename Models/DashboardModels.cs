@@ -954,6 +954,11 @@ public class ActiveRolesConfig
 
     // Default filters for governance KPIs (grouped under the DefaultFilters section).
     public DefaultFiltersConfig DefaultFilters { get; set; } = new();
+
+    // Dashboard role/admin groups, stored by name with a single AD/Entra directory-type flag
+    // (grouped under the RoleGroups section). The LDAP filter and search base DN are composed from
+    // the group name + flag at search time.
+    public RoleGroupsConfig RoleGroups { get; set; } = new();
     public List<string> DefaultADUserAccountAttributes { get; set; } = new();
     public List<string> CustomADUserAccountAttributes { get; set; } = new();
 
@@ -1103,6 +1108,47 @@ public class DataRefreshConfig
 }
 
 /// <summary>
+/// Identifies the directory in which the dashboard role/admin groups live. Determines both the
+/// base DN a role-group search runs under and the objectClass used to match the group by name.
+/// </summary>
+public enum RoleGroupDirectoryType
+{
+    /// <summary>Groups are on-premises Active Directory security groups (objectClass=group).</summary>
+    ActiveDirectory = 0,
+
+    /// <summary>Groups are Entra ID groups exposed by Active Roles (edsAzureSecurityGroup / edsAzureO365Group).</summary>
+    Entra = 1
+}
+
+/// <summary>
+/// The dashboard role/admin groups, stored by GROUP NAME (not LDAP filter). Grouped under the
+/// "RoleGroups" configuration section. A single <see cref="DirectoryType"/> flag applies to all
+/// groups in the section; the LDAP filter and search base DN are composed from the name + flag at
+/// search time (see <c>ActiveRolesService.BuildRoleGroupFilter</c> / <c>ResolveRoleGroupBaseDn</c>).
+/// </summary>
+public class RoleGroupsConfig
+{
+    /// <summary>Whether the groups below are Active Directory or Entra based.</summary>
+    public RoleGroupDirectoryType DirectoryType { get; set; } = RoleGroupDirectoryType.ActiveDirectory;
+
+    /// <summary>Name of the group whose members are Active Roles administrators (full permissions).</summary>
+    public string ActiveRolesAdmins { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Name of the Dashboard Admins role group whose members are assigned the Dashboard
+    /// Administrator role. Note: Active Roles admins are always Dashboard Administrators
+    /// regardless of this group, so membership here is not required for them.
+    /// </summary>
+    public string DashboardAdmins { get; set; } = string.Empty;
+
+    /// <summary>Name of the Auditors role group whose members are assigned the Auditor role.</summary>
+    public string Auditors { get; set; } = string.Empty;
+
+    /// <summary>Name of the Power Users role group whose members are assigned the Power User role.</summary>
+    public string PowerUsers { get; set; } = string.Empty;
+}
+
+/// <summary>
 /// Default LDAP filters for governance KPIs. Grouped under the "DefaultFilters"
 /// configuration section. Custom overrides live on <see cref="ActiveRolesConfig"/>.
 /// </summary>
@@ -1117,22 +1163,7 @@ public class DefaultFiltersConfig
     public string UserAccountExpired { get; set; } = "(&(objectClass=user)(objectCategory=person)(edsvaAccountIsExpired=TRUE))";
     public string UserAccountLockedOut { get; set; } = "(&(objectClass=user)(objectCategory=person)(lockoutTime>=1))";
     public string EmptyGroups { get; set; } = "(&(objectClass=group)(!(member=*)))";
-public string ActiveRolesAdmins { get; set; } = "(&(objectClass=group)(name=YOUR-ADMIN-GROUP))";
-
-/// <summary>
-/// Resolves the Dashboard Admins role group whose members are assigned the Dashboard
-/// Administrator role. Note: Active Roles admins are always Dashboard Administrators
-/// regardless of this group, so membership here is not required for them.
-/// </summary>
-public string DashboardAdmins { get; set; } = "(&(objectClass=group)(name=APP-DASHBOARD-ADMINS))";
-
-/// <summary>Resolves the Auditors role group whose members are assigned the Auditor role.</summary>
-public string Auditors { get; set; } = "(&(objectClass=group)(name=APP-DASHBOARD-AUDITORS))";
-
-/// <summary>Resolves the Power Users role group whose members are assigned the Power User role.</summary>
-public string PowerUsers { get; set; } = "(&(objectClass=group)(name=APP-DASHBOARD-POWERUSERS))";
-
-public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
+    public string ADUserAccounts { get; set; } = "(&(objectClass=user)(objectCategory=person))";
     public string ADGroups { get; set; } = "(objectClass=group)";
 
     /// <summary>

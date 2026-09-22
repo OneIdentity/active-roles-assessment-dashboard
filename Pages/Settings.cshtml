@@ -934,8 +934,24 @@
                     <input type="text" id="DefaultEmptyGroupsFilter" name="DefaultEmptyGroupsFilter" value="@Model.DefaultEmptyGroupsFilter" />
                 </div>
                 <div class="form-group">
-                    <label for="DefaultActiveRolesAdminsFilter">@Localizer["Label_DefaultActiveRolesAdminsFilter"]</label>
-                    <input type="text" id="DefaultActiveRolesAdminsFilter" name="DefaultActiveRolesAdminsFilter" value="@Model.DefaultActiveRolesAdminsFilter" />
+                    <label for="RoleGroupsDirectoryType">@Localizer["Lbl_RoleGroupsDirectoryType"]</label>
+                    <select id="RoleGroupsDirectoryType" name="RoleGroupsDirectoryType" asp-for="RoleGroupsDirectoryType" asp-items="Html.GetEnumSelectList<RoleGroupDirectoryType>()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="ActiveRolesAdminsGroup">@Localizer["Lbl_ActiveRolesAdminsGroup"]</label>
+                    <input type="text" id="ActiveRolesAdminsGroup" name="ActiveRolesAdminsGroup" value="@Model.ActiveRolesAdminsGroup" placeholder="@Model.Defaults.RoleGroups.ActiveRolesAdmins" />
+                </div>
+                <div class="form-group">
+                    <label for="DashboardAdminsGroup">@Localizer["Lbl_DashboardAdminsGroup"]</label>
+                    <input type="text" id="DashboardAdminsGroup" name="DashboardAdminsGroup" value="@Model.DashboardAdminsGroup" placeholder="@Model.Defaults.RoleGroups.DashboardAdmins" />
+                </div>
+                <div class="form-group">
+                    <label for="AuditorsGroup">@Localizer["Lbl_AuditorsGroup"]</label>
+                    <input type="text" id="AuditorsGroup" name="AuditorsGroup" value="@Model.AuditorsGroup" placeholder="@Model.Defaults.RoleGroups.Auditors" />
+                </div>
+                <div class="form-group">
+                    <label for="PowerUsersGroup">@Localizer["Lbl_PowerUsersGroup"]</label>
+                    <input type="text" id="PowerUsersGroup" name="PowerUsersGroup" value="@Model.PowerUsersGroup" placeholder="@Model.Defaults.RoleGroups.PowerUsers" />
                 </div>
                 <div class="form-group">
                     <label for="DefaultADUserAccountsFilter">@Localizer["Label_DefaultADUserAccountsFilter"]</label>
@@ -1009,10 +1025,6 @@
             <div class="form-group">
                 <label for="CustomActiveRolesAdminsBaseDn">@Localizer["Label_ArAdminsBaseDn"]</label>
                 <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomActiveRolesAdminsFilter">@Localizer["Label_ArAdminsFilter"]</label>
-                <input type="text" id="CustomActiveRolesAdminsFilter" name="CustomActiveRolesAdminsFilter" value="@Model.CustomActiveRolesAdminsFilter" placeholder="@Model.Defaults.DefaultFilters.ActiveRolesAdmins" />
             </div>
             }
             <div class="form-group">
