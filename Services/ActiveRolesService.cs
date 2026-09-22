@@ -13,14 +13,15 @@ public class ActiveRolesService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptionsMonitor<ActiveRolesConfig> _configMonitor;
     private readonly ILogger<ActiveRolesService> _logger;
+    private readonly ServiceAccountTokenProvider _serviceTokens;
 
-    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger)
+    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens)
     {
         _httpClientFactory = httpClientFactory;
         _configMonitor = configMonitor;
         _logger = logger;
+        _serviceTokens = serviceTokens;
     }
-
     // Very short-lived memo of the full AD group graph, used ONLY by the membership-check path
     // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
     // plus up to three dashboard role-group checks - shares one full (objectClass=group) enumeration
@@ -3830,11 +3831,30 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
 
+            // Directory lookups (DN resolution + group-membership checks) must run under the
+            // privileged service account, NOT the viewer's own token. A low-privilege viewer (e.g. a
+            // plain User) frequently lacks Active Roles read visibility to their own object and the
+            // Exchange admin groups via the REST virtual 'CN=Active Directory' provider, so their DN
+            // silently resolves to zero rows and this check logs a misleading "No user found"
+            // warning. The service account is what the superset/permission-model collection already
+            // uses successfully. Fall back to the caller's token only if it is unavailable.
+            var directoryToken = token;
+            try
+            {
+                directoryToken = await _serviceTokens.GetTokenAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "IsUserExchangeAdminAsync: service-account token unavailable; falling back to the caller's token for '{Username}'.",
+                    username);
+            }
+
             // Resolve the viewer's DN once (by sAMAccountName), then perform a targeted membership
             // check against each Exchange administrative group. This reads only the specific group
             // (edsaMember/edsaMemberIndirect) rather than enumerating every AD group, so it stays
             // cheap even on a non-admin dashboard request when the shared superset is already built.
-            var userDn = await ResolveUserDnAsync(token, username, baseDn);
+            var userDn = await ResolveUserDnAsync(directoryToken, username, baseDn);
             if (string.IsNullOrEmpty(userDn))
             {
                 _logger.LogWarning("IsUserExchangeAdminAsync: No user found for '{Username}'.", username);
@@ -3849,7 +3869,7 @@ public class ActiveRolesService
             {
                 if (string.IsNullOrWhiteSpace(groupFilter)) continue;
 
-                if (await IsDnMemberOfGroupFilterAsync(token, userDn, baseDn, groupFilter, "IsUserExchangeAdminAsync"))
+                if (await IsDnMemberOfGroupFilterAsync(directoryToken, userDn, baseDn, groupFilter, "IsUserExchangeAdminAsync"))
                 {
                     _logger.LogInformation("IsUserExchangeAdminAsync: User '{Username}' is a member of an Exchange admin group (filter '{Filter}').",
                         username, groupFilter);

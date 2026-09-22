@@ -101,6 +101,19 @@ public sealed class PerUserSummaryCache
         _cache.Remove(RoleKey(user));
     }
 
+    /// <summary>
+    /// Drops only the two large, permission-scoped data blobs (summary + overview) for the user,
+    /// leaving the resolved directory facts (admin flag / role) intact. Used at login when the
+    /// user's role has changed: the freshly resolved facts have already been written, so only the
+    /// role-scoped projections need to be discarded and rebuilt from the shared superset under the
+    /// new role on the user's next request.
+    /// </summary>
+    public void ClearUserData(string user)
+    {
+        _cache.Remove(SummaryKey(user));
+        _cache.Remove(OverviewKey(user));
+    }
+
     private const string ExchangeDeployedKey = "org-exchange-deployed";
 
     private string? Read(string key) => _cache.TryGetValue(key, out string? value) ? value : null;
