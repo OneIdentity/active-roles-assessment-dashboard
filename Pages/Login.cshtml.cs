@@ -18,14 +18,16 @@ public class LoginModel : PageModel
     private readonly UserSettingsService _userSettings;
     private readonly DashboardCacheHolder _cache;
     private readonly DirectoryFactsResolver _directoryFacts;
+    private readonly PerUserSummaryCache _userCache;
 
-    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings, DashboardCacheHolder cache, DirectoryFactsResolver directoryFacts)
+    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings, DashboardCacheHolder cache, DirectoryFactsResolver directoryFacts, PerUserSummaryCache userCache)
     {
         _authService = authService;
         _localizer = localizer;
         _userSettings = userSettings;
         _cache = cache;
         _directoryFacts = directoryFacts;
+        _userCache = userCache;
     }
 
     [BindProperty]
@@ -74,12 +76,24 @@ public class LoginModel : PageModel
         HttpContext.Session.SetString("AccessToken", tokenResult.AccessToken);
         HttpContext.Session.SetString("TokenExpiry", DateTime.UtcNow.AddSeconds(tokenResult.ExpiresIn).ToString("o"));
 
-        // Evaluate the user's directory facts (Active Roles admin flag + dashboard role) ONCE here,
-        // at login, rather than lazily on every dashboard request. A single group-graph enumeration
-        // is shared across the admin and role checks. The results are cached at app scope and mirrored
-        // into session, tagged with the directory-facts epoch so a superset rebuild forces a
-        // re-evaluation on the user's next request.
-        var facts = await _directoryFacts.ResolveAsync(tokenResult.AccessToken, Username);
+        // Evaluate the user's directory facts (Active Roles admin flag + dashboard role) at login.
+        // Unlike the lazy per-request path, this forces a FRESH directory evaluation (bypassing the
+        // app-scope fact cache) so a role-group membership change made between logins is picked up
+        // immediately. A single group-graph enumeration is shared across the admin and role checks.
+        // The fresh results are cached at app scope and mirrored into session, tagged with the
+        // directory-facts epoch so a superset rebuild still forces a re-evaluation on the user's
+        // next request.
+        var fresh = await _directoryFacts.ResolveFreshAsync(tokenResult.AccessToken, Username);
+        var facts = fresh.Facts;
+
+        // If the resolved role/admin flag changed since the user last logged in, discard their
+        // role-scoped cached data blobs so the dashboard rebuilds from the shared superset under the
+        // new role on the first request. The freshly resolved facts themselves are retained.
+        if (fresh.Changed)
+        {
+            _userCache.ClearUserData(Username);
+        }
+
         HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
         HttpContext.Session.SetString("DashboardRole", facts.Role.ToString());
         HttpContext.Session.SetString("DirectoryFactsEpoch", facts.Epoch.ToString());
