@@ -111,6 +111,9 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
 	<value>Default Filters</value>
   </data>
+  <data name="Card_RoleGroups" xml:space="preserve">
+	<value>Role Groups</value>
+  </data>
   <data name="Card_RoleManagement" xml:space="preserve">
 	<value>Role Management</value>
   </data>

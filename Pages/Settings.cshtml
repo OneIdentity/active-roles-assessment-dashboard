@@ -26,6 +26,8 @@
         .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; resize: vertical; font-family: inherit; }
         .form-group textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
         .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
+        .form-group select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; transition: border-color .2s; box-sizing: border-box; }
+        .form-group select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
         .btn-save { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s; }
         .btn-save:hover { background: #1d4ed8; }
         .msg { margin-top: 14px; padding: 10px 14px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: .82rem; color: #065f46; }
@@ -905,6 +907,35 @@
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_RoleGroups"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="RoleGroupsDirectoryType">@Localizer["Lbl_RoleGroupsDirectoryType"]</label>
+                    <select id="RoleGroupsDirectoryType" name="RoleGroupsDirectoryType" asp-for="RoleGroupsDirectoryType" asp-items="Html.GetEnumSelectList<RoleGroupDirectoryType>()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="ActiveRolesAdminsGroup">@Localizer["Lbl_ActiveRolesAdminsGroup"]</label>
+                    <input type="text" id="ActiveRolesAdminsGroup" name="ActiveRolesAdminsGroup" value="@Model.ActiveRolesAdminsGroup" placeholder="@Model.Defaults.RoleGroups.ActiveRolesAdmins" />
+                </div>
+                <div class="form-group">
+                    <label for="DashboardAdminsGroup">@Localizer["Lbl_DashboardAdminsGroup"]</label>
+                    <input type="text" id="DashboardAdminsGroup" name="DashboardAdminsGroup" value="@Model.DashboardAdminsGroup" placeholder="@Model.Defaults.RoleGroups.DashboardAdmins" />
+                </div>
+                <div class="form-group">
+                    <label for="AuditorsGroup">@Localizer["Lbl_AuditorsGroup"]</label>
+                    <input type="text" id="AuditorsGroup" name="AuditorsGroup" value="@Model.AuditorsGroup" placeholder="@Model.Defaults.RoleGroups.Auditors" />
+                </div>
+                <div class="form-group">
+                    <label for="PowerUsersGroup">@Localizer["Lbl_PowerUsersGroup"]</label>
+                    <input type="text" id="PowerUsersGroup" name="PowerUsersGroup" value="@Model.PowerUsersGroup" placeholder="@Model.Defaults.RoleGroups.PowerUsers" />
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_DefaultFilters"]</h2>
                 <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
             </div>
@@ -932,26 +963,6 @@
                 <div class="form-group">
                     <label for="DefaultEmptyGroupsFilter">@Localizer["Label_DefaultEmptyGroupsFilter"]</label>
                     <input type="text" id="DefaultEmptyGroupsFilter" name="DefaultEmptyGroupsFilter" value="@Model.DefaultEmptyGroupsFilter" />
-                </div>
-                <div class="form-group">
-                    <label for="RoleGroupsDirectoryType">@Localizer["Lbl_RoleGroupsDirectoryType"]</label>
-                    <select id="RoleGroupsDirectoryType" name="RoleGroupsDirectoryType" asp-for="RoleGroupsDirectoryType" asp-items="Html.GetEnumSelectList<RoleGroupDirectoryType>()"></select>
-                </div>
-                <div class="form-group">
-                    <label for="ActiveRolesAdminsGroup">@Localizer["Lbl_ActiveRolesAdminsGroup"]</label>
-                    <input type="text" id="ActiveRolesAdminsGroup" name="ActiveRolesAdminsGroup" value="@Model.ActiveRolesAdminsGroup" placeholder="@Model.Defaults.RoleGroups.ActiveRolesAdmins" />
-                </div>
-                <div class="form-group">
-                    <label for="DashboardAdminsGroup">@Localizer["Lbl_DashboardAdminsGroup"]</label>
-                    <input type="text" id="DashboardAdminsGroup" name="DashboardAdminsGroup" value="@Model.DashboardAdminsGroup" placeholder="@Model.Defaults.RoleGroups.DashboardAdmins" />
-                </div>
-                <div class="form-group">
-                    <label for="AuditorsGroup">@Localizer["Lbl_AuditorsGroup"]</label>
-                    <input type="text" id="AuditorsGroup" name="AuditorsGroup" value="@Model.AuditorsGroup" placeholder="@Model.Defaults.RoleGroups.Auditors" />
-                </div>
-                <div class="form-group">
-                    <label for="PowerUsersGroup">@Localizer["Lbl_PowerUsersGroup"]</label>
-                    <input type="text" id="PowerUsersGroup" name="PowerUsersGroup" value="@Model.PowerUsersGroup" placeholder="@Model.Defaults.RoleGroups.PowerUsers" />
                 </div>
                 <div class="form-group">
                     <label for="DefaultADUserAccountsFilter">@Localizer["Label_DefaultADUserAccountsFilter"]</label>
