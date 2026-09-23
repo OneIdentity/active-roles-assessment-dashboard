@@ -803,57 +803,6 @@
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
-                <h2>@Localizer["Card_RestApi"]</h2>
-                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-            </div>
-            <div class="section-body collapsed">
-                <div class="form-group">
-                    <label for="ApiBaseUrl">@Localizer["Label_ApiBaseUrl"]</label>
-                    <input type="text" id="ApiBaseUrl" name="ApiBaseUrl" value="@Model.ApiBaseUrl" placeholder="https://server/RestApi" />
-                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
-                </div>
-                <div class="form-group">
-                    <label for="RstsUrl">@Localizer["Label_RstsUrl"]</label>
-                    <input type="text" id="RstsUrl" name="RstsUrl" value="@Model.RstsUrl" placeholder="https://sts/oauth2/token" />
-                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
-                </div>
-                <div class="form-group">
-                    <label for="Resource">@Localizer["Label_Resource"]</label>
-                    <input type="text" id="Resource" name="Resource" value="@Model.Resource" placeholder="rsts" />
-                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
-                </div>
-                <div class="form-group form-group-checkbox">
-                    <label>
-                        <input type="checkbox" id="IgnoreSslErrors" name="IgnoreSslErrors" value="true" @(Model.IgnoreSslErrors ? "checked" : "") />
-                        @Localizer["Label_IgnoreSslErrors"]
-                    </label>
-                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="settings-card">
-            <div class="section-header collapsed" onclick="toggleSection(this)">
-                <h2>@Localizer["Card_ServiceAccount"]</h2>
-                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-            </div>
-            <div class="section-body collapsed">
-                <div class="form-group">
-                    <label for="ServiceAccountUsername">@Localizer["Label_ServiceAccountUsername"]</label>
-                    <input type="text" id="ServiceAccountUsername" name="ServiceAccountUsername" value="@Model.ServiceAccountUsername" placeholder="DOMAIN\svc_ars" />
-                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
-                </div>
-                <div class="form-group">
-                    <label for="ServiceAccountPassword">@Localizer["Label_ServiceAccountPassword"]</label>
-                    <input type="password" id="ServiceAccountPassword" name="ServiceAccountPassword" value="" autocomplete="new-password" placeholder="@Localizer["Placeholder_PasswordUnchanged"]" />
-                    <p class="hint">@Localizer["Hint_ServiceAccountPassword"]</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-card">
-            <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_WebInterface"]</h2>
                 <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
             </div>
@@ -907,35 +856,6 @@
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
-                <h2>@Localizer["Card_RoleGroups"]</h2>
-                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-            </div>
-            <div class="section-body collapsed">
-                <div class="form-group">
-                    <label for="RoleGroupsDirectoryType">@Localizer["Lbl_RoleGroupsDirectoryType"]</label>
-                    <select id="RoleGroupsDirectoryType" name="RoleGroupsDirectoryType" asp-for="RoleGroupsDirectoryType" asp-items="Html.GetEnumSelectList<RoleGroupDirectoryType>()"></select>
-                </div>
-                <div class="form-group">
-                    <label for="ActiveRolesAdminsGroup">@Localizer["Lbl_ActiveRolesAdminsGroup"]</label>
-                    <input type="text" id="ActiveRolesAdminsGroup" name="ActiveRolesAdminsGroup" value="@Model.ActiveRolesAdminsGroup" placeholder="@Model.Defaults.RoleGroups.ActiveRolesAdmins" />
-                </div>
-                <div class="form-group">
-                    <label for="DashboardAdminsGroup">@Localizer["Lbl_DashboardAdminsGroup"]</label>
-                    <input type="text" id="DashboardAdminsGroup" name="DashboardAdminsGroup" value="@Model.DashboardAdminsGroup" placeholder="@Model.Defaults.RoleGroups.DashboardAdmins" />
-                </div>
-                <div class="form-group">
-                    <label for="AuditorsGroup">@Localizer["Lbl_AuditorsGroup"]</label>
-                    <input type="text" id="AuditorsGroup" name="AuditorsGroup" value="@Model.AuditorsGroup" placeholder="@Model.Defaults.RoleGroups.Auditors" />
-                </div>
-                <div class="form-group">
-                    <label for="PowerUsersGroup">@Localizer["Lbl_PowerUsersGroup"]</label>
-                    <input type="text" id="PowerUsersGroup" name="PowerUsersGroup" value="@Model.PowerUsersGroup" placeholder="@Model.Defaults.RoleGroups.PowerUsers" />
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-card">
-            <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_DefaultFilters"]</h2>
                 <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
             </div>
@@ -974,55 +894,6 @@
                 </div>
             </div>
         </div>
-
-        @if (Model.IsActiveRolesAdmin)
-        {
-            <div class="settings-card">
-                        <div class="section-header collapsed" onclick="toggleSection(this)">
-                            <h2>@Localizer["Card_RoleManagement"]</h2>
-                    <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-                </div>
-                <div class="section-body collapsed">
-                    <p class="hint">@Localizer["RoleManagementHint"]</p>
-                    <div class="role-matrix" style="overflow-x:auto;">
-                        <table class="role-matrix-table" style="border-collapse:collapse;width:100%;">
-                            <thead>
-                                <tr>
-                                    <th style="text-align:left;padding:8px;">@Localizer["Col_Permission"]</th>
-                                    @foreach (var role in Model.DisplayRoles)
-                                    {
-                                        <th style="text-align:center;padding:8px;">@Model.RoleName(role)</th>
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var permission in Model.DisplayPermissions)
-                                {
-                                    <tr>
-                                        <td style="text-align:left;padding:8px;">@Model.PermissionName(permission)</td>
-                                        @foreach (var role in Model.DisplayRoles)
-                                        {
-                                            var isChecked = Model.RoleMatrix.TryGetValue(role, out var perms) && perms.Contains(permission);
-                                            var isFixed = Model.IsRoleFixed(role);
-                                            <td style="text-align:center;padding:8px;">
-                                                @if (isFixed)
-                                                {
-                                                    <input type="checkbox" checked disabled title="@Localizer["RoleFixedTooltip"]" />
-                                                }
-                                                else
-                                                {
-                                                    <input type="checkbox" name="RolePermissionGrants" value="@role:@permission" checked="@isChecked" />
-                                                }
-                                            </td>
-                                        }
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        }
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
@@ -1143,6 +1014,134 @@
                     <label for="LicensedTotalObjects">@Localizer["Label_LicensedTotalObjects"]</label>
                     <input type="number" id="LicensedTotalObjects" name="LicensedTotalObjects" value="@Model.LicensedTotalObjects" min="0" max="100000000" />
                     <p class="hint">@Localizer["Hint_LicensedTotalObjects"]</p>
+                </div>
+            </div>
+        </div>
+
+                <div class="settings-card">
+                    <div class="section-header collapsed" onclick="toggleSection(this)">
+                        <h2>@Localizer["Card_RestApi"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="ApiBaseUrl">@Localizer["Label_ApiBaseUrl"]</label>
+                    <input type="text" id="ApiBaseUrl" name="ApiBaseUrl" value="@Model.ApiBaseUrl" placeholder="https://server/RestApi" />
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
+                <div class="form-group">
+                    <label for="RstsUrl">@Localizer["Label_RstsUrl"]</label>
+                    <input type="text" id="RstsUrl" name="RstsUrl" value="@Model.RstsUrl" placeholder="https://sts/oauth2/token" />
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
+                <div class="form-group">
+                    <label for="Resource">@Localizer["Label_Resource"]</label>
+                    <input type="text" id="Resource" name="Resource" value="@Model.Resource" placeholder="rsts" />
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
+                <div class="form-group form-group-checkbox">
+                    <label>
+                        <input type="checkbox" id="IgnoreSslErrors" name="IgnoreSslErrors" value="true" @(Model.IgnoreSslErrors ? "checked" : "") />
+                        @Localizer["Label_IgnoreSslErrors"]
+                    </label>
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_RoleGroups"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="RoleGroupsDirectoryType">@Localizer["Lbl_RoleGroupsDirectoryType"]</label>
+                    <select id="RoleGroupsDirectoryType" name="RoleGroupsDirectoryType" asp-for="RoleGroupsDirectoryType" asp-items="Html.GetEnumSelectList<RoleGroupDirectoryType>()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="ActiveRolesAdminsGroup">@Localizer["Lbl_ActiveRolesAdminsGroup"]</label>
+                    <input type="text" id="ActiveRolesAdminsGroup" name="ActiveRolesAdminsGroup" value="@Model.ActiveRolesAdminsGroup" placeholder="@Model.Defaults.RoleGroups.ActiveRolesAdmins" />
+                </div>
+                <div class="form-group">
+                    <label for="DashboardAdminsGroup">@Localizer["Lbl_DashboardAdminsGroup"]</label>
+                    <input type="text" id="DashboardAdminsGroup" name="DashboardAdminsGroup" value="@Model.DashboardAdminsGroup" placeholder="@Model.Defaults.RoleGroups.DashboardAdmins" />
+                </div>
+                <div class="form-group">
+                    <label for="AuditorsGroup">@Localizer["Lbl_AuditorsGroup"]</label>
+                    <input type="text" id="AuditorsGroup" name="AuditorsGroup" value="@Model.AuditorsGroup" placeholder="@Model.Defaults.RoleGroups.Auditors" />
+                </div>
+                <div class="form-group">
+                    <label for="PowerUsersGroup">@Localizer["Lbl_PowerUsersGroup"]</label>
+                    <input type="text" id="PowerUsersGroup" name="PowerUsersGroup" value="@Model.PowerUsersGroup" placeholder="@Model.Defaults.RoleGroups.PowerUsers" />
+                </div>
+            </div>
+        </div>
+
+        @if (Model.IsActiveRolesAdmin)
+        {
+            <div class="settings-card">
+                        <div class="section-header collapsed" onclick="toggleSection(this)">
+                            <h2>@Localizer["Card_RoleManagement"]</h2>
+                    <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                </div>
+                <div class="section-body collapsed">
+                    <p class="hint">@Localizer["RoleManagementHint"]</p>
+                    <div class="role-matrix" style="overflow-x:auto;">
+                        <table class="role-matrix-table" style="border-collapse:collapse;width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;padding:8px;">@Localizer["Col_Permission"]</th>
+                                    @foreach (var role in Model.DisplayRoles)
+                                    {
+                                        <th style="text-align:center;padding:8px;">@Model.RoleName(role)</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var permission in Model.DisplayPermissions)
+                                {
+                                    <tr>
+                                        <td style="text-align:left;padding:8px;">@Model.PermissionName(permission)</td>
+                                        @foreach (var role in Model.DisplayRoles)
+                                        {
+                                            var isChecked = Model.RoleMatrix.TryGetValue(role, out var perms) && perms.Contains(permission);
+                                            var isFixed = Model.IsRoleFixed(role);
+                                            <td style="text-align:center;padding:8px;">
+                                                @if (isFixed)
+                                                {
+                                                    <input type="checkbox" checked disabled title="@Localizer["RoleFixedTooltip"]" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" name="RolePermissionGrants" value="@role:@permission" checked="@isChecked" />
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_ServiceAccount"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <label for="ServiceAccountUsername">@Localizer["Label_ServiceAccountUsername"]</label>
+                    <input type="text" id="ServiceAccountUsername" name="ServiceAccountUsername" value="@Model.ServiceAccountUsername" placeholder="DOMAIN\svc_ars" />
+                    <p class="hint">@Localizer["Hint_RestartRequired"]</p>
+                </div>
+                <div class="form-group">
+                    <label for="ServiceAccountPassword">@Localizer["Label_ServiceAccountPassword"]</label>
+                    <input type="password" id="ServiceAccountPassword" name="ServiceAccountPassword" value="" autocomplete="new-password" placeholder="@Localizer["Placeholder_PasswordUnchanged"]" />
+                    <p class="hint">@Localizer["Hint_ServiceAccountPassword"]</p>
                 </div>
             </div>
         </div>
