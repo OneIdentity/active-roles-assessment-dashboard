@@ -111,6 +111,9 @@
   <data name="Card_DefaultFilters" xml:space="preserve">
 	<value>Default Filters</value>
   </data>
+  <data name="Card_RoleGroups" xml:space="preserve">
+	<value>Role Groups</value>
+  </data>
   <data name="Card_RoleManagement" xml:space="preserve">
 	<value>Role Management</value>
   </data>
@@ -143,6 +146,21 @@
   </data>
   <data name="Label_DefaultActiveRolesAdminsFilter" xml:space="preserve">
 	<value>Active Roles administrators filter</value>
+  </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+	<value>Role Groups - Directory Type</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+	<value>Active Roles Admins - Group Name</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+	<value>Dashboard Admins - Group Name</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+	<value>Auditors - Group Name</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+	<value>Power Users - Group Name</value>
   </data>
   <data name="Label_DefaultADUserAccountsFilter" xml:space="preserve">
 	<value>AD user accounts filter</value>

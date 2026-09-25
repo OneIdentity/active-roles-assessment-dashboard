@@ -72,15 +72,19 @@ public class SetupModel : PageModel
     public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
     [BindProperty]
     public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomActiveRolesAdminsFilter { get; set; } = string.Empty;
 
+    // Role/admin groups are captured by NAME
+    // for the whole section denotes whether the groups are Active Directory or Entra based.
     [BindProperty]
-    public string DashboardAdminsFilter { get; set; } = string.Empty;
+    public RoleGroupDirectoryType RoleGroupsDirectoryType { get; set; } = RoleGroupDirectoryType.ActiveDirectory;
     [BindProperty]
-    public string AuditorsFilter { get; set; } = string.Empty;
+    public string ActiveRolesAdminsGroup { get; set; } = string.Empty;
     [BindProperty]
-    public string PowerUsersFilter { get; set; } = string.Empty;
+    public string DashboardAdminsGroup { get; set; } = string.Empty;
+    [BindProperty]
+    public string AuditorsGroup { get; set; } = string.Empty;
+    [BindProperty]
+    public string PowerUsersGroup { get; set; } = string.Empty;
 
     [BindProperty]
     public int LicensedDomainObjects { get; set; }
@@ -108,10 +112,12 @@ public class SetupModel : PageModel
             ? _arConfig.CurrentValue.DefaultLanguage
             : SupportedLanguage.DefaultCode;
 
-        var filters = _arConfig.CurrentValue.DefaultFilters;
-        DashboardAdminsFilter = filters.DashboardAdmins;
-        AuditorsFilter = filters.Auditors;
-        PowerUsersFilter = filters.PowerUsers;
+        var roleGroups = _arConfig.CurrentValue.RoleGroups;
+        RoleGroupsDirectoryType = roleGroups.DirectoryType;
+        ActiveRolesAdminsGroup = roleGroups.ActiveRolesAdmins;
+        DashboardAdminsGroup = roleGroups.DashboardAdmins;
+        AuditorsGroup = roleGroups.Auditors;
+        PowerUsersGroup = roleGroups.PowerUsers;
 
         return Page();
     }
@@ -205,7 +211,6 @@ public class SetupModel : PageModel
                 }
                 customFilters["NoManagerUser"] = CustomNoManagerUserFilter?.Trim() ?? "";
                 customFilters["NoManagerServiceAccount"] = CustomNoManagerServiceAccountFilter?.Trim() ?? "";
-                customFilters["ActiveRolesAdmins"] = CustomActiveRolesAdminsFilter?.Trim() ?? "";
 
                 // Licensed entitlement thresholds live under the nested Licensing section.
                 var licensing = activeRoles["Licensing"]?.AsObject();
@@ -234,21 +239,25 @@ public class SetupModel : PageModel
                 serviceAccount["Username"] = saUsername;
                 serviceAccount["ProtectedPassword"] = protectedPassword;
 
-                // Persist the role-group membership filters used to evaluate dashboard roles.
+                // Persist the role/admin groups by NAME under a dedicated RoleGroups section, along
+                // with a single directory-type flag (AD vs Entra) that drives filter/base-DN composition.
                 // Empty inputs fall back to the coded defaults so a role is never left unmapped.
-                var defaultFilters = activeRoles["DefaultFilters"]?.AsObject();
-                if (defaultFilters is null)
+                var roleGroups = activeRoles["RoleGroups"]?.AsObject();
+                if (roleGroups is null)
                 {
-                    defaultFilters = new JsonObject();
-                    activeRoles["DefaultFilters"] = defaultFilters;
+                    roleGroups = new JsonObject();
+                    activeRoles["RoleGroups"] = roleGroups;
                 }
-                var defaults = new DefaultFiltersConfig();
-                var dashboardAdminsFilter = DashboardAdminsFilter?.Trim();
-                var auditorsFilter = AuditorsFilter?.Trim();
-                var powerUsersFilter = PowerUsersFilter?.Trim();
-                defaultFilters["DashboardAdmins"] = string.IsNullOrWhiteSpace(dashboardAdminsFilter) ? defaults.DashboardAdmins : dashboardAdminsFilter;
-                defaultFilters["Auditors"] = string.IsNullOrWhiteSpace(auditorsFilter) ? defaults.Auditors : auditorsFilter;
-                defaultFilters["PowerUsers"] = string.IsNullOrWhiteSpace(powerUsersFilter) ? defaults.PowerUsers : powerUsersFilter;
+                var roleGroupDefaults = new RoleGroupsConfig();
+                var activeRolesAdminsGroup = ActiveRolesAdminsGroup?.Trim();
+                var dashboardAdminsGroup = DashboardAdminsGroup?.Trim();
+                var auditorsGroup = AuditorsGroup?.Trim();
+                var powerUsersGroup = PowerUsersGroup?.Trim();
+                roleGroups["DirectoryType"] = RoleGroupsDirectoryType.ToString();
+                roleGroups["ActiveRolesAdmins"] = string.IsNullOrWhiteSpace(activeRolesAdminsGroup) ? roleGroupDefaults.ActiveRolesAdmins : activeRolesAdminsGroup;
+                roleGroups["DashboardAdmins"] = string.IsNullOrWhiteSpace(dashboardAdminsGroup) ? roleGroupDefaults.DashboardAdmins : dashboardAdminsGroup;
+                roleGroups["Auditors"] = string.IsNullOrWhiteSpace(auditorsGroup) ? roleGroupDefaults.Auditors : auditorsGroup;
+                roleGroups["PowerUsers"] = string.IsNullOrWhiteSpace(powerUsersGroup) ? roleGroupDefaults.PowerUsers : powerUsersGroup;
             }
             var options = new JsonSerializerOptions
             {
