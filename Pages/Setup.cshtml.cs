@@ -55,23 +55,9 @@ public class SetupModel : PageModel
     public string WebInterfaceUrl { get; set; } = string.Empty;
 
     [BindProperty]
-    public string CustomNoGroupOwnerBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomNoManagerUserBaseDn { get; set; } = string.Empty;
-    [BindProperty]
     public string CustomNoManagerUserFilter { get; set; } = string.Empty;
     [BindProperty]
-    public string CustomNoManagerServiceAccountBaseDn { get; set; } = string.Empty;
-    [BindProperty]
     public string CustomNoManagerServiceAccountFilter { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomUserAccountExpiredBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomUserAccountLockedOutBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
 
     // Role/admin groups are captured by NAME
     // for the whole section denotes whether the groups are Active Directory or Entra based.
@@ -186,21 +172,6 @@ public class SetupModel : PageModel
                 activeRoles["RstsUrl"] = rstsUrl;
                 activeRoles["RstsScope"] = RstsScope?.Trim() ?? "";
                 activeRoles["WebInterfaceUrl"] = WebInterfaceUrl?.Trim() ?? "";
-
-                // Custom base DN overrides live under the nested CustomDNs section.
-                var customDns = activeRoles["CustomDNs"]?.AsObject();
-                if (customDns is null)
-                {
-                    customDns = new JsonObject();
-                    activeRoles["CustomDNs"] = customDns;
-                }
-                customDns["NoGroupOwner"] = CustomNoGroupOwnerBaseDn?.Trim() ?? "";
-                customDns["NoManagerUser"] = CustomNoManagerUserBaseDn?.Trim() ?? "";
-                customDns["NoManagerServiceAccount"] = CustomNoManagerServiceAccountBaseDn?.Trim() ?? "";
-                customDns["UserAccountExpired"] = CustomUserAccountExpiredBaseDn?.Trim() ?? "";
-                customDns["UserAccountLockedOut"] = CustomUserAccountLockedOutBaseDn?.Trim() ?? "";
-                customDns["EmptyGroups"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
-                customDns["ActiveRolesAdmins"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
 
                 // Custom LDAP filter overrides live under the nested CustomFilters section.
                 var customFilters = activeRoles["CustomFilters"]?.AsObject();

@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
-	<value>text/microsoft-resx</value>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-	<value>2.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LoadingDashboardData" xml:space="preserve">
     <value>Dashboard-Daten werden geladen...</value>
   </data>
   <data name="Card_WebInterface" xml:space="preserve">
-	<value>Active Roles-Weboberfläche</value>
+	<value>Active Roles-WeboberflÃ¤che</value>
   </data>
   <data name="Card_AutoRefresh" xml:space="preserve">
 	<value>Automatische Aktualisierung</value>
@@ -34,7 +34,7 @@
 	<value>Basis-URL</value>
   </data>
   <data name="Hint_WebInterface" xml:space="preserve">
-	<value>Basis-URL der Active Roles-Weboberfläche. Diese Einstellung gilt für alle Benutzer.</value>
+	<value>Basis-URL der Active Roles-WeboberflÃ¤che. Diese Einstellung gilt fÃ¼r alle Benutzer.</value>
   </data>
   <data name="Label_RefreshInterval" xml:space="preserve">
 	<value>Aktualisierungsintervall (Minuten)</value>
@@ -46,52 +46,34 @@
 	<value>Anzeigesprache</value>
   </data>
   <data name="Hint_Language" xml:space="preserve">
-	<value>Für die Dashboard-Oberfläche verwendete Sprache. Weitere Sprachen werden im Laufe der Zeit hinzugefügt.</value>
-  </data>
-  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
-	<value>Active Roles-Administratoren - Basis-DN</value>
+	<value>FÃ¼r die Dashboard-OberflÃ¤che verwendete Sprache. Weitere Sprachen werden im Laufe der Zeit hinzugefÃ¼gt.</value>
   </data>
   <data name="Label_ArAdminsFilter" xml:space="preserve">
 	<value>Active Roles-Administratoren - LDAP-Filter</value>
   </data>
-  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
-	<value>Kein Gruppeneigentümer - Basis-DN</value>
-  </data>
-  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
-	<value>Kein Manager (Benutzer) - Basis-DN</value>
-  </data>
   <data name="Label_NoManagerUserFilter" xml:space="preserve">
 	<value>Kein Manager (Benutzer) - LDAP-Filter</value>
-  </data>
-  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
-	<value>Kein Manager (Dienstkonto) - Basis-DN</value>
   </data>
   <data name="Label_NoManagerSvcFilter" xml:space="preserve">
 	<value>Kein Manager (Dienstkonto) - LDAP-Filter</value>
   </data>
-  <data name="Label_LockedOutBaseDn" xml:space="preserve">
-	<value>Gesperrtes Benutzerkonto - Basis-DN</value>
-  </data>
-  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
-	<value>Leere Gruppen - Basis-DN</value>
-  </data>
   <data name="Label_LargeGroupThreshold" xml:space="preserve">
-	<value>Große Gruppen - Mitglieder-Schwellenwert</value>
+	<value>GroÃŸe Gruppen - Mitglieder-Schwellenwert</value>
   </data>
   <data name="Hint_LargeGroupThreshold" xml:space="preserve">
-	<value>Entra-Gruppen mit mindestens dieser Anzahl direkter Mitglieder werden vom KPI „Große Gruppen“ gekennzeichnet. Standard 100.</value>
+	<value>Entra-Gruppen mit mindestens dieser Anzahl direkter Mitglieder werden vom KPI â€žGroÃŸe Gruppenâ€œ gekennzeichnet. Standard 100.</value>
   </data>
   <data name="BackToDashboard" xml:space="preserve">
-	<value>Zurück zum Dashboard</value>
+	<value>ZurÃ¼ck zum Dashboard</value>
   </data>
   <data name="SaveSettings" xml:space="preserve">
 	<value>Einstellungen speichern</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
-	<value>Sie haben keine Berechtigung, Einstellungen anzuzeigen oder zu ändern.</value>
+	<value>Sie haben keine Berechtigung, Einstellungen anzuzeigen oder zu Ã¤ndern.</value>
   </data>
   <data name="SystemSettingsReadOnly" xml:space="preserve">
-	<value>Sie können diese Systemeinstellungen anzeigen, aber nicht ändern.</value>
+	<value>Sie kÃ¶nnen diese Systemeinstellungen anzeigen, aber nicht Ã¤ndern.</value>
   </data>
   <data name="Card_RestApi" xml:space="preserve">
 	<value>REST-API-Konfiguration</value>
@@ -109,40 +91,40 @@
     <value>Rollenverwaltung</value>
   </data>
   <data name="RoleManagementHint" xml:space="preserve">
-    <value>Weisen Sie jeder Rolle Berechtigungen zu. Rollen und Berechtigungen sind fest vorgegeben. Die Rolle „Dashboard-Administrator“ besitzt stets alle Berechtigungen und kann nicht geändert werden.</value>
+    <value>Weisen Sie jeder Rolle Berechtigungen zu. Rollen und Berechtigungen sind fest vorgegeben. Die Rolle â€žDashboard-Administratorâ€œ besitzt stets alle Berechtigungen und kann nicht geÃ¤ndert werden.</value>
   </data>
   <data name="Col_Permission" xml:space="preserve">
     <value>Berechtigung</value>
   </data>
   <data name="RoleFixedTooltip" xml:space="preserve">
-    <value>Die Rolle „Dashboard-Administrator“ besitzt stets alle Berechtigungen und kann nicht geändert werden.</value>
+    <value>Die Rolle â€žDashboard-Administratorâ€œ besitzt stets alle Berechtigungen und kann nicht geÃ¤ndert werden.</value>
   </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
-	<value>Filter für Gruppen ohne Besitzer</value>
+	<value>Filter fÃ¼r Gruppen ohne Besitzer</value>
   </data>
   <data name="Label_DefaultNoManagerUserFilter" xml:space="preserve">
-	<value>Filter für Benutzer ohne Manager</value>
+	<value>Filter fÃ¼r Benutzer ohne Manager</value>
   </data>
   <data name="Label_DefaultNoManagerServiceAccountFilter" xml:space="preserve">
-	<value>Filter für Dienstkonten ohne Manager</value>
+	<value>Filter fÃ¼r Dienstkonten ohne Manager</value>
   </data>
   <data name="Label_DefaultUserAccountExpiredFilter" xml:space="preserve">
-	<value>Filter für abgelaufene Benutzerkonten</value>
+	<value>Filter fÃ¼r abgelaufene Benutzerkonten</value>
   </data>
   <data name="Label_DefaultUserAccountLockedOutFilter" xml:space="preserve">
-	<value>Filter für gesperrte Benutzerkonten</value>
+	<value>Filter fÃ¼r gesperrte Benutzerkonten</value>
   </data>
   <data name="Label_DefaultEmptyGroupsFilter" xml:space="preserve">
-	<value>Filter für leere Gruppen</value>
+	<value>Filter fÃ¼r leere Gruppen</value>
   </data>
   <data name="Label_DefaultActiveRolesAdminsFilter" xml:space="preserve">
-	<value>Filter für Active Roles-Administratoren</value>
+	<value>Filter fÃ¼r Active Roles-Administratoren</value>
   </data>
   <data name="Label_DefaultADUserAccountsFilter" xml:space="preserve">
-	<value>Filter für AD-Benutzerkonten</value>
+	<value>Filter fÃ¼r AD-Benutzerkonten</value>
   </data>
   <data name="Label_DefaultADGroupsFilter" xml:space="preserve">
-	<value>Filter für AD-Gruppen</value>
+	<value>Filter fÃ¼r AD-Gruppen</value>
   </data>
   <data name="Card_DefaultLanguage" xml:space="preserve">
 	<value>Sprache</value>
@@ -151,13 +133,13 @@
 	<value>Standardsprache</value>
   </data>
   <data name="Hint_DefaultLanguage" xml:space="preserve">
-	<value>Die Standardsprache für neue Benutzer und wenn ein Benutzer keine Sprache ausgewählt hat.</value>
+	<value>Die Standardsprache fÃ¼r neue Benutzer und wenn ein Benutzer keine Sprache ausgewÃ¤hlt hat.</value>
   </data>
   <data name="Label_CustomADUserAccountAttributes" xml:space="preserve">
 	<value>Benutzerdefinierte AD-Benutzerkontoattribute</value>
   </data>
   <data name="Hint_CustomADUserAccountAttributes" xml:space="preserve">
-	<value>Zusätzliche Attribute für AD-Benutzerkonten, eines pro Zeile.</value>
+	<value>ZusÃ¤tzliche Attribute fÃ¼r AD-Benutzerkonten, eines pro Zeile.</value>
   </data>
   <data name="Card_ServiceAccount" xml:space="preserve">
 	<value>Dienstkonto-Anmeldedaten</value>
@@ -169,7 +151,7 @@
 	<value>Datenaktualisierung</value>
   </data>
   <data name="Label_DailyRefreshTime" xml:space="preserve">
-	<value>Tägliche Aktualisierungszeit</value>
+	<value>TÃ¤gliche Aktualisierungszeit</value>
   </data>
   <data name="Hint_DailyRefreshTime" xml:space="preserve">
 	<value>Lokale Uhrzeit (24-Stunden-Format), zu der die gemeinsamen Daten aktualisiert werden.</value>
@@ -192,11 +174,8 @@
   <data name="Label_ServiceAccountPassword" xml:space="preserve">
 	<value>Dienstkonto-Kennwort</value>
   </data>
-  <data name="Label_ExpiredBaseDn" xml:space="preserve">
-	<value>Abgelaufenes Benutzerkonto - Basis-DN</value>
-  </data>
   <data name="Label_LicensedDomainObjects" xml:space="preserve">
-	<value>Lizenzierte Domänenobjekte</value>
+	<value>Lizenzierte DomÃ¤nenobjekte</value>
   </data>
   <data name="Label_LicensedPartitionObjects" xml:space="preserve">
 	<value>Lizenzierte Partitionsobjekte</value>
@@ -214,15 +193,15 @@
 	<value>Diese Einstellung wird erst nach einem Neustart der Anwendung wirksam.</value>
   </data>
   <data name="Hint_ServiceAccountPassword" xml:space="preserve">
-	<value>Leer lassen, um das vorhandene Kennwort beizubehalten. Änderungen werden erst nach einem Neustart wirksam.</value>
+	<value>Leer lassen, um das vorhandene Kennwort beizubehalten. Ã„nderungen werden erst nach einem Neustart wirksam.</value>
   </data>
   <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
-	<value>Unverändert</value>
+	<value>UnverÃ¤ndert</value>
   </data>
   <data name="Hint_LicensedTotalObjects" xml:space="preserve">
-	<value>Lizenzierte Gesamtberechtigung über alle Kategorien. Der Wert 0 bedeutet nicht konfiguriert.</value>
+	<value>Lizenzierte Gesamtberechtigung Ã¼ber alle Kategorien. Der Wert 0 bedeutet nicht konfiguriert.</value>
   </data>
   <data name="Msg_RestartRequired" xml:space="preserve">
-	<value>Eine oder mehrere Verbindungseinstellungen wurden geändert. Starten Sie die Anwendung neu, damit diese Änderungen wirksam werden.</value>
+	<value>Eine oder mehrere Verbindungseinstellungen wurden geÃ¤ndert. Starten Sie die Anwendung neu, damit diese Ã„nderungen wirksam werden.</value>
   </data>
 </root>

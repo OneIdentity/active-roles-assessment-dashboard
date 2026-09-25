@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
-	<value>text/microsoft-resx</value>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-	<value>2.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LoadingDashboardData" xml:space="preserve">
     <value>Loading Dashboard Data...</value>
@@ -48,32 +48,14 @@
   <data name="Hint_Language" xml:space="preserve">
 	<value>The language used for the dashboard interface. More languages will be added over time.</value>
   </data>
-  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
-	<value>Active Roles Admins - Base DN</value>
-  </data>
   <data name="Label_ArAdminsFilter" xml:space="preserve">
 	<value>Active Roles Admins - LDAP Filter</value>
-  </data>
-  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
-	<value>No Group Owner - Base DN</value>
-  </data>
-  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
-	<value>No Manager (User) - Base DN</value>
   </data>
   <data name="Label_NoManagerUserFilter" xml:space="preserve">
 	<value>No Manager (User) - LDAP Filter</value>
   </data>
-  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
-	<value>No Manager (Service Account) - Base DN</value>
-  </data>
   <data name="Label_NoManagerSvcFilter" xml:space="preserve">
 	<value>No Manager (Service Account) - LDAP Filter</value>
-  </data>
-  <data name="Label_LockedOutBaseDn" xml:space="preserve">
-	<value>User Account Locked Out - Base DN</value>
-  </data>
-  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
-	<value>Empty Groups - Base DN</value>
   </data>
   <data name="Label_LargeGroupThreshold" xml:space="preserve">
 	<value>Large Groups - Member threshold</value>
@@ -215,9 +197,6 @@
   </data>
   <data name="Label_ServiceAccountPassword" xml:space="preserve">
 	<value>Service account password</value>
-  </data>
-  <data name="Label_ExpiredBaseDn" xml:space="preserve">
-	<value>User Account Expired - Base DN</value>
   </data>
   <data name="Label_LicensedDomainObjects" xml:space="preserve">
 	<value>Licensed domain objects</value>

@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
-	<value>text/microsoft-resx</value>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-	<value>2.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LoadingDashboardData" xml:space="preserve">
-    <value>Chargement des données du tableau de bord...</value>
+    <value>Chargement des donnÃ©es du tableau de bord...</value>
   </data>
   <data name="Card_WebInterface" xml:space="preserve">
 	<value>Interface web Active Roles</value>
@@ -28,58 +28,40 @@
 	<value>Configuration des KPI</value>
   </data>
   <data name="Card_KpiVisibility" xml:space="preserve">
-	<value>Visibilité des KPI</value>
+	<value>VisibilitÃ© des KPI</value>
   </data>
   <data name="Label_BaseUrl" xml:space="preserve">
 	<value>URL de base</value>
   </data>
   <data name="Hint_WebInterface" xml:space="preserve">
-	<value>URL de base de l'interface web Active Roles. Ce paramètre s'applique à tous les utilisateurs.</value>
+	<value>URL de base de l'interface web Active Roles. Ce paramÃ¨tre s'applique Ã  tous les utilisateurs.</value>
   </data>
   <data name="Label_RefreshInterval" xml:space="preserve">
 	<value>Intervalle d'actualisation (minutes)</value>
   </data>
   <data name="Hint_AutoRefresh" xml:space="preserve">
-	<value>Définissez 0 pour désactiver l'actualisation automatique.</value>
+	<value>DÃ©finissez 0 pour dÃ©sactiver l'actualisation automatique.</value>
   </data>
   <data name="Label_DisplayLanguage" xml:space="preserve">
 	<value>Langue d'affichage</value>
   </data>
   <data name="Hint_Language" xml:space="preserve">
-	<value>Langue utilisée pour l'interface du tableau de bord. D'autres langues seront ajoutées progressivement.</value>
-  </data>
-  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
-	<value>Administrateurs Active Roles - DN de base</value>
+	<value>Langue utilisÃ©e pour l'interface du tableau de bord. D'autres langues seront ajoutÃ©es progressivement.</value>
   </data>
   <data name="Label_ArAdminsFilter" xml:space="preserve">
 	<value>Administrateurs Active Roles - Filtre LDAP</value>
   </data>
-  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
-	<value>Aucun propriétaire de groupe - DN de base</value>
-  </data>
-  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
-	<value>Aucun responsable (utilisateur) - DN de base</value>
-  </data>
   <data name="Label_NoManagerUserFilter" xml:space="preserve">
 	<value>Aucun responsable (utilisateur) - Filtre LDAP</value>
   </data>
-  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
-	<value>Aucun responsable (compte de service) - DN de base</value>
-  </data>
   <data name="Label_NoManagerSvcFilter" xml:space="preserve">
 	<value>Aucun responsable (compte de service) - Filtre LDAP</value>
-  </data>
-  <data name="Label_LockedOutBaseDn" xml:space="preserve">
-	<value>Compte utilisateur verrouillé - DN de base</value>
-  </data>
-  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
-	<value>Groupes vides - DN de base</value>
   </data>
   <data name="Label_LargeGroupThreshold" xml:space="preserve">
 	<value>Grands groupes - Seuil de membres</value>
   </data>
   <data name="Hint_LargeGroupThreshold" xml:space="preserve">
-	<value>Les groupes Entra comptant au moins ce nombre de membres directs sont signalés par le KPI Grands groupes. Par défaut 100.</value>
+	<value>Les groupes Entra comptant au moins ce nombre de membres directs sont signalÃ©s par le KPI Grands groupes. Par dÃ©faut 100.</value>
   </data>
   <data name="BackToDashboard" xml:space="preserve">
 	<value>Retour au tableau de bord</value>
@@ -94,22 +76,22 @@
     <value>Ignorer les erreurs de certificat SSL</value>
   </data>
   <data name="Card_DefaultFilters" xml:space="preserve">
-    <value>Filtres par défaut</value>
+    <value>Filtres par dÃ©faut</value>
   </data>
   <data name="Card_RoleManagement" xml:space="preserve">
-    <value>Gestion des rôles</value>
+    <value>Gestion des rÃ´les</value>
   </data>
   <data name="RoleManagementHint" xml:space="preserve">
-    <value>Attribuez des autorisations à chaque rôle. Les rôles et les autorisations sont fixes. Le rôle Administrateur du tableau de bord dispose toujours de toutes les autorisations et ne peut pas être modifié.</value>
+    <value>Attribuez des autorisations Ã  chaque rÃ´le. Les rÃ´les et les autorisations sont fixes. Le rÃ´le Administrateur du tableau de bord dispose toujours de toutes les autorisations et ne peut pas Ãªtre modifiÃ©.</value>
   </data>
   <data name="Col_Permission" xml:space="preserve">
     <value>Autorisation</value>
   </data>
   <data name="RoleFixedTooltip" xml:space="preserve">
-    <value>Le rôle Administrateur du tableau de bord dispose toujours de toutes les autorisations et ne peut pas être modifié.</value>
+    <value>Le rÃ´le Administrateur du tableau de bord dispose toujours de toutes les autorisations et ne peut pas Ãªtre modifiÃ©.</value>
   </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
-    <value>Filtre des groupes sans propriétaire</value>
+    <value>Filtre des groupes sans propriÃ©taire</value>
   </data>
   <data name="Label_DefaultNoManagerUserFilter" xml:space="preserve">
     <value>Filtre des utilisateurs sans responsable</value>
@@ -118,10 +100,10 @@
     <value>Filtre des comptes de service sans responsable</value>
   </data>
   <data name="Label_DefaultUserAccountExpiredFilter" xml:space="preserve">
-    <value>Filtre des comptes d'utilisateur expirés</value>
+    <value>Filtre des comptes d'utilisateur expirÃ©s</value>
   </data>
   <data name="Label_DefaultUserAccountLockedOutFilter" xml:space="preserve">
-    <value>Filtre des comptes d'utilisateur verrouillés</value>
+    <value>Filtre des comptes d'utilisateur verrouillÃ©s</value>
   </data>
   <data name="Label_DefaultEmptyGroupsFilter" xml:space="preserve">
     <value>Filtre des groupes vides</value>
@@ -139,16 +121,16 @@
     <value>Langue</value>
   </data>
   <data name="Label_DefaultLanguage" xml:space="preserve">
-    <value>Langue par défaut</value>
+    <value>Langue par dÃ©faut</value>
   </data>
   <data name="Hint_DefaultLanguage" xml:space="preserve">
-    <value>La langue par défaut utilisée pour les nouveaux utilisateurs et lorsqu'un utilisateur n'a pas sélectionné de langue.</value>
+    <value>La langue par dÃ©faut utilisÃ©e pour les nouveaux utilisateurs et lorsqu'un utilisateur n'a pas sÃ©lectionnÃ© de langue.</value>
   </data>
   <data name="Label_CustomADUserAccountAttributes" xml:space="preserve">
-    <value>Attributs personnalisés des comptes d'utilisateur AD</value>
+    <value>Attributs personnalisÃ©s des comptes d'utilisateur AD</value>
   </data>
   <data name="Hint_CustomADUserAccountAttributes" xml:space="preserve">
-    <value>Attributs supplémentaires à récupérer pour les comptes d'utilisateur AD, un par ligne.</value>
+    <value>Attributs supplÃ©mentaires Ã  rÃ©cupÃ©rer pour les comptes d'utilisateur AD, un par ligne.</value>
   </data>
   <data name="Card_ServiceAccount" xml:space="preserve">
     <value>Informations d'identification du compte de service</value>
@@ -157,19 +139,19 @@
     <value>Seuils de licence</value>
   </data>
   <data name="Card_DataRefresh" xml:space="preserve">
-    <value>Actualisation des données</value>
+    <value>Actualisation des donnÃ©es</value>
   </data>
   <data name="Label_DailyRefreshTime" xml:space="preserve">
     <value>Heure d'actualisation quotidienne</value>
   </data>
   <data name="Hint_DailyRefreshTime" xml:space="preserve">
-    <value>Heure locale (format 24 heures) à laquelle les données partagées sont actualisées.</value>
+    <value>Heure locale (format 24 heures) Ã  laquelle les donnÃ©es partagÃ©es sont actualisÃ©es.</value>
   </data>
   <data name="Label_LoadOnStartup" xml:space="preserve">
-    <value>Charger au démarrage</value>
+    <value>Charger au dÃ©marrage</value>
   </data>
   <data name="Hint_LoadOnStartup" xml:space="preserve">
-    <value>Actualiser automatiquement les données partagées au démarrage de l'application.</value>
+    <value>Actualiser automatiquement les donnÃ©es partagÃ©es au dÃ©marrage de l'application.</value>
   </data>
   <data name="Label_ApiBaseUrl" xml:space="preserve">
     <value>URL de base de l'API REST</value>
@@ -182,9 +164,6 @@
   </data>
   <data name="Label_ServiceAccountPassword" xml:space="preserve">
     <value>Mot de passe du compte de service</value>
-  </data>
-  <data name="Label_ExpiredBaseDn" xml:space="preserve">
-    <value>Compte utilisateur expiré - DN de base</value>
   </data>
   <data name="Label_LicensedDomainObjects" xml:space="preserve">
     <value>Objets de domaine sous licence</value>
@@ -202,27 +181,27 @@
     <value>Total des objets sous licence</value>
   </data>
   <data name="Hint_RestartRequired" xml:space="preserve">
-    <value>Ce paramètre ne prend effet qu'après le redémarrage de l'application.</value>
+    <value>Ce paramÃ¨tre ne prend effet qu'aprÃ¨s le redÃ©marrage de l'application.</value>
   </data>
   <data name="Hint_ServiceAccountPassword" xml:space="preserve">
-    <value>Laissez vide pour conserver le mot de passe existant. Les modifications ne prennent effet qu'après un redémarrage.</value>
+    <value>Laissez vide pour conserver le mot de passe existant. Les modifications ne prennent effet qu'aprÃ¨s un redÃ©marrage.</value>
   </data>
   <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
-    <value>Inchangé</value>
+    <value>InchangÃ©</value>
   </data>
   <data name="Hint_LicensedTotalObjects" xml:space="preserve">
-    <value>Droit total sous licence, toutes catégories confondues. La valeur 0 signifie non configuré.</value>
+    <value>Droit total sous licence, toutes catÃ©gories confondues. La valeur 0 signifie non configurÃ©.</value>
   </data>
   <data name="Msg_RestartRequired" xml:space="preserve">
-    <value>Un ou plusieurs paramètres de connexion ont été modifiés. Redémarrez l'application pour que ces modifications prennent effet.</value>
+    <value>Un ou plusieurs paramÃ¨tres de connexion ont Ã©tÃ© modifiÃ©s. RedÃ©marrez l'application pour que ces modifications prennent effet.</value>
   </data>
   <data name="SaveSettings" xml:space="preserve">
-	<value>Enregistrer les paramètres</value>
+	<value>Enregistrer les paramÃ¨tres</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
-	<value>Vous n'avez pas l'autorisation d'afficher ou de modifier les paramètres.</value>
+	<value>Vous n'avez pas l'autorisation d'afficher ou de modifier les paramÃ¨tres.</value>
   </data>
   <data name="SystemSettingsReadOnly" xml:space="preserve">
-	<value>Vous pouvez consulter ces paramètres système mais vous n'êtes pas autorisé à les modifier.</value>
+	<value>Vous pouvez consulter ces paramÃ¨tres systÃ¨me mais vous n'Ãªtes pas autorisÃ© Ã  les modifier.</value>
   </data>
 </root>

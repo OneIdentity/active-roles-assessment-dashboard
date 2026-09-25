@@ -980,24 +980,13 @@ public class ActiveRolesConfig
     // TotalObjects is the grand-total entitlement across all categories.
     public LicensingConfig Licensing { get; set; } = new();
 
-    // Custom base DN overrides (grouped under the CustomDNs section; blank = use the default DN).
-    public CustomDnsConfig CustomDNs { get; set; } = new();
-
     // Custom LDAP filter overrides (grouped under the CustomFilters section; blank = use the default filter).
     public CustomFiltersConfig CustomFilters { get; set; } = new();
 
     // Pass-through accessors preserve the historic flat property names used throughout the
-    // codebase while the values are now bound from the nested CustomDNs / CustomFilters sections.
-    public string CustomNoGroupOwnerBaseDn => CustomDNs.NoGroupOwner;
-    public string CustomNoManagerUserBaseDn => CustomDNs.NoManagerUser;
-    public string CustomNoManagerServiceAccountBaseDn => CustomDNs.NoManagerServiceAccount;
-    public string CustomUserAccountExpiredBaseDn => CustomDNs.UserAccountExpired;
-    public string CustomUserAccountLockedOutBaseDn => CustomDNs.UserAccountLockedOut;
-    public string CustomEmptyGroupsBaseDn => CustomDNs.EmptyGroups;
-    public string CustomActiveRolesAdminsBaseDn => CustomDNs.ActiveRolesAdmins;
+    // codebase while the values are now bound from the nested CustomFilters section.
     public string CustomNoManagerUserFilter => CustomFilters.NoManagerUser;
     public string CustomNoManagerServiceAccountFilter => CustomFilters.NoManagerServiceAccount;
-    public string CustomActiveRolesAdminsFilter => CustomFilters.ActiveRolesAdmins;
 
     // Service account used to collect the shared dashboard superset at application startup
     // and on scheduled/manual refresh. End-user tokens cannot read AR configuration
@@ -1032,21 +1021,6 @@ public class DefaultDnsConfig
 }
 
 /// <summary>
-/// Custom base DN overrides. Grouped under the "CustomDNs" configuration section.
-/// Blank means "use the corresponding default DN".
-/// </summary>
-public class CustomDnsConfig
-{
-    public string NoGroupOwner { get; set; } = string.Empty;
-    public string NoManagerUser { get; set; } = string.Empty;
-    public string NoManagerServiceAccount { get; set; } = string.Empty;
-    public string UserAccountExpired { get; set; } = string.Empty;
-    public string UserAccountLockedOut { get; set; } = string.Empty;
-    public string EmptyGroups { get; set; } = string.Empty;
-    public string ActiveRolesAdmins { get; set; } = string.Empty;
-}
-
-/// <summary>
 /// Custom LDAP filter overrides. Grouped under the "CustomFilters" configuration section.
 /// Blank means "use the corresponding default filter".
 /// </summary>
@@ -1054,7 +1028,6 @@ public class CustomFiltersConfig
 {
     public string NoManagerUser { get; set; } = string.Empty;
     public string NoManagerServiceAccount { get; set; } = string.Empty;
-    public string ActiveRolesAdmins { get; set; } = string.Empty;
 }
 
 /// <summary>
