@@ -1,110 +1,211 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-	<xsd:element name="root" msdata:IsDataSet="true">
-	  <xsd:complexType>
-		<xsd:choice maxOccurs="unbounded">
-		  <xsd:element name="metadata">
-			<xsd:complexType>
-			  <xsd:sequence>
-				<xsd:element name="value" type="xsd:string" minOccurs="0" />
-			  </xsd:sequence>
-			  <xsd:attribute name="name" use="required" type="xsd:string" />
-			  <xsd:attribute name="type" type="xsd:string" />
-			  <xsd:attribute name="mimetype" type="xsd:string" />
-			  <xsd:attribute ref="xml:space" />
-			</xsd:complexType>
-		  </xsd:element>
-		  <xsd:element name="assembly">
-			<xsd:complexType>
-			  <xsd:attribute name="alias" type="xsd:string" />
-			  <xsd:attribute name="name" type="xsd:string" />
-			</xsd:complexType>
-		  </xsd:element>
-		  <xsd:element name="data">
-			<xsd:complexType>
-			  <xsd:sequence>
-				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-				<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-			  </xsd:sequence>
-			  <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-			  <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-			  <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-			  <xsd:attribute ref="xml:space" />
-			</xsd:complexType>
-		  </xsd:element>
-		  <xsd:element name="resheader">
-			<xsd:complexType>
-			  <xsd:sequence>
-				<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-			  </xsd:sequence>
-			  <xsd:attribute name="name" type="xsd:string" use="required" />
-			</xsd:complexType>
-		  </xsd:element>
-		</xsd:choice>
-	  </xsd:complexType>
-	</xsd:element>
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="RestApiConfig" xml:space="preserve"><value>Configuration de l'API REST</value></data>
-  <data name="RestApiSubtitle" xml:space="preserve"><value>Configurez la connexion au service d'API REST Active Roles.</value></data>
-  <data name="RestApiUrl" xml:space="preserve"><value>URL de l'API REST</value></data>
-  <data name="RestApiUrlHint" xml:space="preserve"><value>URL de base de l'API REST Active Roles. Ce paramètre est obligatoire.</value></data>
-  <data name="RstsUrl" xml:space="preserve"><value>URL du jeton RSTS</value></data>
-  <data name="RstsUrlHint" xml:space="preserve"><value>URL du point de terminaison du jeton OAuth2 RSTS. Ce paramètre est obligatoire.</value></data>
-  <data name="RstsScope" xml:space="preserve"><value>Portée du fournisseur RSTS</value></data>
-  <data name="RstsScopeHint" xml:space="preserve"><value>Facultatif. Chaîne complète de portée du fournisseur RSTS (par ex. rsts:sts:primaryproviderid:ad). Requise uniquement lorsque le RSTS possède plusieurs fournisseurs d'authentification. Laissez vide pour un RSTS à fournisseur unique.</value></data>
-  <data name="WebInterface" xml:space="preserve"><value>Interface Web</value></data>
-  <data name="WebInterfaceSubtitle" xml:space="preserve"><value>Configurez éventuellement l'URL de l'interface Web Active Roles pour les liens directs.</value></data>
-  <data name="WebInterfaceUrl" xml:space="preserve"><value>URL de l'interface Web</value></data>
-  <data name="WebInterfaceUrlHint" xml:space="preserve"><value>URL de base de l'interface Web Active Roles. Ce paramètre est facultatif.</value></data>
-  <data name="Language" xml:space="preserve"><value>Langue</value></data>
-  <data name="LanguageSubtitle" xml:space="preserve"><value>Choisissez la langue d'affichage de l'interface du tableau de bord.</value></data>
-  <data name="DisplayLanguage" xml:space="preserve"><value>Langue d'affichage</value></data>
-  <data name="LanguageHint" xml:space="preserve"><value>D'autres langues seront ajoutées au fil du temps. Vous pouvez modifier ce paramètre ultérieurement dans les Paramètres.</value></data>
-  <data name="KpiConfig" xml:space="preserve"><value>Configuration des KPI</value></data>
-  <data name="RoleMappingConfig" xml:space="preserve"><value>Mappage des groupes de rôles</value></data>
-  <data name="RoleMappingSubtitle" xml:space="preserve"><value>Associez les rôles du tableau de bord à des groupes Active Directory. Les membres de chaque groupe se voient attribuer le rôle correspondant. Laissez vide pour utiliser les valeurs par défaut.</value></data>
-  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve"><value>Administrateurs du tableau de bord - Filtre LDAP</value></data>
-  <data name="Hint_DashboardAdminsFilter" xml:space="preserve"><value>Les membres reçoivent le rôle Administrateur du tableau de bord (toutes les autorisations).</value></data>
-  <data name="Lbl_AuditorsFilter" xml:space="preserve"><value>Auditeurs - Filtre LDAP</value></data>
-  <data name="Hint_AuditorsFilter" xml:space="preserve"><value>Les membres reçoivent le rôle Auditeur.</value></data>
-  <data name="Lbl_PowerUsersFilter" xml:space="preserve"><value>Utilisateurs avancés - Filtre LDAP</value></data>
-  <data name="Hint_PowerUsersFilter" xml:space="preserve"><value>Les membres reçoivent le rôle Utilisateur avancé.</value></data>
-  <data name="KpiSubtitle" xml:space="preserve"><value>Tous les paramètres de KPI sont facultatifs. Laissez vide pour utiliser les valeurs par défaut.</value></data>
-  <data name="Lbl_ArAdminsBaseDn" xml:space="preserve"><value>Administrateurs Active Roles - DN de base</value></data>
-  <data name="Lbl_ArAdminsFilter" xml:space="preserve"><value>Administrateurs Active Roles - Filtre LDAP</value></data>
-  <data name="Lbl_NoGroupOwnerBaseDn" xml:space="preserve"><value>Sans propriétaire de groupe - DN de base</value></data>
-  <data name="Lbl_NoManagerUserBaseDn" xml:space="preserve"><value>Sans responsable (Utilisateur) - DN de base</value></data>
-  <data name="Lbl_NoManagerUserFilter" xml:space="preserve"><value>Sans responsable (Utilisateur) - Filtre LDAP</value></data>
-  <data name="Lbl_NoManagerSaBaseDn" xml:space="preserve"><value>Sans responsable (Compte de service) - DN de base</value></data>
-  <data name="Lbl_NoManagerSaFilter" xml:space="preserve"><value>Sans responsable (Compte de service) - Filtre LDAP</value></data>
-  <data name="Lbl_UserExpiredBaseDn" xml:space="preserve"><value>Compte utilisateur expiré - DN de base</value></data>
-  <data name="Lbl_UserLockedBaseDn" xml:space="preserve"><value>Compte utilisateur verrouillé - DN de base</value></data>
-  <data name="Lbl_EmptyGroupsBaseDn" xml:space="preserve"><value>Groupes vides - DN de base</value></data>
-  <data name="Next" xml:space="preserve"><value>Suivant</value></data>
-  <data name="Back" xml:space="preserve"><value>Précédent</value></data>
-  <data name="FinishSetup" xml:space="preserve"><value>Terminer la configuration</value></data>
-  <data name="Err_ApiUrlRequired" xml:space="preserve"><value>L'URL de l'API REST est requise.</value></data>
-  <data name="Err_RstsUrlRequired" xml:space="preserve"><value>L'URL du jeton RSTS est requise.</value></data>
-  <data name="Err_SaUsernameRequired" xml:space="preserve"><value>Le nom d'utilisateur du compte de service est requis.</value></data>
-  <data name="Err_SaPasswordRequired" xml:space="preserve"><value>Le mot de passe du compte de service est requis.</value></data>
-  <data name="ServiceAccountConfig" xml:space="preserve"><value>Compte de service</value></data>
-  <data name="ServiceAccountSubtitle" xml:space="preserve"><value>Informations d'identification utilisées par le tableau de bord pour collecter les données Active Roles en arrière-plan.</value></data>
-  <data name="ServiceAccountUsername" xml:space="preserve"><value>Nom d'utilisateur</value></data>
-  <data name="ServiceAccountUsernameHint" xml:space="preserve"><value>Le compte de service utilisé pour obtenir un jeton RSTS (par ex. DOMAIN\svc_ars).</value></data>
-  <data name="ServiceAccountPassword" xml:space="preserve"><value>Mot de passe</value></data>
-  <data name="ServiceAccountPasswordHint" xml:space="preserve"><value>Stocké chiffré à l'aide de Data Protection. Il n'est jamais enregistré en clair.</value></data>
-  <data name="LicensingThresholds" xml:space="preserve"><value>Seuils de licence</value></data>
-  <data name="LicensingThresholdsSubtitle" xml:space="preserve"><value>Droits d'objets sous licence facultatifs utilisés par le tableau de bord des licences. Laissez 0 pour désactiver un seuil.</value></data>
-  <data name="Lbl_LicensedDomainObjects" xml:space="preserve"><value>Objets de domaine sous licence</value></data>
-  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve"><value>Objets de partition sous licence</value></data>
-  <data name="Lbl_LicensedAzureObjects" xml:space="preserve"><value>Objets Azure sous licence</value></data>
-  <data name="Lbl_LicensedSaasObjects" xml:space="preserve"><value>Objets SaaS sous licence</value></data>
-  <data name="Lbl_LicensedTotalObjects" xml:space="preserve"><value>Total d'objets sous licence (total général)</value></data>
-  <data name="LicensedThresholdsHint" xml:space="preserve"><value>Une valeur de 0 signifie que le seuil n'est pas configuré et ne sera pas affiché.</value></data>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="RestApiConfig" xml:space="preserve">
+    <value>Configuration de l'API REST</value>
+  </data>
+  <data name="RestApiSubtitle" xml:space="preserve">
+    <value>Configurez la connexion au service d'API REST Active Roles.</value>
+  </data>
+  <data name="RestApiUrl" xml:space="preserve">
+    <value>URL de l'API REST</value>
+  </data>
+  <data name="RestApiUrlHint" xml:space="preserve">
+    <value>URL de base de l'API REST Active Roles. Ce paramÃ¨tre est obligatoire.</value>
+  </data>
+  <data name="RstsUrl" xml:space="preserve">
+    <value>URL du jeton RSTS</value>
+  </data>
+  <data name="RstsUrlHint" xml:space="preserve">
+    <value>URL du point de terminaison du jeton OAuth2 RSTS. Ce paramÃ¨tre est obligatoire.</value>
+  </data>
+  <data name="RstsScope" xml:space="preserve">
+    <value>PortÃ©e du fournisseur RSTS</value>
+  </data>
+  <data name="RstsScopeHint" xml:space="preserve">
+    <value>Facultatif. ChaÃ®ne complÃ¨te de portÃ©e du fournisseur RSTS (par ex. rsts:sts:primaryproviderid:ad). Requise uniquement lorsque le RSTS possÃ¨de plusieurs fournisseurs d'authentification. Laissez vide pour un RSTS Ã  fournisseur unique.</value>
+  </data>
+  <data name="WebInterface" xml:space="preserve">
+    <value>Interface Web</value>
+  </data>
+  <data name="WebInterfaceSubtitle" xml:space="preserve">
+    <value>Configurez Ã©ventuellement l'URL de l'interface Web Active Roles pour les liens directs.</value>
+  </data>
+  <data name="WebInterfaceUrl" xml:space="preserve">
+    <value>URL de l'interface Web</value>
+  </data>
+  <data name="WebInterfaceUrlHint" xml:space="preserve">
+    <value>URL de base de l'interface Web Active Roles. Ce paramÃ¨tre est facultatif.</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="LanguageSubtitle" xml:space="preserve">
+    <value>Choisissez la langue d'affichage de l'interface du tableau de bord.</value>
+  </data>
+  <data name="DisplayLanguage" xml:space="preserve">
+    <value>Langue d'affichage</value>
+  </data>
+  <data name="LanguageHint" xml:space="preserve">
+    <value>D'autres langues seront ajoutÃ©es au fil du temps. Vous pouvez modifier ce paramÃ¨tre ultÃ©rieurement dans les ParamÃ¨tres.</value>
+  </data>
+  <data name="KpiConfig" xml:space="preserve">
+    <value>Configuration des KPI</value>
+  </data>
+  <data name="RoleMappingConfig" xml:space="preserve">
+    <value>Mappage des groupes de rÃ´les</value>
+  </data>
+  <data name="RoleMappingSubtitle" xml:space="preserve">
+    <value>Associez les rÃ´les du tableau de bord Ã  des groupes Active Directory. Les membres de chaque groupe se voient attribuer le rÃ´le correspondant. Laissez vide pour utiliser les valeurs par dÃ©faut.</value>
+  </data>
+  <data name="Lbl_DashboardAdminsFilter" xml:space="preserve">
+    <value>Administrateurs du tableau de bord - Filtre LDAP</value>
+  </data>
+  <data name="Hint_DashboardAdminsFilter" xml:space="preserve">
+    <value>Les membres reÃ§oivent le rÃ´le Administrateur du tableau de bord (toutes les autorisations).</value>
+  </data>
+  <data name="Lbl_AuditorsFilter" xml:space="preserve">
+    <value>Auditeurs - Filtre LDAP</value>
+  </data>
+  <data name="Hint_AuditorsFilter" xml:space="preserve">
+    <value>Les membres reÃ§oivent le rÃ´le Auditeur.</value>
+  </data>
+  <data name="Lbl_PowerUsersFilter" xml:space="preserve">
+    <value>Utilisateurs avancÃ©s - Filtre LDAP</value>
+  </data>
+  <data name="Hint_PowerUsersFilter" xml:space="preserve">
+    <value>Les membres reÃ§oivent le rÃ´le Utilisateur avancÃ©.</value>
+  </data>
+  <data name="KpiSubtitle" xml:space="preserve">
+    <value>Tous les paramÃ¨tres de KPI sont facultatifs. Laissez vide pour utiliser les valeurs par dÃ©faut.</value>
+  </data>
+  <data name="Lbl_ArAdminsFilter" xml:space="preserve">
+    <value>Administrateurs Active Roles - Filtre LDAP</value>
+  </data>
+  <data name="Lbl_NoManagerUserFilter" xml:space="preserve">
+    <value>Sans responsable (Utilisateur) - Filtre LDAP</value>
+  </data>
+  <data name="Lbl_NoManagerSaFilter" xml:space="preserve">
+    <value>Sans responsable (Compte de service) - Filtre LDAP</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>PrÃ©cÃ©dent</value>
+  </data>
+  <data name="FinishSetup" xml:space="preserve">
+    <value>Terminer la configuration</value>
+  </data>
+  <data name="Err_ApiUrlRequired" xml:space="preserve">
+    <value>L'URL de l'API REST est requise.</value>
+  </data>
+  <data name="Err_RstsUrlRequired" xml:space="preserve">
+    <value>L'URL du jeton RSTS est requise.</value>
+  </data>
+  <data name="Err_SaUsernameRequired" xml:space="preserve">
+    <value>Le nom d'utilisateur du compte de service est requis.</value>
+  </data>
+  <data name="Err_SaPasswordRequired" xml:space="preserve">
+    <value>Le mot de passe du compte de service est requis.</value>
+  </data>
+  <data name="ServiceAccountConfig" xml:space="preserve">
+    <value>Compte de service</value>
+  </data>
+  <data name="ServiceAccountSubtitle" xml:space="preserve">
+    <value>Informations d'identification utilisÃ©es par le tableau de bord pour collecter les donnÃ©es Active Roles en arriÃ¨re-plan.</value>
+  </data>
+  <data name="ServiceAccountUsername" xml:space="preserve">
+    <value>Nom d'utilisateur</value>
+  </data>
+  <data name="ServiceAccountUsernameHint" xml:space="preserve">
+    <value>Le compte de service utilisÃ© pour obtenir un jeton RSTS (par ex. DOMAIN\svc_ars).</value>
+  </data>
+  <data name="ServiceAccountPassword" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="ServiceAccountPasswordHint" xml:space="preserve">
+    <value>StockÃ© chiffrÃ© Ã  l'aide de Data Protection. Il n'est jamais enregistrÃ© en clair.</value>
+  </data>
+  <data name="LicensingThresholds" xml:space="preserve">
+    <value>Seuils de licence</value>
+  </data>
+  <data name="LicensingThresholdsSubtitle" xml:space="preserve">
+    <value>Droits d'objets sous licence facultatifs utilisÃ©s par le tableau de bord des licences. Laissez 0 pour dÃ©sactiver un seuil.</value>
+  </data>
+  <data name="Lbl_LicensedDomainObjects" xml:space="preserve">
+    <value>Objets de domaine sous licence</value>
+  </data>
+  <data name="Lbl_LicensedPartitionObjects" xml:space="preserve">
+    <value>Objets de partition sous licence</value>
+  </data>
+  <data name="Lbl_LicensedAzureObjects" xml:space="preserve">
+    <value>Objets Azure sous licence</value>
+  </data>
+  <data name="Lbl_LicensedSaasObjects" xml:space="preserve">
+    <value>Objets SaaS sous licence</value>
+  </data>
+  <data name="Lbl_LicensedTotalObjects" xml:space="preserve">
+    <value>Total d'objets sous licence (total gÃ©nÃ©ral)</value>
+  </data>
+  <data name="LicensedThresholdsHint" xml:space="preserve">
+    <value>Une valeur de 0 signifie que le seuil n'est pas configurÃ© et ne sera pas affichÃ©.</value>
+  </data>
 </root>

@@ -63,23 +63,9 @@ public class SettingsModel : PageModel
     public KpiSettings KpiSettings { get; set; } = new();
 
     [BindProperty]
-    public string CustomNoGroupOwnerBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomNoManagerUserBaseDn { get; set; } = string.Empty;
-    [BindProperty]
     public string CustomNoManagerUserFilter { get; set; } = string.Empty;
     [BindProperty]
-    public string CustomNoManagerServiceAccountBaseDn { get; set; } = string.Empty;
-    [BindProperty]
     public string CustomNoManagerServiceAccountFilter { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomUserAccountExpiredBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomUserAccountLockedOutBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomEmptyGroupsBaseDn { get; set; } = string.Empty;
-    [BindProperty]
-    public string CustomActiveRolesAdminsBaseDn { get; set; } = string.Empty;
 
     // REST API Configuration (restart required)
     [BindProperty]
@@ -257,15 +243,8 @@ public class SettingsModel : PageModel
             : SupportedLanguage.DefaultCode;
 
         // Load KPI configuration from appsettings
-        CustomNoGroupOwnerBaseDn = config.CustomNoGroupOwnerBaseDn;
-        CustomNoManagerUserBaseDn = config.CustomNoManagerUserBaseDn;
         CustomNoManagerUserFilter = config.CustomNoManagerUserFilter;
-        CustomNoManagerServiceAccountBaseDn = config.CustomNoManagerServiceAccountBaseDn;
         CustomNoManagerServiceAccountFilter = config.CustomNoManagerServiceAccountFilter;
-        CustomUserAccountExpiredBaseDn = config.CustomUserAccountExpiredBaseDn;
-        CustomUserAccountLockedOutBaseDn = config.CustomUserAccountLockedOutBaseDn;
-        CustomEmptyGroupsBaseDn = config.CustomEmptyGroupsBaseDn;
-        CustomActiveRolesAdminsBaseDn = config.CustomActiveRolesAdminsBaseDn;
         EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
         DynamicGroupExpensiveRuleThreshold = config.DynamicGroupExpensiveRuleThreshold;
 
@@ -412,21 +391,6 @@ public class SettingsModel : PageModel
             if (activeRoles != null)
             {
                 activeRoles["WebInterfaceUrl"] = WebInterfaceUrl?.Trim() ?? "";
-
-                // Custom base DN overrides live under the nested CustomDNs section.
-                var customDns = activeRoles["CustomDNs"]?.AsObject();
-                if (customDns is null)
-                {
-                    customDns = new JsonObject();
-                    activeRoles["CustomDNs"] = customDns;
-                }
-                customDns["NoGroupOwner"] = CustomNoGroupOwnerBaseDn?.Trim() ?? "";
-                customDns["NoManagerUser"] = CustomNoManagerUserBaseDn?.Trim() ?? "";
-                customDns["NoManagerServiceAccount"] = CustomNoManagerServiceAccountBaseDn?.Trim() ?? "";
-                customDns["UserAccountExpired"] = CustomUserAccountExpiredBaseDn?.Trim() ?? "";
-                customDns["UserAccountLockedOut"] = CustomUserAccountLockedOutBaseDn?.Trim() ?? "";
-                customDns["EmptyGroups"] = CustomEmptyGroupsBaseDn?.Trim() ?? "";
-                customDns["ActiveRolesAdmins"] = CustomActiveRolesAdminsBaseDn?.Trim() ?? "";
 
                 // Custom LDAP filter overrides live under the nested CustomFilters section.
                 var customFilters = activeRoles["CustomFilters"]?.AsObject();

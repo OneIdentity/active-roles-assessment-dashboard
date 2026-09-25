@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
-	<value>text/microsoft-resx</value>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-	<value>2.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LoadingDashboardData" xml:space="preserve">
     <value>Caricamento dei dati della dashboard...</value>
@@ -28,7 +28,7 @@
 	<value>Configurazione dei KPI</value>
   </data>
   <data name="Card_KpiVisibility" xml:space="preserve">
-	<value>Visibilità dei KPI</value>
+	<value>VisibilitÃ  dei KPI</value>
   </data>
   <data name="Label_BaseUrl" xml:space="preserve">
 	<value>URL di base</value>
@@ -48,32 +48,14 @@
   <data name="Hint_Language" xml:space="preserve">
 	<value>Lingua utilizzata per l'interfaccia del dashboard. Ulteriori lingue verranno aggiunte nel tempo.</value>
   </data>
-  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
-	<value>Amministratori di Active Roles - DN di base</value>
-  </data>
   <data name="Label_ArAdminsFilter" xml:space="preserve">
 	<value>Amministratori di Active Roles - Filtro LDAP</value>
-  </data>
-  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
-	<value>Nessun proprietario del gruppo - DN di base</value>
-  </data>
-  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
-	<value>Nessun manager (utente) - DN di base</value>
   </data>
   <data name="Label_NoManagerUserFilter" xml:space="preserve">
 	<value>Nessun manager (utente) - Filtro LDAP</value>
   </data>
-  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
-	<value>Nessun manager (account di servizio) - DN di base</value>
-  </data>
   <data name="Label_NoManagerSvcFilter" xml:space="preserve">
 	<value>Nessun manager (account di servizio) - Filtro LDAP</value>
-  </data>
-  <data name="Label_LockedOutBaseDn" xml:space="preserve">
-	<value>Account utente bloccato - DN di base</value>
-  </data>
-  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
-	<value>Gruppi vuoti - DN di base</value>
   </data>
   <data name="Label_LargeGroupThreshold" xml:space="preserve">
 	<value>Gruppi grandi - Soglia membri</value>
@@ -100,13 +82,13 @@
     <value>Gestione dei ruoli</value>
   </data>
   <data name="RoleManagementHint" xml:space="preserve">
-    <value>Assegna le autorizzazioni a ciascun ruolo. I ruoli e le autorizzazioni sono fissi. Il ruolo Amministratore della dashboard dispone sempre di tutte le autorizzazioni e non può essere modificato.</value>
+    <value>Assegna le autorizzazioni a ciascun ruolo. I ruoli e le autorizzazioni sono fissi. Il ruolo Amministratore della dashboard dispone sempre di tutte le autorizzazioni e non puÃ² essere modificato.</value>
   </data>
   <data name="Col_Permission" xml:space="preserve">
     <value>Autorizzazione</value>
   </data>
   <data name="RoleFixedTooltip" xml:space="preserve">
-    <value>Il ruolo Amministratore della dashboard dispone sempre di tutte le autorizzazioni e non può essere modificato.</value>
+    <value>Il ruolo Amministratore della dashboard dispone sempre di tutte le autorizzazioni e non puÃ² essere modificato.</value>
   </data>
   <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
     <value>Filtro gruppi senza proprietario</value>
@@ -183,9 +165,6 @@
   <data name="Label_ServiceAccountPassword" xml:space="preserve">
     <value>Password dell'account di servizio</value>
   </data>
-  <data name="Label_ExpiredBaseDn" xml:space="preserve">
-    <value>Account utente scaduto - DN di base</value>
-  </data>
   <data name="Label_LicensedDomainObjects" xml:space="preserve">
     <value>Oggetti di dominio con licenza</value>
   </data>
@@ -214,7 +193,7 @@
     <value>Diritto totale con licenza in tutte le categorie. Il valore 0 indica non configurato.</value>
   </data>
   <data name="Msg_RestartRequired" xml:space="preserve">
-    <value>Una o più impostazioni di connessione sono state modificate. Riavviare l'applicazione affinché queste modifiche abbiano effetto.</value>
+    <value>Una o piÃ¹ impostazioni di connessione sono state modificate. Riavviare l'applicazione affinchÃ© queste modifiche abbiano effetto.</value>
   </data>
   <data name="SaveSettings" xml:space="preserve">
 	<value>Salva impostazioni</value>

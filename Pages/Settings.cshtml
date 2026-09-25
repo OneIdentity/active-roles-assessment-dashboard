@@ -902,44 +902,13 @@
             </div>
             <div class="section-body collapsed">
 
-            @if (Model.IsActiveRolesAdmin)
-            {
-            <div class="form-group">
-                <label for="CustomActiveRolesAdminsBaseDn">@Localizer["Label_ArAdminsBaseDn"]</label>
-                <input type="text" id="CustomActiveRolesAdminsBaseDn" name="CustomActiveRolesAdminsBaseDn" value="@Model.CustomActiveRolesAdminsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            }
-            <div class="form-group">
-                <label for="CustomNoGroupOwnerBaseDn">@Localizer["Label_NoGroupOwnerBaseDn"]</label>
-                <input type="text" id="CustomNoGroupOwnerBaseDn" name="CustomNoGroupOwnerBaseDn" value="@Model.CustomNoGroupOwnerBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomNoManagerUserBaseDn">@Localizer["Label_NoManagerUserBaseDn"]</label>
-                <input type="text" id="CustomNoManagerUserBaseDn" name="CustomNoManagerUserBaseDn" value="@Model.CustomNoManagerUserBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
             <div class="form-group">
                 <label for="CustomNoManagerUserFilter">@Localizer["Label_NoManagerUserFilter"]</label>
                 <input type="text" id="CustomNoManagerUserFilter" name="CustomNoManagerUserFilter" value="@Model.CustomNoManagerUserFilter" placeholder="@Model.Defaults.DefaultFilters.NoManagerUser" />
             </div>
             <div class="form-group">
-                <label for="CustomNoManagerServiceAccountBaseDn">@Localizer["Label_NoManagerSvcBaseDn"]</label>
-                <input type="text" id="CustomNoManagerServiceAccountBaseDn" name="CustomNoManagerServiceAccountBaseDn" value="@Model.CustomNoManagerServiceAccountBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
                 <label for="CustomNoManagerServiceAccountFilter">@Localizer["Label_NoManagerSvcFilter"]</label>
                 <input type="text" id="CustomNoManagerServiceAccountFilter" name="CustomNoManagerServiceAccountFilter" value="@Model.CustomNoManagerServiceAccountFilter" placeholder="@Model.Defaults.DefaultFilters.NoManagerServiceAccount" />
-            </div>
-            <div class="form-group">
-                <label for="CustomUserAccountExpiredBaseDn">@Localizer["Label_ExpiredBaseDn"]</label>
-                <input type="text" id="CustomUserAccountExpiredBaseDn" name="CustomUserAccountExpiredBaseDn" value="@Model.CustomUserAccountExpiredBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomUserAccountLockedOutBaseDn">@Localizer["Label_LockedOutBaseDn"]</label>
-                <input type="text" id="CustomUserAccountLockedOutBaseDn" name="CustomUserAccountLockedOutBaseDn" value="@Model.CustomUserAccountLockedOutBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
-            </div>
-            <div class="form-group">
-                <label for="CustomEmptyGroupsBaseDn">@Localizer["Label_EmptyGroupsBaseDn"]</label>
-                <input type="text" id="CustomEmptyGroupsBaseDn" name="CustomEmptyGroupsBaseDn" value="@Model.CustomEmptyGroupsBaseDn" placeholder="@Model.Defaults.DefaultActiveDirectoryDN" />
             </div>
             <div class="form-group">
                 <label for="EntraLargeGroupMemberThreshold">@Localizer["Label_LargeGroupThreshold"]</label>

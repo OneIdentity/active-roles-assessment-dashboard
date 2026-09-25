@@ -949,8 +949,8 @@ public class ActiveRolesService
 
         if (settings.IsKpiEnabled("ARConfiguration", "ActiveRolesAdmins"))
         {
-            var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, ResolveRoleGroupBaseDn());
-            var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins));
+            var baseDn = ResolveRoleGroupBaseDn();
+            var filter = BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins);
             var t = GetActiveRolesAdminsAsync(token, baseDn, filter);
             tasks.Add(("ActiveRolesAdmins", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ActiveRolesAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
@@ -1095,7 +1095,7 @@ public class ActiveRolesService
         }
         if (settings.IsKpiEnabled("ADGroupsCategory", "NoGroupOwner") || settings.IsKpiEnabled("ADGovernance", "NoGroupOwner"))
         {
-            var baseDn = ResolveValue(config.CustomNoGroupOwnerBaseDn, config.DefaultActiveDirectoryDN);
+            var baseDn = config.DefaultActiveDirectoryDN;
             var filter = config.DefaultFilters.NoGroupOwner;
             var t = GetNoGroupOwnerAsync(token, baseDn, filter);
             tasks.Add(("NoGroupOwner", t));
@@ -1103,7 +1103,7 @@ public class ActiveRolesService
         }
         if (settings.IsKpiEnabled("NHIs", "NoManagerServiceAccount") || settings.IsKpiEnabled("ADGovernance", "NoManagerServiceAccount"))
         {
-            var baseDn = ResolveValue(config.CustomNoManagerServiceAccountBaseDn, config.DefaultActiveDirectoryDN);
+            var baseDn = config.DefaultActiveDirectoryDN;
             var filter = ResolveValue(config.CustomNoManagerServiceAccountFilter, config.DefaultFilters.NoManagerServiceAccount);
             var t = GetNoManagerServiceAccountAsync(token, baseDn, filter);
             tasks.Add(("NoManagerServiceAccount", t));
@@ -1136,7 +1136,7 @@ public class ActiveRolesService
 
         if (settings.IsKpiEnabled("ADUserAccountsCategory", "UserAccountLockedOut") || settings.IsKpiEnabled("ADGovernance", "UserAccountLockedOut"))
         {
-            var baseDn = ResolveValue(config.CustomUserAccountLockedOutBaseDn, config.DefaultActiveDirectoryDN);
+            var baseDn = config.DefaultActiveDirectoryDN;
             var filter = config.DefaultFilters.UserAccountLockedOut;
             var t = GetUserAccountLockedOutAsync(token, baseDn, filter);
             tasks.Add(("UserAccountLockedOut", t));
@@ -1144,7 +1144,7 @@ public class ActiveRolesService
         }
         if (settings.IsKpiEnabled("ADGroupsCategory", "EmptyGroups") || settings.IsKpiEnabled("ADGovernance", "EmptyGroups"))
         {
-            var baseDn = ResolveValue(config.CustomEmptyGroupsBaseDn, config.DefaultActiveDirectoryDN);
+            var baseDn = config.DefaultActiveDirectoryDN;
             var filter = config.DefaultFilters.EmptyGroups;
             var t = GetEmptyGroupsAsync(token, baseDn, filter);
             tasks.Add(("EmptyGroups", t));
@@ -3583,10 +3583,8 @@ public class ActiveRolesService
     public async Task<bool> IsUserActiveRolesAdminAsync(string token, string username)
     {
         var config = _configMonitor.CurrentValue;
-        // Resolution precedence (matches the AR Admins KPI path): start from the configured
-        // default filter/base, then let a non-empty Custom override win.
-        var baseDn = ResolveValue(config.CustomActiveRolesAdminsBaseDn, ResolveRoleGroupBaseDn());
-        var filter = ResolveValue(config.CustomActiveRolesAdminsFilter, BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins));
+        var baseDn = ResolveRoleGroupBaseDn();
+        var filter = BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins);
 
         // Resolve the user's DN once, then check membership of the AR admins group using the
         // server-computed edsaMember/edsaMemberIndirect attributes on that single group - avoiding

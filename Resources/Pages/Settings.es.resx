@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
-	<value>text/microsoft-resx</value>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-	<value>2.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LoadingDashboardData" xml:space="preserve">
     <value>Cargando datos del panel...</value>
@@ -19,13 +19,13 @@
 	<value>Interfaz web de Active Roles</value>
   </data>
   <data name="Card_AutoRefresh" xml:space="preserve">
-	<value>Actualización automática</value>
+	<value>ActualizaciÃ³n automÃ¡tica</value>
   </data>
   <data name="Card_Language" xml:space="preserve">
 	<value>Idioma</value>
   </data>
   <data name="Card_KpiConfiguration" xml:space="preserve">
-	<value>Configuración de KPI</value>
+	<value>ConfiguraciÃ³n de KPI</value>
   </data>
   <data name="Card_KpiVisibility" xml:space="preserve">
 	<value>Visibilidad de KPI</value>
@@ -34,46 +34,28 @@
 	<value>URL base</value>
   </data>
   <data name="Hint_WebInterface" xml:space="preserve">
-	<value>URL base de la interfaz web de Active Roles. Esta configuración se aplica a todos los usuarios.</value>
+	<value>URL base de la interfaz web de Active Roles. Esta configuraciÃ³n se aplica a todos los usuarios.</value>
   </data>
   <data name="Label_RefreshInterval" xml:space="preserve">
-	<value>Intervalo de actualización (minutos)</value>
+	<value>Intervalo de actualizaciÃ³n (minutos)</value>
   </data>
   <data name="Hint_AutoRefresh" xml:space="preserve">
-	<value>Establezca 0 para deshabilitar la actualización automática.</value>
+	<value>Establezca 0 para deshabilitar la actualizaciÃ³n automÃ¡tica.</value>
   </data>
   <data name="Label_DisplayLanguage" xml:space="preserve">
-	<value>Idioma de visualización</value>
+	<value>Idioma de visualizaciÃ³n</value>
   </data>
   <data name="Hint_Language" xml:space="preserve">
-	<value>Idioma utilizado para la interfaz del panel. Se añadirán más idiomas con el tiempo.</value>
-  </data>
-  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
-	<value>Administradores de Active Roles - DN base</value>
+	<value>Idioma utilizado para la interfaz del panel. Se aÃ±adirÃ¡n mÃ¡s idiomas con el tiempo.</value>
   </data>
   <data name="Label_ArAdminsFilter" xml:space="preserve">
 	<value>Administradores de Active Roles - Filtro LDAP</value>
   </data>
-  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
-	<value>Sin propietario de grupo - DN base</value>
-  </data>
-  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
-	<value>Sin responsable (usuario) - DN base</value>
-  </data>
   <data name="Label_NoManagerUserFilter" xml:space="preserve">
 	<value>Sin responsable (usuario) - Filtro LDAP</value>
   </data>
-  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
-	<value>Sin responsable (cuenta de servicio) - DN base</value>
-  </data>
   <data name="Label_NoManagerSvcFilter" xml:space="preserve">
 	<value>Sin responsable (cuenta de servicio) - Filtro LDAP</value>
-  </data>
-  <data name="Label_LockedOutBaseDn" xml:space="preserve">
-	<value>Cuenta de usuario bloqueada - DN base</value>
-  </data>
-  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
-	<value>Grupos vacíos - DN base</value>
   </data>
   <data name="Label_LargeGroupThreshold" xml:space="preserve">
 	<value>Grupos grandes - Umbral de miembros</value>
@@ -85,7 +67,7 @@
 	<value>Volver al panel</value>
   </data>
   <data name="Card_RestApi" xml:space="preserve">
-    <value>Configuración de la API REST</value>
+    <value>ConfiguraciÃ³n de la API REST</value>
   </data>
   <data name="Label_Resource" xml:space="preserve">
     <value>Recurso</value>
@@ -97,7 +79,7 @@
     <value>Filtros predeterminados</value>
   </data>
   <data name="Card_RoleManagement" xml:space="preserve">
-    <value>Gestión de roles</value>
+    <value>GestiÃ³n de roles</value>
   </data>
   <data name="RoleManagementHint" xml:space="preserve">
     <value>Asigne permisos a cada rol. Los roles y permisos son fijos. El rol de Administrador del panel siempre tiene todos los permisos y no se puede cambiar.</value>
@@ -124,7 +106,7 @@
     <value>Filtro de cuentas de usuario bloqueadas</value>
   </data>
   <data name="Label_DefaultEmptyGroupsFilter" xml:space="preserve">
-    <value>Filtro de grupos vacíos</value>
+    <value>Filtro de grupos vacÃ­os</value>
   </data>
   <data name="Label_DefaultActiveRolesAdminsFilter" xml:space="preserve">
     <value>Filtro de administradores de Active Roles</value>
@@ -148,7 +130,7 @@
     <value>Atributos personalizados de cuentas de usuario de AD</value>
   </data>
   <data name="Hint_CustomADUserAccountAttributes" xml:space="preserve">
-    <value>Atributos adicionales que se recuperan para las cuentas de usuario de AD, uno por línea.</value>
+    <value>Atributos adicionales que se recuperan para las cuentas de usuario de AD, uno por lÃ­nea.</value>
   </data>
   <data name="Card_ServiceAccount" xml:space="preserve">
     <value>Credenciales de la cuenta de servicio</value>
@@ -157,10 +139,10 @@
     <value>Umbrales de licencia</value>
   </data>
   <data name="Card_DataRefresh" xml:space="preserve">
-    <value>Actualización de datos</value>
+    <value>ActualizaciÃ³n de datos</value>
   </data>
   <data name="Label_DailyRefreshTime" xml:space="preserve">
-    <value>Hora de actualización diaria</value>
+    <value>Hora de actualizaciÃ³n diaria</value>
   </data>
   <data name="Hint_DailyRefreshTime" xml:space="preserve">
     <value>Hora local (formato de 24 horas) a la que se actualizan los datos compartidos.</value>
@@ -169,7 +151,7 @@
     <value>Cargar al iniciar</value>
   </data>
   <data name="Hint_LoadOnStartup" xml:space="preserve">
-    <value>Actualizar los datos compartidos automáticamente al iniciar la aplicación.</value>
+    <value>Actualizar los datos compartidos automÃ¡ticamente al iniciar la aplicaciÃ³n.</value>
   </data>
   <data name="Label_ApiBaseUrl" xml:space="preserve">
     <value>URL base de la API REST</value>
@@ -181,16 +163,13 @@
     <value>Usuario de la cuenta de servicio</value>
   </data>
   <data name="Label_ServiceAccountPassword" xml:space="preserve">
-    <value>Contraseña de la cuenta de servicio</value>
-  </data>
-  <data name="Label_ExpiredBaseDn" xml:space="preserve">
-    <value>Cuenta de usuario caducada - DN base</value>
+    <value>ContraseÃ±a de la cuenta de servicio</value>
   </data>
   <data name="Label_LicensedDomainObjects" xml:space="preserve">
     <value>Objetos de dominio con licencia</value>
   </data>
   <data name="Label_LicensedPartitionObjects" xml:space="preserve">
-    <value>Objetos de partición con licencia</value>
+    <value>Objetos de particiÃ³n con licencia</value>
   </data>
   <data name="Label_LicensedAzureObjects" xml:space="preserve">
     <value>Objetos de Azure con licencia</value>
@@ -202,27 +181,27 @@
     <value>Total de objetos con licencia</value>
   </data>
   <data name="Hint_RestartRequired" xml:space="preserve">
-    <value>Este ajuste solo se aplica tras reiniciar la aplicación.</value>
+    <value>Este ajuste solo se aplica tras reiniciar la aplicaciÃ³n.</value>
   </data>
   <data name="Hint_ServiceAccountPassword" xml:space="preserve">
-    <value>Déjelo en blanco para mantener la contraseña actual. Los cambios solo se aplican tras reiniciar.</value>
+    <value>DÃ©jelo en blanco para mantener la contraseÃ±a actual. Los cambios solo se aplican tras reiniciar.</value>
   </data>
   <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
     <value>Sin cambios</value>
   </data>
   <data name="Hint_LicensedTotalObjects" xml:space="preserve">
-    <value>Derecho total con licencia en todas las categorías. Un valor de 0 significa no configurado.</value>
+    <value>Derecho total con licencia en todas las categorÃ­as. Un valor de 0 significa no configurado.</value>
   </data>
   <data name="Msg_RestartRequired" xml:space="preserve">
-    <value>Se cambiaron una o más opciones de conexión. Reinicie la aplicación para que estos cambios surtan efecto.</value>
+    <value>Se cambiaron una o mÃ¡s opciones de conexiÃ³n. Reinicie la aplicaciÃ³n para que estos cambios surtan efecto.</value>
   </data>
   <data name="SaveSettings" xml:space="preserve">
-	<value>Guardar configuración</value>
+	<value>Guardar configuraciÃ³n</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
-	<value>No tiene permiso para ver o cambiar la configuración.</value>
+	<value>No tiene permiso para ver o cambiar la configuraciÃ³n.</value>
   </data>
   <data name="SystemSettingsReadOnly" xml:space="preserve">
-	<value>Puede ver esta configuración del sistema, pero no tiene permiso para cambiarla.</value>
+	<value>Puede ver esta configuraciÃ³n del sistema, pero no tiene permiso para cambiarla.</value>
   </data>
 </root>

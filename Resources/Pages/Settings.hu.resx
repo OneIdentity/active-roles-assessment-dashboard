@@ -1,102 +1,84 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
-	<value>text/microsoft-resx</value>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-	<value>2.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="LoadingDashboardData" xml:space="preserve">
-    <value>Irányítópult adatainak betöltése...</value>
+    <value>IrÃ¡nyÃ­tÃ³pult adatainak betÃ¶ltÃ©se...</value>
   </data>
   <data name="Card_WebInterface" xml:space="preserve">
 	<value>Active Roles Web Interface</value>
   </data>
   <data name="Card_AutoRefresh" xml:space="preserve">
-	<value>Automatikus frissítés</value>
+	<value>Automatikus frissÃ­tÃ©s</value>
   </data>
   <data name="Card_Language" xml:space="preserve">
 	<value>Nyelv</value>
   </data>
   <data name="Card_KpiConfiguration" xml:space="preserve">
-	<value>KPI konfiguráció</value>
+	<value>KPI konfigurÃ¡ciÃ³</value>
   </data>
   <data name="Card_RoleManagement" xml:space="preserve">
-	<value>Szerepkörkezelés</value>
+	<value>SzerepkÃ¶rkezelÃ©s</value>
   </data>
   <data name="RoleManagementHint" xml:space="preserve">
-	<value>Rendeljen jogosultságokat az egyes szerepkörökhöz. A szerepkörök és a jogosultságok rögzítettek. Az Irányítópult-rendszergazda szerepkör mindig teljes jogosultsággal rendelkezik, és nem módosítható.</value>
+	<value>Rendeljen jogosultsÃ¡gokat az egyes szerepkÃ¶rÃ¶khÃ¶z. A szerepkÃ¶rÃ¶k Ã©s a jogosultsÃ¡gok rÃ¶gzÃ­tettek. Az IrÃ¡nyÃ­tÃ³pult-rendszergazda szerepkÃ¶r mindig teljes jogosultsÃ¡ggal rendelkezik, Ã©s nem mÃ³dosÃ­thatÃ³.</value>
   </data>
   <data name="Col_Permission" xml:space="preserve">
-	<value>Jogosultság</value>
+	<value>JogosultsÃ¡g</value>
   </data>
   <data name="RoleFixedTooltip" xml:space="preserve">
-	<value>Az Irányítópult-rendszergazda szerepkör mindig teljes jogosultsággal rendelkezik, és nem módosítható.</value>
+	<value>Az IrÃ¡nyÃ­tÃ³pult-rendszergazda szerepkÃ¶r mindig teljes jogosultsÃ¡ggal rendelkezik, Ã©s nem mÃ³dosÃ­thatÃ³.</value>
   </data>
   <data name="Card_KpiVisibility" xml:space="preserve">
-	<value>KPI láthatóság</value>
+	<value>KPI lÃ¡thatÃ³sÃ¡g</value>
   </data>
   <data name="Label_BaseUrl" xml:space="preserve">
 	<value>Alap URL</value>
   </data>
   <data name="Hint_WebInterface" xml:space="preserve">
-	<value>Az Active Roles webes felület alap-URL-je. Ez a beállítás minden felhasználóra vonatkozik.</value>
+	<value>Az Active Roles webes felÃ¼let alap-URL-je. Ez a beÃ¡llÃ­tÃ¡s minden felhasznÃ¡lÃ³ra vonatkozik.</value>
   </data>
   <data name="Label_RefreshInterval" xml:space="preserve">
-	<value>Frissítési időköz (perc)</value>
+	<value>FrissÃ­tÃ©si idÅ‘kÃ¶z (perc)</value>
   </data>
   <data name="Hint_AutoRefresh" xml:space="preserve">
-	<value>Állítsa 0-ra az automatikus frissítés letiltásához.</value>
+	<value>ÃllÃ­tsa 0-ra az automatikus frissÃ­tÃ©s letiltÃ¡sÃ¡hoz.</value>
   </data>
   <data name="Label_DisplayLanguage" xml:space="preserve">
-	<value>Megjelenítési nyelv</value>
+	<value>MegjelenÃ­tÃ©si nyelv</value>
   </data>
   <data name="Hint_Language" xml:space="preserve">
-	<value>Az irányítópult felületéhez használt nyelv. Idővel további nyelvek kerülnek hozzáadásra.</value>
-  </data>
-  <data name="Label_ArAdminsBaseDn" xml:space="preserve">
-	<value>Active Roles rendszergazdák - Alap DN</value>
+	<value>Az irÃ¡nyÃ­tÃ³pult felÃ¼letÃ©hez hasznÃ¡lt nyelv. IdÅ‘vel tovÃ¡bbi nyelvek kerÃ¼lnek hozzÃ¡adÃ¡sra.</value>
   </data>
   <data name="Label_ArAdminsFilter" xml:space="preserve">
-	<value>Active Roles rendszergazdák - LDAP szűrő</value>
-  </data>
-  <data name="Label_NoGroupOwnerBaseDn" xml:space="preserve">
-	<value>Nincs csoporttulajdonos - Alap DN</value>
-  </data>
-  <data name="Label_NoManagerUserBaseDn" xml:space="preserve">
-	<value>Nincs vezető (Felhasználó) - Alap DN</value>
+	<value>Active Roles rendszergazdÃ¡k - LDAP szÅ±rÅ‘</value>
   </data>
   <data name="Label_NoManagerUserFilter" xml:space="preserve">
-	<value>Nincs vezető (Felhasználó) - LDAP szűrő</value>
-  </data>
-  <data name="Label_NoManagerSvcBaseDn" xml:space="preserve">
-	<value>Nincs vezető (Szolgáltatásfiók) - Alap DN</value>
+	<value>Nincs vezetÅ‘ (FelhasznÃ¡lÃ³) - LDAP szÅ±rÅ‘</value>
   </data>
   <data name="Label_NoManagerSvcFilter" xml:space="preserve">
-	<value>Nincs vezető (Szolgáltatásfiók) - LDAP szűrő</value>
-  </data>
-  <data name="Label_LockedOutBaseDn" xml:space="preserve">
-	<value>Zárolt felhasználói fiók - Alap DN</value>
-  </data>
-  <data name="Label_EmptyGroupsBaseDn" xml:space="preserve">
-	<value>Üres csoportok - Alap DN</value>
+	<value>Nincs vezetÅ‘ (SzolgÃ¡ltatÃ¡sfiÃ³k) - LDAP szÅ±rÅ‘</value>
   </data>
   <data name="Label_LargeGroupThreshold" xml:space="preserve">
-	<value>Nagy csoportok - Tagsági küszöbérték</value>
+	<value>Nagy csoportok - TagsÃ¡gi kÃ¼szÃ¶bÃ©rtÃ©k</value>
   </data>
   <data name="Hint_LargeGroupThreshold" xml:space="preserve">
-	<value>Azokat az Entra-csoportokat, amelyeknek legalább ennyi közvetlen tagjuk van, a Nagy csoportok KPI megjelöli. Alapértelmezett: 100.</value>
+	<value>Azokat az Entra-csoportokat, amelyeknek legalÃ¡bb ennyi kÃ¶zvetlen tagjuk van, a Nagy csoportok KPI megjelÃ¶li. AlapÃ©rtelmezett: 100.</value>
   </data>
   <data name="BackToDashboard" xml:space="preserve">
-	<value>Vissza az irányítópulthoz</value>
+	<value>Vissza az irÃ¡nyÃ­tÃ³pulthoz</value>
   </data>
   <data name="SaveSettings" xml:space="preserve">
-	<value>Beállítások mentése</value>
+	<value>BeÃ¡llÃ­tÃ¡sok mentÃ©se</value>
   </data>
 </root>
