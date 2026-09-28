@@ -127,6 +127,17 @@ public class SettingsModel : PageModel
     [BindProperty]
     public bool LoadOnStartup { get; set; }
 
+    // Performance Tests (automatic performance-trending sampler)
+    [BindProperty]
+    public bool PerfTrendingEnabled { get; set; }
+    [BindProperty]
+    public int PerfTrendingIntervalMinutes { get; set; }
+    [BindProperty]
+    public int PerfTrendingRetentionHours { get; set; }
+
+    /// <summary>Lowest sampling interval permitted, surfaced as the input minimum and hint.</summary>
+    public int PerfTrendingMinimumInterval => PerformanceTrendingConfig.MinimumIntervalMinutes;
+
     // Licensing Thresholds
     [BindProperty]
     public int LicensedDomainObjects { get; set; }
@@ -285,6 +296,11 @@ public class SettingsModel : PageModel
         DailyRefreshTime = config.DataRefresh.DailyRefreshTime;
         LoadOnStartup = config.DataRefresh.LoadOnStartup;
 
+        // Performance Tests (automatic performance-trending sampler)
+        PerfTrendingEnabled = config.PerformanceTrending.Enabled;
+        PerfTrendingIntervalMinutes = config.PerformanceTrending.SnapshotIntervalMinutes;
+        PerfTrendingRetentionHours = config.PerformanceTrending.RetentionHours;
+
         // Licensing Thresholds
         LicensedDomainObjects = config.Licensing.DomainObjects;
         LicensedPartitionObjects = config.Licensing.PartitionObjects;
@@ -320,6 +336,11 @@ public class SettingsModel : PageModel
         LicensedAzureObjects = Math.Max(0, LicensedAzureObjects);
         LicensedSaasObjects = Math.Max(0, LicensedSaasObjects);
         LicensedTotalObjects = Math.Max(0, LicensedTotalObjects);
+
+        // Clamp performance-trending settings. The sampler enforces a hard minimum interval
+        // (EffectiveIntervalMinutes) regardless; retention must be at least one hour.
+        PerfTrendingIntervalMinutes = Math.Max(PerformanceTrendingConfig.MinimumIntervalMinutes, PerfTrendingIntervalMinutes);
+        PerfTrendingRetentionHours = Math.Max(1, PerfTrendingRetentionHours);
 
         // Normalize the daily refresh time (HH:mm, 24-hour); fall back to the current value if invalid.
         if (!TimeSpan.TryParseExact((DailyRefreshTime ?? "").Trim(),
@@ -517,6 +538,17 @@ public class SettingsModel : PageModel
                 }
                 dataRefresh["DailyRefreshTime"] = DailyRefreshTime?.Trim() ?? "";
                 dataRefresh["LoadOnStartup"] = LoadOnStartup;
+
+                // Performance Tests (automatic performance-trending sampler) in its own section.
+                var perfTrending = activeRoles["PerformanceTrending"]?.AsObject();
+                if (perfTrending is null)
+                {
+                    perfTrending = new JsonObject();
+                    activeRoles["PerformanceTrending"] = perfTrending;
+                }
+                perfTrending["Enabled"] = PerfTrendingEnabled;
+                perfTrending["SnapshotIntervalMinutes"] = Math.Max(PerformanceTrendingConfig.MinimumIntervalMinutes, PerfTrendingIntervalMinutes);
+                perfTrending["RetentionHours"] = Math.Max(1, PerfTrendingRetentionHours);
 
                 // Service Account Credentials. The username is stored as-is; the password is
                 // encrypted via Data Protection and only overwritten when a new value is supplied

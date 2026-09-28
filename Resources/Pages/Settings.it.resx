@@ -138,8 +138,28 @@
   <data name="Card_Licensing" xml:space="preserve">
     <value>Soglie di licenza</value>
   </data>
-  <data name="Card_DataRefresh" xml:space="preserve">
-    <value>Aggiornamento dei dati</value>
+  <data name="Card_PerformanceTests" xml:space="preserve">
+    <value>Test delle prestazioni</value>
+  </data>
+  <data name="Label_PerfTrendingEnabled" xml:space="preserve">
+    <value>Acquisisci tendenze delle prestazioni</value>
+  </data>
+  <data name="Hint_PerfTrendingEnabled" xml:space="preserve">
+    <value>Se abilitato, l'account di servizio rileva periodicamente la latenza in background affinché le dashboard possano mostrare una tendenza delle prestazioni.</value>
+  </data>
+  <data name="Label_PerfTrendingInterval" xml:space="preserve">
+    <value>Intervallo di campionamento (minuti)</value>
+  </data>
+  <data name="Hint_PerfTrendingInterval" xml:space="preserve">
+    <value>Con quale frequenza vengono eseguiti i rilevamenti in background. Minimo {0} minuti per evitare traffico eccessivo.</value>
+  </data>
+  <data name="Label_PerfTrendingRetention" xml:space="preserve">
+    <value>Conservazione (ore)</value>
+  </data>
+  <data name="Hint_PerfTrendingRetention" xml:space="preserve">
+    <value>Per quanto tempo i campioni acquisiti vengono mantenuti in memoria e la finestra più ampia che il grafico delle tendenze può visualizzare.</value>
+  </data>
+  <data name="Card_DataRefresh" xml:space="preserve">    <value>Aggiornamento dei dati</value>
   </data>
   <data name="Label_DailyRefreshTime" xml:space="preserve">
     <value>Ora di aggiornamento giornaliero</value>

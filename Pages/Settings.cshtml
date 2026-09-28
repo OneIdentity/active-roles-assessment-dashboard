@@ -1019,6 +1019,36 @@
             </div>
         </div>
 
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_PerformanceTests"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <div class="form-group">
+                    <div class="toggle-row">
+                        <span class="toggle-label">@Localizer["Label_PerfTrendingEnabled"]</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="PerfTrendingEnabled" value="true" @(Model.PerfTrendingEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="PerfTrendingEnabled" value="false" />
+                    </div>
+                    <p class="hint">@Localizer["Hint_PerfTrendingEnabled"]</p>
+                </div>
+                <div class="form-group">
+                    <label for="PerfTrendingIntervalMinutes">@Localizer["Label_PerfTrendingInterval"]</label>
+                    <input type="number" id="PerfTrendingIntervalMinutes" name="PerfTrendingIntervalMinutes" min="@Model.PerfTrendingMinimumInterval" step="1" value="@Model.PerfTrendingIntervalMinutes" />
+                    <p class="hint">@string.Format(Localizer["Hint_PerfTrendingInterval"].Value, Model.PerfTrendingMinimumInterval)</p>
+                </div>
+                <div class="form-group">
+                    <label for="PerfTrendingRetentionHours">@Localizer["Label_PerfTrendingRetention"]</label>
+                    <input type="number" id="PerfTrendingRetentionHours" name="PerfTrendingRetentionHours" min="1" step="1" value="@Model.PerfTrendingRetentionHours" />
+                    <p class="hint">@Localizer["Hint_PerfTrendingRetention"]</p>
+                </div>
+            </div>
+        </div>
+
                 <div class="settings-card">
                     <div class="section-header collapsed" onclick="toggleSection(this)">
                         <h2>@Localizer["Card_RestApi"]</h2>
