@@ -611,6 +611,23 @@ public class ChartInfo
         ]
     };
 
+    // AD User Accounts category: hybrid (synced to Entra) vs on-prem-only is a true partition
+    // of the user total, so it renders as a donut (with the standard donut/column toggle).
+    public static readonly ChartInfo UserHybridStateBreakdown = new()
+    {
+        Key = "UserHybridStateBreakdown",
+        Title = "Users by Sync State",
+        CategoryKey = "ADUserAccountsCategory",
+        Type = ChartType.Doughnut,
+        SortOrder = 4,
+        SliceOffset = 0,
+        Series =
+        [
+            new() { KpiKey = "HybridUsers", CssColor = "teal" },
+            new() { KpiKey = "OnPremOnlyUsers", CssColor = "slate" }
+        ]
+    };
+
     // AD User Accounts category: remaining account options are overlapping subsets
     // (not a partition), so this is a column-only chart with the toggle disabled.
     public static readonly ChartInfo UserAccountOptions = new()
@@ -758,6 +775,23 @@ public class ChartInfo
         ]
     };
 
+    // Entra User Accounts category: hybrid (synced from AD) vs cloud-only is a true partition
+    // of the user total, so it renders as a donut with the standard donut/column toggle.
+    public static readonly ChartInfo EntraUserHybridStateBreakdown = new()
+    {
+        Key = "EntraUserHybridStateBreakdown",
+        Title = "Users by Sync State",
+        CategoryKey = "EntraUserAccounts",
+        Type = ChartType.Doughnut,
+        SortOrder = 2,
+        SliceOffset = 0,
+        Series =
+        [
+            new() { KpiKey = "EntraHybridUsers", CssColor = "teal" },
+            new() { KpiKey = "EntraCloudOnlyUsers", CssColor = "blue" }
+        ]
+    };
+
     // Entra Groups category: a breakdown of the group population by group type, rendered as a
     // donut (with the standard donut/column toggle), mirroring the AD Groups by Type chart.
     public static readonly ChartInfo EntraGroupTypeBreakdown = new()
@@ -830,11 +864,11 @@ public class ChartInfo
     [
         ComputerOsBreakdown,
         GroupTypeBreakdown,
-        UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserAccountOptions,
+        UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions,
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
         AdOverviewUsersChart, AdOverviewGroupsChart, AdOverviewComputersChart,
         EntraOverviewUsersChart, EntraOverviewGroupsChart,
-        EntraUserAccountStateBreakdown, EntraUserOriginBreakdown, EntraGroupTypeBreakdown,
+        EntraUserAccountStateBreakdown, EntraUserOriginBreakdown, EntraUserHybridStateBreakdown, EntraGroupTypeBreakdown,
         ExchangeMailboxTypeBreakdown, ExchangeGroupTypeBreakdown, ExchangeMailboxesByDomain
     ];
 
@@ -1354,6 +1388,8 @@ public class KpiInfo
     public static readonly KpiInfo EntraGuestUsers = new() { Key = "EntraGuestUsers", DisplayName = "Guest Users", CategoryKey = "EntraUserAccounts", CssColor = "orange", SectionId = "entraguestusers", SortOrder = 3, HasDrilldown = true };
     public static readonly KpiInfo EntraInternalUsers = new() { Key = "EntraInternalUsers", DisplayName = "Internal Users", CategoryKey = "EntraUserAccounts", CssColor = "teal", SectionId = "entrainternalusers", SortOrder = 4, HasDrilldown = true };
     public static readonly KpiInfo EntraExternalUsers = new() { Key = "EntraExternalUsers", DisplayName = "External Users", CategoryKey = "EntraUserAccounts", CssColor = "pink", SectionId = "entraexternalusers", SortOrder = 5, HasDrilldown = true };
+    public static readonly KpiInfo EntraHybridUsers = new() { Key = "EntraHybridUsers", DisplayName = "Hybrid Users", CategoryKey = "EntraUserAccounts", CssColor = "teal", SectionId = "entrahybridusers", SortOrder = 6, HasDrilldown = true };
+    public static readonly KpiInfo EntraCloudOnlyUsers = new() { Key = "EntraCloudOnlyUsers", DisplayName = "Cloud-Only Users", CategoryKey = "EntraUserAccounts", CssColor = "blue", SectionId = "entracloudonlyusers", SortOrder = 7, HasDrilldown = true };
     public static readonly KpiInfo EntraDistributionGroups = new() { Key = "EntraDistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "EntraGroups", CssColor = "blue", SectionId = "entradistributiongroups", SortOrder = 0, HasDrilldown = true };
     public static readonly KpiInfo EntraDynamicDistributionGroups = new() { Key = "EntraDynamicDistributionGroups", DisplayName = "Dynamic Distribution Groups", CategoryKey = "EntraGroups", CssColor = "teal", SectionId = "entradynamicdistributiongroups", SortOrder = 1, HasDrilldown = true };
     public static readonly KpiInfo EntraMicrosoft365Groups = new() { Key = "EntraMicrosoft365Groups", DisplayName = "Microsoft 365 Groups", CategoryKey = "EntraGroups", CssColor = "purple", SectionId = "entramicrosoft365groups", SortOrder = 2, HasDrilldown = true };
@@ -1432,6 +1468,9 @@ public class KpiInfo
     public static readonly KpiInfo ServiceAccounts = new() { Key = "ServiceAccounts", DisplayName = "Service Accounts", CategoryKey = "NHIs", CssColor = "teal", SectionId = "serviceaccounts", SortOrder = 21, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ServiceAccounts}", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo GmsaServiceAccounts = new() { Key = "GmsaServiceAccounts", DisplayName = "gMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "gmsaserviceaccounts", SortOrder = 22, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:GmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo SmsaServiceAccounts = new() { Key = "SmsaServiceAccounts", DisplayName = "sMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "smsaserviceaccounts", SortOrder = 23, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:SmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
+    // Hybrid identity KPIs (derived from shared ADUserAccounts search via msDS-ExternalDirectoryObjectId).
+    public static readonly KpiInfo HybridUsers = new() { Key = "HybridUsers", DisplayName = "Hybrid Users", CategoryKey = "ADUserAccountsCategory", CssColor = "teal", SectionId = "hybridusers", SortOrder = 24, HasDrilldown = true };
+    public static readonly KpiInfo OnPremOnlyUsers = new() { Key = "OnPremOnlyUsers", DisplayName = "On-Prem-Only Users", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "onpremonlyusers", SortOrder = 25, HasDrilldown = true };
 
     // AD Groups KPIs (derived from shared ADGroups search)
     public static readonly KpiInfo DistributionGroups = new() { Key = "DistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "distributiongroups", SortOrder = 0, HasDrilldown = true };
@@ -1519,14 +1558,14 @@ public class KpiInfo
         ADUserAccounts, ADGroups, Computers, MainTotalMailboxes,
         AdOverviewUsers, AdOverviewGroups, AdOverviewComputers,
         EntraOverviewUsers, EntraOverviewGroups,
-        EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers,
+        EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers, EntraHybridUsers, EntraCloudOnlyUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
         ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
         MustChangePassword, PasswordNotRequired, SmartCardRequired, CannotChangePassword,
-        DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts,
+        DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers,
         DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting,
         AdminCount,
         Sites, SiteLinks, Subnets, OUs, DomainControllers,
@@ -1716,6 +1755,8 @@ public class KpiSettings
     public bool DeprovisionedUsersEnabled { get; set; } = true;
     public bool SpnUserAccountsEnabled { get; set; } = true;
     public bool StaleUsersEnabled { get; set; } = true;
+    public bool HybridUsersEnabled { get; set; } = true;
+    public bool OnPremOnlyUsersEnabled { get; set; } = true;
     public bool ADGroupsEnabled { get; set; } = true;
     public bool ComputersEnabled { get; set; } = true;
     public bool DistributionGroupsEnabled { get; set; } = true;
@@ -1740,6 +1781,8 @@ public class KpiSettings
     public bool EntraGuestUsersEnabled { get; set; } = true;
     public bool EntraInternalUsersEnabled { get; set; } = true;
     public bool EntraExternalUsersEnabled { get; set; } = true;
+    public bool EntraHybridUsersEnabled { get; set; } = true;
+    public bool EntraCloudOnlyUsersEnabled { get; set; } = true;
     public bool EntraGroupsEnabled { get; set; } = true;
     public bool EntraDistributionGroupsEnabled { get; set; } = true;
     public bool EntraDynamicDistributionGroupsEnabled { get; set; } = true;
@@ -1862,12 +1905,16 @@ public class KpiSettings
             "ADUserAccounts" => ADUserAccountsEnabled,
             "EnabledUsers" => EnabledUsersEnabled,
             "DisabledUsers" => DisabledUsersEnabled,
+            "HybridUsers" => HybridUsersEnabled,
+            "OnPremOnlyUsers" => OnPremOnlyUsersEnabled,
             "EntraEnabledUsers" => EntraEnabledUsersEnabled,
             "EntraDisabledUsers" => EntraDisabledUsersEnabled,
             "EntraNoManagerUser" => EntraNoManagerUserEnabled,
             "EntraGuestUsers" => EntraGuestUsersEnabled,
             "EntraInternalUsers" => EntraInternalUsersEnabled,
             "EntraExternalUsers" => EntraExternalUsersEnabled,
+            "EntraHybridUsers" => EntraHybridUsersEnabled,
+            "EntraCloudOnlyUsers" => EntraCloudOnlyUsersEnabled,
             "EntraDistributionGroups" => EntraDistributionGroupsEnabled,
             "EntraDynamicDistributionGroups" => EntraDynamicDistributionGroupsEnabled,
             "EntraMicrosoft365Groups" => EntraMicrosoft365GroupsEnabled,
@@ -2051,6 +2098,8 @@ public class DashboardSummary
     public ADUserAccountDetailSummary DeprovisionedUsers { get; set; } = new();
     public ADUserAccountDetailSummary SpnUserAccounts { get; set; } = new();
     public ADUserAccountDetailSummary StaleUsers { get; set; } = new();
+    public ADUserAccountDetailSummary HybridUsers { get; set; } = new();
+    public ADUserAccountDetailSummary OnPremOnlyUsers { get; set; } = new();
     public ExpiringUsersSummary ExpiringUsers { get; set; } = new();
     public ADGroupsSummary ADGroups { get; set; } = new();
     public ComputersSummary Computers { get; set; } = new();
@@ -2296,6 +2345,8 @@ public class DashboardSummary
         "EntraGuestUsers" => (EntraTotals.CountFor(EntraObjectType.GuestUser), EntraTotals.Error),
         "EntraInternalUsers" => (EntraTotals.EntraUsersByOrigin(external: false).TotalCount, EntraTotals.Error),
         "EntraExternalUsers" => (EntraTotals.EntraUsersByOrigin(external: true).TotalCount, EntraTotals.Error),
+        "EntraHybridUsers" => (EntraTotals.EntraUsers(onPremSynced: true).TotalCount, EntraTotals.Error),
+        "EntraCloudOnlyUsers" => (EntraTotals.EntraUsers(onPremSynced: false).TotalCount, EntraTotals.Error),
         "EntraDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DistributionGroup), EntraTotals.Error),
         "EntraDynamicDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DynamicDistributionGroup), EntraTotals.Error),
         "EntraMicrosoft365Groups" => (EntraTotals.CountFor(EntraObjectType.Microsoft365Group), EntraTotals.Error),
@@ -2355,6 +2406,8 @@ public class DashboardSummary
         "AdminCount" => (AdminCount.TotalCount, AdminCount.Error),
         "EnabledUsers" => (EnabledUsers.TotalCount, EnabledUsers.Error),
         "DisabledUsers" => (DisabledUsers.TotalCount, DisabledUsers.Error),
+        "HybridUsers" => (HybridUsers.TotalCount, HybridUsers.Error),
+        "OnPremOnlyUsers" => (OnPremOnlyUsers.TotalCount, OnPremOnlyUsers.Error),
         "ExpiringUsers" => (ExpiringUsers.TotalCount, ExpiringUsers.Error),
         "PasswordNeverExpires" => (PasswordNeverExpires.TotalCount, PasswordNeverExpires.Error),
         "MustChangePassword" => (MustChangePassword.TotalCount, MustChangePassword.Error),
@@ -2522,6 +2575,14 @@ public class DashboardSummary
             Error = s.Error
         };
 
+        // AD hybrid user detail including the correlated Entra object id (Name / Domain / Distinguished Name / Synced To).
+        ReportTable? UserDetailSynced(ADUserAccountDetailSummary s) => new()
+        {
+            Columns = ["Name", "Domain", "Distinguished Name", "Synced To"],
+            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Domain, i.Dn, i.SyncedIdentity]).ToList(),
+            Error = s.Error
+        };
+
         // Governance-style detail summaries (Name / Domain / Distinguished Name).
         ReportTable? GovDetail(GovernanceKpiSummary s) => new()
         {
@@ -2554,6 +2615,14 @@ public class DashboardSummary
             Error = s.Error
         };
 
+        // Entra hybrid user-account detail, adds the Synced From column (source directory).
+        ReportTable? EntraUserDetailSynced(EntraUserDetailSummary s) => new()
+        {
+            Columns = ["Name", "Tenant", "Distinguished Name", "Enabled", "Synced From"],
+            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Tenant, i.Dn, i.Enabled.ToString(), i.SyncedIdentity]).ToList(),
+            Error = s.Error
+        };
+
         // Entra external user-account detail, adds the resolved Home Tenant column.
         ReportTable? EntraExternalUserDetail(EntraUserDetailSummary s) => new()
         {
@@ -2575,6 +2644,8 @@ public class DashboardSummary
             // AD User Accounts category (derived detail lists)
             "EnabledUsers" => UserDetail(EnabledUsers),
             "DisabledUsers" => UserDetail(DisabledUsers),
+            "HybridUsers" => UserDetailSynced(HybridUsers),
+            "OnPremOnlyUsers" => UserDetail(OnPremOnlyUsers),
             "MustChangePassword" => UserDetail(MustChangePassword),
             "PasswordNotRequired" => UserDetail(PasswordNotRequired),
             "SmartCardRequired" => UserDetail(SmartCardRequired),
@@ -2606,6 +2677,8 @@ public class DashboardSummary
             "EntraGuestUsers" => EntraUserDetail(EntraTotals.GuestUsers()),
             "EntraInternalUsers" => EntraUserDetail(EntraTotals.EntraUsersByOrigin(external: false)),
             "EntraExternalUsers" => EntraExternalUserDetail(EntraTotals.EntraUsersByOrigin(external: true)),
+            "EntraHybridUsers" => EntraUserDetailSynced(EntraTotals.EntraUsers(onPremSynced: true)),
+            "EntraCloudOnlyUsers" => EntraUserDetail(EntraTotals.EntraUsers(onPremSynced: false)),
 
             // Entra Groups category (derived from Entra group objects)
             "EntraDistributionGroups" => EntraGroupDetail(EntraTotals.EntraObjectsOf(EntraObjectType.DistributionGroup)),
@@ -2797,6 +2870,13 @@ public class ADUserAccountDetailInfo : IPermissionScoped
     public string Dn { get; set; } = string.Empty;
     public bool Enabled { get; set; }
     public string Description { get; set; } = string.Empty;
+
+    /// <summary>
+    /// For Hybrid (Entra-synced) AD users, the correlated Entra directory object id sourced
+    /// from <c>msDS-ExternalDirectoryObjectId</c> (e.g. <c>User_&lt;guid&gt;</c>), indicating where
+    /// the account is synced to. Empty for On-Prem-Only users.
+    /// </summary>
+    public string SyncedIdentity { get; set; } = string.Empty;
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
@@ -3429,6 +3509,13 @@ public class EntraUserDetailInfo
     /// Empty for internal users.
     /// </summary>
     public string HomeTenant { get; set; } = string.Empty;
+
+    /// <summary>
+    /// For Hybrid (on-premises synced) Entra users, an optional correlation value indicating
+    /// where the account is synced from. Populated best-effort and left empty when no
+    /// correlation identifier is loaded. Cloud-Only users are always empty.
+    /// </summary>
+    public string SyncedIdentity { get; set; } = string.Empty;
 }
 
 /// <summary>A derived detail list of Entra user accounts for a User Accounts KPI drilldown.</summary>
@@ -3850,7 +3937,7 @@ public class EntraTotalsSummary
     /// enabled (true) or disabled (false) accounts; when <paramref name="noManager"/> is
     /// true only users without a <c>manager</c> value are returned.
     /// </summary>
-    public EntraUserDetailSummary EntraUsers(bool? enabled = null, bool noManager = false)
+    public EntraUserDetailSummary EntraUsers(bool? enabled = null, bool noManager = false, bool? onPremSynced = null)
     {
         if (Error != null)
             return new EntraUserDetailSummary { Error = Error };
@@ -3868,12 +3955,17 @@ public class EntraTotalsSummary
                 if (!string.IsNullOrWhiteSpace(manager)) continue;
             }
 
+            var syncRaw = SegmentAttributes.AttrOf(u.Raw, "edsvaOnPremisesSyncEnabled");
+            var synced = string.Equals(syncRaw, "true", StringComparison.OrdinalIgnoreCase) || syncRaw == "1";
+            if (onPremSynced.HasValue && synced != onPremSynced.Value) continue;
+
             rows.Add(new EntraUserDetailInfo
             {
                 Name = u.Name,
                 Tenant = u.Tenant,
                 Dn = u.Dn,
-                Enabled = isEnabled
+                Enabled = isEnabled,
+                SyncedIdentity = synced ? "On-premises Active Directory" : string.Empty
             });
         }
 
