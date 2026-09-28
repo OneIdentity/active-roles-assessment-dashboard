@@ -1122,6 +1122,12 @@ public class ActiveRolesService
             tasks.Add(("ScriptModules", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScriptModules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
+        if (settings.IsKpiEnabled("ARConfiguration", "EntraManagedTenants"))
+        {
+            var t = GetEntraManagedTenantsAsync(token);
+            tasks.Add(("EntraManagedTenants", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EntraManagedTenants = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
         if (settings.IsKpiEnabled("Licensing", "ManagedObjects"))
         {
             var t = GetManagedObjectsAsync(token);
@@ -1731,6 +1737,76 @@ public class ActiveRolesService
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
+
+    /// <summary>
+    /// Builds the AR-Managed Entra Tenants inventory: enumerates the
+    /// <c>edsAzureTenantcontainer</c> objects directly under the Azure configuration base and,
+    /// for each tenant, counts the managed objects directly beneath the tenant container
+    /// (scope=one). Per-tenant count failures are isolated so a single unreadable tenant does
+    /// not fail the whole panel.
+    /// </summary>
+    public async Task<TenantSummary> GetEntraManagedTenantsAsync(string token)
+    {
+        var result = new TenantSummary();
+        try
+        {
+            var config = _configMonitor.CurrentValue;
+            var baseDn = config.DefaultAzureConfigurationDN;
+            if (string.IsNullOrWhiteSpace(baseDn))
+            {
+                result.Error = "No Azure configuration base DN is configured.";
+                return result;
+            }
+
+            var tenants = await SearchObjectsAsync(
+                token, baseDn, "(objectClass=edsAzureTenantcontainer)", "one", "name,distinguishedName");
+
+            var items = new List<TenantInfo>();
+            foreach (var t in tenants)
+            {
+                var name = GetAttr(t, "name");
+                var dn = GetAttr(t, "distinguishedName");
+                if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(dn))
+                    continue;
+
+                var info = new TenantInfo { Name = name, Dn = dn };
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(dn))
+                    {
+                        // Count ALL managed objects beneath the tenant container, not just the
+                        // direct children (scope=sub). The base object (the tenant container
+                        // itself) is excluded so the count reflects managed objects only.
+                        var children = await SearchObjectsAsync(
+                            token, dn, "(objectClass=*)", "sub", "name,distinguishedName");
+                        info.ObjectCount = children.Count(i =>
+                            !string.Equals(GetAttr(i, "distinguishedName"), dn, StringComparison.OrdinalIgnoreCase));
+                    }
+                    else
+                    {
+                        info.Note = "Tenant distinguished name unavailable; object count skipped.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    info.Note = $"Object count unavailable ({ex.GetType().Name}).";
+                }
+
+                items.Add(info);
+            }
+
+            result.Items = items
+                .OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            result.TotalCount = result.Items.Count;
+        }
+        catch (Exception ex)
+        {
+            result.Error = $"No data ({ex.GetType().Name}: {ex.Message})";
+        }
+        return result;
+    }
+
 
     /// <summary>
     /// Identifies the Entra object types that are groups, so group-specific attributes
