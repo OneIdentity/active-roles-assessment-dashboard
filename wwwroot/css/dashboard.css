@@ -96,6 +96,12 @@ tbody tr:hover { background: #f8fafc; }
 .btn-manage.disabled { color: #d1d5db; cursor: not-allowed; pointer-events: none; }
 .panel h2 .sec-tree-btn { margin-left: auto; }
 .type-pill { font-size: .73rem; background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; }
+.builtin-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.builtin-filter-label { font-size: .78rem; color: #6b7280; margin-right: 2px; }
+.builtin-filter-btn { font-size: .78rem; padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; color: #374151; cursor: pointer; }
+.builtin-filter-btn:hover { border-color: #9ca3af; }
+.builtin-filter-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+.builtin-subtotal { margin-left: auto; font-size: .78rem; color: #6b7280; }
 .muted { color: #9ca3af; font-style: italic; }
 .back-link { display: inline-block; margin-bottom: 18px; font-size: .82rem; color: #2563eb; text-decoration: none; }
 .sticky-head .rpt-header { margin-bottom: 16px; }

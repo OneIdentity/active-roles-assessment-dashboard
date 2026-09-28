@@ -425,12 +425,21 @@
                 }
                 else
                 {
-                    <table>
+                    var vaBuiltIn = Model.Summary.VirtualAttributes.Items.Count(x => x.IsBuiltIn);
+                    var vaCustom = Model.Summary.VirtualAttributes.Items.Count - vaBuiltIn;
+                    <div class="builtin-filter">
+                        <span class="builtin-filter-label">@Localizer["Filter_TypeLabel"]:</span>
+                        <button type="button" class="builtin-filter-btn active" data-filter="all" onclick="filterBuiltIn(this, 'tbl-virtualattrs')">@Localizer["Filter_All"]</button>
+                        <button type="button" class="builtin-filter-btn" data-filter="true" onclick="filterBuiltIn(this, 'tbl-virtualattrs')">@Localizer["Filter_BuiltIn"]</button>
+                        <button type="button" class="builtin-filter-btn" data-filter="false" onclick="filterBuiltIn(this, 'tbl-virtualattrs')">@Localizer["Filter_Custom"]</button>
+                        <span class="builtin-subtotal">@string.Format(Localizer["Subtotal_BuiltInCustom"].Value, Model.Summary.VirtualAttributes.Items.Count, vaBuiltIn, vaCustom)</span>
+                    </div>
+                    <table id="tbl-virtualattrs">
                         <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_LdapDisplayName"]</th><th>@Localizer["Col_Multivalued"]</th><th>@Localizer["Col_Type"]</th></tr></thead>
                         <tbody>
                         @foreach (var v in Model.Summary.VirtualAttributes.Items)
                         {
-                            <tr><td>@v.Name</td><td>@v.LdapDisplayName</td><td>@v.IsMultivalued</td><td>@Localizer[v.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
+                            <tr data-builtin="@(v.IsBuiltIn ? "true" : "false")"><td>@v.Name</td><td>@v.LdapDisplayName</td><td>@v.IsMultivalued</td><td>@Localizer[v.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
                         }
                         @if (!Model.Summary.VirtualAttributes.Items.Any())
                         {
@@ -512,12 +521,21 @@
                 }
                 else
                 {
-                    <table>
+                    var poBuiltIn = Model.Summary.PolicyObjects.Items.Count(x => x.IsBuiltIn);
+                    var poCustom = Model.Summary.PolicyObjects.Items.Count - poBuiltIn;
+                    <div class="builtin-filter">
+                        <span class="builtin-filter-label">@Localizer["Filter_TypeLabel"]:</span>
+                        <button type="button" class="builtin-filter-btn active" data-filter="all" onclick="filterBuiltIn(this, 'tbl-policies')">@Localizer["Filter_All"]</button>
+                        <button type="button" class="builtin-filter-btn" data-filter="true" onclick="filterBuiltIn(this, 'tbl-policies')">@Localizer["Filter_BuiltIn"]</button>
+                        <button type="button" class="builtin-filter-btn" data-filter="false" onclick="filterBuiltIn(this, 'tbl-policies')">@Localizer["Filter_Custom"]</button>
+                        <span class="builtin-subtotal">@string.Format(Localizer["Subtotal_BuiltInCustom"].Value, Model.Summary.PolicyObjects.Items.Count, poBuiltIn, poCustom)</span>
+                    </div>
+                    <table id="tbl-policies">
                         <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_Rules"]</th><th>@Localizer["Col_Type"]</th></tr></thead>
                         <tbody>
                         @foreach (var p in Model.Summary.PolicyObjects.Items)
                         {
-                            <tr><td>@p.Name</td><td class="dn-cell">@p.Dn</td><td>@p.RuleCount</td><td>@Localizer[p.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
+                            <tr data-builtin="@(p.IsBuiltIn ? "true" : "false")"><td>@p.Name</td><td class="dn-cell">@p.Dn</td><td>@p.RuleCount</td><td>@Localizer[p.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
                         }
                         @if (!Model.Summary.PolicyObjects.Items.Any())
                         {
@@ -541,12 +559,21 @@
                 }
                 else
                 {
-                    <table>
+                    var atBuiltIn = Model.Summary.AccessTemplates.Items.Count(x => x.IsBuiltIn);
+                    var atCustom = Model.Summary.AccessTemplates.Items.Count - atBuiltIn;
+                    <div class="builtin-filter">
+                        <span class="builtin-filter-label">@Localizer["Filter_TypeLabel"]:</span>
+                        <button type="button" class="builtin-filter-btn active" data-filter="all" onclick="filterBuiltIn(this, 'tbl-accesstemplates')">@Localizer["Filter_All"]</button>
+                        <button type="button" class="builtin-filter-btn" data-filter="true" onclick="filterBuiltIn(this, 'tbl-accesstemplates')">@Localizer["Filter_BuiltIn"]</button>
+                        <button type="button" class="builtin-filter-btn" data-filter="false" onclick="filterBuiltIn(this, 'tbl-accesstemplates')">@Localizer["Filter_Custom"]</button>
+                        <span class="builtin-subtotal">@string.Format(Localizer["Subtotal_BuiltInCustom"].Value, Model.Summary.AccessTemplates.Items.Count, atBuiltIn, atCustom)</span>
+                    </div>
+                    <table id="tbl-accesstemplates">
                         <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Parent"]</th><th>@Localizer["Col_Type"]</th></tr></thead>
                         <tbody>
                         @foreach (var a in Model.Summary.AccessTemplates.Items)
                         {
-                            <tr><td>@a.Name</td><td><span class="type-pill">@a.Parent</span></td><td>@Localizer[a.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
+                            <tr data-builtin="@(a.IsBuiltIn ? "true" : "false")"><td>@a.Name</td><td><span class="type-pill">@a.Parent</span></td><td>@Localizer[a.IsBuiltIn ? "Value_BuiltIn" : "Value_Custom"]</td></tr>
                         }
                         @if (!Model.Summary.AccessTemplates.Items.Any())
                         {
@@ -1038,6 +1065,18 @@
         category.classList.toggle('collapsed');
         btn.classList.toggle('collapsed');
         btn.title = category.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+    function filterBuiltIn(btn, tableId) {
+        var group = btn.parentElement;
+        group.querySelectorAll('.builtin-filter-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var filter = btn.getAttribute('data-filter');
+        var table = document.getElementById(tableId);
+        if (!table) return;
+        table.querySelectorAll('tbody tr[data-builtin]').forEach(function (row) {
+            var show = filter === 'all' || row.getAttribute('data-builtin') === filter;
+            row.style.display = show ? '' : 'none';
+        });
     }
 </script>
 </body>

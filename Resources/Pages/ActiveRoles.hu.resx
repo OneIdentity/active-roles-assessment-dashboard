@@ -68,6 +68,11 @@
   <data name="Value_On" xml:space="preserve"><value>Be</value></data>
   <data name="Value_Off" xml:space="preserve"><value>Ki</value></data>
   <data name="Value_BuiltIn" xml:space="preserve"><value>Beépített</value></data>
+  <data name="Filter_TypeLabel" xml:space="preserve"><value>Típus</value></data>
+  <data name="Filter_All" xml:space="preserve"><value>Mind</value></data>
+  <data name="Filter_BuiltIn" xml:space="preserve"><value>Beépített</value></data>
+  <data name="Filter_Custom" xml:space="preserve"><value>Felhasználói</value></data>
+  <data name="Subtotal_BuiltInCustom" xml:space="preserve"><value>{0} összesen — {1} beépített, {2} felhasználói</value></data>
   <data name="Value_Custom" xml:space="preserve"><value>Felhasználó</value></data>
   <data name="Col_Origin" xml:space="preserve"><value>Eredet</value></data>
   <data name="H_DbTopology" xml:space="preserve"><value>Adatbázis- és replikációs topológia</value></data>
