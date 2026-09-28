@@ -9,6 +9,8 @@
   <!-- Column headers (shared) -->
   <data name="Col_Name" xml:space="preserve"><value>Név</value></data>
   <data name="Col_DistinguishedName" xml:space="preserve"><value>Megkülönböztetett név</value></data>
+  <data name="Col_TenantObjectCount" xml:space="preserve"><value>Kezelt objektumok</value></data>
+  <data name="Empty_EntraManagedTenants" xml:space="preserve"><value>Nem található AR által kezelt Entra-bérlő</value></data>
   <data name="Col_Membership" xml:space="preserve"><value>Tagság</value></data>
   <data name="Col_DnsName" xml:space="preserve"><value>DNS név</value></data>
   <data name="Col_UseOverride" xml:space="preserve"><value>Felülbírálás használata</value></data>

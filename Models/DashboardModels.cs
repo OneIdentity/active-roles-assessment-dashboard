@@ -1423,6 +1423,10 @@ public class KpiInfo
     public static readonly KpiInfo DynamicGroupsBrokenRules = new() { Key = "DynamicGroupsBrokenRules", DisplayName = "Dynamic Groups With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "dynamicgroupsbrokenrules", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList" }] };
     public static readonly KpiInfo ManagedUnitsBrokenRules = new() { Key = "ManagedUnitsBrokenRules", DisplayName = "Managed Units With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "managedunitsbrokenrules", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
     public static readonly KpiInfo ScriptModules = new() { Key = "ScriptModules", DisplayName = "Script Modules", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "scriptmodules", SortOrder = 124, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Script Modules,CN=Configuration", Filter = "(objectClass=edsScriptModule)", Attributes = "name,distinguishedName,edsaScriptLanguage,edsaScriptType,edsaSystemObject,edsaIsPredefined" }] };
+    // Inventory of Entra/Azure tenants managed by Active Roles. The Azure configuration base DN
+    // is resolved at runtime from configuration (DefaultAzureConfigurationDN), so the search is
+    // driven by GetEntraManagedTenantsAsync rather than the generic ExecuteKpiSearchAsync path.
+    public static readonly KpiInfo EntraManagedTenants = new() { Key = "EntraManagedTenants", DisplayName = "AR-Managed Entra Tenants", CategoryKey = "ARConfiguration", CssColor = "indigo", SectionId = "entramanagedtenants", SortOrder = 125, HasDrilldown = true };
     public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
     public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
@@ -1560,7 +1564,7 @@ public class KpiInfo
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers, EntraHybridUsers, EntraCloudOnlyUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
-        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules,
+        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules, EntraManagedTenants,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
@@ -1716,6 +1720,7 @@ public class KpiSettings
     public bool DynamicGroupsBrokenRulesEnabled { get; set; } = true;
     public bool ManagedUnitsBrokenRulesEnabled { get; set; } = true;
     public bool ScriptModulesEnabled { get; set; } = true;
+    public bool EntraManagedTenantsEnabled { get; set; } = true;
     public bool ManagedObjectsEnabled { get; set; } = true;
 
     public bool NoGroupOwnerEnabled { get; set; } = true;
@@ -1880,6 +1885,7 @@ public class KpiSettings
             "DynamicGroupsBrokenRules" => DynamicGroupsBrokenRulesEnabled,
             "ManagedUnitsBrokenRules" => ManagedUnitsBrokenRulesEnabled,
             "ScriptModules" => ScriptModulesEnabled,
+            "EntraManagedTenants" => EntraManagedTenantsEnabled,
             "ManagedObjects" => ManagedObjectsEnabled,
             "NoGroupOwner" => NoGroupOwnerEnabled,
             "NeverLoggedIn" => NeverLoggedInEnabled,
@@ -2061,6 +2067,7 @@ public class DashboardSummary
     public BrokenRuleSummary DynamicGroupsBrokenRules { get; set; } = new();
     public BrokenRuleSummary ManagedUnitsBrokenRules { get; set; } = new();
     public ScriptModuleSummary ScriptModules { get; set; } = new();
+    public TenantSummary EntraManagedTenants { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
     public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
@@ -2383,6 +2390,7 @@ public class DashboardSummary
         "DynamicGroupsBrokenRules" => (DynamicGroupsBrokenRules.TotalCount, DynamicGroupsBrokenRules.Error),
         "ManagedUnitsBrokenRules" => (ManagedUnitsBrokenRules.TotalCount, ManagedUnitsBrokenRules.Error),
         "ScriptModules" => (ScriptModules.TotalCount, ScriptModules.Error),
+        "EntraManagedTenants" => (EntraManagedTenants.TotalCount, EntraManagedTenants.Error),
         "Workflows" => (Workflows.TotalCount, Workflows.Error),
         "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
         "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
@@ -3352,6 +3360,39 @@ public class PolicyObjectLinkInfo
     /// Empty when the link is healthy.
     /// </summary>
     public string MissingAttributes { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Inventory of the Entra/Azure tenants managed by Active Roles, discovered from the
+/// <c>edsAzureTenantcontainer</c> objects under the Azure configuration base.
+/// </summary>
+public class TenantSummary
+{
+    public int TotalCount { get; set; }
+    public List<TenantInfo> Items { get; set; } = new();
+    public string? Error { get; set; }
+}
+
+/// <summary>
+/// A single AR-managed Entra tenant, with the count of managed objects discovered
+/// directly beneath its tenant container (scope=one).
+/// </summary>
+public class TenantInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public string Dn { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Number of managed objects directly under the tenant container (scope=one).
+    /// Null when the per-tenant count could not be obtained.
+    /// </summary>
+    public int? ObjectCount { get; set; }
+
+    /// <summary>
+    /// Optional per-tenant diagnostic message (e.g. why the object count is unavailable).
+    /// Empty when the tenant was read successfully.
+    /// </summary>
+    public string Note { get; set; } = string.Empty;
 }
 
 public class BrokenRuleSummary

@@ -8,6 +8,8 @@
   <data name="BackToDashboard" xml:space="preserve"><value>Zurück zum Dashboard</value></data>
   <data name="Col_Name" xml:space="preserve"><value>Name</value></data>
   <data name="Col_DistinguishedName" xml:space="preserve"><value>Distinguished Name</value></data>
+  <data name="Col_TenantObjectCount" xml:space="preserve"><value>Verwaltete Objekte</value></data>
+  <data name="Empty_EntraManagedTenants" xml:space="preserve"><value>Keine von AR verwalteten Entra-Mandanten gefunden</value></data>
   <data name="Col_Membership" xml:space="preserve"><value>Mitgliedschaft</value></data>
   <data name="Col_DnsName" xml:space="preserve"><value>DNS-Name</value></data>
   <data name="Col_UseOverride" xml:space="preserve"><value>Außerkraftsetzung verwenden</value></data>

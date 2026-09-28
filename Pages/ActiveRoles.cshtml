@@ -753,16 +753,45 @@
                         }
                         @if (!Model.Summary.OrphanPolicyObjectLinks.Items.Any())
                         {
-                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_OrphanPolicyObjectLinks"]</td></tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-            </div>
-        </div>
-        }
+                                            <tr><td colspan="3" class="empty-row">@Localizer["Empty_OrphanPolicyObjectLinks"]</td></tr>
+                                            }
+                                            </tbody>
+                                        </table>
+                                    }
+                                </div>
+                            </div>
+                            }
 
-        @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroupsBrokenRules"))
+                            @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("ARConfiguration", "EntraManagedTenants"))
+                            {
+                            <div class="panel" id="panel-entramanagedtenants">
+                                <h2><span class="sec-icon">B</span> @KpiInfo.EntraManagedTenants.DisplayName</h2>
+                                <div class="panel-content">
+                                    @if (Model.Summary.EntraManagedTenants.Error != null)
+                                    {
+                                        <p class="muted">@Model.Summary.EntraManagedTenants.Error</p>
+                                    }
+                                            else
+                                            {
+                                                <table>
+                                                    <thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_DistinguishedName"]</th><th>@Localizer["Col_TenantObjectCount"]</th></tr></thead>
+                                                    <tbody>
+                                                    @foreach (var tenant in Model.Summary.EntraManagedTenants.Items)
+                                                    {
+                                                        <tr><td>@tenant.Name</td><td class="dn-cell">@tenant.Dn</td><td>@(string.IsNullOrWhiteSpace(tenant.Note) ? tenant.ObjectCount?.ToString() : tenant.Note)</td></tr>
+                                                    }
+                                                    @if (!Model.Summary.EntraManagedTenants.Items.Any())
+                                                    {
+                                                        <tr><td colspan="3" class="empty-row">@Localizer["Empty_EntraManagedTenants"]</td></tr>
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                        </div>
+                                    </div>
+                                    }
+
+                                    @if (Model.CanViewActiveRolesDashboard && Model.KpiSettings.IsKpiEnabled("Configuration", "DynamicGroupsBrokenRules"))
         {
         <div class="panel" id="panel-dynamicgroupsbrokenrules">
             <h2><span class="sec-icon">B</span> @KpiInfo.DynamicGroupsBrokenRules.DisplayName</h2>

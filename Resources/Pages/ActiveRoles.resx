@@ -50,6 +50,8 @@
   <data name="Label_LanguageBreakdown" xml:space="preserve"><value>By language</value></data>
   <data name="Empty_OrphanAccessTemplateLinks" xml:space="preserve"><value>No orphaned access template links found</value></data>
   <data name="Empty_OrphanPolicyObjectLinks" xml:space="preserve"><value>No orphaned policy object links found</value></data>
+  <data name="Col_TenantObjectCount" xml:space="preserve"><value>Managed Objects</value></data>
+  <data name="Empty_EntraManagedTenants" xml:space="preserve"><value>No AR-managed Entra tenants found</value></data>
   <data name="Empty_DynamicGroupsBrokenRules" xml:space="preserve"><value>No dynamic groups with broken rules found</value></data>
   <data name="Empty_ManagedUnitsBrokenRules" xml:space="preserve"><value>No managed units with broken rules found</value></data>
   <data name="Empty_ScriptModules" xml:space="preserve"><value>No script modules found</value></data>

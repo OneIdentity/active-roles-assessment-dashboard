@@ -8,6 +8,8 @@
   <data name="BackToDashboard" xml:space="preserve"><value>Torna al dashboard</value></data>
   <data name="Col_Name" xml:space="preserve"><value>Nome</value></data>
   <data name="Col_DistinguishedName" xml:space="preserve"><value>Nome distinto</value></data>
+  <data name="Col_TenantObjectCount" xml:space="preserve"><value>Oggetti gestiti</value></data>
+  <data name="Empty_EntraManagedTenants" xml:space="preserve"><value>Nessun tenant Entra gestito da AR trovato</value></data>
   <data name="Col_Membership" xml:space="preserve"><value>Appartenenza</value></data>
   <data name="Col_DnsName" xml:space="preserve"><value>Nome DNS</value></data>
   <data name="Col_UseOverride" xml:space="preserve"><value>Usa override</value></data>

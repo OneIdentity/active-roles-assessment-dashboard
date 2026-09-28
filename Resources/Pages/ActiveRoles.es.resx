@@ -8,6 +8,8 @@
   <data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
   <data name="Col_Name" xml:space="preserve"><value>Nombre</value></data>
   <data name="Col_DistinguishedName" xml:space="preserve"><value>Nombre distintivo</value></data>
+  <data name="Col_TenantObjectCount" xml:space="preserve"><value>Objetos administrados</value></data>
+  <data name="Empty_EntraManagedTenants" xml:space="preserve"><value>No se encontraron inquilinos de Entra administrados por AR</value></data>
   <data name="Col_Membership" xml:space="preserve"><value>Pertenencia</value></data>
   <data name="Col_DnsName" xml:space="preserve"><value>Nombre DNS</value></data>
   <data name="Col_UseOverride" xml:space="preserve"><value>Usar reemplazo</value></data>
