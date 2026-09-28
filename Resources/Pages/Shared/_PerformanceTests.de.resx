@@ -15,6 +15,13 @@
   <data name="PerfTests_NoResults" xml:space="preserve"><value>Keine Ergebnisse zum Anzeigen.</value></data>
   <data name="PerfTests_Running" xml:space="preserve"><value>Tests werden ausgeführt…</value></data>
   <data name="PerfTests_ChartTitle" xml:space="preserve"><value>Latenz pro Test (ms)</value></data>
+  <data name="PerfTrend_Title" xml:space="preserve"><value>Leistungstrend</value></data>
+  <data name="PerfTrend_Intro" xml:space="preserve"><value>Latenz wird automatisch im Hintergrund erfasst, während das Dashboard läuft.</value></data>
+  <data name="PerfTrend_Period" xml:space="preserve"><value>Zeitraum</value></data>
+  <data name="PerfTrend_Last1h" xml:space="preserve"><value>Letzte Stunde</value></data>
+  <data name="PerfTrend_Last6h" xml:space="preserve"><value>Letzte 6 Stunden</value></data>
+  <data name="PerfTrend_Last24h" xml:space="preserve"><value>Letzte 24 Stunden</value></data>
+  <data name="PerfTrend_Empty" xml:space="preserve"><value>Noch keine Trenddaten erfasst. Daten erscheinen nach der ersten Hintergrundmessung.</value></data>
   <data name="PerfTest_Ping" xml:space="preserve"><value>Ping / TCP</value></data>
   <data name="PerfTest_LdapBind" xml:space="preserve"><value>LDAP-Bindung</value></data>
   <data name="PerfTest_RestGet" xml:space="preserve"><value>REST-API</value></data>

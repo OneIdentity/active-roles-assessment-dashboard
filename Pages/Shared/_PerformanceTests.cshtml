@@ -103,5 +103,23 @@
                 <canvas id="perf-chart"></canvas>
             </div>
         </div>
+
+        <div id="perf-trend-wrap" class="perf-trend-wrap" data-perf-dashboard="@perfDashboard"
+             data-trend-empty="@Localizer["PerfTrend_Empty"]">
+            <div class="perf-trend-header">
+                <h3 class="perf-chart-title">@Localizer["PerfTrend_Title"]</h3>
+                <label class="perf-trend-period">
+                    <span class="perf-label">@Localizer["PerfTrend_Period"]</span>
+                    <select id="perf-trend-period" class="perf-select">
+                        <option value="1">@Localizer["PerfTrend_Last1h"]</option>
+                        <option value="6">@Localizer["PerfTrend_Last6h"]</option>
+                        <option value="24" selected>@Localizer["PerfTrend_Last24h"]</option>
+                    </select>
+                </label>
+            </div>
+            <p class="muted">@Localizer["PerfTrend_Intro"]</p>
+            <div id="perf-trend-charts" class="perf-trend-charts"></div>
+            <p id="perf-trend-empty" class="muted hidden">@Localizer["PerfTrend_Empty"]</p>
+        </div>
     </div>
 </details>

@@ -451,6 +451,12 @@ tr.delta-removed td:first-child { border-left: 3px solid #9ca3af; }
 #panel-performancetests .perf-label { font-size: .78rem; font-weight: 600; color: #6b7280; }
 #panel-performancetests .perf-select { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .85rem; background: #fff; color: #374151; min-width: 160px; }
 #panel-performancetests .perf-select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+#panel-performancetests .perf-trend-wrap { margin-top: 20px; }
+#panel-performancetests .perf-trend-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+#panel-performancetests .perf-trend-period { display: flex; align-items: center; gap: 8px; }
+#panel-performancetests .perf-trend-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-top: 12px; }
+#panel-performancetests .perf-trend-chart-block { min-width: 0; }
+#panel-performancetests .perf-trend-chart-heading { margin: 0 0 6px; font-size: .85rem; font-weight: 600; color: #374151; }
 #panel-performancetests #perf-status { font-style: normal; font-weight: 600; color: #374151; }
 #panel-performancetests .perf-target-item { font-size: .85rem; color: #374151; display: flex; align-items: center; gap: 6px; }
 

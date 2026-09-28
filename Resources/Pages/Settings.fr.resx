@@ -138,8 +138,28 @@
   <data name="Card_Licensing" xml:space="preserve">
     <value>Seuils de licence</value>
   </data>
-  <data name="Card_DataRefresh" xml:space="preserve">
-    <value>Actualisation des donnÃ©es</value>
+  <data name="Card_PerformanceTests" xml:space="preserve">
+    <value>Tests de performance</value>
+  </data>
+  <data name="Label_PerfTrendingEnabled" xml:space="preserve">
+    <value>Capturer les tendances de performance</value>
+  </data>
+  <data name="Hint_PerfTrendingEnabled" xml:space="preserve">
+    <value>Lorsqu'il est activé, le compte de service mesure périodiquement la latence en arrière-plan afin que les tableaux de bord puissent afficher une tendance de performance.</value>
+  </data>
+  <data name="Label_PerfTrendingInterval" xml:space="preserve">
+    <value>Intervalle d'échantillonnage (minutes)</value>
+  </data>
+  <data name="Hint_PerfTrendingInterval" xml:space="preserve">
+    <value>Fréquence d'exécution des sondes en arrière-plan. Minimum {0} minutes pour éviter un trafic excessif.</value>
+  </data>
+  <data name="Label_PerfTrendingRetention" xml:space="preserve">
+    <value>Conservation (heures)</value>
+  </data>
+  <data name="Hint_PerfTrendingRetention" xml:space="preserve">
+    <value>Durée de conservation des échantillons en mémoire et fenêtre la plus large que le graphique de tendance peut afficher.</value>
+  </data>
+  <data name="Card_DataRefresh" xml:space="preserve">    <value>Actualisation des donnÃ©es</value>
   </data>
   <data name="Label_DailyRefreshTime" xml:space="preserve">
     <value>Heure d'actualisation quotidienne</value>

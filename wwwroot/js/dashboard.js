@@ -1318,6 +1318,132 @@ initCategoryCharts();
     // the full (filter-scoped) set. Test-type selection is applied client-side.
     runBtn.addEventListener('click', () => run(selectedTargetIds()));
 
+    // -----------------------------------------------------------------------
+    // Performance trend chart: latency over the app's running time, captured
+    // automatically by the background sampler. The period dropdown selects the
+    // view window (client-side request against the retained in-memory series).
+    // -----------------------------------------------------------------------
+    (function initTrendChart() {
+        const trendWrap = document.getElementById('perf-trend-wrap');
+        const chartsHost = document.getElementById('perf-trend-charts');
+        const periodSel = document.getElementById('perf-trend-period');
+        const trendEmpty = document.getElementById('perf-trend-empty');
+        if (!trendWrap || !chartsHost || !periodSel || typeof Chart === 'undefined') return;
+
+        const emptyText = trendWrap.getAttribute('data-trend-empty') || 'No trend data yet.';
+        const palette = [
+            '#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed',
+            '#0891b2', '#db2777', '#65a30d', '#ea580c', '#4b5563'
+        ];
+        // One Chart instance per test type, keyed by test type name.
+        let charts = new Map();
+
+        function timeLabel(iso) {
+            const d = new Date(iso);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function destroyCharts() {
+            charts.forEach(c => c.destroy());
+            charts.clear();
+            chartsHost.innerHTML = '';
+        }
+
+        function render(payload) {
+            const series = (payload && payload.series) || [];
+            destroyCharts();
+
+            if (!series.length) {
+                chartsHost.classList.add('hidden');
+                trendEmpty.classList.remove('hidden');
+                trendEmpty.textContent = emptyText;
+                return;
+            }
+            chartsHost.classList.remove('hidden');
+            trendEmpty.classList.add('hidden');
+
+            // Group series by test type so each test type gets its own compact line chart
+            // (lines within a chart correspond to the individual targets).
+            const groups = new Map();
+            series.forEach(s => {
+                if (!groups.has(s.testType)) groups.set(s.testType, []);
+                groups.get(s.testType).push(s);
+            });
+
+            [...groups.keys()].sort().forEach(testType => {
+                const groupSeries = groups.get(testType);
+
+                // Unified, sorted timestamp axis across this test type's series (category scale,
+                // no date-adapter dependency), then align each target's samples to it.
+                const stampSet = new Set();
+                groupSeries.forEach(s => s.samples.forEach(sample => stampSet.add(sample.timestampUtc)));
+                const stamps = [...stampSet].sort();
+                const labels = stamps.map(timeLabel);
+                const indexOf = new Map(stamps.map((t, i) => [t, i]));
+
+                const datasets = groupSeries.map((s, i) => {
+                    const color = palette[i % palette.length];
+                    const row = new Array(stamps.length).fill(null);
+                    s.samples.forEach(sample => {
+                        const idx = indexOf.get(sample.timestampUtc);
+                        if (idx !== undefined) row[idx] = sample.latencyMs === null ? null : sample.latencyMs;
+                    });
+                    return {
+                        label: s.targetName,
+                        data: row,
+                        borderColor: color,
+                        backgroundColor: color,
+                        tension: 0.25,
+                        pointRadius: 2,
+                        spanGaps: true
+                    };
+                });
+
+                // Build the per-test-type block: heading + canvas.
+                const block = document.createElement('div');
+                block.className = 'perf-trend-chart-block';
+                const heading = document.createElement('h4');
+                heading.className = 'perf-trend-chart-heading';
+                heading.textContent = testType;
+                const box = document.createElement('div');
+                box.className = 'perf-chart-canvas-box';
+                const canvas = document.createElement('canvas');
+                box.appendChild(canvas);
+                block.appendChild(heading);
+                block.appendChild(box);
+                chartsHost.appendChild(block);
+
+                const chart = new Chart(canvas, {
+                    type: 'line',
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: true } },
+                        scales: {
+                            y: { min: 0, title: { display: true, text: latencyAxisText } }
+                        }
+                    }
+                });
+                charts.set(testType, chart);
+            });
+        }
+
+        function load() {
+            const hours = encodeURIComponent(periodSel.value || '24');
+            fetch('/api/diagnostics/trends?dashboard=' + encodeURIComponent(dashboard) + '&periodHours=' + hours,
+                { credentials: 'same-origin' })
+                .then(r => r.ok ? r.json() : null)
+                .then(payload => { if (payload) render(payload); })
+                .catch(() => { /* leave existing charts; sampler may not have data yet */ });
+        }
+
+        periodSel.addEventListener('change', load);
+        // Refresh periodically so newly captured samples appear without a page reload.
+        load();
+        setInterval(load, 60000);
+    })();
+
     loadTargets();
 })();
 

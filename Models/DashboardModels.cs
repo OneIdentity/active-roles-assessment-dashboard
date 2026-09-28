@@ -1032,6 +1032,10 @@ public class ActiveRolesConfig
     // because it concerns the refresh schedule, not the collection credentials.
     public DataRefreshConfig DataRefresh { get; set; } = new();
 
+    // Automatic, interval-based capture of performance-probe latency for trend charts.
+    // Collection reuses the service-account identity; samples are held in memory only.
+    public PerformanceTrendingConfig PerformanceTrending { get; set; } = new();
+
     // Role/permission model. The per-role permission assignments are stored ENCRYPTED as a
     // single Data-Protection blob (see RoleService); the fixed roles/permissions themselves are
     // defined in code (RolePermissionRegistry) and cannot be added to or removed.
@@ -1112,6 +1116,46 @@ public class DataRefreshConfig
     /// Whether the superset should be (re)loaded automatically at application startup.
     /// </summary>
     public bool LoadOnStartup { get; set; } = true;
+}
+
+/// <summary>
+/// Options for the automatic performance-trending sampler. A background service captures
+/// diagnostics-probe latency for each dashboard on a fixed interval, using the same
+/// service-account identity as the superset loader, and retains the samples in an in-memory
+/// ring buffer (no persistence). The chart period dropdown is a client-side view window over
+/// the retained data.
+/// </summary>
+public class PerformanceTrendingConfig
+{
+    /// <summary>
+    /// Master switch for automatic performance sampling. When false, no background probes run
+    /// and the trend charts render empty.
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// How often (in minutes) the background sampler runs probes against all eligible targets.
+    /// Because each sample is a set of live network probes (not superset-derived), a sensible
+    /// minimum is enforced by <see cref="EffectiveIntervalMinutes"/> to avoid hammering targets.
+    /// </summary>
+    public int SnapshotIntervalMinutes { get; set; } = 15;
+
+    /// <summary>
+    /// How long (in hours) captured samples are retained in memory. This bounds the ring buffer
+    /// and is the maximum window the chart period dropdown can display.
+    /// </summary>
+    public int RetentionHours { get; set; } = 24;
+
+    /// <summary>Lowest interval permitted, guarding against excessive probe traffic.</summary>
+    public const int MinimumIntervalMinutes = 5;
+
+    /// <summary>The sampling interval clamped to <see cref="MinimumIntervalMinutes"/>.</summary>
+    public int EffectiveIntervalMinutes =>
+        SnapshotIntervalMinutes < MinimumIntervalMinutes ? MinimumIntervalMinutes : SnapshotIntervalMinutes;
+
+    /// <summary>The retention window as a <see cref="TimeSpan"/>, never less than one interval.</summary>
+    public TimeSpan RetentionWindow =>
+        TimeSpan.FromHours(RetentionHours <= 0 ? 1 : RetentionHours);
 }
 
 /// <summary>

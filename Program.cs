@@ -128,6 +128,11 @@ builder.Services.AddSingleton<FilterValidationHarness>();
 builder.Services.AddSingleton<SupersetLoaderHostedService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SupersetLoaderHostedService>());
 
+// In-memory performance-trend samples + the background sampler that captures them on an interval
+// using the service-account identity (mirrors the superset loader).
+builder.Services.AddSingleton<PerformanceTrendStore>();
+builder.Services.AddHostedService<PerformanceSamplerHostedService>();
+
 // Reporting / export services.
 builder.Services.AddSingleton<ReportBuilder>();
 builder.Services.AddSingleton<AssessmentReportBuilder>();

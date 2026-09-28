@@ -138,6 +138,27 @@
   <data name="Card_Licensing" xml:space="preserve">
     <value>Umbrales de licencia</value>
   </data>
+  <data name="Card_PerformanceTests" xml:space="preserve">
+    <value>Pruebas de rendimiento</value>
+  </data>
+  <data name="Label_PerfTrendingEnabled" xml:space="preserve">
+    <value>Capturar tendencias de rendimiento</value>
+  </data>
+  <data name="Hint_PerfTrendingEnabled" xml:space="preserve">
+    <value>Cuando está habilitado, la cuenta de servicio sondea periódicamente la latencia en segundo plano para que los paneles muestren una tendencia de rendimiento.</value>
+  </data>
+  <data name="Label_PerfTrendingInterval" xml:space="preserve">
+    <value>Intervalo de muestreo (minutos)</value>
+  </data>
+  <data name="Hint_PerfTrendingInterval" xml:space="preserve">
+    <value>Con qué frecuencia se ejecutan los sondeos en segundo plano. Mínimo {0} minutos para evitar tráfico excesivo.</value>
+  </data>
+  <data name="Label_PerfTrendingRetention" xml:space="preserve">
+    <value>Retención (horas)</value>
+  </data>
+  <data name="Hint_PerfTrendingRetention" xml:space="preserve">
+    <value>Cuánto tiempo se conservan en memoria las muestras capturadas y la ventana más amplia que puede mostrar el gráfico de tendencia.</value>
+  </data>
   <data name="Card_DataRefresh" xml:space="preserve">
     <value>ActualizaciÃ³n de datos</value>
   </data>

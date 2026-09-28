@@ -3,6 +3,7 @@ using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ActiveRolesDashboard.Controllers;
 
@@ -19,17 +20,23 @@ public class DiagnosticsController : ControllerBase
     private readonly DiagnosticsTargetProvider _targetProvider;
     private readonly PerUserSummaryCache _summaryCache;
     private readonly RoleService _roleService;
+    private readonly PerformanceTrendStore _trendStore;
+    private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
 
     public DiagnosticsController(
         DiagnosticsService diagnostics,
         DiagnosticsTargetProvider targetProvider,
         PerUserSummaryCache summaryCache,
-        RoleService roleService)
+        RoleService roleService,
+        PerformanceTrendStore trendStore,
+        IOptionsMonitor<ActiveRolesConfig> arConfig)
     {
         _diagnostics = diagnostics;
         _targetProvider = targetProvider;
         _summaryCache = summaryCache;
         _roleService = roleService;
+        _trendStore = trendStore;
+        _arConfig = arConfig;
     }
 
     /// <summary>
@@ -66,6 +73,50 @@ public class DiagnosticsController : ControllerBase
                 applicableTests = t.ApplicableTests.Select(x => x.ToString())
             });
         return Ok(targets);
+    }
+
+    /// <summary>
+    /// Returns the retained performance-trend series for a dashboard, for rendering the trend
+    /// chart. Gated by the same per-dashboard performance permission as the live tests. The
+    /// optional <paramref name="periodHours"/> narrows the view window (clamped to the configured
+    /// retention); when omitted the full retention window is returned.
+    /// </summary>
+    [HttpGet("trends")]
+    public IActionResult GetTrends([FromQuery] DiagnosticsDashboard dashboard, [FromQuery] int? periodHours)
+    {
+        if (!CallerCanRunPerformanceTests(dashboard))
+            return Forbid();
+
+        var options = _arConfig.CurrentValue.PerformanceTrending;
+        var retention = options.RetentionWindow;
+
+        // The requested window may not exceed what is retained.
+        var window = retention;
+        if (periodHours is > 0)
+        {
+            var requested = TimeSpan.FromHours(periodHours.Value);
+            if (requested < retention)
+                window = requested;
+        }
+
+        var series = _trendStore.GetSeries(dashboard, window);
+
+        var response = new PerformanceTrendResponse
+        {
+            Dashboard = dashboard,
+            IntervalMinutes = options.EffectiveIntervalMinutes,
+            RetentionHours = options.RetentionHours,
+            Series = series.ToList()
+        };
+
+        var allSamples = series.SelectMany(s => s.Samples).ToList();
+        if (allSamples.Count > 0)
+        {
+            response.OldestSampleUtc = allSamples.Min(s => s.TimestampUtc);
+            response.NewestSampleUtc = allSamples.Max(s => s.TimestampUtc);
+        }
+
+        return Ok(response);
     }
 
     /// <summary>Runs diagnostics for a dashboard, honouring optional server-type / test-type / target filters.</summary>

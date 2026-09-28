@@ -150,6 +150,27 @@
   <data name="Card_DataRefresh" xml:space="preserve">
 	<value>Datenaktualisierung</value>
   </data>
+  <data name="Card_PerformanceTests" xml:space="preserve">
+	<value>Leistungstests</value>
+  </data>
+  <data name="Label_PerfTrendingEnabled" xml:space="preserve">
+	<value>Leistungstrends erfassen</value>
+  </data>
+  <data name="Hint_PerfTrendingEnabled" xml:space="preserve">
+	<value>Wenn aktiviert, misst das Dienstkonto regelmäßig im Hintergrund die Latenz, damit die Dashboards einen Leistungstrend anzeigen können.</value>
+  </data>
+  <data name="Label_PerfTrendingInterval" xml:space="preserve">
+	<value>Abtastintervall (Minuten)</value>
+  </data>
+  <data name="Hint_PerfTrendingInterval" xml:space="preserve">
+	<value>Wie oft Hintergrundmessungen ausgeführt werden. Mindestens {0} Minuten, um übermäßigen Datenverkehr zu vermeiden.</value>
+  </data>
+  <data name="Label_PerfTrendingRetention" xml:space="preserve">
+	<value>Aufbewahrung (Stunden)</value>
+  </data>
+  <data name="Hint_PerfTrendingRetention" xml:space="preserve">
+	<value>Wie lange erfasste Messwerte im Speicher gehalten werden und das größte Fenster, das das Trenddiagramm anzeigen kann.</value>
+  </data>
   <data name="Label_DailyRefreshTime" xml:space="preserve">
 	<value>TÃ¤gliche Aktualisierungszeit</value>
   </data>
