@@ -11,16 +11,21 @@
   <data name="Col_Dn" xml:space="preserve"><value>Distinguished Name</value></data>
   <data name="Col_Enabled" xml:space="preserve"><value>Enabled</value></data>
   <data name="Col_HomeTenant" xml:space="preserve"><value>Saját bérlő</value></data>
+  <data name="Col_SyncedFrom" xml:space="preserve"><value>Szinkronizálva innen</value></data>
   <data name="H_EnabledUsers" xml:space="preserve"><value>Engedélyezett felhasználók</value></data>
   <data name="H_DisabledUsers" xml:space="preserve"><value>Letiltott felhasználók</value></data>
   <data name="H_NoManagerUser" xml:space="preserve"><value>Nincs vezető (Felhasználó)</value></data>
   <data name="H_GuestUsers" xml:space="preserve"><value>Vendég felhasználók</value></data>
   <data name="H_InternalUsers" xml:space="preserve"><value>Belső felhasználók</value></data>
   <data name="H_ExternalUsers" xml:space="preserve"><value>Külső felhasználók</value></data>
+  <data name="H_HybridUsers" xml:space="preserve"><value>Hibrid felhasználók</value></data>
+  <data name="H_CloudOnlyUsers" xml:space="preserve"><value>Csak felhői felhasználók</value></data>
   <data name="E_EnabledUsers" xml:space="preserve"><value>Nem található engedélyezett felhasználó</value></data>
   <data name="E_DisabledUsers" xml:space="preserve"><value>Nem található letiltott felhasználó</value></data>
   <data name="E_NoManagerUser" xml:space="preserve"><value>Nem található vezető nélküli felhasználó</value></data>
   <data name="E_GuestUsers" xml:space="preserve"><value>Nem található vendég felhasználó</value></data>
   <data name="E_InternalUsers" xml:space="preserve"><value>Nem található belső felhasználó</value></data>
   <data name="E_ExternalUsers" xml:space="preserve"><value>Nem található külső felhasználó</value></data>
+  <data name="E_HybridUsers" xml:space="preserve"><value>Nem található hibrid felhasználó</value></data>
+  <data name="E_CloudOnlyUsers" xml:space="preserve"><value>Nem található csak felhői felhasználó</value></data>
 </root>

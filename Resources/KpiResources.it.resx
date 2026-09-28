@@ -59,6 +59,12 @@
   <data name="Kpi_EntraGuestUsers" xml:space="preserve"><value>Utenti guest</value></data>
   <data name="Kpi_EntraInternalUsers" xml:space="preserve"><value>Utenti interni</value></data>
   <data name="Kpi_EntraExternalUsers" xml:space="preserve"><value>Utenti esterni</value></data>
+  <data name="Kpi_HybridUsers" xml:space="preserve"><value>Utenti ibridi</value></data>
+  <data name="Kpi_OnPremOnlyUsers" xml:space="preserve"><value>Utenti solo locali</value></data>
+  <data name="Kpi_EntraHybridUsers" xml:space="preserve"><value>Utenti ibridi</value></data>
+  <data name="Kpi_EntraCloudOnlyUsers" xml:space="preserve"><value>Utenti solo cloud</value></data>
+  <data name="Chart_UserHybridStateBreakdown" xml:space="preserve"><value>Utenti per stato di sincronizzazione</value></data>
+  <data name="Chart_EntraUserHybridStateBreakdown" xml:space="preserve"><value>Utenti per stato di sincronizzazione</value></data>
   <data name="Kpi_EntraDistributionGroups" xml:space="preserve"><value>Gruppi di distribuzione</value></data>
   <data name="Kpi_EntraDynamicDistributionGroups" xml:space="preserve"><value>Gruppi di distribuzione dinamici</value></data>
   <data name="Kpi_EntraMicrosoft365Groups" xml:space="preserve"><value>Gruppi di Microsoft 365</value></data>
