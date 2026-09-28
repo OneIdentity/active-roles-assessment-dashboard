@@ -9,6 +9,8 @@
     var guestUsers = entra.GuestUsers();
     var internalUsers = entra.EntraUsersByOrigin(external: false);
     var externalUsers = entra.EntraUsersByOrigin(external: true);
+    var hybridUsers = entra.EntraUsers(onPremSynced: true);
+    var cloudOnlyUsers = entra.EntraUsers(onPremSynced: false);
 }
 @functions {
     // Renders the shared "Open in Web Interface" action cell for an Entra user DN.
@@ -109,6 +111,34 @@
         <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_HomeTenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
         @foreach (var u in externalUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td>@u.HomeTenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
         @if (!externalUsers.Items.Any()) { <tr><td colspan="6" class="empty-row">@Localizer["E_ExternalUsers"]</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraHybridUsers"))
+{
+<div class="panel" id="panel-entrahybridusers">
+    <h2><span class="sec-icon">H</span> @Localizer["H_HybridUsers"]</h2>
+    <div class="panel-content">
+        @if (hybridUsers.Error != null) { <p class="muted">@hybridUsers.Error</p> } else {
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th>@Localizer["Col_SyncedFrom"]</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in hybridUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@u.SyncedIdentity</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!hybridUsers.Items.Any()) { <tr><td colspan="6" class="empty-row">@Localizer["E_HybridUsers"]</td></tr> }
+        </tbody></table> }
+    </div>
+</div>
+}
+
+@if (Model.KpiSettings.IsKpiEnabled("EntraUserAccounts", "EntraCloudOnlyUsers"))
+{
+<div class="panel" id="panel-entracloudonlyusers">
+    <h2><span class="sec-icon">C</span> @Localizer["H_CloudOnlyUsers"]</h2>
+    <div class="panel-content">
+        @if (cloudOnlyUsers.Error != null) { <p class="muted">@cloudOnlyUsers.Error</p> } else {
+        <table><thead><tr><th>@Localizer["Col_Name"]</th><th>@Localizer["Col_Tenant"]</th><th>@Localizer["Col_Dn"]</th><th>@Localizer["Col_Enabled"]</th><th style="width:40px;"></th></tr></thead><tbody>
+        @foreach (var u in cloudOnlyUsers.Items) { <tr><td>@u.Name</td><td>@u.Tenant</td><td class="dn-cell">@u.Dn</td><td>@u.Enabled</td><td>@WebLink(u.Dn, WebInterfaceUrl)</td></tr> }
+        @if (!cloudOnlyUsers.Items.Any()) { <tr><td colspan="5" class="empty-row">@Localizer["E_CloudOnlyUsers"]</td></tr> }
         </tbody></table> }
     </div>
 </div>

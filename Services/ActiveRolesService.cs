@@ -524,6 +524,41 @@ public class ActiveRolesService
                     }).ToList()
                 };
             }
+            if (settings.IsKpiEnabled("ADUserAccountsCategory", "HybridUsers"))
+            {
+                var hybridUsers = summary.ADUserAccounts.Items
+                    .Where(i => !string.IsNullOrWhiteSpace(GetAttr(i, "msDS-ExternalDirectoryObjectId")))
+                    .ToList();
+                summary.HybridUsers = new ADUserAccountDetailSummary
+                {
+                    TotalCount = hybridUsers.Count,
+                    Items = hybridUsers.Select(i => new ADUserAccountDetailInfo
+                    {
+                        Name = GetAttr(i, "name"),
+                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
+                        Dn = GetAttr(i, "distinguishedName"),
+                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl")),
+                        SyncedIdentity = GetAttr(i, "msDS-ExternalDirectoryObjectId")
+                    }).ToList()
+                };
+            }
+            if (settings.IsKpiEnabled("ADUserAccountsCategory", "OnPremOnlyUsers"))
+            {
+                var onPremOnlyUsers = summary.ADUserAccounts.Items
+                    .Where(i => string.IsNullOrWhiteSpace(GetAttr(i, "msDS-ExternalDirectoryObjectId")))
+                    .ToList();
+                summary.OnPremOnlyUsers = new ADUserAccountDetailSummary
+                {
+                    TotalCount = onPremOnlyUsers.Count,
+                    Items = onPremOnlyUsers.Select(i => new ADUserAccountDetailInfo
+                    {
+                        Name = GetAttr(i, "name"),
+                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
+                        Dn = GetAttr(i, "distinguishedName"),
+                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
+                    }).ToList()
+                };
+            }
             if (settings.IsKpiEnabled("ADUserAccountsCategory", "ExpiredUsers") || settings.IsKpiEnabled("ADGovernance", "ExpiredUsers"))
             {
                 const long neverExpires = 9223372036854775807;
@@ -1361,6 +1396,8 @@ public class ActiveRolesService
         Stamp(summary.AdminCount?.Items);
         Stamp(summary.EnabledUsers?.Items);
         Stamp(summary.DisabledUsers?.Items);
+        Stamp(summary.HybridUsers?.Items);
+        Stamp(summary.OnPremOnlyUsers?.Items);
         Stamp(summary.ExpiredUsers?.Items);
         Stamp(summary.PasswordNeverExpires?.Items);
         Stamp(summary.DeprovisionedUsers?.Items);
@@ -1749,9 +1786,11 @@ public class ActiveRolesService
                 // LoadEntraGroupMembershipAsync after the initial page render. Group types (and
                 // every other type) therefore only need name + DN in this eager pass, plus the
                 // cheap single-valued 'visibility' and 'edsvaOnPremisesSyncEnabled' attributes
-                // that back the Public M365 Groups and On-Premises Synced Groups KPIs.
+                // that back the Public M365 Groups and On-Premises Synced Groups KPIs. Users
+                // additionally carry 'edsvaOnPremisesSyncEnabled' to back the Hybrid / Cloud-Only
+                // Users KPIs.
                 var attributes = type == EntraObjectType.User
-                    ? "name,distinguishedName,edsaAzureUserAccountEnabled,manager,edsaAzureUserPrincipalName"
+                    ? "name,distinguishedName,edsaAzureUserAccountEnabled,manager,edsaAzureUserPrincipalName,edsvaOnPremisesSyncEnabled"
                     : type == EntraObjectType.GuestUser
                         ? "name,distinguishedName,edsaAzureUserAccountEnabled,edsaAzureUserPrincipalName"
                         : "name,distinguishedName,visibility,edsvaOnPremisesSyncEnabled";

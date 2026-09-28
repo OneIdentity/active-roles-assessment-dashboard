@@ -11,16 +11,21 @@
   <data name="Col_Dn" xml:space="preserve"><value>Distinguished Name</value></data>
   <data name="Col_Enabled" xml:space="preserve"><value>Enabled</value></data>
   <data name="Col_HomeTenant" xml:space="preserve"><value>Home Tenant</value></data>
+  <data name="Col_SyncedFrom" xml:space="preserve"><value>Synced From</value></data>
   <data name="H_EnabledUsers" xml:space="preserve"><value>Enabled Users</value></data>
   <data name="H_DisabledUsers" xml:space="preserve"><value>Disabled Users</value></data>
   <data name="H_NoManagerUser" xml:space="preserve"><value>No Manager (User)</value></data>
   <data name="H_GuestUsers" xml:space="preserve"><value>Guest Users</value></data>
   <data name="H_InternalUsers" xml:space="preserve"><value>Internal Users</value></data>
   <data name="H_ExternalUsers" xml:space="preserve"><value>External Users</value></data>
+  <data name="H_HybridUsers" xml:space="preserve"><value>Hybrid Users</value></data>
+  <data name="H_CloudOnlyUsers" xml:space="preserve"><value>Cloud-Only Users</value></data>
   <data name="E_EnabledUsers" xml:space="preserve"><value>No enabled users found</value></data>
   <data name="E_DisabledUsers" xml:space="preserve"><value>No disabled users found</value></data>
   <data name="E_NoManagerUser" xml:space="preserve"><value>No users without a manager found</value></data>
   <data name="E_GuestUsers" xml:space="preserve"><value>No guest users found</value></data>
   <data name="E_InternalUsers" xml:space="preserve"><value>No internal users found</value></data>
   <data name="E_ExternalUsers" xml:space="preserve"><value>No external users found</value></data>
+  <data name="E_HybridUsers" xml:space="preserve"><value>No hybrid users found</value></data>
+  <data name="E_CloudOnlyUsers" xml:space="preserve"><value>No cloud-only users found</value></data>
 </root>

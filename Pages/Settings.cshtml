@@ -514,6 +514,22 @@
                         </label>
                         <input type="hidden" name="KpiSettings.EntraExternalUsersEnabled" value="false" />
                     </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Hybrid Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraHybridUsersEnabled" value="true" @(Model.KpiSettings.EntraHybridUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraHybridUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Cloud-Only Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.EntraCloudOnlyUsersEnabled" value="true" @(Model.KpiSettings.EntraCloudOnlyUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.EntraCloudOnlyUsersEnabled" value="false" />
+                    </div>
                 </div>
             </div>
 
@@ -685,6 +701,22 @@
                             <span class="toggle-slider"></span>
                         </label>
                         <input type="hidden" name="KpiSettings.DisabledUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Hybrid Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.HybridUsersEnabled" value="true" @(Model.KpiSettings.HybridUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.HybridUsersEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">On-Prem-Only Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.OnPremOnlyUsersEnabled" value="true" @(Model.KpiSettings.OnPremOnlyUsersEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.OnPremOnlyUsersEnabled" value="false" />
                     </div>
                     <div class="toggle-row">
                         <span class="toggle-label">Expired Users</span>

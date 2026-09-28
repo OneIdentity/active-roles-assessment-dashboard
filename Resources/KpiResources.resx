@@ -165,6 +165,12 @@
   <data name="Kpi_DisabledUsers" xml:space="preserve"><value>Disabled Users</value></data>
   <data name="Kpi_NoKerberosPreauth" xml:space="preserve"><value>Do Not Require Kerberos Preauthentication</value></data>
   <data name="Kpi_EnabledUsers" xml:space="preserve"><value>Enabled Users</value></data>
+  <data name="Kpi_HybridUsers" xml:space="preserve"><value>Hybrid Users</value></data>
+  <data name="Kpi_OnPremOnlyUsers" xml:space="preserve"><value>On-Prem-Only Users</value></data>
+  <data name="Kpi_EntraHybridUsers" xml:space="preserve"><value>Hybrid Users</value></data>
+  <data name="Kpi_EntraCloudOnlyUsers" xml:space="preserve"><value>Cloud-Only Users</value></data>
+  <data name="Chart_UserHybridStateBreakdown" xml:space="preserve"><value>Users by Sync State</value></data>
+  <data name="Chart_EntraUserHybridStateBreakdown" xml:space="preserve"><value>Users by Sync State</value></data>
   <data name="Kpi_ExpiringUsers" xml:space="preserve"><value>Expiring Users</value></data>
   <data name="Kpi_MustChangePassword" xml:space="preserve"><value>Must Change Password</value></data>
   <data name="Kpi_PasswordNeverExpires" xml:space="preserve"><value>Password Never Expires</value></data>

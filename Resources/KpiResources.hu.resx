@@ -113,6 +113,12 @@
   <data name="Kpi_EntraGuestUsers" xml:space="preserve"><value>Vendégfelhasználók</value></data>
   <data name="Kpi_EntraInternalUsers" xml:space="preserve"><value>Belső felhasználók</value></data>
   <data name="Kpi_EntraExternalUsers" xml:space="preserve"><value>Külső felhasználók</value></data>
+  <data name="Kpi_HybridUsers" xml:space="preserve"><value>Hibrid felhasználók</value></data>
+  <data name="Kpi_OnPremOnlyUsers" xml:space="preserve"><value>Csak helyszíni felhasználók</value></data>
+  <data name="Kpi_EntraHybridUsers" xml:space="preserve"><value>Hibrid felhasználók</value></data>
+  <data name="Kpi_EntraCloudOnlyUsers" xml:space="preserve"><value>Csak felhői felhasználók</value></data>
+  <data name="Chart_UserHybridStateBreakdown" xml:space="preserve"><value>Felhasználók szinkronizálási állapot szerint</value></data>
+  <data name="Chart_EntraUserHybridStateBreakdown" xml:space="preserve"><value>Felhasználók szinkronizálási állapot szerint</value></data>
   <data name="Kpi_EntraDistributionGroups" xml:space="preserve"><value>Terjesztési csoportok</value></data>
   <data name="Kpi_EntraDynamicDistributionGroups" xml:space="preserve"><value>Dinamikus terjesztési csoportok</value></data>
   <data name="Kpi_EntraMicrosoft365Groups" xml:space="preserve"><value>Microsoft 365 csoportok</value></data>
