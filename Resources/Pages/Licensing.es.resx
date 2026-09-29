@@ -7,6 +7,17 @@
     <data name="LoadingDashboardData" xml:space="preserve"><value>Cargando datos del panel...</value></data>
   <data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
   <data name="H_ManagedObjects" xml:space="preserve"><value>Objetos gestionados</value></data>
+  <data name="Sub_CloudOnly" xml:space="preserve"><value>Solo en la nube</value></data>
+  <data name="Sub_Hybrid" xml:space="preserve"><value>Híbrido</value></data>
+  <data name="Sub_Guest" xml:space="preserve"><value>Invitado</value></data>
+  <data name="Sub_ActiveDirectory" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="Sub_ExcludedFromManagement" xml:space="preserve"><value>Excluido de la administración</value></data>
+  <data name="H_LicensingComposition" xml:space="preserve"><value>Composición de licencias</value></data>
+  <data name="Intro_LicensingComposition" xml:space="preserve"><value>Objetos que consumen licencias: usuarios habilitados administrados por dominio de AD y objetos solo en la nube administrados por inquilino de Entra. Los objetos excluidos del ámbito administrado no se cuentan.</value></data>
+  <data name="Comp_LicensedObjects" xml:space="preserve"><value>Objetos con licencia</value></data>
+  <data name="H_LicensingExcluded" xml:space="preserve"><value>Excluidos de la licencia</value></data>
+  <data name="Intro_LicensingExcluded" xml:space="preserve"><value>Objetos que no consumen licencias: usuarios deshabilitados por dominio de AD, objetos híbridos e invitados por inquilino de Entra y objetos excluidos del ámbito administrado.</value></data>
+  <data name="Comp_ExcludedObjects" xml:space="preserve"><value>Objetos excluidos</value></data>
   <data name="E_ManagedObjects" xml:space="preserve"><value>No se encontraron estadísticas de objetos gestionados</value></data>
   <data name="Chart_Time" xml:space="preserve"><value>Hora</value></data>
   <data name="Chart_ObjectCount" xml:space="preserve"><value>Número de objetos</value></data>

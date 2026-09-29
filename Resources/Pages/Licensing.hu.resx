@@ -7,6 +7,17 @@
     <data name="LoadingDashboardData" xml:space="preserve"><value>Irányítópult adatainak betöltése...</value></data>
   <data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópulthoz</value></data>
   <data name="H_ManagedObjects" xml:space="preserve"><value>Kezelt objektumok</value></data>
+  <data name="Sub_CloudOnly" xml:space="preserve"><value>Csak felhő</value></data>
+  <data name="Sub_Hybrid" xml:space="preserve"><value>Hibrid</value></data>
+  <data name="Sub_Guest" xml:space="preserve"><value>Vendég</value></data>
+  <data name="Sub_ActiveDirectory" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="Sub_ExcludedFromManagement" xml:space="preserve"><value>A felügyeletből kizárva</value></data>
+  <data name="H_LicensingComposition" xml:space="preserve"><value>Licencösszetétel</value></data>
+  <data name="Intro_LicensingComposition" xml:space="preserve"><value>Licencet fogyasztó objektumok: felügyelt engedélyezett felhasználók AD-tartományonként és felügyelt csak felhő objektumok Entra-bérlőnként. A felügyelt hatókörből kizárt objektumok nem számítanak.</value></data>
+  <data name="Comp_LicensedObjects" xml:space="preserve"><value>Licencelt objektumok</value></data>
+  <data name="H_LicensingExcluded" xml:space="preserve"><value>Licencelésből kizárva</value></data>
+  <data name="Intro_LicensingExcluded" xml:space="preserve"><value>Licencet nem fogyasztó objektumok: letiltott felhasználók AD-tartományonként, hibrid és vendég objektumok Entra-bérlőnként, valamint a felügyelt hatókörből kizárt objektumok.</value></data>
+  <data name="Comp_ExcludedObjects" xml:space="preserve"><value>Kizárt objektumok</value></data>
   <data name="E_ManagedObjects" xml:space="preserve"><value>Nem található kezelt objektum statisztika</value></data>
   <data name="Chart_Time" xml:space="preserve"><value>Idő</value></data>
   <data name="Chart_ObjectCount" xml:space="preserve"><value>Objektumok száma</value></data>

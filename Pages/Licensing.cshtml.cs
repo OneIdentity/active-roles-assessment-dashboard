@@ -24,7 +24,7 @@ public class LicensingModel : DashboardPageModel
     // True when at least one threshold is configured, so the view can decide whether to render the chart.
     public bool HasLicensingThresholds =>
         LicensedDomainObjects > 0 || LicensedPartitionObjects > 0 || LicensedAzureObjects > 0
-        || LicensedSaasObjects > 0 || LicensedTotalObjects > 0;
+        || LicensedTotalObjects > 0;
 
     public override async Task<IActionResult> OnGetAsync([FromQuery] bool cached = false)
     {

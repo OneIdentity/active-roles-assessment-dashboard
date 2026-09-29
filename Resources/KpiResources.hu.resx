@@ -117,6 +117,8 @@
   <data name="Kpi_OnPremOnlyUsers" xml:space="preserve"><value>Csak helyszíni felhasználók</value></data>
   <data name="Kpi_EntraHybridUsers" xml:space="preserve"><value>Hibrid felhasználók</value></data>
   <data name="Kpi_EntraCloudOnlyUsers" xml:space="preserve"><value>Csak felhői felhasználók</value></data>
+  <data name="Kpi_ManagedEnabledUsers" xml:space="preserve"><value>Felügyelt engedélyezett felhasználók</value></data>
+  <data name="Kpi_EntraManagedUsers" xml:space="preserve"><value>Felügyelt felhasználók</value></data>
   <data name="Chart_UserHybridStateBreakdown" xml:space="preserve"><value>Felhasználók szinkronizálási állapot szerint</value></data>
   <data name="Chart_EntraUserHybridStateBreakdown" xml:space="preserve"><value>Felhasználók szinkronizálási állapot szerint</value></data>
   <data name="Kpi_EntraDistributionGroups" xml:space="preserve"><value>Terjesztési csoportok</value></data>

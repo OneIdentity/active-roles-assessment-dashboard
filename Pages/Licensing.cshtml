@@ -22,15 +22,16 @@
             .Sum(i => i.Count);
         var licDomain = licTotal("Domain");
         var licPartition = licTotal("Partition");
-        var licAzure = licTotal("Azure");
-        var licSaas = licTotal("SAAS");
-        var licGrand = licRun.Items.Sum(i => i.Count);
+        // Only cloud-only Entra objects are licensed (hybrid and guests are excluded).
+        var licAzure = licRun.Items
+            .Where(i => string.Equals(i.Category, "Azure", StringComparison.OrdinalIgnoreCase))
+            .Sum(i => i.CloudOnlyCount);
+        var licGrand = licDomain + licPartition + licAzure;
 
         licOverThreshold =
             (Model.LicensedDomainObjects > 0 && licDomain > Model.LicensedDomainObjects)
             || (Model.LicensedPartitionObjects > 0 && licPartition > Model.LicensedPartitionObjects)
             || (Model.LicensedAzureObjects > 0 && licAzure > Model.LicensedAzureObjects)
-            || (Model.LicensedSaasObjects > 0 && licSaas > Model.LicensedSaasObjects)
             || (Model.LicensedTotalObjects > 0 && licGrand > Model.LicensedTotalObjects);
 
         licCategories = new object[]
@@ -38,9 +39,122 @@
             new { key = "Domain", label = Localizer["Cat_Domain"].Value, total = licDomain, threshold = Model.LicensedDomainObjects },
             new { key = "Partition", label = Localizer["Cat_Partition"].Value, total = licPartition, threshold = Model.LicensedPartitionObjects },
             new { key = "Azure", label = Localizer["Cat_Azure"].Value, total = licAzure, threshold = Model.LicensedAzureObjects },
-            new { key = "SAAS", label = Localizer["Cat_Saas"].Value, total = licSaas, threshold = Model.LicensedSaasObjects },
             new { key = "Total", label = Localizer["Cat_GrandTotal"].Value, total = licGrand, threshold = Model.LicensedTotalObjects }
         };
+    }
+
+    // Licensing composition: per-AD-domain enabled users (KPI-derived) + per-Entra-tenant
+    // cloud-only objects (statistics-derived). These are the objects that consume licences.
+    var licCompSegments = new System.Collections.Generic.List<(string label, int value, string kind)>();
+    var licHasComposition = false;
+    var licCompTotal = 0;
+    // Excluded from licensing: disabled AD users (per domain) + Entra hybrid + Entra guest (per tenant).
+    var licExclSegments = new System.Collections.Generic.List<(string label, int value, string kind)>();
+    var licHasExcluded = false;
+    var licExclTotal = 0;
+    {
+        // Per-AD-domain enabled users. Prefer the KPI-derived enabled-user detail (grouped by
+        // domain); if that KPI is unavailable, fall back to the statistics "Domain" category counts
+        // so the composition still reflects the licensed AD objects. Only MANAGED enabled users
+        // consume a licence; enabled users excluded from the managed scope are counted separately.
+        var addedDomainFromKpi = false;
+        if (Model.Summary.EnabledUsers?.Items != null && Model.Summary.EnabledUsers.Items.Any())
+        {
+            foreach (var g in Model.Summary.EnabledUsers.Items
+                .Where(i => i.IsManaged)
+                .GroupBy(i => string.IsNullOrWhiteSpace(i.Domain) ? "(unknown)" : i.Domain)
+                .OrderByDescending(g => g.Count()))
+            {
+                licCompSegments.Add((g.Key, g.Count(), "domain"));
+                addedDomainFromKpi = true;
+            }
+
+            // Enabled AD users excluded from the managed scope are not licensed.
+            var adExcludedFromMgmt = Model.Summary.EnabledUsers.Items.Count(i => !i.IsManaged);
+            if (adExcludedFromMgmt > 0)
+            {
+                licExclSegments.Add((Localizer["Sub_ExcludedFromManagement"].Value + " \u2014 " + Localizer["Sub_ActiveDirectory"].Value, adExcludedFromMgmt, "excluded-mgmt"));
+            }
+        }
+
+        // Excluded: disabled AD users per domain.
+        if (Model.Summary.DisabledUsers?.Items != null && Model.Summary.DisabledUsers.Items.Any())
+        {
+            foreach (var g in Model.Summary.DisabledUsers.Items
+                .GroupBy(i => string.IsNullOrWhiteSpace(i.Domain) ? "(unknown)" : i.Domain)
+                .OrderByDescending(g => g.Count()))
+            {
+                licExclSegments.Add((g.Key, g.Count(), "domain-disabled"));
+            }
+        }
+
+        if (Model.Summary.ManagedObjects.DataPoints.Any())
+        {
+            // Use the latest snapshot that actually carries managed-object items.
+            var compRun = Model.Summary.ManagedObjects.DataPoints
+                .LastOrDefault(dp => dp.Items != null && dp.Items.Any())
+                ?? Model.Summary.ManagedObjects.DataPoints.Last();
+
+            if (!addedDomainFromKpi)
+            {
+                foreach (var d in compRun.Items
+                    .Where(i => string.Equals(i.Category, "Domain", StringComparison.OrdinalIgnoreCase) && i.Count > 0)
+                    .OrderByDescending(i => i.Count))
+                {
+                    licCompSegments.Add((d.DisplayName, d.Count, "domain"));
+                }
+            }
+
+            var azureItems = compRun.Items
+                .Where(i => string.Equals(i.Category, "Azure", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            // Licensed: cloud-only per tenant.
+            foreach (var t in azureItems
+                .Where(i => i.CloudOnlyCount > 0)
+                .OrderByDescending(i => i.CloudOnlyCount))
+            {
+                licCompSegments.Add((t.DisplayName, t.CloudOnlyCount, "tenant"));
+            }
+
+            // Excluded: hybrid and guest per tenant.
+            foreach (var t in azureItems.Where(i => i.HybridCount > 0).OrderByDescending(i => i.HybridCount))
+            {
+                licExclSegments.Add((t.DisplayName + " \u2014 " + Localizer["Sub_Hybrid"].Value, t.HybridCount, "tenant-hybrid"));
+            }
+            foreach (var t in azureItems.Where(i => i.GuestCount > 0).OrderByDescending(i => i.GuestCount))
+            {
+                licExclSegments.Add((t.DisplayName + " \u2014 " + Localizer["Sub_Guest"].Value, t.GuestCount, "tenant-guest"));
+            }
+        }
+
+        // Entra cloud-only users excluded from the managed scope are not licensed. The statistics
+        // CloudOnlyCount cannot express managed-scope exclusion, so derive the excluded count from
+        // the Entra user KPI data (which carries per-user managed status) and move it to the
+        // excluded chart while trimming the licensed cloud-only total accordingly.
+        if (Model.Summary.EntraTotals?.Error == null)
+        {
+            var cloudOnly = Model.Summary.EntraTotals.EntraUsers(onPremSynced: false).Items;
+            var entraExcludedFromMgmt = cloudOnly.Count(i => !i.IsManaged);
+            if (entraExcludedFromMgmt > 0)
+            {
+                // Remove the excluded cloud-only objects from the licensed tenant segments (largest first).
+                var remaining = entraExcludedFromMgmt;
+                for (var idx = 0; idx < licCompSegments.Count && remaining > 0; idx++)
+                {
+                    if (licCompSegments[idx].kind != "tenant") continue;
+                    var take = System.Math.Min(remaining, licCompSegments[idx].value);
+                    licCompSegments[idx] = (licCompSegments[idx].label, licCompSegments[idx].value - take, licCompSegments[idx].kind);
+                    remaining -= take;
+                }
+                licCompSegments.RemoveAll(s => s.kind == "tenant" && s.value <= 0);
+                licExclSegments.Add((Localizer["Sub_ExcludedFromManagement"].Value + " \u2014 " + Localizer["Sub_CloudOnly"].Value, entraExcludedFromMgmt, "excluded-mgmt"));
+            }
+        }
+        licHasComposition = licCompSegments.Count > 0;
+        licCompTotal = licCompSegments.Sum(s => s.value);
+        licHasExcluded = licExclSegments.Count > 0;
+        licExclTotal = licExclSegments.Sum(s => s.value);
     }
 }
 <!DOCTYPE html>
@@ -130,6 +244,45 @@
             </div>
         </div>
         }
+
+        @if (Model.KpiSettings.IsKpiEnabled("Licensing", "ManagedObjects"))
+        {
+            <div class="snap-panels">
+            <div class="panel panel-static" id="panel-licensingcomposition">
+            <h2><span class="sec-icon">C</span> @Localizer["H_LicensingComposition"]</h2>
+            <div class="panel-content">
+                <p class="muted" style="margin-top:0;">@Localizer["Intro_LicensingComposition"]</p>
+                @if (licHasComposition)
+                {
+                    <div style="position:relative; height:260px;">
+                        <canvas id="licensingCompositionChart"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <p class="muted">@Localizer["E_ManagedObjects"]</p>
+                }
+            </div>
+        </div>
+
+            <div class="panel panel-static" id="panel-licensingexcluded">
+            <h2><span class="sec-icon">X</span> @Localizer["H_LicensingExcluded"]</h2>
+            <div class="panel-content">
+                <p class="muted" style="margin-top:0;">@Localizer["Intro_LicensingExcluded"]</p>
+                @if (licHasExcluded)
+                {
+                    <div style="position:relative; height:260px;">
+                        <canvas id="licensingExcludedChart"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <p class="muted">@Localizer["E_ManagedObjects"]</p>
+                }
+            </div>
+        </div>
+            </div>
+        }
     </div>
 
     <footer class="footer">Active Roles Dashboard &mdash; Generated at @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC</footer>
@@ -148,27 +301,63 @@
     var dataPoints = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
         Model.Summary.ManagedObjects.DataPoints.Select(dp => new {
             runTime = dp.RunTime.ToString("yyyy-MM-dd HH:mm"),
-            items = dp.Items.Select(i => new { displayName = i.DisplayName, category = i.Category, count = i.Count })
+            items = dp.Items.Select(i => new {
+                displayName = i.DisplayName,
+                category = i.Category,
+                count = i.Count,
+                cloudOnly = i.CloudOnlyCount,
+                hybrid = i.HybridCount,
+                guest = i.GuestCount
+            })
         })
     ));
 
     var labels = dataPoints.map(function(dp) { return dp.runTime; });
-    var itemNames = [];
-    var itemMap = {};
+
+    // Each "series" is one underlying count. Domains contribute a single Total series;
+    // Entra tenants expand into Cloud-Only / Hybrid / Guest series. SAAS is excluded upstream.
+    // Series belonging to the same source (domain/tenant) share a base colour and are
+    // differentiated by shades (lightness steps) of that colour.
+    var sources = [];      // ordered list of source keys (category:displayName)
+    var seriesList = [];   // { name, sourceKey, getter }
     dataPoints.forEach(function(dp) {
         dp.items.forEach(function(item) {
-            var key = item.category + ': ' + item.displayName;
-            if (!itemMap[key]) { itemMap[key] = true; itemNames.push(key); }
+            var sourceKey = item.category + ': ' + item.displayName;
+            if (sources.indexOf(sourceKey) === -1) {
+                sources.push(sourceKey);
+                if (item.category === 'Azure') {
+                    seriesList.push({ name: item.displayName + ' \u2014 @Html.Raw(Localizer["Sub_CloudOnly"].Value)', sourceKey: sourceKey, field: 'cloudOnly' });
+                    seriesList.push({ name: item.displayName + ' \u2014 @Html.Raw(Localizer["Sub_Hybrid"].Value)', sourceKey: sourceKey, field: 'hybrid' });
+                    seriesList.push({ name: item.displayName + ' \u2014 @Html.Raw(Localizer["Sub_Guest"].Value)', sourceKey: sourceKey, field: 'guest' });
+                } else {
+                    seriesList.push({ name: item.displayName, sourceKey: sourceKey, field: 'count' });
+                }
+            }
         });
     });
 
-    var colors = ['#2563eb','#16a34a','#d97706','#dc2626','#7c3aed','#0d9488','#db2777','#475569','#ea580c','#4f46e5'];
-    var datasets = itemNames.map(function(name, idx) {
+    var baseColors = ['#2563eb','#16a34a','#d97706','#dc2626','#7c3aed','#0d9488','#db2777','#475569','#ea580c','#4f46e5'];
+    function shade(hex, lightenPct) {
+        var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+        r = Math.round(r + (255 - r) * lightenPct);
+        g = Math.round(g + (255 - g) * lightenPct);
+        b = Math.round(b + (255 - b) * lightenPct);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+
+    // Assign a base colour per source, then a lightness step per series within that source.
+    var perSourceIndex = {};
+    var datasets = seriesList.map(function(s) {
+        var srcIdx = sources.indexOf(s.sourceKey);
+        var base = baseColors[srcIdx % baseColors.length];
+        var within = (perSourceIndex[s.sourceKey] = (perSourceIndex[s.sourceKey] || 0)) ;
+        perSourceIndex[s.sourceKey] = within + 1;
+        var color = shade(base, within * 0.28);
         var data = dataPoints.map(function(dp) {
-            var found = dp.items.find(function(item) { return (item.category + ': ' + item.displayName) === name; });
-            return found ? found.count : 0;
+            var found = dp.items.find(function(item) { return (item.category + ': ' + item.displayName) === s.sourceKey; });
+            return found ? found[s.field] : 0;
         });
-        return { label: name, data: data, borderColor: colors[idx % colors.length], backgroundColor: colors[idx % colors.length] + '20', tension: 0.3, fill: false, pointRadius: 3 };
+        return { label: s.name, data: data, borderColor: color, backgroundColor: color, tension: 0.3, fill: false, pointRadius: 3 };
     });
 
     new Chart(canvas, {
@@ -203,7 +392,6 @@
         'Domain': '#2563eb',
         'Partition': '#16a34a',
         'Azure': '#d97706',
-        'SAAS': '#7c3aed',
         'Total': '#475569'
     };
     function colorFor(key) { return categoryColors[key] || '#2563eb'; }
@@ -313,6 +501,127 @@
             }
         }
     });
+})();
+</script>
+}
+@if (licHasComposition || licHasExcluded)
+{
+<script>
+(function() {
+    if (typeof Chart === 'undefined') { return; }
+
+    var objectCountLabel = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Chart_ObjectCount"].Value));
+
+    function shade(hex, lightenPct) {
+        var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+        r = Math.round(r + (255 - r) * lightenPct);
+        g = Math.round(g + (255 - g) * lightenPct);
+        b = Math.round(b + (255 - b) * lightenPct);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+
+    // Draws the running total (with a caption) in the middle of a doughnut.
+    var centerTextPlugin = {
+        id: 'centerText',
+        afterDraw: function(chart) {
+            var opts = chart.config.options.plugins.centerText;
+            if (!opts) { return; }
+            var meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !meta.data.length) { return; }
+            var el = meta.data[0];
+            var cx = el.x, cy = el.y;
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#111827';
+            ctx.font = '700 26px system-ui, sans-serif';
+            ctx.fillText(opts.total, cx, cy - 6);
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '500 12px system-ui, sans-serif';
+            ctx.fillText(opts.caption, cx, cy + 16);
+            ctx.restore();
+        }
+    };
+
+    function colorFor(kind, idx) {
+        // Blue family = AD domains (enabled / disabled); amber = cloud-only tenants;
+        // teal = hybrid; violet = guest.
+        var bases = {
+            'domain': '#2563eb',
+            'domain-disabled': '#2563eb',
+            'tenant': '#d97706',
+            'tenant-hybrid': '#0d9488',
+            'tenant-guest': '#7c3aed'
+        };
+        return shade(bases[kind] || '#6b7280', (idx % 4) * 0.18);
+    }
+
+    function renderDonut(canvasId, segments, total, caption) {
+        var canvas = document.getElementById(canvasId);
+        if (!canvas || !segments.length) { return; }
+        var perKind = {};
+        var colors = segments.map(function(s) {
+            perKind[s.kind] = (perKind[s.kind] || 0);
+            var c = colorFor(s.kind, perKind[s.kind]);
+            perKind[s.kind]++;
+            return c;
+        });
+        new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: segments.map(function(s) { return s.label; }),
+                datasets: [{
+                    data: segments.map(function(s) { return s.value; }),
+                    backgroundColor: colors,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                    centerText: { total: total, caption: caption },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                var v = ctx.parsed;
+                                var sum = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+                                var pct = sum ? Math.round(v / sum * 100) : 0;
+                                return ctx.label + ': ' + v + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [centerTextPlugin]
+        });
+    }
+
+@if (licHasComposition)
+{
+<text>
+    renderDonut(
+        'licensingCompositionChart',
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(licCompSegments.Select(s => new { label = s.label, value = s.value, kind = s.kind }))),
+        @licCompTotal,
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Comp_LicensedObjects"].Value))
+    );
+</text>
+}
+@if (licHasExcluded)
+{
+<text>
+    renderDonut(
+        'licensingExcludedChart',
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(licExclSegments.Select(s => new { label = s.label, value = s.value, kind = s.kind }))),
+        @licExclTotal,
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Comp_ExcludedObjects"].Value))
+    );
+</text>
+}
 })();
 </script>
 }
