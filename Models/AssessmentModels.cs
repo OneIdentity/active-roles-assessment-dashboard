@@ -27,6 +27,7 @@ public enum AssessmentType
     Hds,
     BsiKritis,
     CyFun,
+    Fadp,
     PciDss,
     ActiveRoles,
     Exchange
@@ -58,6 +59,7 @@ public static class AssessmentTypeInfo
         AssessmentType.Hds,
         AssessmentType.BsiKritis,
         AssessmentType.CyFun,
+        AssessmentType.Fadp,
         AssessmentType.PciDss,
         AssessmentType.ActiveRoles,
         AssessmentType.Exchange
@@ -86,6 +88,7 @@ public static class AssessmentTypeInfo
         AssessmentType.Hds => "HDS (Hébergeur de Données de Santé - Identity & Access)",
         AssessmentType.BsiKritis => "BSI IT-Grundschutz / KRITIS / B3S (Identity & Access)",
         AssessmentType.CyFun => "CyFun® - Cyber Fundamentals (Identity & Access)",
+        AssessmentType.Fadp => "FADP / nFADP (Swiss Data Protection - Identity & Access)",
         AssessmentType.PciDss => "PCI DSS (Requirements 7 & 8 - Access Control)",
         AssessmentType.ActiveRoles => "Active Roles Configuration",
         AssessmentType.Exchange => "Exchange (On-Premises)",
@@ -94,7 +97,7 @@ public static class AssessmentTypeInfo
 
     /// <summary>
     /// Optional scope/disclaimer text for an assessment type. Returned as a non-empty string
-    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE Cyber Standards, HDS, BSI/KRITIS, CyFun, NIST SP 800-171 and Exchange); empty otherwise.
+    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE Cyber Standards, HDS, BSI/KRITIS, CyFun, FADP, NIST SP 800-171 and Exchange); empty otherwise.
     /// Shown as a banner in the Assessments UI and as a leading section in exported reports.
     /// </summary>
     public static string Description(AssessmentType type) => type switch
@@ -216,6 +219,15 @@ public static class AssessmentTypeInfo
             "cover the CyFun\u00ae self-assessment or third-party verification process. It is an identity and " +
             "access-control indicator only and is not a CyFun\u00ae label, a conformity assessment, or a determination " +
             "of CyFun\u00ae compliance.",
+        AssessmentType.Fadp =>
+            "This assessment evaluates identity and access-management controls in Active Directory and Active Roles " +
+            "that contribute to the data-security obligations of the revised Swiss Federal Act on Data Protection " +
+            "(nFADP / nLPD, in force 1 September 2023) and its Ordinance (DPO), in particular the requirement to " +
+            "ensure data security through appropriate technical and organisational measures (Art. 8 nFADP) such as " +
+            "access control, least privilege and account governance. It does NOT assess lawful processing, " +
+            "transparency and information duties, data-subject rights, records of processing activities, data " +
+            "protection impact assessments, processor agreements, breach-notification to the FDPIC, or cross-border " +
+            "data-transfer mechanisms, and it is not a determination of FADP / nFADP compliance.",
         AssessmentType.PciDss =>
             "This assessment evaluates identity and access-management controls in Active Directory and Active Roles " +
             "that support PCI DSS Requirement 7 (restrict access to system components and cardholder data by " +
@@ -371,7 +383,7 @@ public static class AssessmentRuleLibrary
     {
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
-        AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
+        AssessmentType.Gdpr, AssessmentType.Fadp, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt,
         AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.CyFun, AssessmentType.PciDss, AssessmentType.Nist171
     };
@@ -380,7 +392,7 @@ public static class AssessmentRuleLibrary
     {
         AssessmentType.ActiveDirectory, AssessmentType.Nis2,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
-        AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
+        AssessmentType.Gdpr, AssessmentType.Fadp, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt,
         AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.CyFun, AssessmentType.PciDss, AssessmentType.Nist171
     };
@@ -393,7 +405,7 @@ public static class AssessmentRuleLibrary
     // DfE account & access management standards.
     private static readonly AssessmentType[] ActiveRolesGdpr =
     {
-        AssessmentType.ActiveRoles, AssessmentType.Gdpr, AssessmentType.Dora,
+        AssessmentType.ActiveRoles, AssessmentType.Gdpr, AssessmentType.Fadp, AssessmentType.Dora,
         AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.Tsa, AssessmentType.Caf,
         AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt, AssessmentType.DfeCyber,
         AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
@@ -453,7 +465,7 @@ public static class AssessmentRuleLibrary
     {
         AssessmentType.Entra, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
-        AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
+        AssessmentType.Gdpr, AssessmentType.Fadp, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus,
         AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.CyFun, AssessmentType.PciDss, AssessmentType.Nist171
     };
@@ -471,7 +483,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Exchange,
         AssessmentType.Nis2, AssessmentType.Cis, AssessmentType.Nist,
         AssessmentType.Nen7510, AssessmentType.Iso27001, AssessmentType.Gdpr,
-        AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
+        AssessmentType.Fadp, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus,
         AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.CyFun, AssessmentType.PciDss,
         AssessmentType.Nist171
