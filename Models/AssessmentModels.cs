@@ -25,6 +25,7 @@ public enum AssessmentType
     Dspt,
     DfeCyber,
     Hds,
+    BsiKritis,
     PciDss,
     ActiveRoles,
     Exchange
@@ -54,6 +55,7 @@ public static class AssessmentTypeInfo
         AssessmentType.Dspt,
         AssessmentType.DfeCyber,
         AssessmentType.Hds,
+        AssessmentType.BsiKritis,
         AssessmentType.PciDss,
         AssessmentType.ActiveRoles,
         AssessmentType.Exchange
@@ -80,6 +82,7 @@ public static class AssessmentTypeInfo
         AssessmentType.Dspt => "DSPT (Managing Data Access - NDG Standard 4)",
         AssessmentType.DfeCyber => "DfE Cyber Standards (Account & Access Management)",
         AssessmentType.Hds => "HDS (Hébergeur de Données de Santé - Identity & Access)",
+        AssessmentType.BsiKritis => "BSI IT-Grundschutz / KRITIS / B3S (Identity & Access)",
         AssessmentType.PciDss => "PCI DSS (Requirements 7 & 8 - Access Control)",
         AssessmentType.ActiveRoles => "Active Roles Configuration",
         AssessmentType.Exchange => "Exchange (On-Premises)",
@@ -88,7 +91,7 @@ public static class AssessmentTypeInfo
 
     /// <summary>
     /// Optional scope/disclaimer text for an assessment type. Returned as a non-empty string
-    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE Cyber Standards, HDS, NIST SP 800-171 and Exchange); empty otherwise.
+    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE Cyber Standards, HDS, BSI/KRITIS, NIST SP 800-171 and Exchange); empty otherwise.
     /// Shown as a banner in the Assessments UI and as a leading section in exported reports.
     /// </summary>
     public static string Description(AssessmentType type) => type switch
@@ -187,6 +190,17 @@ public static class AssessmentTypeInfo
             "of the hosting service, backups, encryption, logging and monitoring, sub-contractor assurance, or the " +
             "organisational and contractual requirements of the HDS reference framework. It is an identity and " +
             "access-control indicator only and is not an HDS certification or a determination of HDS compliance.",
+        AssessmentType.BsiKritis =>
+            "This assessment provides supporting indicators for the German BSI IT-Grundschutz methodology and the " +
+            "KRITIS critical-infrastructure regime (including the industry-specific security standards, B3S, used to " +
+            "demonstrate the required 'state of the art'), by evaluating identity, privileged-access and " +
+            "account-hygiene controls in Active Directory and Active Roles that map to the identity and access " +
+            "management (ORP.4) and Active Directory (APP.2.2) building blocks. It does NOT scope the critical " +
+            "services or IT assets in question, and it does NOT assess the wider IT-Grundschutz building blocks " +
+            "(network, systems, applications, physical security), risk analysis, business continuity, incident " +
+            "handling and reporting, supplier assurance, or the organisational and documentation requirements of a " +
+            "B3S / KRITIS audit under section 8a BSIG. It is an identity and access-control indicator only and is " +
+            "not a BSI certification, a B3S conformity assessment, or a determination of KRITIS compliance.",
         AssessmentType.PciDss =>
             "This assessment evaluates identity and access-management controls in Active Directory and Active Roles " +
             "that support PCI DSS Requirement 7 (restrict access to system components and cardholder data by " +
@@ -320,7 +334,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.DfeCyber, AssessmentType.Dspt,
-        AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     // Core secure-configuration
@@ -331,7 +345,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.DfeCyber, AssessmentType.Dspt,
-        AssessmentType.Hds, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.PciDss, AssessmentType.Nist171, AssessmentType.BsiKritis
     };
 
     // GDPR (Art. 32 / accountability) reuses a curated subset of the security and
@@ -344,7 +358,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt,
-        AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     private static readonly AssessmentType[] ComplianceNoCisGdpr =
@@ -353,7 +367,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt,
-        AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     // Active Roles delegation
@@ -367,7 +381,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveRoles, AssessmentType.Gdpr, AssessmentType.Dora,
         AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.Tsa, AssessmentType.Caf,
         AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt, AssessmentType.DfeCyber,
-        AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     // Rules that are meaningful only under the GDPR lens
@@ -426,7 +440,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus,
-        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     // Exchange mailbox delegation
@@ -444,7 +458,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nen7510, AssessmentType.Iso27001, AssessmentType.Gdpr,
         AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus,
-        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss,
+        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss,
         AssessmentType.Nist171
     };
 
