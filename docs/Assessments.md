@@ -73,6 +73,7 @@ Every framework is honestly **scoped**: it evaluates only the identity/access an
 | `Hds` | HDS (Hébergeur de Données de Santé - Identity & Access) | ✔ |
 | `BsiKritis` | BSI IT-Grundschutz / KRITIS / B3S (Identity & Access) | ✔ |
 | `CyFun` | CyFun® - Cyber Fundamentals (Identity & Access) | ✔ |
+| `Fadp` | FADP / nFADP (Swiss Data Protection - Identity & Access) | ✔ |
 | `PciDss` | PCI DSS (Requirements 7 & 8 - Access Control) | ✔ |
 | `ActiveRoles` | Active Roles Configuration | — |
 | `Exchange` | Exchange (On-Premises) | ✔ |
@@ -85,14 +86,14 @@ Rules are assigned to reusable framework groupings so a control can be defined o
 |----------|-------------------|
 | `Compliance` | AD, NIS2, CIS, NIST, NEN 7510, ISO 27001 |
 | `ComplianceNoCis` | AD, NIS2, NIST, NEN 7510, ISO 27001 |
-| `ComplianceGdpr` | `Compliance` + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
-| `ComplianceNoCisGdpr` | `ComplianceNoCis` + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
+| `ComplianceGdpr` | `Compliance` + GDPR, FADP, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
+| `ComplianceNoCisGdpr` | `ComplianceNoCis` + GDPR, FADP, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
 | `SecureConfigUnsupportedOs` | AD, NIS2, CIS, NIST, NEN 7510, ISO 27001, Cyber Essentials, Cyber Essentials Plus, DfE, DSPT, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
 | `SecureConfigCore` | `SecureConfigUnsupportedOs` + DORA, HIPAA, SOX (also PCI DSS, 800-171) |
-| `EntraGovernance` | Entra, NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 (**AD excluded** — it has its own AD-scoped group/user rules) |
-| `ExchangeDelegation` | Exchange + NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 (**AD, Entra and Active Roles excluded** — mailbox delegation is an Exchange data-access surface, not a directory-object concern) |
+| `EntraGovernance` | Entra, NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, FADP, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 (**AD excluded** — it has its own AD-scoped group/user rules) |
+| `ExchangeDelegation` | Exchange + NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, FADP, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 (**AD, Entra and Active Roles excluded** — mailbox delegation is an Exchange data-access surface, not a directory-object concern) |
 | `ExchangeOnly` | Exchange only (product-scoped mailbox / group hygiene rules) |
-| `ActiveRolesGdpr` | Active Roles + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
+| `ActiveRolesGdpr` | Active Roles + GDPR, FADP, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, BSI/KRITIS, CyFun, PCI DSS, 800-171 |
 | `ActiveRolesDora` | Active Roles, DORA |
 | `AdOnly` | AD only |
 | `ActiveRolesOnly` | Active Roles only |
