@@ -65,7 +65,11 @@ public static class AssessmentTypeInfo
         AssessmentType.Exchange
     };
 
-    public static string DisplayName(AssessmentType type) => type switch
+    public static string DisplayName(AssessmentType type) =>
+        Services.AssessmentLocalizer.Localize($"AssessmentName_{type}", DisplayNameEnglish(type));
+
+    /// <summary>English source-of-truth name used as the fallback when no localized value exists.</summary>
+    private static string DisplayNameEnglish(AssessmentType type) => type switch
     {
         AssessmentType.ActiveDirectory => "Active Directory",
         AssessmentType.Entra => "Entra ID",
@@ -100,7 +104,16 @@ public static class AssessmentTypeInfo
     /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE Cyber Standards, HDS, BSI/KRITIS, CyFun, FADP, NIST SP 800-171 and Exchange); empty otherwise.
     /// Shown as a banner in the Assessments UI and as a leading section in exported reports.
     /// </summary>
-    public static string Description(AssessmentType type) => type switch
+    public static string Description(AssessmentType type)
+    {
+        var english = DescriptionEnglish(type);
+        return string.IsNullOrEmpty(english)
+            ? string.Empty
+            : Services.AssessmentLocalizer.Localize($"AssessmentScope_{type}", english);
+    }
+
+    /// <summary>English source-of-truth scope text used as the fallback when no localized value exists.</summary>
+    private static string DescriptionEnglish(AssessmentType type) => type switch
     {
         AssessmentType.Entra =>
             "This assessment evaluates Entra ID identity-governance indicators surfaced through Active Roles, " +
