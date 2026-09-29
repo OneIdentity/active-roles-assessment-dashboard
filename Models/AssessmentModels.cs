@@ -23,6 +23,7 @@ public enum AssessmentType
     CyberEssentials,
     Dspt,
     DfeCyber,
+    Hds,
     PciDss,
     ActiveRoles,
     Exchange
@@ -50,6 +51,7 @@ public static class AssessmentTypeInfo
         AssessmentType.CyberEssentials,
         AssessmentType.Dspt,
         AssessmentType.DfeCyber,
+        AssessmentType.Hds,
         AssessmentType.PciDss,
         AssessmentType.ActiveRoles,
         AssessmentType.Exchange
@@ -74,6 +76,7 @@ public static class AssessmentTypeInfo
         AssessmentType.CyberEssentials => "Cyber Essentials (User Access Control)",
         AssessmentType.Dspt => "DSPT (Managing Data Access - NDG Standard 4)",
         AssessmentType.DfeCyber => "DfE Cyber Standards (Account & Access Management)",
+        AssessmentType.Hds => "HDS (Hébergeur de Données de Santé - Identity & Access)",
         AssessmentType.PciDss => "PCI DSS (Requirements 7 & 8 - Access Control)",
         AssessmentType.ActiveRoles => "Active Roles Configuration",
         AssessmentType.Exchange => "Exchange (On-Premises)",
@@ -82,7 +85,7 @@ public static class AssessmentTypeInfo
 
     /// <summary>
     /// Optional scope/disclaimer text for an assessment type. Returned as a non-empty string
-    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE Cyber Standards, NIST SP 800-171 and Exchange); empty otherwise.
+    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE Cyber Standards, HDS, NIST SP 800-171 and Exchange); empty otherwise.
     /// Shown as a banner in the Assessments UI and as a leading section in exported reports.
     /// </summary>
     public static string Description(AssessmentType type) => type switch
@@ -162,6 +165,15 @@ public static class AssessmentTypeInfo
             "Directory and Active Roles. It does NOT address backups, boundary firewalls, anti-malware, security " +
             "update management (patching), user training, or incident response, and it does NOT produce a DfE " +
             "standards-met determination. It is an identity and access-control indicator only.",
+        AssessmentType.Hds =>
+            "This assessment provides supporting indicators for the French Hébergeur de Données de Santé (HDS) " +
+            "health-data hosting certification, which is built on ISO/IEC 27001 with health-specific requirements, " +
+            "by evaluating identity, privileged-access and account-hygiene controls in Active Directory and Active " +
+            "Roles that support access control, least privilege and account lifecycle. It does NOT scope the hosted " +
+            "health-data environment, and it does NOT assess physical hosting security, availability and continuity " +
+            "of the hosting service, backups, encryption, logging and monitoring, sub-contractor assurance, or the " +
+            "organisational and contractual requirements of the HDS reference framework. It is an identity and " +
+            "access-control indicator only and is not an HDS certification or a determination of HDS compliance.",
         AssessmentType.PciDss =>
             "This assessment evaluates identity and access-management controls in Active Directory and Active Roles " +
             "that support PCI DSS Requirement 7 (restrict access to system components and cardholder data by " +
@@ -295,10 +307,10 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.CyberEssentials, AssessmentType.DfeCyber, AssessmentType.Dspt,
-        AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
-    // Core secure-configuration / authentication hardening controls (krbtgt hygiene and
+    // Core secure-configuration
     // domain password policy). Relevant to the security baselines and to the honestly
     // scoped frameworks that address secure configuration and authentication strength.
     private static readonly AssessmentType[] SecureConfigCore =
@@ -306,7 +318,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.CyberEssentials, AssessmentType.DfeCyber, AssessmentType.Dspt,
-        AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     // GDPR (Art. 32 / accountability) reuses a curated subset of the security and
@@ -319,7 +331,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.Dspt,
-        AssessmentType.DfeCyber, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     private static readonly AssessmentType[] ComplianceNoCisGdpr =
@@ -328,10 +340,10 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.Dspt,
-        AssessmentType.DfeCyber, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
-    // Active Roles delegation / change-control rules that also evidence GDPR accountability,
+    // Active Roles delegation
     // DORA ICT protection (Art. 9) / change-control integrity, HIPAA workforce access
     // management (45 CFR 164.308(a)(3)-(4)), SOX ITGC access & change management, TSA
     // management-plane access control, CAF Principle B2 identity & access control,
@@ -342,10 +354,10 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveRoles, AssessmentType.Gdpr, AssessmentType.Dora,
         AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.Tsa, AssessmentType.Caf,
         AssessmentType.CyberEssentials, AssessmentType.Dspt, AssessmentType.DfeCyber,
-        AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
-    // Rules that are meaningful only under the GDPR lens (not part of another framework).
+    // Rules that are meaningful only under the GDPR lens
     private static readonly AssessmentType[] GdprOnly = { AssessmentType.Gdpr };
 
     // Active Roles resilience / single-point-of-failure rules that also evidence DORA
@@ -398,10 +410,10 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials,
-        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
-    // Exchange mailbox delegation (Full Access, Send As, Send on Behalf) is an
+    // Exchange mailbox delegation
     // excessive-access / least-privilege and accountability concern that cuts across the
     // regulatory frameworks. Deliberately EXCLUDES the product-specific Active Directory,
     // Entra ID and Active Roles assessments (per scope): those focus on their own directory
@@ -416,7 +428,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nen7510, AssessmentType.Iso27001, AssessmentType.Gdpr,
         AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
         AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials,
-        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.PciDss,
+        AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss,
         AssessmentType.Nist171
     };
 
