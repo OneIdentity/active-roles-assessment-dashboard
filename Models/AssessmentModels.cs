@@ -408,7 +408,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveRoles, AssessmentType.Gdpr, AssessmentType.Fadp, AssessmentType.Dora,
         AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.Tsa, AssessmentType.Caf,
         AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt, AssessmentType.DfeCyber,
-        AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.PciDss, AssessmentType.Nist171
+        AssessmentType.Hds, AssessmentType.BsiKritis, AssessmentType.CyFun, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
     // Rules that are meaningful only under the GDPR lens
