@@ -487,6 +487,26 @@ public class ActiveRolesService
             };
         }
 
+        // Resolve the effective "Exclude from Managed Scope" policy link DNs once. An AD/Entra user
+        // is excluded from management (and therefore not licensed) when its edsvaAPOLinksEffective
+        // contains one of these DNs. Only resolved when a consumer needs it.
+        var needsManagedScope =
+            settings.IsKpiEnabled("ADUserAccountsCategory", "EnabledUsers")
+            || settings.IsKpiEnabled("ADUserAccountsCategory", "DisabledUsers")
+            || settings.IsKpiEnabled("ADUserAccountsCategory", "ManagedEnabledUsers")
+            || settings.IsKpiEnabled("EntraUserAccounts", "EntraEnabledUsers")
+            || settings.IsKpiEnabled("EntraUserAccounts", "EntraManagedUsers");
+        var excludeLinkDns = needsManagedScope
+            ? await GetExcludeFromManagedScopeLinkDnsAsync(token)
+            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        summary.ExcludeFromManagementLinkCount = excludeLinkDns.Count;
+
+        // Make the exclude-link set available to the Entra projections so managed status can be computed.
+        if (summary.EntraTotals != null)
+        {
+            summary.EntraTotals.ExcludeLinkDns = excludeLinkDns;
+        }
+
         // Derive Enabled/Disabled Users from AD User Accounts data
         if (summary.ADUserAccounts.Error == null)
         {
@@ -503,7 +523,8 @@ public class ActiveRolesService
                         Name = GetAttr(i, "name"),
                         Domain = GetAttr(i, "edsaDomainNetbiosName"),
                         Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = true
+                        Enabled = true,
+                        IsManaged = IsManagedByEffectiveLinks(GetAttrValues(i, "edsvaAPOLinksEffective"), excludeLinkDns)
                     }).ToList()
                 };
             }
@@ -520,7 +541,8 @@ public class ActiveRolesService
                         Name = GetAttr(i, "name"),
                         Domain = GetAttr(i, "edsaDomainNetbiosName"),
                         Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = false
+                        Enabled = false,
+                        IsManaged = IsManagedByEffectiveLinks(GetAttrValues(i, "edsvaAPOLinksEffective"), excludeLinkDns)
                     }).ToList()
                 };
             }
@@ -1638,7 +1660,12 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
             var filter = config.DefaultFilters.ADUserAccounts;
-            var attributes = string.Join(",", config.DefaultADUserAccountAttributes.Concat(config.CustomADUserAccountAttributes).Distinct());
+            // Always include edsvaAPOLinksEffective so the licensing/managed-scope logic can tell
+            // whether each user is excluded from Active Roles management (see IsManagedByEffectiveLinks).
+            var attributes = string.Join(",", config.DefaultADUserAccountAttributes
+                .Concat(config.CustomADUserAccountAttributes)
+                .Append("edsvaAPOLinksEffective")
+                .Distinct());
             var items = await SearchObjectsAsync(token, baseDn, filter, "sub", attributes);
             result.TotalCount = items.Count;
             result.Items = items;
@@ -1866,9 +1893,9 @@ public class ActiveRolesService
                 // additionally carry 'edsvaOnPremisesSyncEnabled' to back the Hybrid / Cloud-Only
                 // Users KPIs.
                 var attributes = type == EntraObjectType.User
-                    ? "name,distinguishedName,edsaAzureUserAccountEnabled,manager,edsaAzureUserPrincipalName,edsvaOnPremisesSyncEnabled"
+                    ? "name,distinguishedName,edsaAzureUserAccountEnabled,manager,edsaAzureUserPrincipalName,edsvaOnPremisesSyncEnabled,edsvaAPOLinksEffective"
                     : type == EntraObjectType.GuestUser
-                        ? "name,distinguishedName,edsaAzureUserAccountEnabled,edsaAzureUserPrincipalName"
+                        ? "name,distinguishedName,edsaAzureUserAccountEnabled,edsaAzureUserPrincipalName,edsvaAPOLinksEffective"
                         : "name,distinguishedName,visibility,edsvaOnPremisesSyncEnabled";
                 var raw = await SearchObjectsAsync(
                     token, baseDn, $"(objectClass={objectClass})", "sub", attributes);
@@ -2614,6 +2641,64 @@ public class ActiveRolesService
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
         return result;
+    }
+
+    // Fixed objectGUID of the built-in "Exclude from Managed Scope" policy. This GUID is stable
+    // across deployments, so we resolve its links by GUID rather than by (localizable) name.
+    private const string ExcludeFromManagedScopePolicyGuid = "5bbabd67-dc3e-4875-b39f-90209bd00b85";
+
+    /// <summary>
+    /// Resolves the distinguished names of the effective (non-blocking) Policy Object Links for the
+    /// built-in "Exclude from Managed Scope" policy. An object is excluded from Active Roles
+    /// management when its <c>edsvaAPOLinksEffective</c> multi-valued attribute contains one of these
+    /// link DNs. Links whose <c>edsaBlockingLink</c> is TRUE are disabled and therefore ignored.
+    /// Returns a case-insensitive set of link DNs; an empty set means nothing is excluded.
+    /// </summary>
+    private async Task<HashSet<string>> GetExcludeFromManagedScopeLinkDnsAsync(string token)
+    {
+        var links = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            var raw = await SearchObjectsAsync(
+                token,
+                "CN=AP Links,CN=Configuration",
+                "(objectClass=edsPolicyObjectLink)",
+                "sub",
+                "distinguishedName,edsaAPOGUID,edsaBlockingLink");
+
+            foreach (var link in raw)
+            {
+                if (!NormalizeGuid(GetAttr(link, "edsaAPOGUID")).Equals(ExcludeFromManagedScopePolicyGuid, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                // A blocking link is disabled and does not exclude objects.
+                if (ParseArBool(GetAttr(link, "edsaBlockingLink")))
+                    continue;
+                var dn = GetAttr(link, "distinguishedName");
+                if (!string.IsNullOrWhiteSpace(dn))
+                    links.Add(dn.Trim());
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to resolve Exclude from Managed Scope policy links; treating all objects as managed.");
+        }
+        return links;
+    }
+
+    /// <summary>
+    /// Determines whether an object is managed by Active Roles: it is managed unless its
+    /// <c>edsvaAPOLinksEffective</c> values include one of the effective Exclude-from-Managed-Scope
+    /// link DNs. When <paramref name="excludeLinkDns"/> is empty, every object is managed.
+    /// </summary>
+    private static bool IsManagedByEffectiveLinks(IEnumerable<string> effectiveLinkDns, HashSet<string> excludeLinkDns)
+    {
+        if (excludeLinkDns.Count == 0) return true;
+        foreach (var dn in effectiveLinkDns)
+        {
+            if (!string.IsNullOrWhiteSpace(dn) && excludeLinkDns.Contains(dn.Trim()))
+                return false;
+        }
+        return true;
     }
 
     // Normalizes a GUID string for comparison: strips braces/whitespace and lowercases.
@@ -4201,25 +4286,24 @@ public class ActiveRolesService
                 });
             }
 
-            foreach (var azure in root.Descendants(ns + "AzureObject"))
+            foreach (var azure in root.Descendants(ns + "AzureCount"))
             {
+                var cloudOnly = int.TryParse(azure.Element(ns + "CloudOnlyCount")?.Value, out var co) ? co : 0;
+                var hybrid = int.TryParse(azure.Element(ns + "HybridCount")?.Value, out var hy) ? hy : 0;
+                var guest = int.TryParse(azure.Element(ns + "GuestCount")?.Value, out var gu) ? gu : 0;
                 allItems.Add(new ManagedObjectItem
                 {
                     DisplayName = azure.Element(ns + "DisplayName")?.Value ?? "",
                     Category = "Azure",
-                    Count = int.TryParse(azure.Element(ns + "Count")?.Value, out var c) ? c : 0
+                    Count = cloudOnly + hybrid + guest,
+                    CloudOnlyCount = cloudOnly,
+                    HybridCount = hybrid,
+                    GuestCount = guest
                 });
             }
 
-            foreach (var saas in root.Descendants(ns + "SAASObject"))
-            {
-                allItems.Add(new ManagedObjectItem
-                {
-                    DisplayName = saas.Element(ns + "DisplayName")?.Value ?? "",
-                    Category = "SAAS",
-                    Count = int.TryParse(saas.Element(ns + "Count")?.Value, out var c) ? c : 0
-                });
-            }
+            // SAAS objects (e.g. Starling Connect) are not relevant to Active Roles licensing,
+            // so they are intentionally excluded from the managed-object statistics surface.
 
             dataPoint.Items = allItems;
             return dataPoint;

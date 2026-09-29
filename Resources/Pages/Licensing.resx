@@ -7,6 +7,17 @@
     <data name="LoadingDashboardData" xml:space="preserve"><value>Loading Dashboard Data...</value></data>
   <data name="BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
   <data name="H_ManagedObjects" xml:space="preserve"><value>Managed Objects</value></data>
+  <data name="Sub_CloudOnly" xml:space="preserve"><value>Cloud-only</value></data>
+  <data name="Sub_Hybrid" xml:space="preserve"><value>Hybrid</value></data>
+  <data name="Sub_Guest" xml:space="preserve"><value>Guest</value></data>
+  <data name="Sub_ActiveDirectory" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="Sub_ExcludedFromManagement" xml:space="preserve"><value>Excluded from management</value></data>
+  <data name="H_LicensingComposition" xml:space="preserve"><value>Licensing Composition</value></data>
+  <data name="Intro_LicensingComposition" xml:space="preserve"><value>Objects that consume licences: managed enabled users per AD domain and managed cloud-only objects per Entra tenant. Objects excluded from the managed scope are not counted.</value></data>
+  <data name="Comp_LicensedObjects" xml:space="preserve"><value>Licensed objects</value></data>
+  <data name="H_LicensingExcluded" xml:space="preserve"><value>Excluded from Licensing</value></data>
+  <data name="Intro_LicensingExcluded" xml:space="preserve"><value>Objects that do not consume licences: disabled users per AD domain, hybrid and guest objects per Entra tenant, and objects excluded from the managed scope.</value></data>
+  <data name="Comp_ExcludedObjects" xml:space="preserve"><value>Excluded objects</value></data>
   <data name="E_ManagedObjects" xml:space="preserve"><value>No managed object statistics found</value></data>
   <data name="Chart_Time" xml:space="preserve"><value>Time</value></data>
   <data name="Chart_ObjectCount" xml:space="preserve"><value>Object Count</value></data>

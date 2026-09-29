@@ -1434,6 +1434,7 @@ public class KpiInfo
     public static readonly KpiInfo EntraExternalUsers = new() { Key = "EntraExternalUsers", DisplayName = "External Users", CategoryKey = "EntraUserAccounts", CssColor = "pink", SectionId = "entraexternalusers", SortOrder = 5, HasDrilldown = true };
     public static readonly KpiInfo EntraHybridUsers = new() { Key = "EntraHybridUsers", DisplayName = "Hybrid Users", CategoryKey = "EntraUserAccounts", CssColor = "teal", SectionId = "entrahybridusers", SortOrder = 6, HasDrilldown = true };
     public static readonly KpiInfo EntraCloudOnlyUsers = new() { Key = "EntraCloudOnlyUsers", DisplayName = "Cloud-Only Users", CategoryKey = "EntraUserAccounts", CssColor = "blue", SectionId = "entracloudonlyusers", SortOrder = 7, HasDrilldown = true };
+    public static readonly KpiInfo EntraManagedUsers = new() { Key = "EntraManagedUsers", DisplayName = "Managed Users", CategoryKey = "EntraUserAccounts", CssColor = "green", SectionId = "entramanagedusers", SortOrder = 8, HasDrilldown = true };
     public static readonly KpiInfo EntraDistributionGroups = new() { Key = "EntraDistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "EntraGroups", CssColor = "blue", SectionId = "entradistributiongroups", SortOrder = 0, HasDrilldown = true };
     public static readonly KpiInfo EntraDynamicDistributionGroups = new() { Key = "EntraDynamicDistributionGroups", DisplayName = "Dynamic Distribution Groups", CategoryKey = "EntraGroups", CssColor = "teal", SectionId = "entradynamicdistributiongroups", SortOrder = 1, HasDrilldown = true };
     public static readonly KpiInfo EntraMicrosoft365Groups = new() { Key = "EntraMicrosoft365Groups", DisplayName = "Microsoft 365 Groups", CategoryKey = "EntraGroups", CssColor = "purple", SectionId = "entramicrosoft365groups", SortOrder = 2, HasDrilldown = true };
@@ -1519,6 +1520,7 @@ public class KpiInfo
     // Hybrid identity KPIs (derived from shared ADUserAccounts search via msDS-ExternalDirectoryObjectId).
     public static readonly KpiInfo HybridUsers = new() { Key = "HybridUsers", DisplayName = "Hybrid Users", CategoryKey = "ADUserAccountsCategory", CssColor = "teal", SectionId = "hybridusers", SortOrder = 24, HasDrilldown = true };
     public static readonly KpiInfo OnPremOnlyUsers = new() { Key = "OnPremOnlyUsers", DisplayName = "On-Prem-Only Users", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "onpremonlyusers", SortOrder = 25, HasDrilldown = true };
+    public static readonly KpiInfo ManagedEnabledUsers = new() { Key = "ManagedEnabledUsers", DisplayName = "Managed Enabled Users", CategoryKey = "ADUserAccountsCategory", CssColor = "green", SectionId = "managedenabledusers", SortOrder = 26, HasDrilldown = true };
 
     // AD Groups KPIs (derived from shared ADGroups search)
     public static readonly KpiInfo DistributionGroups = new() { Key = "DistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "distributiongroups", SortOrder = 0, HasDrilldown = true };
@@ -1606,14 +1608,14 @@ public class KpiInfo
         ADUserAccounts, ADGroups, Computers, MainTotalMailboxes,
         AdOverviewUsers, AdOverviewGroups, AdOverviewComputers,
         EntraOverviewUsers, EntraOverviewGroups,
-        EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers, EntraHybridUsers, EntraCloudOnlyUsers,
+        EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers, EntraHybridUsers, EntraCloudOnlyUsers, EntraManagedUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
         ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules, EntraManagedTenants,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
         MustChangePassword, PasswordNotRequired, SmartCardRequired, CannotChangePassword,
-        DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers,
+        DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers, ManagedEnabledUsers,
         DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting,
         AdminCount,
         Sites, SiteLinks, Subnets, OUs, DomainControllers,
@@ -1806,6 +1808,7 @@ public class KpiSettings
     public bool StaleUsersEnabled { get; set; } = true;
     public bool HybridUsersEnabled { get; set; } = true;
     public bool OnPremOnlyUsersEnabled { get; set; } = true;
+    public bool ManagedEnabledUsersEnabled { get; set; } = true;
     public bool ADGroupsEnabled { get; set; } = true;
     public bool ComputersEnabled { get; set; } = true;
     public bool DistributionGroupsEnabled { get; set; } = true;
@@ -1832,6 +1835,7 @@ public class KpiSettings
     public bool EntraExternalUsersEnabled { get; set; } = true;
     public bool EntraHybridUsersEnabled { get; set; } = true;
     public bool EntraCloudOnlyUsersEnabled { get; set; } = true;
+    public bool EntraManagedUsersEnabled { get; set; } = true;
     public bool EntraGroupsEnabled { get; set; } = true;
     public bool EntraDistributionGroupsEnabled { get; set; } = true;
     public bool EntraDynamicDistributionGroupsEnabled { get; set; } = true;
@@ -1957,6 +1961,7 @@ public class KpiSettings
             "DisabledUsers" => DisabledUsersEnabled,
             "HybridUsers" => HybridUsersEnabled,
             "OnPremOnlyUsers" => OnPremOnlyUsersEnabled,
+            "ManagedEnabledUsers" => ManagedEnabledUsersEnabled,
             "EntraEnabledUsers" => EntraEnabledUsersEnabled,
             "EntraDisabledUsers" => EntraDisabledUsersEnabled,
             "EntraNoManagerUser" => EntraNoManagerUserEnabled,
@@ -1965,6 +1970,7 @@ public class KpiSettings
             "EntraExternalUsers" => EntraExternalUsersEnabled,
             "EntraHybridUsers" => EntraHybridUsersEnabled,
             "EntraCloudOnlyUsers" => EntraCloudOnlyUsersEnabled,
+            "EntraManagedUsers" => EntraManagedUsersEnabled,
             "EntraDistributionGroups" => EntraDistributionGroupsEnabled,
             "EntraDynamicDistributionGroups" => EntraDynamicDistributionGroupsEnabled,
             "EntraMicrosoft365Groups" => EntraMicrosoft365GroupsEnabled,
@@ -2137,6 +2143,10 @@ public class DashboardSummary
     public ADUserAccountDetailSummary AdminCount { get; set; } = new();
     public ADUserAccountDetailSummary EnabledUsers { get; set; } = new();
     public ADUserAccountDetailSummary DisabledUsers { get; set; } = new();
+
+    /// <summary>Number of effective (non-blocking) "Exclude from Managed Scope" policy links resolved. Zero means nothing is excluded from management.</summary>
+    public int ExcludeFromManagementLinkCount { get; set; }
+
     public ADUserAccountDetailSummary MustChangePassword { get; set; } = new();
     public ADUserAccountDetailSummary PasswordNotRequired { get; set; } = new();
     public ADUserAccountDetailSummary SmartCardRequired { get; set; } = new();
@@ -2398,6 +2408,7 @@ public class DashboardSummary
         "EntraExternalUsers" => (EntraTotals.EntraUsersByOrigin(external: true).TotalCount, EntraTotals.Error),
         "EntraHybridUsers" => (EntraTotals.EntraUsers(onPremSynced: true).TotalCount, EntraTotals.Error),
         "EntraCloudOnlyUsers" => (EntraTotals.EntraUsers(onPremSynced: false).TotalCount, EntraTotals.Error),
+        "EntraManagedUsers" => (EntraTotals.EntraUsers(enabled: true).Items.Count(i => i.IsManaged), EntraTotals.Error),
         "EntraDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DistributionGroup), EntraTotals.Error),
         "EntraDynamicDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DynamicDistributionGroup), EntraTotals.Error),
         "EntraMicrosoft365Groups" => (EntraTotals.CountFor(EntraObjectType.Microsoft365Group), EntraTotals.Error),
@@ -2460,6 +2471,7 @@ public class DashboardSummary
         "DisabledUsers" => (DisabledUsers.TotalCount, DisabledUsers.Error),
         "HybridUsers" => (HybridUsers.TotalCount, HybridUsers.Error),
         "OnPremOnlyUsers" => (OnPremOnlyUsers.TotalCount, OnPremOnlyUsers.Error),
+        "ManagedEnabledUsers" => (EnabledUsers.Items.Count(i => i.IsManaged), EnabledUsers.Error),
         "ExpiringUsers" => (ExpiringUsers.TotalCount, ExpiringUsers.Error),
         "PasswordNeverExpires" => (PasswordNeverExpires.TotalCount, PasswordNeverExpires.Error),
         "MustChangePassword" => (MustChangePassword.TotalCount, MustChangePassword.Error),
@@ -2619,6 +2631,15 @@ public class DashboardSummary
             Error = s.Error
         };
 
+        // AD user detail including a Managed column (Name / Domain / Distinguished Name / Managed).
+        // Used for licensing-relevant drilldowns where managed-scope exclusion is meaningful.
+        ReportTable? UserDetailManaged(ADUserAccountDetailSummary s) => new()
+        {
+            Columns = ["Name", "Domain", "Distinguished Name", "Managed"],
+            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Domain, i.Dn, i.IsManaged.ToString()]).ToList(),
+            Error = s.Error
+        };
+
         // AD user detail including Description (Name / Distinguished Name / Description).
         ReportTable? UserDetailWithDescription(ADUserAccountDetailSummary s) => new()
         {
@@ -2667,6 +2688,14 @@ public class DashboardSummary
             Error = s.Error
         };
 
+        // Entra user-account detail including a Managed column (Name / Tenant / Distinguished Name / Enabled / Managed).
+        ReportTable? EntraUserDetailManaged(EntraUserDetailSummary s) => new()
+        {
+            Columns = ["Name", "Tenant", "Distinguished Name", "Enabled", "Managed"],
+            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Tenant, i.Dn, i.Enabled.ToString(), i.IsManaged.ToString()]).ToList(),
+            Error = s.Error
+        };
+
         // Entra hybrid user-account detail, adds the Synced From column (source directory).
         ReportTable? EntraUserDetailSynced(EntraUserDetailSummary s) => new()
         {
@@ -2694,8 +2723,9 @@ public class DashboardSummary
         return kpiKey switch
         {
             // AD User Accounts category (derived detail lists)
-            "EnabledUsers" => UserDetail(EnabledUsers),
-            "DisabledUsers" => UserDetail(DisabledUsers),
+            "EnabledUsers" => UserDetailManaged(EnabledUsers),
+            "DisabledUsers" => UserDetailManaged(DisabledUsers),
+            "ManagedEnabledUsers" => UserDetailManaged(new ADUserAccountDetailSummary { Items = EnabledUsers.Items.Where(i => i.IsManaged).ToList(), TotalCount = EnabledUsers.Items.Count(i => i.IsManaged), Error = EnabledUsers.Error }),
             "HybridUsers" => UserDetailSynced(HybridUsers),
             "OnPremOnlyUsers" => UserDetail(OnPremOnlyUsers),
             "MustChangePassword" => UserDetail(MustChangePassword),
@@ -2723,8 +2753,9 @@ public class DashboardSummary
             },
 
             // Entra User Accounts category (derived from Entra user objects)
-            "EntraEnabledUsers" => EntraUserDetail(EntraTotals.EntraUsers(enabled: true)),
-            "EntraDisabledUsers" => EntraUserDetail(EntraTotals.EntraUsers(enabled: false)),
+            "EntraEnabledUsers" => EntraUserDetailManaged(EntraTotals.EntraUsers(enabled: true)),
+            "EntraDisabledUsers" => EntraUserDetailManaged(EntraTotals.EntraUsers(enabled: false)),
+            "EntraManagedUsers" => EntraUserDetailManaged(new EntraUserDetailSummary { Items = EntraTotals.EntraUsers(enabled: true).Items.Where(i => i.IsManaged).ToList(), Error = EntraTotals.Error }),
             "EntraNoManagerUser" => EntraUserDetail(EntraTotals.EntraUsers(noManager: true)),
             "EntraGuestUsers" => EntraUserDetail(EntraTotals.GuestUsers()),
             "EntraInternalUsers" => EntraUserDetail(EntraTotals.EntraUsersByOrigin(external: false)),
@@ -2929,6 +2960,12 @@ public class ADUserAccountDetailInfo : IPermissionScoped
     /// the account is synced to. Empty for On-Prem-Only users.
     /// </summary>
     public string SyncedIdentity { get; set; } = string.Empty;
+
+    /// <summary>
+    /// True when the object is managed by Active Roles (i.e. not excluded from the managed scope
+    /// by an effective "Exclude from Managed Scope" policy link). Only managed objects consume licences.
+    /// </summary>
+    public bool IsManaged { get; set; } = true;
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
@@ -3290,6 +3327,13 @@ public class ManagedObjectItem
     public string DisplayName { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public int Count { get; set; }
+
+    /// <summary>For Azure/Entra tenants: cloud-only object count (the only Entra objects that are licensed).</summary>
+    public int CloudOnlyCount { get; set; }
+    /// <summary>For Azure/Entra tenants: hybrid (on-premises-synced) object count. Not licensed.</summary>
+    public int HybridCount { get; set; }
+    /// <summary>For Azure/Entra tenants: guest object count. Not licensed.</summary>
+    public int GuestCount { get; set; }
 }
 
 public class NoGroupOwnerSummary
@@ -3589,7 +3633,11 @@ public class EntraUserDetailInfo
     public bool Enabled { get; set; }
 
     /// <summary>
-    /// For external (guest / #EXT# ) users, the resolved home tenant derived from the
+    /// True when the Entra user is managed by Active Roles (not excluded from the managed scope
+    /// by an effective "Exclude from Managed Scope" policy link). Only managed users consume licences.
+    /// </summary>
+    public bool IsManaged { get; set; } = true;
+
     /// portion of <c>edsaAzureUserPrincipalName</c> before the <c>#EXT#</c> marker.
     /// Empty for internal users.
     /// </summary>
@@ -3967,6 +4015,26 @@ public class EntraTotalsSummary
     public bool MembershipLoaded { get; set; }
 
     /// <summary>
+    /// Effective (non-blocking) "Exclude from Managed Scope" policy link DNs. Populated by the
+    /// service layer. An Entra user whose <c>edsvaAPOLinksEffective</c> contains one of these DNs
+    /// is excluded from Active Roles management and does not consume a licence.
+    /// </summary>
+    [JsonIgnore] public HashSet<string> ExcludeLinkDns { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Returns true when the Entra object is managed (not excluded from the managed scope).</summary>
+    private bool IsEntraObjectManaged(EntraObjectInfo info)
+    {
+        if (ExcludeLinkDns.Count == 0) return true;
+        var links = SegmentAttributes.MultiAttrOf(info.Raw, "edsvaAPOLinksEffective");
+        foreach (var dn in links)
+        {
+            if (!string.IsNullOrWhiteSpace(dn) && ExcludeLinkDns.Contains(dn.Trim()))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Number of group items whose membership has already been lazily loaded (across one or
     /// more batches). Persisted in session so that navigating between dashboard pages resumes
     /// batched loading from this offset instead of restarting from the full group count.
@@ -4050,6 +4118,7 @@ public class EntraTotalsSummary
                 Tenant = u.Tenant,
                 Dn = u.Dn,
                 Enabled = isEnabled,
+                IsManaged = IsEntraObjectManaged(u),
                 SyncedIdentity = synced ? "On-premises Active Directory" : string.Empty
             });
         }
@@ -4073,7 +4142,8 @@ public class EntraTotalsSummary
                 Name = u.Name,
                 Tenant = u.Tenant,
                 Dn = u.Dn,
-                Enabled = IsEntraUserEnabled(u)
+                Enabled = IsEntraUserEnabled(u),
+                IsManaged = IsEntraObjectManaged(u)
             })
             .ToList();
 

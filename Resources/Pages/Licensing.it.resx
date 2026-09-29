@@ -7,6 +7,17 @@
     <data name="LoadingDashboardData" xml:space="preserve"><value>Caricamento dei dati della dashboard...</value></data>
   <data name="BackToDashboard" xml:space="preserve"><value>Torna al dashboard</value></data>
   <data name="H_ManagedObjects" xml:space="preserve"><value>Oggetti gestiti</value></data>
+  <data name="Sub_CloudOnly" xml:space="preserve"><value>Solo cloud</value></data>
+  <data name="Sub_Hybrid" xml:space="preserve"><value>Ibrido</value></data>
+  <data name="Sub_Guest" xml:space="preserve"><value>Ospite</value></data>
+  <data name="Sub_ActiveDirectory" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="Sub_ExcludedFromManagement" xml:space="preserve"><value>Escluso dalla gestione</value></data>
+  <data name="H_LicensingComposition" xml:space="preserve"><value>Composizione delle licenze</value></data>
+  <data name="Intro_LicensingComposition" xml:space="preserve"><value>Oggetti che consumano licenze: utenti abilitati gestiti per dominio AD e oggetti solo cloud gestiti per tenant Entra. Gli oggetti esclusi dall'ambito gestito non vengono conteggiati.</value></data>
+  <data name="Comp_LicensedObjects" xml:space="preserve"><value>Oggetti con licenza</value></data>
+  <data name="H_LicensingExcluded" xml:space="preserve"><value>Esclusi dalla licenza</value></data>
+  <data name="Intro_LicensingExcluded" xml:space="preserve"><value>Oggetti che non consumano licenze: utenti disabilitati per dominio AD, oggetti ibridi e guest per tenant Entra e oggetti esclusi dall'ambito gestito.</value></data>
+  <data name="Comp_ExcludedObjects" xml:space="preserve"><value>Oggetti esclusi</value></data>
   <data name="E_ManagedObjects" xml:space="preserve"><value>Nessuna statistica sugli oggetti gestiti trovata</value></data>
   <data name="Chart_Time" xml:space="preserve"><value>Ora</value></data>
   <data name="Chart_ObjectCount" xml:space="preserve"><value>Numero di oggetti</value></data>

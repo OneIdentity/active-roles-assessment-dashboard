@@ -63,6 +63,8 @@
   <data name="Kpi_OnPremOnlyUsers" xml:space="preserve"><value>Usuarios solo locales</value></data>
   <data name="Kpi_EntraHybridUsers" xml:space="preserve"><value>Usuarios híbridos</value></data>
   <data name="Kpi_EntraCloudOnlyUsers" xml:space="preserve"><value>Usuarios solo en la nube</value></data>
+  <data name="Kpi_ManagedEnabledUsers" xml:space="preserve"><value>Usuarios habilitados administrados</value></data>
+  <data name="Kpi_EntraManagedUsers" xml:space="preserve"><value>Usuarios administrados</value></data>
   <data name="Chart_UserHybridStateBreakdown" xml:space="preserve"><value>Usuarios por estado de sincronización</value></data>
   <data name="Chart_EntraUserHybridStateBreakdown" xml:space="preserve"><value>Usuarios por estado de sincronización</value></data>
   <data name="Kpi_EntraDistributionGroups" xml:space="preserve"><value>Grupos de distribución</value></data>
