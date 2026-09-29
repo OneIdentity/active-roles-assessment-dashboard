@@ -771,13 +771,13 @@ public static class AssessmentRuleLibrary
         new()
         {
             Id = "CFG-NoAccountLockout",
-            Title = "No account lockout threshold configured",
+            Title = "Account lockout threshold missing or too high",
             CategoryName = "Secure Configuration",
             KpiKey = "NoAccountLockout",
             Severity = AssessmentSeverity.Medium,
             Types = SecureConfigCore,
             WarnThreshold = 1, FailThreshold = 1,
-            Recommendation = "The account lockout threshold is zero, so accounts are never locked after repeated failed logons. Configure a lockout threshold to slow online password-guessing and brute-force attacks."
+            Recommendation = "The account lockout threshold is either disabled (accounts never lock after repeated failed logons) or set too high. Configure a lockout threshold of no more than 10 failed attempts (or equivalent throttling) to slow online password-guessing and brute-force attacks, in line with Cyber Essentials."
         },
         new()
         {

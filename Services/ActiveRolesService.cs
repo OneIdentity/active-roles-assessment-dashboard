@@ -1581,12 +1581,18 @@ public class ActiveRolesService
         // a value of 1 means "weak" (fails a warn/fail threshold of 1), 0 means "adequate".
         try
         {
+            // Subtree search for the domain root (domainDNS) object so the default password
+            // policy is found regardless of whether DefaultActiveDirectoryDN points at the domain
+            // root, an OU, or a container. A base-scope read only works when the configured DN is
+            // exactly the domain root, which caused the policy checks to report as unavailable.
             var items = await SearchObjectsAsync(token, baseDn,
-                "(objectClass=domainDNS)", "base",
+                "(objectClass=domainDNS)", "sub",
                 "minPwdLength,maxPwdAge,pwdProperties,lockoutThreshold,edsaDomainNetbiosName");
-            if (items.Count > 0)
+            var domainItem = items.FirstOrDefault(i =>
+                i.ValueKind == JsonValueKind.Object && !string.IsNullOrEmpty(GetAttr(i, "minPwdLength")));
+            if (domainItem.ValueKind == JsonValueKind.Object)
             {
-                var domain = items[0];
+                var domain = domainItem;
                 var domainName = GetAttr(domain, "edsaDomainNetbiosName");
                 var minLen = int.TryParse(GetAttr(domain, "minPwdLength"), out var ml) ? ml : -1;
                 var pwdProps = long.TryParse(GetAttr(domain, "pwdProperties"), out var pp) ? pp : 0;
@@ -1603,9 +1609,13 @@ public class ActiveRolesService
                     maxAgeDays = (int)Math.Round(TimeSpan.FromTicks(Math.Abs(maxPwdAge)).TotalDays);
                 }
 
+                // Lockout is weak when disabled (threshold 0) or set too high. Cyber Essentials
+                // expects accounts to lock after no more than 10 unsuccessful attempts.
+                bool weakLockout = lockoutThreshold == 0 || lockoutThreshold > 10;
+
                 summary.WeakPasswordLength = new SecurityHealthSummary { Value = (minLen >= 0 && minLen < 12) ? 1 : 0, Domain = domainName };
                 summary.PasswordComplexityDisabled = new SecurityHealthSummary { Value = complexityEnabled ? 0 : 1, Domain = domainName };
-                summary.NoAccountLockout = new SecurityHealthSummary { Value = (lockoutThreshold == 0) ? 1 : 0, Domain = domainName };
+                summary.NoAccountLockout = new SecurityHealthSummary { Value = weakLockout ? 1 : 0, Domain = domainName };
                 summary.PasswordMaxAgeDays = new SecurityHealthSummary { Value = maxAgeDays, Domain = domainName };
             }
             else
