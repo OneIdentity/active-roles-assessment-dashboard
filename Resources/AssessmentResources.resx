@@ -106,7 +106,7 @@
   <data name="RuleTitle_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>krbtgt password age (days)</value></data>
   <data name="RuleTitle_CFG-WeakPasswordLength" xml:space="preserve"><value>Minimum password length below 12 characters</value></data>
   <data name="RuleTitle_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Password complexity disabled</value></data>
-  <data name="RuleTitle_CFG-NoAccountLockout" xml:space="preserve"><value>No account lockout threshold configured</value></data>
+  <data name="RuleTitle_CFG-NoAccountLockout" xml:space="preserve"><value>Account lockout threshold missing or too high</value></data>
   <data name="RuleTitle_CFG-PasswordMaxAge" xml:space="preserve"><value>Maximum password age (days)</value></data>
   <data name="RuleTitle_PRIV-AdminCountAccounts" xml:space="preserve"><value>Accounts flagged with adminCount=1</value></data>
   <data name="RuleTitle_PRIV-DomainAdmins" xml:space="preserve"><value>Domain Admins membership size</value></data>
@@ -172,7 +172,7 @@
   <data name="RuleRec_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>A rarely rotated krbtgt account password increases exposure to Kerberos Golden Ticket attacks. Rotate the krbtgt password on a regular schedule (twice, with a delay between rotations) so forged tickets cannot remain valid indefinitely.</value></data>
   <data name="RuleRec_CFG-WeakPasswordLength" xml:space="preserve"><value>The default domain minimum password length is below 12 characters. Increase the minimum length (12+ recommended) to strengthen resistance to password-guessing and offline cracking.</value></data>
   <data name="RuleRec_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Password complexity is disabled in the default domain policy. Enable complexity so passwords must include a mix of character types, reducing the risk of weak, easily guessed passwords.</value></data>
-  <data name="RuleRec_CFG-NoAccountLockout" xml:space="preserve"><value>The account lockout threshold is zero, so accounts are never locked after repeated failed logons. Configure a lockout threshold to slow online password-guessing and brute-force attacks.</value></data>
+  <data name="RuleRec_CFG-NoAccountLockout" xml:space="preserve"><value>The account lockout threshold is either disabled (accounts never lock after repeated failed logons) or set too high. Configure a lockout threshold of no more than 10 failed attempts (or equivalent throttling) to slow online password-guessing and brute-force attacks, in line with Cyber Essentials.</value></data>
   <data name="RuleRec_CFG-PasswordMaxAge" xml:space="preserve"><value>The maximum password age is very long (or passwords never expire). Align the maximum password age with your policy; where long-lived passwords are used, ensure they are long, unique and backed by phishing-resistant MFA.</value></data>
   <data name="RuleRec_PRIV-AdminCountAccounts" xml:space="preserve"><value>Accounts with adminCount=1 are (or were) members of protected privileged groups and are governed by AdminSDHolder. A high or growing count can indicate privilege creep or orphaned protection. Review these accounts, remove unnecessary privileged group membership, and reset stale adminCount/protection where appropriate.</value></data>
   <data name="RuleRec_PRIV-DomainAdmins" xml:space="preserve"><value>Keep Domain Admins to a small, named set of accounts. Remove standing membership, use just-in-time elevation, and review regularly.</value></data>

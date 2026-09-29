@@ -173,7 +173,7 @@ Entra ID group-ownership/review and guest/external-access indicators surfaced th
 | `CFG-KrbtgtPasswordAge` | krbtgt password age (days) | `KrbtgtPasswordAgeDays` | High | 180 / 365 | SecureConfigCore |
 | `CFG-WeakPasswordLength` | Minimum password length below 12 characters | `WeakPasswordLength` | High | 1 / 1 | SecureConfigCore |
 | `CFG-PasswordComplexityDisabled` | Password complexity disabled | `PasswordComplexityDisabled` | High | 1 / 1 | SecureConfigCore |
-| `CFG-NoAccountLockout` | No account lockout threshold configured | `NoAccountLockout` | Medium | 1 / 1 | SecureConfigCore |
+| `CFG-NoAccountLockout` | Account lockout threshold missing or too high (0 or > 10) | `NoAccountLockout` | Medium | 1 / 1 | SecureConfigCore |
 | `CFG-PasswordMaxAge` | Maximum password age (days) | `PasswordMaxAgeDays` | Low | 366 / 731 | SecureConfigCore |
 
 > **Note on encoded signals:** `WeakPasswordLength`, `PasswordComplexityDisabled` and `NoAccountLockout` are **0/1 weakness indicators** (`1` = weak/misconfigured). `KrbtgtPasswordAgeDays` and `PasswordMaxAgeDays` are measured in **days**.
