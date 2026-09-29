@@ -21,6 +21,7 @@ public enum AssessmentType
     Tsa,
     Caf,
     CyberEssentials,
+    CyberEssentialsPlus,
     Dspt,
     DfeCyber,
     Hds,
@@ -49,6 +50,7 @@ public static class AssessmentTypeInfo
         AssessmentType.Tsa,
         AssessmentType.Caf,
         AssessmentType.CyberEssentials,
+        AssessmentType.CyberEssentialsPlus,
         AssessmentType.Dspt,
         AssessmentType.DfeCyber,
         AssessmentType.Hds,
@@ -74,6 +76,7 @@ public static class AssessmentTypeInfo
         AssessmentType.Tsa => "TSA (Management-Plane Access & Privilege)",
         AssessmentType.Caf => "CAF (Identity & Access Control - Principle B2)",
         AssessmentType.CyberEssentials => "Cyber Essentials (User Access Control)",
+        AssessmentType.CyberEssentialsPlus => "Cyber Essentials Plus (Independently Verified User Access Control)",
         AssessmentType.Dspt => "DSPT (Managing Data Access - NDG Standard 4)",
         AssessmentType.DfeCyber => "DfE Cyber Standards (Account & Access Management)",
         AssessmentType.Hds => "HDS (Hébergeur de Données de Santé - Identity & Access)",
@@ -85,7 +88,7 @@ public static class AssessmentTypeInfo
 
     /// <summary>
     /// Optional scope/disclaimer text for an assessment type. Returned as a non-empty string
-    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE Cyber Standards, HDS, NIST SP 800-171 and Exchange); empty otherwise.
+    /// only for frameworks that need an explicit scope statement (currently Entra, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE Cyber Standards, HDS, NIST SP 800-171 and Exchange); empty otherwise.
     /// Shown as a banner in the Assessments UI and as a leading section in exported reports.
     /// </summary>
     public static string Description(AssessmentType type) => type switch
@@ -149,6 +152,16 @@ public static class AssessmentTypeInfo
             "privileged-access and account-hygiene controls in Active Directory and Active Roles. It does NOT address " +
             "the firewalls/boundary, malware protection, or security update management (patching) controls, does NOT " +
             "verify device-level configuration, and is NOT a Cyber Essentials or Cyber Essentials Plus certification.",
+        AssessmentType.CyberEssentialsPlus =>
+            "This assessment provides supporting indicators for the UK Cyber Essentials Plus scheme, the " +
+            "independently verified tier of Cyber Essentials. It covers the same 'User Access Control' and 'Secure " +
+            "Configuration' technical themes as base Cyber Essentials, and additionally emphasises the deeper " +
+            "credential and authentication-lifecycle signals (password/authentication configuration and account " +
+            "lifecycle) that an independent hands-on audit scrutinises, by evaluating identity, privileged-access " +
+            "and account-hygiene controls in Active Directory and Active Roles. It does NOT perform the authenticated " +
+            "vulnerability scans, malware-protection tests, or hands-on device assessment that a Cyber Essentials " +
+            "Plus assessor carries out, does NOT address the firewalls/boundary or security update management " +
+            "(patching) controls, and is NOT a Cyber Essentials Plus certification or a determination of compliance.",
         AssessmentType.Dspt =>
             "This assessment provides supporting indicators for the UK Data Security and Protection Toolkit (DSPT), " +
             "primarily the National Data Guardian 'Managing Data Access' standard (Standard 4) and, in part, secure " +
@@ -306,7 +319,7 @@ public static class AssessmentRuleLibrary
     {
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
-        AssessmentType.CyberEssentials, AssessmentType.DfeCyber, AssessmentType.Dspt,
+        AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.DfeCyber, AssessmentType.Dspt,
         AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
@@ -317,7 +330,7 @@ public static class AssessmentRuleLibrary
     {
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
-        AssessmentType.CyberEssentials, AssessmentType.DfeCyber, AssessmentType.Dspt,
+        AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.DfeCyber, AssessmentType.Dspt,
         AssessmentType.Hds, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
@@ -330,7 +343,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
-        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.Dspt,
+        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt,
         AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
@@ -339,7 +352,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.ActiveDirectory, AssessmentType.Nis2,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
-        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.Dspt,
+        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt,
         AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
@@ -353,7 +366,7 @@ public static class AssessmentRuleLibrary
     {
         AssessmentType.ActiveRoles, AssessmentType.Gdpr, AssessmentType.Dora,
         AssessmentType.Hipaa, AssessmentType.Sox, AssessmentType.Tsa, AssessmentType.Caf,
-        AssessmentType.CyberEssentials, AssessmentType.Dspt, AssessmentType.DfeCyber,
+        AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus, AssessmentType.Dspt, AssessmentType.DfeCyber,
         AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
@@ -375,9 +388,11 @@ public static class AssessmentRuleLibrary
 
     // Password/authentication lifecycle rules shared by HIPAA workforce access management,
     // PCI DSS Requirement 8 (identify users and authenticate access / credential lifecycle),
-    // and NIST SP 800-171 Identification & Authentication (3.5).
+    // NIST SP 800-171 Identification & Authentication (3.5), and Cyber Essentials Plus (the
+    // independently verified tier, which scrutinises credential/authentication lifecycle more
+    // deeply than base Cyber Essentials).
     private static readonly AssessmentType[] CredentialLifecycleShared =
-        { AssessmentType.Hipaa, AssessmentType.PciDss, AssessmentType.Nist171 };
+        { AssessmentType.Hipaa, AssessmentType.PciDss, AssessmentType.Nist171, AssessmentType.CyberEssentialsPlus };
 
     // Rules that are meaningful only under the SOX lens (not part of another framework).
     private static readonly AssessmentType[] SoxOnly = { AssessmentType.Sox };
@@ -388,8 +403,9 @@ public static class AssessmentRuleLibrary
     // Rules that are meaningful only under the CAF lens (not part of another framework).
     private static readonly AssessmentType[] CafOnly = { AssessmentType.Caf };
 
-    // Rules that are meaningful only under the Cyber Essentials lens (not part of another framework).
-    private static readonly AssessmentType[] CyberEssentialsOnly = { AssessmentType.CyberEssentials };
+    // User Access Control rules shared by base Cyber Essentials and the independently verified
+    // Cyber Essentials Plus tier (both cover the same 'User Access Control' technical control).
+    private static readonly AssessmentType[] CyberEssentialsShared = { AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus };
 
     // Rules that are meaningful only under the DSPT lens (not part of another framework).
     private static readonly AssessmentType[] DsptOnly = { AssessmentType.Dspt };
@@ -409,7 +425,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Entra, AssessmentType.Nis2, AssessmentType.Cis,
         AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
         AssessmentType.Gdpr, AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
-        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials,
+        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus,
         AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss, AssessmentType.Nist171
     };
 
@@ -427,7 +443,7 @@ public static class AssessmentRuleLibrary
         AssessmentType.Nis2, AssessmentType.Cis, AssessmentType.Nist,
         AssessmentType.Nen7510, AssessmentType.Iso27001, AssessmentType.Gdpr,
         AssessmentType.Dora, AssessmentType.Hipaa, AssessmentType.Sox,
-        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials,
+        AssessmentType.Tsa, AssessmentType.Caf, AssessmentType.CyberEssentials, AssessmentType.CyberEssentialsPlus,
         AssessmentType.Dspt, AssessmentType.DfeCyber, AssessmentType.Hds, AssessmentType.PciDss,
         AssessmentType.Nist171
     };
@@ -1239,10 +1255,11 @@ public static class AssessmentRuleLibrary
         },
 
         // --- Cyber Essentials-specific User Access Control rules --------------
-        // These rules exist only under the Cyber Essentials lens and provide supporting
-        // indicators for the 'User Access Control' technical control (and, in part, 'Secure
-        // Configuration'). They do not produce a Cyber Essentials verdict and do not cover
-        // firewalls, malware protection, or security update management.
+        // These rules provide supporting indicators for the 'User Access Control' technical
+        // control (and, in part, 'Secure Configuration') under both Cyber Essentials and the
+        // independently verified Cyber Essentials Plus tier. They do not produce a Cyber
+        // Essentials verdict and do not cover firewalls, malware protection, or security update
+        // management.
         new()
         {
             Id = "CE-UAC-AdminAccountCount",
@@ -1250,7 +1267,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Cyber Essentials User Access Control",
             KpiKey = "DomainAdmins",
             Severity = AssessmentSeverity.High,
-            Types = CyberEssentialsOnly,
+            Types = CyberEssentialsShared,
             WarnThreshold = 5, FailThreshold = 10,
             Recommendation = "Cyber Essentials 'User Access Control' requires administrative accounts to be kept to a minimum and used only when necessary. Keep Domain Admins to a small, named set, remove standing administrative rights where they are not needed, and use separate accounts for administrative tasks."
         },
@@ -1261,7 +1278,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Cyber Essentials User Access Control",
             KpiKey = "StaleUsers",
             Severity = AssessmentSeverity.Medium,
-            Types = CyberEssentialsOnly,
+            Types = CyberEssentialsShared,
             WarnThreshold = 5, FailThreshold = 20,
             Recommendation = "Cyber Essentials 'User Access Control' requires user accounts to be removed or disabled when no longer required. Disable or deprovision accounts that have been inactive beyond your defined threshold, particularly for leavers, to reduce the attack surface."
         },

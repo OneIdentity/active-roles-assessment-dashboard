@@ -67,6 +67,7 @@ Every framework is honestly **scoped**: it evaluates only the identity/access an
 | `Tsa` | TSA (Management-Plane Access & Privilege) | ✔ |
 | `Caf` | CAF (Identity & Access Control - Principle B2) | ✔ |
 | `CyberEssentials` | Cyber Essentials (User Access Control) | ✔ |
+| `CyberEssentialsPlus` | Cyber Essentials Plus (Independently Verified User Access Control) | ✔ |
 | `Dspt` | DSPT (Managing Data Access - NDG Standard 4) | ✔ |
 | `DfeCyber` | DfE Cyber Standards (Account & Access Management) | ✔ |
 | `Hds` | HDS (Hébergeur de Données de Santé - Identity & Access) | ✔ |
@@ -82,19 +83,20 @@ Rules are assigned to reusable framework groupings so a control can be defined o
 |----------|-------------------|
 | `Compliance` | AD, NIS2, CIS, NIST, NEN 7510, ISO 27001 |
 | `ComplianceNoCis` | AD, NIS2, NIST, NEN 7510, ISO 27001 |
-| `ComplianceGdpr` | `Compliance` + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, HDS, PCI DSS, 800-171 |
-| `ComplianceNoCisGdpr` | `ComplianceNoCis` + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, HDS, PCI DSS, 800-171 |
-| `SecureConfigUnsupportedOs` | AD, NIS2, CIS, NIST, NEN 7510, ISO 27001, Cyber Essentials, DfE, DSPT, HDS, PCI DSS, 800-171 |
+| `ComplianceGdpr` | `Compliance` + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, PCI DSS, 800-171 |
+| `ComplianceNoCisGdpr` | `ComplianceNoCis` + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, PCI DSS, 800-171 |
+| `SecureConfigUnsupportedOs` | AD, NIS2, CIS, NIST, NEN 7510, ISO 27001, Cyber Essentials, Cyber Essentials Plus, DfE, DSPT, HDS, PCI DSS, 800-171 |
 | `SecureConfigCore` | `SecureConfigUnsupportedOs` + DORA, HIPAA, SOX (also PCI DSS, 800-171) |
-| `EntraGovernance` | Entra, NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, HDS, PCI DSS, 800-171 (**AD excluded** — it has its own AD-scoped group/user rules) |
-| `ExchangeDelegation` | Exchange + NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, HDS, PCI DSS, 800-171 (**AD, Entra and Active Roles excluded** — mailbox delegation is an Exchange data-access surface, not a directory-object concern) |
+| `EntraGovernance` | Entra, NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, PCI DSS, 800-171 (**AD excluded** — it has its own AD-scoped group/user rules) |
+| `ExchangeDelegation` | Exchange + NIS2, CIS, NIST, NEN 7510, ISO 27001, GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, PCI DSS, 800-171 (**AD, Entra and Active Roles excluded** — mailbox delegation is an Exchange data-access surface, not a directory-object concern) |
 | `ExchangeOnly` | Exchange only (product-scoped mailbox / group hygiene rules) |
-| `ActiveRolesGdpr` | Active Roles + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, DSPT, DfE, HDS, PCI DSS, 800-171 |
+| `ActiveRolesGdpr` | Active Roles + GDPR, DORA, HIPAA, SOX, TSA, CAF, Cyber Essentials, Cyber Essentials Plus, DSPT, DfE, HDS, PCI DSS, 800-171 |
 | `ActiveRolesDora` | Active Roles, DORA |
 | `AdOnly` | AD only |
 | `ActiveRolesOnly` | Active Roles only |
-| `CredentialLifecycleShared` | HIPAA + PCI DSS + NIST 800-171 (shared password/authentication-lifecycle rules) |
-| `GdprOnly` / `DoraOnly` / `HipaaOnly` / `SoxOnly` / `TsaOnly` / `CafOnly` / `CyberEssentialsOnly` / `DsptOnly` / `DfeCyberOnly` | Single-framework rules |
+| `CredentialLifecycleShared` | HIPAA + PCI DSS + NIST 800-171 + **Cyber Essentials Plus** (shared password/authentication-lifecycle rules; Cyber Essentials Plus adds these as the independently verified superset over base Cyber Essentials) |
+| `CyberEssentialsShared` | Cyber Essentials + Cyber Essentials Plus (shared User Access Control rules) |
+| `GdprOnly` / `DoraOnly` / `HipaaOnly` / `SoxOnly` / `TsaOnly` / `CafOnly` / `DsptOnly` / `DfeCyberOnly` | Single-framework rules |
 
 ---
 
@@ -236,16 +238,16 @@ These rules exist only under a single framework's lens and reuse existing teleme
 | `GDPR-DeprovisionedResidue` | Deprovisioned accounts retaining directory access | `DeprovisionedUsers` | Medium | 10 / 50 | AtLeast | GDPR |
 | `DORA-StrongAuthAdoption` ↓ | Accounts enforcing strong (smart-card) authentication | `SmartCardRequired` | Medium | 2 / 0 | AtMost | DORA |
 | `DORA-DelegationProtectionAdoption` ↓ | Privileged accounts protected from delegation | `SensitiveCannotDelegate` | Medium | 2 / 0 | AtMost | DORA |
-| `HIPAA-CannotChangePassword` | Users who cannot change their own password | `CannotChangePassword` | Medium | 10 / 50 | AtLeast | HIPAA, PCI DSS, 800-171 |
-| `HIPAA-ProvisioningBacklog` | Accounts flagged to change password at next logon | `MustChangePassword` | Info | 25 / 100 | AtLeast | HIPAA, PCI DSS, 800-171 |
+| `HIPAA-CannotChangePassword` | Users who cannot change their own password | `CannotChangePassword` | Medium | 10 / 50 | AtLeast | HIPAA, PCI DSS, 800-171, Cyber Essentials Plus |
+| `HIPAA-ProvisioningBacklog` | Accounts flagged to change password at next logon | `MustChangePassword` | Info | 25 / 100 | AtLeast | HIPAA, PCI DSS, 800-171, Cyber Essentials Plus |
 | `SOX-AccountOperators` | Account Operators membership (SoD indicator) | `AccountOperators` | High | 1 / 3 | AtLeast | SOX |
 | `SOX-ServerOperators` | Server Operators membership (SoD indicator) | `ServerOperators` | High | 1 / 3 | AtLeast | SOX |
 | `TSA-PrivilegedStrongAuth` ↓ | Management-plane accounts enforcing strong auth | `SmartCardRequired` | High | 2 / 0 | AtMost | TSA |
 | `TSA-PrivilegedDelegationProtection` ↓ | Management-plane privileged accounts protected from delegation | `SensitiveCannotDelegate` | Medium | 2 / 0 | AtMost | TSA |
 | `CAF-B2-StrongAuthAdoption` ↓ | Accounts enforcing strong (smart-card) authentication | `SmartCardRequired` | High | 2 / 0 | AtMost | CAF |
 | `CAF-B2-PrivilegedDelegationProtection` ↓ | Privileged accounts protected from delegation | `SensitiveCannotDelegate` | Medium | 2 / 0 | AtMost | CAF |
-| `CE-UAC-AdminAccountCount` | Domain Admins membership size | `DomainAdmins` | High | 5 / 10 | AtLeast | Cyber Essentials |
-| `CE-UAC-StaleAccounts` | Stale / inactive enabled accounts | `StaleUsers` | Medium | 5 / 20 | AtLeast | Cyber Essentials |
+| `CE-UAC-AdminAccountCount` | Domain Admins membership size | `DomainAdmins` | High | 5 / 10 | AtLeast | Cyber Essentials, Cyber Essentials Plus |
+| `CE-UAC-StaleAccounts` | Stale / inactive enabled accounts | `StaleUsers` | Medium | 5 / 20 | AtLeast | Cyber Essentials, Cyber Essentials Plus |
 | `DSPT-S4-PrivilegedAccessMinimisation` | Domain Admins membership size | `DomainAdmins` | High | 5 / 10 | AtLeast | DSPT |
 | `DSPT-S4-LeaverStaleAccounts` | Stale / inactive enabled accounts | `StaleUsers` | Medium | 5 / 20 | AtLeast | DSPT |
 | `DFE-AAM-LeastPrivilege` | Domain Admins membership size | `DomainAdmins` | High | 5 / 10 | AtLeast | DfE Cyber |
