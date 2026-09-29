@@ -1051,6 +1051,94 @@ public static class AssessmentRuleLibrary
         },
         new()
         {
+            Id = "AR-DenyAccessTemplates",
+            Title = "Access Templates with Deny permissions",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "DenyAccessTemplates",
+            Severity = AssessmentSeverity.High,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 1,
+            Recommendation = "Access Templates that contain Deny permissions can silently override Allow grants and produce confusing, hard-to-audit effective access. Rework these templates to use least-privilege Allow permissions instead of Deny."
+        },
+        new()
+        {
+            Id = "AR-OrphanAccessTemplateLinks",
+            Title = "Orphaned Access Template Links",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "OrphanAccessTemplateLinks",
+            Severity = AssessmentSeverity.Medium,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 5,
+            Recommendation = "Access Template Links that reference a missing Access Template, directory object or trustee no longer delegate anything and clutter the security model. Remove these orphaned links so delegation reflects only intended, resolvable grants."
+        },
+        new()
+        {
+            Id = "AR-OrphanPolicyObjectLinks",
+            Title = "Orphaned Policy Object Links",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "OrphanPolicyObjectLinks",
+            Severity = AssessmentSeverity.Medium,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 5,
+            Recommendation = "Policy Object Links that reference a missing Policy Object or directory object no longer enforce any policy and add noise to the configuration. Remove these orphaned links so provisioning and data-quality policies stay traceable."
+        },
+        new()
+        {
+            Id = "AR-EmptyAccessTemplates",
+            Title = "Empty Access Templates",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "EmptyAccessTemplates",
+            Severity = AssessmentSeverity.Low,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 10,
+            Recommendation = "Access Templates that define no permissions cannot delegate anything and are often left over from abandoned designs. Review and remove empty templates to keep the delegation model clean and auditable."
+        },
+        new()
+        {
+            Id = "AR-PolicyObjectsNoRules",
+            Title = "Policy Objects with no rules",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "PolicyObjectsNoRules",
+            Severity = AssessmentSeverity.Low,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 10,
+            Recommendation = "Policy Objects that contain no policy rules enforce nothing and can mask gaps in provisioning or data-quality controls. Review and remove or configure these Policy Objects so every linked policy actually enforces a rule."
+        },
+        new()
+        {
+            Id = "AR-UnlinkedAccessTemplates",
+            Title = "Unlinked user-created Access Templates",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "UnlinkedAccessTemplates",
+            Severity = AssessmentSeverity.Low,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 20,
+            Recommendation = "User-created Access Templates that are not linked to any directory object are inactive and accumulate as configuration debt. Review and remove unused templates so the delegation model reflects only active grants."
+        },
+        new()
+        {
+            Id = "AR-DynamicGroupsBrokenRules",
+            Title = "Dynamic Groups with broken rules",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "DynamicGroupsBrokenRules",
+            Severity = AssessmentSeverity.Medium,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 3,
+            Recommendation = "Dynamic Groups whose membership rules are broken stop recalculating membership correctly, so access based on those groups drifts from intent. Repair or remove the broken rules so group-based access stays accurate."
+        },
+        new()
+        {
+            Id = "AR-ManagedUnitsBrokenRules",
+            Title = "Managed Units with broken rules",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "ManagedUnitsBrokenRules",
+            Severity = AssessmentSeverity.Medium,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 3,
+            Recommendation = "Managed Units whose membership rules are broken no longer scope delegation and policy to the intended objects, causing access controls to apply to the wrong population. Repair or remove the broken rules so administrative scoping remains correct."
+        },
+        new()
+        {
             Id = "AR-ConfigDatabaseResilience",
             Title = "Configuration database is a single point of failure",
             CategoryName = "Active Roles Configuration",
