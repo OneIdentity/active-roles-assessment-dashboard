@@ -1,9 +1,38 @@
 ﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject Microsoft.Extensions.Options.IOptionsSnapshot<ActiveRolesDashboard.Models.ActiveRolesConfig> ArOptions
+@{
+    var analytics = ArOptions.Value.Analytics;
+    var analyticsEnabled = analytics.Enabled
+        && analytics.ConsentGiven
+        && !string.IsNullOrWhiteSpace(analytics.MeasurementId);
+}
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @if (analyticsEnabled)
+    {
+        @* Google Analytics (GA4) - aggregate usage only. Automatic page_view is disabled and a
+           manual page_view is sent with the query string stripped (page_path = pathname only), so
+           no directory data or PII (DNs, account/group names) is ever transmitted to Google. *@
+        var gaId = System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(analytics.MeasurementId);
+        <script async src="https://www.googletagmanager.com/gtag/js?id=@gaId"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', '@Html.Raw(gaId)', {
+                send_page_view: false,
+                anonymize_ip: true
+            });
+            gtag('event', 'page_view', {
+                page_title: document.title,
+                page_path: location.pathname,
+                page_location: location.origin + location.pathname
+            });
+        </script>
+    }
     <title>@ViewData["Title"] - ActiveRolesDashboard</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />

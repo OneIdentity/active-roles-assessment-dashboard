@@ -81,4 +81,19 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>BeÃ¡llÃ­tÃ¡sok mentÃ©se</value>
   </data>
+  <data name="Card_Analytics" xml:space="preserve">
+	<value>Használati analitika</value>
+  </data>
+  <data name="Label_AnalyticsEnabled" xml:space="preserve">
+	<value>Használati analitika engedélyezése</value>
+  </data>
+  <data name="Hint_AnalyticsEnabled" xml:space="preserve">
+	<value>Névtelen, összesített használati adatokat küld a Google Analytics szolgáltatásnak. Az IP-címeket anonimizálja, és nem továbbít személyazonosításra alkalmas információt vagy lekérdezési paraméterértékeket. Az engedélyezés szervezeti hozzájárulásnak minősül.</value>
+  </data>
+  <data name="Label_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Google Analytics mérési azonosító</value>
+  </data>
+  <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Az Ön GA4 mérési azonosítója (például G-XXXXXXXXXX). Az analitika küldéséhez szükséges.</value>
+  </data>
 </root>

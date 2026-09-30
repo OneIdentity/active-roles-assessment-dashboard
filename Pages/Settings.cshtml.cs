@@ -77,6 +77,12 @@ public class SettingsModel : PageModel
     [BindProperty]
     public bool IgnoreSslErrors { get; set; }
 
+    // Google Analytics (GA4) usage tracking (admin-only).
+    [BindProperty]
+    public bool AnalyticsEnabled { get; set; }
+    [BindProperty]
+    public string AnalyticsMeasurementId { get; set; } = string.Empty;
+
     // Default Filters
     [BindProperty]
     public string DefaultNoGroupOwnerFilter { get; set; } = string.Empty;
@@ -265,6 +271,10 @@ public class SettingsModel : PageModel
         Resource = config.Resource;
         IgnoreSslErrors = config.IgnoreSslErrors;
 
+        // Google Analytics (GA4) usage tracking
+        AnalyticsEnabled = config.Analytics.Enabled;
+        AnalyticsMeasurementId = config.Analytics.MeasurementId;
+
         // Default Filters
         DefaultNoGroupOwnerFilter = config.DefaultFilters.NoGroupOwner;
         DefaultNoManagerUserFilter = config.DefaultFilters.NoManagerUser;
@@ -440,6 +450,18 @@ public class SettingsModel : PageModel
                 activeRoles["RstsUrl"] = RstsUrl?.Trim() ?? "";
                 activeRoles["Resource"] = Resource?.Trim() ?? "";
                 activeRoles["IgnoreSslErrors"] = IgnoreSslErrors;
+
+                // Google Analytics (GA4) usage tracking. ConsentGiven mirrors the admin's
+                // enable decision here (the toggle is the organizational consent action).
+                var analytics = activeRoles["Analytics"]?.AsObject();
+                if (analytics is null)
+                {
+                    analytics = new JsonObject();
+                    activeRoles["Analytics"] = analytics;
+                }
+                analytics["Enabled"] = AnalyticsEnabled;
+                analytics["MeasurementId"] = AnalyticsMeasurementId?.Trim() ?? "";
+                analytics["ConsentGiven"] = AnalyticsEnabled;
 
                 // Default Filters (stored in their own DefaultFilters section).
                 var defaultFilters = activeRoles["DefaultFilters"]?.AsObject();

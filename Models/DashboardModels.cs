@@ -1040,6 +1040,29 @@ public class ActiveRolesConfig
     // single Data-Protection blob (see RoleService); the fixed roles/permissions themselves are
     // defined in code (RolePermissionRegistry) and cannot be added to or removed.
     public RolesConfig Roles { get; set; } = new();
+
+    // Optional Google Analytics (GA4) usage tracking. Aggregate feature-usage only; no PII
+    // (DNs, account names, group names) is ever transmitted. Grouped under the Analytics section.
+    public AnalyticsConfig Analytics { get; set; } = new();
+}
+
+/// <summary>
+/// Google Analytics (GA4) usage-tracking configuration. Grouped under the "Analytics"
+/// configuration section. When enabled, the layout emits a GA4 tag that reports only the
+/// (static) page title and path with the query string stripped, so no directory data or
+/// personally identifiable information is sent to Google.
+/// </summary>
+public class AnalyticsConfig
+{
+    // Master on/off switch. When false, no GA tag is rendered.
+    public bool Enabled { get; set; }
+
+    // GA4 Measurement ID (e.g. "G-XXXXXXXXXX"). Required for the tag to render.
+    public string MeasurementId { get; set; } = string.Empty;
+
+    // Records that an administrator opted in (organizational consent) during Setup or Settings.
+    // The tag renders only when Enabled, ConsentGiven and a MeasurementId are all present.
+    public bool ConsentGiven { get; set; }
 }
 
 /// <summary>

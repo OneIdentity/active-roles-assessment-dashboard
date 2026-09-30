@@ -218,4 +218,19 @@
   <data name="SaveSettings" xml:space="preserve">
 	<value>Salva impostazioni</value>
   </data>
+  <data name="Card_Analytics" xml:space="preserve">
+	<value>Analisi di utilizzo</value>
+  </data>
+  <data name="Label_AnalyticsEnabled" xml:space="preserve">
+	<value>Abilita analisi di utilizzo</value>
+  </data>
+  <data name="Hint_AnalyticsEnabled" xml:space="preserve">
+	<value>Invia dati di utilizzo anonimi e aggregati a Google Analytics. Gli indirizzi IP sono resi anonimi e non vengono trasmesse informazioni di identificazione personale né valori della stringa di query. L'abilitazione costituisce consenso organizzativo.</value>
+  </data>
+  <data name="Label_AnalyticsMeasurementId" xml:space="preserve">
+	<value>ID di misurazione Google Analytics</value>
+  </data>
+  <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Il tuo ID di misurazione GA4 (ad esempio, G-XXXXXXXXXX). Necessario per l'invio delle analisi.</value>
+  </data>
 </root>

@@ -27,4 +27,10 @@
   <data name="Body" xml:space="preserve">
 	<value>Utilice esta página para detallar la política de privacidad de su sitio.</value>
   </data>
+  <data name="AnalyticsTitle" xml:space="preserve">
+	<value>Análisis de uso</value>
+  </data>
+  <data name="AnalyticsBody" xml:space="preserve">
+	<value>Cuando un administrador lo habilita, este panel envía datos de uso anónimos y agregados a Google Analytics para ayudar a comprender qué funciones se utilizan. No se transmite información de identificación personal: las direcciones IP se anonimizan, las vistas de página automáticas están deshabilitadas y solo se informan títulos y rutas de página estáticos (sin parámetros de cadena de consulta).</value>
+  </data>
 </root>

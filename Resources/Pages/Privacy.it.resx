@@ -27,4 +27,10 @@
   <data name="Body" xml:space="preserve">
 	<value>Utilizza questa pagina per descrivere l'informativa sulla privacy del tuo sito.</value>
   </data>
+  <data name="AnalyticsTitle" xml:space="preserve">
+	<value>Analisi di utilizzo</value>
+  </data>
+  <data name="AnalyticsBody" xml:space="preserve">
+	<value>Quando abilitato da un amministratore, questo dashboard invia dati di utilizzo anonimi e aggregati a Google Analytics per aiutare a capire quali funzionalità vengono utilizzate. Non vengono trasmesse informazioni di identificazione personale: gli indirizzi IP sono resi anonimi, le visualizzazioni di pagina automatiche sono disabilitate e vengono segnalati solo titoli e percorsi di pagina statici (senza parametri della stringa di query).</value>
+  </data>
 </root>

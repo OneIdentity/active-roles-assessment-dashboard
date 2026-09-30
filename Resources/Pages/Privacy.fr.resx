@@ -27,4 +27,10 @@
   <data name="Body" xml:space="preserve">
 	<value>Utilisez cette page pour détailler la politique de confidentialité de votre site.</value>
   </data>
+  <data name="AnalyticsTitle" xml:space="preserve">
+	<value>Analyses d'utilisation</value>
+  </data>
+  <data name="AnalyticsBody" xml:space="preserve">
+	<value>Lorsqu'il est activé par un administrateur, ce tableau de bord envoie des données d'utilisation anonymes et agrégées à Google Analytics afin de comprendre quelles fonctionnalités sont utilisées. Aucune information personnelle identifiable n'est transmise : les adresses IP sont anonymisées, les vues de page automatiques sont désactivées et seuls les titres et chemins de page statiques (sans paramètres de requête) sont signalés.</value>
+  </data>
 </root>

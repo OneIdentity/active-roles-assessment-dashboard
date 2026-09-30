@@ -225,4 +225,19 @@
   <data name="Msg_RestartRequired" xml:space="preserve">
 	<value>Eine oder mehrere Verbindungseinstellungen wurden geÃ¤ndert. Starten Sie die Anwendung neu, damit diese Ã„nderungen wirksam werden.</value>
   </data>
+  <data name="Card_Analytics" xml:space="preserve">
+	<value>Nutzungsanalyse</value>
+  </data>
+  <data name="Label_AnalyticsEnabled" xml:space="preserve">
+	<value>Nutzungsanalyse aktivieren</value>
+  </data>
+  <data name="Hint_AnalyticsEnabled" xml:space="preserve">
+	<value>Sendet anonyme, aggregierte Nutzungsdaten an Google Analytics. IP-Adressen werden anonymisiert und es werden keine personenbezogenen Daten oder Abfrageparameter übertragen. Die Aktivierung gilt als organisatorische Einwilligung.</value>
+  </data>
+  <data name="Label_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Google Analytics Mess-ID</value>
+  </data>
+  <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Ihre GA4-Mess-ID (zum Beispiel G-XXXXXXXXXX). Erforderlich, damit Analysedaten gesendet werden.</value>
+  </data>
 </root>
