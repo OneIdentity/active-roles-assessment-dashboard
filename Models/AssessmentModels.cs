@@ -448,6 +448,17 @@ public static class AssessmentRuleLibrary
     private static readonly AssessmentType[] CredentialLifecycleShared =
         { AssessmentType.Hipaa, AssessmentType.PciDss, AssessmentType.Nist171, AssessmentType.CyberEssentialsPlus };
 
+    // Credential/authentication-strength rules that apply both to the core security baselines
+    // (Compliance) and to the credential-lifecycle frameworks (HIPAA, PCI DSS, NIST SP 800-171,
+    // Cyber Essentials Plus). Broadens per-user password/credential hygiene coverage so these
+    // frameworks receive the account-security signals they specifically mandate.
+    private static readonly AssessmentType[] CredentialCompliance =
+    {
+        AssessmentType.ActiveDirectory, AssessmentType.Nis2, AssessmentType.Cis,
+        AssessmentType.Nist, AssessmentType.Nen7510, AssessmentType.Iso27001,
+        AssessmentType.Hipaa, AssessmentType.PciDss, AssessmentType.Nist171, AssessmentType.CyberEssentialsPlus
+    };
+
     // Rules that are meaningful only under the SOX lens (not part of another framework).
     private static readonly AssessmentType[] SoxOnly = { AssessmentType.Sox };
 
@@ -518,7 +529,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "ReversibleEncryption",
             Severity = AssessmentSeverity.Critical,
-            Types = Compliance,
+            Types = CredentialCompliance,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Disable reversible encryption on all user accounts; it stores passwords in a recoverable form."
         },
@@ -529,7 +540,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "PasswordNotRequired",
             Severity = AssessmentSeverity.Critical,
-            Types = Compliance,
+            Types = CredentialCompliance,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Clear the PASSWD_NOTREQD flag so all accounts require a password."
         },
@@ -540,7 +551,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "NoKerberosPreauth",
             Severity = AssessmentSeverity.High,
-            Types = Compliance,
+            Types = CredentialCompliance,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Require Kerberos pre-authentication to reduce exposure to AS-REP roasting."
         },
@@ -551,7 +562,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "UseDesEncryption",
             Severity = AssessmentSeverity.High,
-            Types = Compliance,
+            Types = CredentialCompliance,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Disable DES; it is cryptographically weak. Use AES encryption types instead."
         },
@@ -573,7 +584,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "SpnUserAccounts",
             Severity = AssessmentSeverity.High,
-            Types = Compliance,
+            Types = CredentialCompliance,
             WarnThreshold = 1, FailThreshold = 10,
             Recommendation = "Minimise user accounts carrying an SPN; enforce long, complex passwords or migrate to Group Managed Service Accounts (gMSA) to reduce Kerberoasting exposure."
         },
