@@ -73,4 +73,10 @@
   <data name="Body" xml:space="preserve">
 	<value>Ezen az oldalon részletezze webhelyének adatvédelmi szabályzatát.</value>
   </data>
+  <data name="AnalyticsTitle" xml:space="preserve">
+	<value>Használati analitika</value>
+  </data>
+  <data name="AnalyticsBody" xml:space="preserve">
+	<value>Ha egy rendszergazda engedélyezi, ez az irányítópult névtelen, összesített használati adatokat küld a Google Analytics szolgáltatásnak, hogy megértse, mely funkciókat használják. Nem továbbít személyazonosításra alkalmas információt: az IP-címeket anonimizálja, az automatikus oldalmegtekintések le vannak tiltva, és csak statikus oldalcímeket és útvonalakat (lekérdezési paraméterek nélkül) jelent.</value>
+  </data>
 </root>

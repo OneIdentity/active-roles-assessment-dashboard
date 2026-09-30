@@ -73,4 +73,10 @@
   <data name="Body" xml:space="preserve">
 	<value>Use this page to detail your site's privacy policy.</value>
   </data>
+  <data name="AnalyticsTitle" xml:space="preserve">
+	<value>Usage Analytics</value>
+  </data>
+  <data name="AnalyticsBody" xml:space="preserve">
+	<value>When enabled by an administrator, this dashboard sends anonymous, aggregate usage data to Google Analytics to help understand which features are used. No personally identifiable information is transmitted: IP addresses are anonymized, automatic page views are disabled, and only static page titles and paths (without query-string parameters) are reported.</value>
+  </data>
 </root>

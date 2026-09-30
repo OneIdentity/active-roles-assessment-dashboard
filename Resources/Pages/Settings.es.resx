@@ -225,4 +225,19 @@
   <data name="SystemSettingsReadOnly" xml:space="preserve">
 	<value>Puede ver esta configuraciÃ³n del sistema, pero no tiene permiso para cambiarla.</value>
   </data>
+  <data name="Card_Analytics" xml:space="preserve">
+	<value>Análisis de uso</value>
+  </data>
+  <data name="Label_AnalyticsEnabled" xml:space="preserve">
+	<value>Habilitar análisis de uso</value>
+  </data>
+  <data name="Hint_AnalyticsEnabled" xml:space="preserve">
+	<value>Envía datos de uso anónimos y agregados a Google Analytics. Las direcciones IP se anonimizan y no se transmite información de identificación personal ni valores de cadena de consulta. Habilitarlo actúa como consentimiento organizativo.</value>
+  </data>
+  <data name="Label_AnalyticsMeasurementId" xml:space="preserve">
+	<value>ID de medición de Google Analytics</value>
+  </data>
+  <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Su ID de medición de GA4 (por ejemplo, G-XXXXXXXXXX). Necesario para enviar los análisis.</value>
+  </data>
 </root>

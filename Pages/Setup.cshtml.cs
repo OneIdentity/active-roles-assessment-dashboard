@@ -59,6 +59,12 @@ public class SetupModel : PageModel
     [BindProperty]
     public string CustomNoManagerServiceAccountFilter { get; set; } = string.Empty;
 
+    [BindProperty]
+    public bool AnalyticsEnabled { get; set; }
+
+    [BindProperty]
+    public string AnalyticsMeasurementId { get; set; } = string.Empty;
+
     // Role/admin groups are captured by NAME
     // for the whole section denotes whether the groups are Active Directory or Entra based.
     [BindProperty]
@@ -104,6 +110,10 @@ public class SetupModel : PageModel
         DashboardAdminsGroup = roleGroups.DashboardAdmins;
         AuditorsGroup = roleGroups.Auditors;
         PowerUsersGroup = roleGroups.PowerUsers;
+
+        var analytics = _arConfig.CurrentValue.Analytics;
+        AnalyticsEnabled = analytics.Enabled;
+        AnalyticsMeasurementId = analytics.MeasurementId;
 
         return Page();
     }
@@ -229,6 +239,18 @@ public class SetupModel : PageModel
                 roleGroups["DashboardAdmins"] = string.IsNullOrWhiteSpace(dashboardAdminsGroup) ? roleGroupDefaults.DashboardAdmins : dashboardAdminsGroup;
                 roleGroups["Auditors"] = string.IsNullOrWhiteSpace(auditorsGroup) ? roleGroupDefaults.Auditors : auditorsGroup;
                 roleGroups["PowerUsers"] = string.IsNullOrWhiteSpace(powerUsersGroup) ? roleGroupDefaults.PowerUsers : powerUsersGroup;
+
+                // Optional Google Analytics usage tracking. Enabling the checkbox constitutes the
+                // organizational opt-in, so ConsentGiven mirrors Enabled. No PII is ever sent.
+                var analytics = activeRoles["Analytics"]?.AsObject();
+                if (analytics is null)
+                {
+                    analytics = new JsonObject();
+                    activeRoles["Analytics"] = analytics;
+                }
+                analytics["Enabled"] = AnalyticsEnabled;
+                analytics["MeasurementId"] = AnalyticsMeasurementId?.Trim() ?? "";
+                analytics["ConsentGiven"] = AnalyticsEnabled;
             }
             var options = new JsonSerializerOptions
             {

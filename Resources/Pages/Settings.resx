@@ -249,4 +249,19 @@
   <data name="Msg_RestartRequired" xml:space="preserve">
 	<value>One or more connection settings were changed. Restart the application for these changes to take effect.</value>
   </data>
+  <data name="Card_Analytics" xml:space="preserve">
+	<value>Usage Analytics</value>
+  </data>
+  <data name="Label_AnalyticsEnabled" xml:space="preserve">
+	<value>Enable usage analytics</value>
+  </data>
+  <data name="Hint_AnalyticsEnabled" xml:space="preserve">
+	<value>Sends anonymous, aggregate usage data to Google Analytics. IP addresses are anonymized and no personally identifiable information or query-string values are transmitted. Enabling this acts as organizational consent.</value>
+  </data>
+  <data name="Label_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Google Analytics Measurement ID</value>
+  </data>
+  <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
+	<value>Your GA4 Measurement ID (for example, G-XXXXXXXXXX). Required for analytics to be sent.</value>
+  </data>
 </root>

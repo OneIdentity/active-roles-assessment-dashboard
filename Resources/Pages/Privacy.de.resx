@@ -27,4 +27,10 @@
   <data name="Body" xml:space="preserve">
 	<value>Verwenden Sie diese Seite, um die Datenschutzrichtlinie Ihrer Website zu beschreiben.</value>
   </data>
+  <data name="AnalyticsTitle" xml:space="preserve">
+	<value>Nutzungsanalyse</value>
+  </data>
+  <data name="AnalyticsBody" xml:space="preserve">
+	<value>Wenn von einem Administrator aktiviert, sendet dieses Dashboard anonyme, aggregierte Nutzungsdaten an Google Analytics, um zu verstehen, welche Funktionen verwendet werden. Es werden keine personenbezogenen Daten übertragen: IP-Adressen werden anonymisiert, automatische Seitenaufrufe sind deaktiviert und es werden nur statische Seitentitel und Pfade (ohne Abfrageparameter) gemeldet.</value>
+  </data>
 </root>

@@ -65,6 +65,7 @@
             <div class="step" data-step="3"></div>
             <div class="step" data-step="4"></div>
             <div class="step" data-step="5"></div>
+            <div class="step" data-step="6"></div>
         </div>
 
         <div id="wizardError" class="error-msg" style="display:none;"></div>
@@ -239,6 +240,30 @@
                 </div>
                 <div class="wizard-nav">
                     <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
+                    <button type="button" class="btn-next" onclick="wizardNext()">@Localizer["Next"]</button>
+                </div>
+            </div>
+
+            <!-- Page 7: Usage Analytics -->
+            <div class="wizard-page" data-page="6">
+                <div class="setup-card">
+                    <h2>@Localizer["AnalyticsConfig"]</h2>
+                    <p class="subtitle">@Localizer["AnalyticsSubtitle"]</p>
+                    <div class="form-group">
+                        <label style="display:flex; align-items:center; gap:10px; font-weight:600;">
+                            <input type="checkbox" id="AnalyticsEnabled" name="AnalyticsEnabled" value="true" @(Model.AnalyticsEnabled ? "checked" : "") style="width:auto; margin:0;" />
+                            @Localizer["AnalyticsEnableLabel"]
+                        </label>
+                        <p class="hint">@Localizer["AnalyticsEnableHint"]</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="AnalyticsMeasurementId">@Localizer["AnalyticsMeasurementId"]</label>
+                        <input type="text" id="AnalyticsMeasurementId" name="AnalyticsMeasurementId" value="@Model.AnalyticsMeasurementId" placeholder="G-XXXXXXXXXX" />
+                        <p class="hint">@Localizer["AnalyticsMeasurementIdHint"]</p>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn-back" onclick="wizardBack()">@Localizer["Back"]</button>
                     <button type="submit" class="btn-finish">@Localizer["FinishSetup"]</button>
                 </div>
             </div>
@@ -255,7 +280,7 @@
     };
     (function () {
         var currentPage = 0;
-        var totalPages = 6;
+        var totalPages = 7;
 
         function showPage(index) {
             var pages = document.querySelectorAll('.wizard-page');
