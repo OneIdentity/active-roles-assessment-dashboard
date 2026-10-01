@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /** Absolute URL to the One Identity watermark/background asset. */
   get watermarkUrl(): string {
-    return `${this.auth.basePath}/images/login-watermark.svg`;
+    return `${this.auth.basePath}/images/oi-logo.svg`;
   }
 
   /** Absolute URL to the combined One Identity logo shown in the card header. */

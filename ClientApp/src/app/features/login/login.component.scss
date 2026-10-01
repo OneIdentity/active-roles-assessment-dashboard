@@ -4,28 +4,37 @@
 
 .login-page {
   position: relative;
+  isolation: isolate;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--oi-spacing-xl);
   overflow: hidden;
-  // One Identity brand gradient (top-left light cyan -> bottom-right brand blue).
-  background: linear-gradient(135deg, #3bc4f2 0%, #1f9fe6 40%, #1877d6 100%);
+  // One Identity brand backdrop (exact UX spec).
+  background-color: var(--oi-base-color-info, #00a6f4);
+  background-image: linear-gradient(
+    149.74deg,
+    rgba(70, 236, 213, 0.37) 6.55%,
+    rgba(0, 166, 244, 0.37) 47.73%,
+    rgba(0, 105, 168, 0.37) 91.97%
+  );
 }
 
-// Faint concentric-circle One Identity watermark anchored to the lower-right,
-// matching the corporate login backdrop.
+// Concentric-circle One Identity watermark, inverted to white, anchored
+// lower-right per the UX spec.
 .watermark {
-  position: absolute;
-  right: -8vw;
-  bottom: -14vw;
-  width: 70vw;
-  max-width: 900px;
-  min-width: 520px;
+  position: fixed;
+  right: -260px;
+  bottom: -300px;
+  width: 850px;
+  height: 850px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
   opacity: 0.12;
   pointer-events: none;
   user-select: none;
+  z-index: -1;
 }
 
 .login-content {
