@@ -20,20 +20,19 @@ export interface CacheStatus {
 }
 
 /**
- * Wraps the existing ASP.NET Core authentication contract so the Angular
- * Login can perform a real cookie-based sign-in.
+ * Wraps the ASP.NET Core REST authentication API so the Angular Login can
+ * perform a real cookie-based sign-in.
  *
- * Contract (mirrors Pages/Login.cshtml.cs + Login.cshtml):
- *  - POST {base}/Login with FormData (Username, Password) and
- *    Accept: application/json.
- *  - Success  -> 200 JSON { redirectUrl, loadingMessage }.
- *  - Failure  -> re-rendered HTML page (non-JSON); treated as auth failure.
- *  - GET {base}/cache/status -> { ready, faulted } drives the post-login
+ * Contract (Controllers/AuthController.cs):
+ *  - POST {base}/api/auth/login  with JSON { username, password, returnUrl? }.
+ *      Success -> 200 JSON { redirectUrl, loadingMessage }.
+ *      Failure -> 401  JSON { error }.
+ *  - POST {base}/api/auth/logout -> 200 JSON { redirectUrl }.
+ *  - GET  {base}/cache/status    -> { ready, faulted } drives the post-login
  *    "Building cache..." / "Filtering data..." overlay before redirect.
  *
- * Antiforgery is globally disabled for Razor Pages, so no token is required.
- * fetch() is used (not HttpClient) so the auth cookie round-trips exactly as
- * it does for the current Razor page.
+ * Antiforgery is globally disabled, so no token is required. fetch() is used so
+ * the auth cookie round-trips exactly as the server expects.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -46,25 +45,27 @@ export class AuthService {
   }
 
   /** Attempt to sign in. Resolves with a structured LoginResult. */
-  async login(username: string, password: string): Promise<LoginResult> {
-    const form = new FormData();
-    form.append('Username', username);
-    form.append('Password', password);
-
+  async login(
+    username: string,
+    password: string,
+    returnUrl?: string | null,
+  ): Promise<LoginResult> {
     let response: Response;
     try {
-      response = await fetch(`${this.base}/Login`, {
+      response = await fetch(`${this.base}/api/auth/login`, {
         method: 'POST',
-        body: form,
-        headers: { Accept: 'application/json' },
+        body: JSON.stringify({ username, password, returnUrl: returnUrl ?? null }),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
         credentials: 'same-origin',
       });
     } catch {
       return { success: false, error: 'Unable to reach the server. Please try again.' };
     }
 
-    const contentType = response.headers.get('content-type') ?? '';
-    if (response.ok && contentType.includes('application/json')) {
+    if (response.ok) {
       const data = (await response.json()) as {
         redirectUrl?: string;
         loadingMessage?: string;
@@ -76,13 +77,35 @@ export class AuthService {
       };
     }
 
-    // Non-JSON / non-ok response = validation or authentication failure.
-    // The server re-renders the login HTML rather than returning a JSON error,
-    // so surface a generic inline message.
-    return {
-      success: false,
-      error: 'Sign in failed. Check your username and password and try again.',
-    };
+    // 401 (or other non-ok): the API returns { error } with a localized message.
+    let error = 'Sign in failed. Check your username and password and try again.';
+    try {
+      const body = (await response.json()) as { error?: string };
+      if (body?.error) {
+        error = body.error;
+      }
+    } catch {
+      // No JSON body; keep the generic message.
+    }
+    return { success: false, error };
+  }
+
+  /** Sign out: clears the server session/cookie and returns where to navigate. */
+  async logout(): Promise<string> {
+    try {
+      const response = await fetch(`${this.base}/api/auth/logout`, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+      });
+      if (response.ok) {
+        const data = (await response.json()) as { redirectUrl?: string };
+        return data.redirectUrl ?? `${this.base}/login`;
+      }
+    } catch {
+      // fall through to default
+    }
+    return `${this.base}/login`;
   }
 
   /** Fetch the shared cache status. */

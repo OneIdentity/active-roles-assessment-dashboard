@@ -11,6 +11,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { IrisButtonComponent } from '../../shared/ui/iris-button/iris-button.component';
 import { IrisTextInputComponent } from '../../shared/ui/iris-text-input/iris-text-input.component';
@@ -50,6 +51,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private readonly fb: FormBuilder,
     private readonly auth: AuthService,
+    private readonly route: ActivatedRoute,
   ) {
     this.form = this.fb.group({
       username: ['', Validators.required],
@@ -95,7 +97,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loadingMessage.set('Signing in\u2026');
 
     const { username, password } = this.form.getRawValue();
-    const result = await this.auth.login(username, password);
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const result = await this.auth.login(username, password, returnUrl);
 
     if (!result.success) {
       this.submitting.set(false);
