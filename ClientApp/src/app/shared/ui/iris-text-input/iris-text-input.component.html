@@ -1,0 +1,21 @@
+<span
+  class="wrap"
+  [class.size_s]="size === 's'"
+  [class.size_default]="size === 'default'"
+  [class.size_l]="size === 'l'"
+  [class.invalid]="invalid"
+>
+  <input
+    class="input"
+    [type]="type"
+    [id]="inputId"
+    [value]="value"
+    [attr.placeholder]="placeholder || null"
+    [attr.autocomplete]="autocomplete"
+    [attr.autofocus]="autofocus ? '' : null"
+    [attr.aria-invalid]="invalid ? 'true' : null"
+    [disabled]="disabled"
+    (input)="handleInput($event)"
+    (blur)="handleBlur()"
+  />
+</span>
