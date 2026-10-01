@@ -22,7 +22,8 @@
 }
 
 // Concentric-circle One Identity watermark, inverted to white, anchored
-// lower-right per the UX spec.
+// lower-right per the UX spec. Sits above the gradient background but below
+// the login card (which has z-index:1).
 .watermark {
   position: fixed;
   right: -260px;
@@ -30,11 +31,10 @@
   width: 850px;
   height: 850px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
   opacity: 0.12;
   pointer-events: none;
   user-select: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 .login-content {
