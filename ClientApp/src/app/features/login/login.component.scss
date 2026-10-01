@@ -3,12 +3,38 @@
 }
 
 .login-page {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--oi-spacing-xl);
-  background-color: var(--oi-background-color-secondary);
+  overflow: hidden;
+  // One Identity brand gradient (top-left light cyan -> bottom-right brand blue).
+  background: linear-gradient(135deg, #3bc4f2 0%, #1f9fe6 40%, #1877d6 100%);
+}
+
+// Faint concentric-circle One Identity watermark anchored to the lower-right,
+// matching the corporate login backdrop.
+.watermark {
+  position: absolute;
+  right: -8vw;
+  bottom: -14vw;
+  width: 70vw;
+  max-width: 900px;
+  min-width: 520px;
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+}
+
+.login-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--oi-spacing-m);
 }
 
 .login-card {
@@ -29,6 +55,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--oi-spacing-xs);
+}
+
+.brand-logo {
+  height: 32px;
+  width: auto;
+  align-self: center;
+  margin-bottom: var(--oi-spacing-m);
 }
 
 .brand-title {
@@ -99,5 +132,46 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oi-spacing-xs);
+}
+
+.lang-flag {
+  width: 20px;
+  height: auto;
+  display: block;
+  border-radius: 2px;
+}
+
+.lang-select {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--oi-content-color-constant, #ffffff);
+  font-family: var(--oi-font-family-default);
+  font-size: var(--oi-text-body-s-font-size);
+  line-height: var(--oi-text-body-s-line-height);
+  cursor: pointer;
+  padding: var(--oi-spacing-xxs) var(--oi-spacing-xs);
+  border-radius: var(--oi-border-radius-default);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oi-content-color-constant, #ffffff);
+    outline-offset: 1px;
+  }
+
+  // Native option list renders in the OS theme; keep text readable on white.
+  option {
+    color: var(--oi-content-color-primary, #1a1a2e);
+    background-color: #ffffff;
   }
 }

@@ -44,6 +44,11 @@ export class AuthService {
     return href === '/' ? '' : href.replace(/\/$/, '');
   }
 
+  /** App base path (PathBase), e.g. '' or '/dashboard'. Used for asset URLs and cookie paths. */
+  get basePath(): string {
+    return this.base;
+  }
+
   /** Attempt to sign in. Resolves with a structured LoginResult. */
   async login(
     username: string,

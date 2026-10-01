@@ -17,6 +17,13 @@ import { IrisButtonComponent } from '../../shared/ui/iris-button/iris-button.com
 import { IrisTextInputComponent } from '../../shared/ui/iris-text-input/iris-text-input.component';
 import { IrisFormFieldComponent } from '../../shared/ui/iris-form-field/iris-form-field.component';
 
+/** A language the login page can switch to, mirroring SupportedLanguage.All on the server. */
+interface SupportedLanguage {
+  code: string;
+  displayName: string;
+  flagImage: string;
+}
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -32,6 +39,34 @@ import { IrisFormFieldComponent } from '../../shared/ui/iris-form-field/iris-for
 })
 export class LoginComponent implements OnInit, OnDestroy {
   readonly form: FormGroup;
+
+  /** Languages offered by the selector (kept in sync with server SupportedLanguage.All). */
+  readonly languages: readonly SupportedLanguage[] = [
+    { code: 'en', displayName: 'English', flagImage: 'img/flags/en.svg' },
+    { code: 'fr', displayName: 'Français', flagImage: 'img/flags/fr.svg' },
+    { code: 'it', displayName: 'Italiano', flagImage: 'img/flags/it.svg' },
+    { code: 'es', displayName: 'Español', flagImage: 'img/flags/es.svg' },
+    { code: 'de', displayName: 'Deutsch', flagImage: 'img/flags/de.svg' },
+    { code: 'hu', displayName: 'Magyar', flagImage: 'img/flags/hu.svg' },
+  ];
+
+  /** Currently selected language code, read from the ASP.NET culture cookie. */
+  readonly currentLanguage = signal<string>(this.resolveCurrentLanguage());
+
+  /** Absolute URL to the One Identity watermark/background asset. */
+  get watermarkUrl(): string {
+    return `${this.auth.basePath}/images/login-watermark.svg`;
+  }
+
+  /** Absolute URL to the combined One Identity logo shown in the card header. */
+  get logoUrl(): string {
+    return `${this.auth.basePath}/images/oneidentity-logo-v2.svg`;
+  }
+
+  /** Builds a flag asset URL for the given relative image path. */
+  flagUrl(flagImage: string): string {
+    return `${this.auth.basePath}/${flagImage}`;
+  }
 
   /** Inline auth/validation error shown above the form. */
   readonly errorMessage = signal<string | null>(null);
@@ -127,6 +162,50 @@ export class LoginComponent implements OnInit, OnDestroy {
     // ready or unreachable: proceed to the dashboard.
     this.loadingMessage.set('Filtering data\u2026');
     window.location.href = redirectUrl;
+  }
+
+  /**
+   * Reads the current UI culture from the ASP.NET Core culture cookie
+   * (format: c=<culture>|uic=<ui-culture>). Falls back to the <html lang>
+   * attribute, then English, so the selector highlights the active language.
+   */
+  private resolveCurrentLanguage(): string {
+    const match = document.cookie.match(/(?:^|;\s*)\.AspNetCore\.Culture=([^;]+)/);
+    if (match) {
+      const decoded = decodeURIComponent(match[1]);
+      const uic = decoded.match(/uic=([^|]+)/);
+      if (uic) {
+        const code = uic[1].split('-')[0].toLowerCase();
+        if (this.languages.some((l) => l.code === code)) {
+          return code;
+        }
+      }
+    }
+    const htmlLang = document.documentElement.getAttribute('lang');
+    if (htmlLang) {
+      const code = htmlLang.split('-')[0].toLowerCase();
+      if (this.languages.some((l) => l.code === code)) {
+        return code;
+      }
+    }
+    return 'en';
+  }
+
+  /**
+   * Switches the UI language by writing the standard ASP.NET Core culture
+   * cookie and reloading so the server re-renders all localized strings in the
+   * new culture. Mirrors the previous Razor login behaviour.
+   */
+  setLanguage(code: string): void {
+    if (!this.languages.some((l) => l.code === code) || code === this.currentLanguage()) {
+      return;
+    }
+    const value = `c=${code}|uic=${code}`;
+    const path = this.auth.basePath || '/';
+    document.cookie =
+      `.AspNetCore.Culture=${encodeURIComponent(value)}` +
+      `;path=${path};max-age=31536000;samesite=lax`;
+    window.location.reload();
   }
 
   /**
