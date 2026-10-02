@@ -16,6 +16,10 @@ import { AuthService } from '../../core/auth.service';
 import { IrisButtonComponent } from '../../shared/ui/iris-button/iris-button.component';
 import { IrisTextInputComponent } from '../../shared/ui/iris-text-input/iris-text-input.component';
 import { IrisFormFieldComponent } from '../../shared/ui/iris-form-field/iris-form-field.component';
+import {
+  IrisDropdownComponent,
+  IrisDropdownOption,
+} from '../../shared/ui/iris-dropdown/iris-dropdown.component';
 
 /** A language the login page can switch to, mirroring SupportedLanguage.All on the server. */
 interface SupportedLanguage {
@@ -33,6 +37,7 @@ interface SupportedLanguage {
     IrisButtonComponent,
     IrisTextInputComponent,
     IrisFormFieldComponent,
+    IrisDropdownComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -66,6 +71,15 @@ export class LoginComponent implements OnInit, OnDestroy {
   /** Builds a flag asset URL for the given relative image path. */
   flagUrl(flagImage: string): string {
     return `${this.auth.basePath}/${flagImage}`;
+  }
+
+  /** Dropdown options for the language switcher, including resolved flag URLs. */
+  languageOptions(): IrisDropdownOption[] {
+    return this.languages.map((lang) => ({
+      value: lang.code,
+      label: lang.displayName,
+      imageUrl: this.flagUrl(lang.flagImage),
+    }));
   }
 
   /** Inline auth/validation error shown above the form. */

@@ -59,23 +59,14 @@
       </form>
     </div>
 
-    <div class="lang-switch">
-      @for (lang of languages; track lang.code) {
-        @if (lang.code === currentLanguage()) {
-          <img class="lang-flag" [src]="flagUrl(lang.flagImage)" [alt]="lang.displayName" />
-        }
-      }
-      <select
-        class="lang-select"
-        aria-label="Language"
-        [value]="currentLanguage()"
-        (change)="setLanguage($any($event.target).value)"
-      >
-        @for (lang of languages; track lang.code) {
-          <option [value]="lang.code">{{ lang.displayName }}</option>
-        }
-      </select>
-    </div>
+    <iris-dropdown
+      class="lang-switch"
+      variant="onColor"
+      ariaLabel="Language"
+      [options]="languageOptions()"
+      [value]="currentLanguage()"
+      (valueChange)="setLanguage($event)"
+    />
   </div>
 
   @if (submitting()) {
