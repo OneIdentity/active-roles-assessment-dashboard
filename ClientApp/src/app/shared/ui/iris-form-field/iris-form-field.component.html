@@ -1,0 +1,18 @@
+<div class="field">
+  @if (label) {
+    <label class="label" [attr.for]="for">
+      <span>
+        {{ label }}
+        @if (required) {
+          <span class="required" aria-hidden="true">&nbsp;(Required)</span>
+        }
+      </span>
+    </label>
+  }
+  <div class="control">
+    <ng-content></ng-content>
+  </div>
+  @if (error) {
+    <p class="error" role="alert">{{ error }}</p>
+  }
+</div>

@@ -1,0 +1,87 @@
+<div class="login-page">
+  <img class="watermark" [src]="watermarkUrl" alt="" aria-hidden="true" />
+
+  <div class="login-content">
+    <div class="login-card">
+      <div class="brand">
+        <img class="brand-logo" [src]="logoUrl" alt="One Identity" />
+        <h1 class="brand-title">Active Roles KPI Dashboard</h1>
+        <p class="brand-subtitle">Sign in with your Active Roles credentials</p>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="alert" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <iris-form-field
+          label="Username"
+          [for]="'username'"
+          [required]="true"
+          [error]="usernameInvalid ? 'Username is required.' : null"
+        >
+          <iris-text-input
+            inputId="username"
+            type="text"
+            size="l"
+            placeholder="domain\username"
+            autocomplete="username"
+            [invalid]="usernameInvalid"
+            formControlName="username"
+          />
+        </iris-form-field>
+
+        <iris-form-field
+          label="Password"
+          [for]="'password'"
+          [required]="true"
+          [error]="passwordInvalid ? 'Password is required.' : null"
+        >
+          <iris-text-input
+            inputId="password"
+            type="password"
+            size="l"
+            autocomplete="current-password"
+            [invalid]="passwordInvalid"
+            formControlName="password"
+          />
+        </iris-form-field>
+
+        <iris-button
+          type="submit"
+          variant="primary"
+          size="l"
+          [fullWidth]="true"
+          [disabled]="submitting() || cacheFaulted()"
+        >
+          Sign in
+        </iris-button>
+      </form>
+    </div>
+
+    <div class="lang-switch">
+      @for (lang of languages; track lang.code) {
+        @if (lang.code === currentLanguage()) {
+          <img class="lang-flag" [src]="flagUrl(lang.flagImage)" [alt]="lang.displayName" />
+        }
+      }
+      <select
+        class="lang-select"
+        aria-label="Language"
+        [value]="currentLanguage()"
+        (change)="setLanguage($any($event.target).value)"
+      >
+        @for (lang of languages; track lang.code) {
+          <option [value]="lang.code">{{ lang.displayName }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (submitting()) {
+    <div class="overlay" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="overlay-message">{{ loadingMessage() }}</p>
+    </div>
+  }
+</div>

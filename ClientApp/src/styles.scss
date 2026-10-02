@@ -1,0 +1,28 @@
+/* Global styles for the IRIS/Angular ClientApp.
+ *
+ * Design tokens come from the official @oneidentity/iris-ui-tokens package.
+ * tokens.css aggregates primitives + typography + every theme layer
+ * (light / dark / high-contrast). The theme layers are scoped to
+ * .theme-light / .theme-dark class selectors, so a theme class must be
+ * applied to <body> for the --oi-* custom properties to resolve.
+ */
+@import '@oneidentity/iris-ui-tokens/dist/tokens.css';
+
+/* Activate the light theme so the --oi-* variables are defined.
+ * (A theme toggle can later swap this for .theme-dark.)
+ */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--oi-font-family-default, Inter, system-ui, sans-serif);
+  font-size: var(--oi-text-body-font-size, 16px);
+  line-height: var(--oi-text-body-line-height, 24px);
+  color: var(--oi-content-color-primary, #0f172b);
+  background-color: var(--oi-background-color-secondary, #f1f5f9);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
