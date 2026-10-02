@@ -8,6 +8,15 @@
  */
 @import '@oneidentity/iris-ui-tokens/dist/tokens.css';
 
+/* Border-box everywhere so width:100% elements with padding/border (inputs,
+ * full-width buttons, etc.) stay within their container instead of
+ * overflowing it by the padding+border amount. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* Activate the light theme so the --oi-* variables are defined.
  * (A theme toggle can later swap this for .theme-dark.)
  */
