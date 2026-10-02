@@ -1,10 +1,12 @@
 <div class="field">
   @if (label) {
     <label class="label" [attr.for]="for">
-      {{ label }}
-      @if (required) {
-        <span class="required" aria-hidden="true">*</span>
-      }
+      <span>
+        {{ label }}
+        @if (required) {
+          <span class="required" aria-hidden="true">&nbsp;(Required)</span>
+        }
+      </span>
     </label>
   }
   <div class="control">
