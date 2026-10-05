@@ -92,27 +92,17 @@
   gap: var(--oi-spacing-l);
 }
 
+.setup-form iris-form-field {
+  width: 100%;
+  max-width: 700px;
+}
+
 .hint {
   margin: var(--oi-spacing-xxs) 0 0;
   font-family: var(--oi-font-family-default);
   font-size: var(--oi-text-caption-font-size);
   line-height: var(--oi-text-caption-line-height);
   color: var(--oi-content-color-tertiary);
-}
-
-.lang-select-wrap {
-  display: flex;
-  align-items: center;
-  gap: var(--oi-spacing-s);
-}
-
-.lang-flag {
-  width: 24px;
-  height: 16px;
-  border-radius: 2px;
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
-  flex-shrink: 0;
 }
 
 .lang-dropdown {

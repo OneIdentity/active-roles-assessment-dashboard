@@ -67,20 +67,15 @@
       @if (currentPage() === 3) {
         <iris-card [flat]="true" heading="Language" helper="Default display language for the dashboard.">
           <iris-form-field label="Display language" [for]="'language'">
-            <div class="lang-select-wrap">
-              @if (selectedFlag()) {
-                <img class="lang-flag" [src]="selectedFlag()" alt="" aria-hidden="true" />
-              }
-              <iris-dropdown
-                class="lang-dropdown"
-                [fullWidth]="true"
-                [showChevron]="true"
-                ariaLabel="Display language"
-                [options]="languageOptions()"
-                [value]="form.get('language')?.value"
-                (valueChange)="setLanguage($event)"
-              />
-            </div>
+            <iris-dropdown
+              class="lang-dropdown"
+              [fullWidth]="true"
+              [showChevron]="true"
+              ariaLabel="Display language"
+              [options]="languageOptions()"
+              [value]="form.get('language')?.value"
+              (valueChange)="setLanguage($event)"
+            />
             <p class="hint">Users can change their own language after signing in.</p>
           </iris-form-field>
         </iris-card>

@@ -189,12 +189,6 @@ export class SetupComponent implements OnInit {
     return this.directoryTypes().map((t) => ({ value: t, label: t }));
   }
 
-  /** Currently selected language flag URL (for the preview image). */
-  selectedFlag(): string {
-    const code = this.form.get('language')?.value as string;
-    return this.languages().find((l) => l.code === code)?.flagImage ?? '';
-  }
-
   setLanguage(code: string): void {
     this.form.get('language')?.setValue(code);
   }
