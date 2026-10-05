@@ -1,0 +1,35 @@
+<div class="dropdown">
+  <button
+    type="button"
+    class="trigger"
+    [class.on-color]="variant === 'onColor'"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="ariaLabel"
+    (click)="toggle()"
+  >
+    @if (selected?.imageUrl) {
+      <span class="option-image"><img [src]="selected!.imageUrl" alt="" /></span>
+    }
+    <span class="trigger-label">{{ selected?.label ?? '' }}</span>
+  </button>
+
+  @if (open()) {
+    <ul class="menu" [class.flip-up]="openUpward()" #menu role="listbox" [attr.aria-label]="ariaLabel">
+      @for (opt of options; track opt.value) {
+        <li
+          role="option"
+          class="option"
+          [class.selected]="opt.value === value"
+          [attr.aria-selected]="opt.value === value"
+          (click)="select(opt.value)"
+        >
+          @if (opt.imageUrl) {
+            <span class="option-image"><img [src]="opt.imageUrl" alt="" /></span>
+          }
+          <span>{{ opt.label }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

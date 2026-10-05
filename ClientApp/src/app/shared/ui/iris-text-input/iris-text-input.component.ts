@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-export type IrisTextInputSize = 's' | 'default' | 'l';
+export type IrisTextInputSize = 's' | 'm' | 'default' | 'l';
 export type IrisTextInputType = 'text' | 'password' | 'email' | 'search';
 
 /**
