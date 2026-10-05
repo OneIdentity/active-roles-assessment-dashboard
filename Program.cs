@@ -262,14 +262,28 @@ app.UseAuthorization();
 // authenticated user's saved language from their user settings.
 app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>>().Value);
 
-// First-run redirect: if ApiBaseUrl is not configured, send to Setup wizard
+// First-run redirect: if ApiBaseUrl is not configured, send to the Angular setup wizard (/setup).
+// Allow-list the paths the SPA + its setup API need before configuration exists: the setup route
+// itself, the setup/cache APIs, static asset folders, and any direct file request (has an extension)
+// so the Angular bundle, styles and flag images can load.
 app.Use(async (context, next) =>
 {
     var config = context.RequestServices.GetRequiredService<IOptionsMonitor<ActiveRolesConfig>>().CurrentValue;
     var path = context.Request.Path.Value ?? "";
-    if (string.IsNullOrWhiteSpace(config.ApiBaseUrl) && !path.StartsWith("/Setup", StringComparison.OrdinalIgnoreCase) && !path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) && !path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) && !path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase))
+    var isAllowed =
+        path.StartsWith("/setup", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/api/setup", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/cache", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/images", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/img", StringComparison.OrdinalIgnoreCase) ||
+        Path.HasExtension(path);
+
+    if (string.IsNullOrWhiteSpace(config.ApiBaseUrl) && !isAllowed)
     {
-        context.Response.Redirect($"{context.Request.PathBase}/Setup");
+        context.Response.Redirect($"{context.Request.PathBase}/setup");
         return;
     }
     await next();

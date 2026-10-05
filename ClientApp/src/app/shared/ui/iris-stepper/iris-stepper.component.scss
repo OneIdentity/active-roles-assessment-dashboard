@@ -1,0 +1,85 @@
+:host {
+  display: block;
+}
+
+.iris-stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--oi-spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.iris-stepper__step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oi-spacing-xs);
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--oi-spacing-xs) var(--oi-spacing-s);
+  border-top: 2px var(--oi-border-style-solid) var(--oi-border-color-default);
+}
+
+.iris-stepper__step.is-completed,
+.iris-stepper__step.is-current {
+  border-top-color: var(--oi-base-color-info);
+}
+
+.iris-stepper__indicator {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--oi-border-radius-max);
+  border: 1px solid var(--oi-border-color-strong);
+  background-color: transparent;
+  color: var(--oi-content-color-secondary);
+  transition:
+    background-color var(--oi-motion-duration-short) var(--oi-motion-ease-default),
+    border-color var(--oi-motion-duration-short) var(--oi-motion-ease-default),
+    color var(--oi-motion-duration-short) var(--oi-motion-ease-default);
+}
+
+.iris-stepper__step.is-current .iris-stepper__indicator,
+.iris-stepper__step.is-completed .iris-stepper__indicator {
+  border-color: var(--oi-base-color-info);
+  background-color: var(--oi-base-color-info);
+  color: var(--oi-content-color-constant);
+}
+
+.iris-stepper__num {
+  font-family: var(--oi-font-family-code);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: var(--oi-font-weight-600);
+}
+
+.iris-stepper__check {
+  width: 100%;
+  height: 100%;
+}
+
+.iris-stepper__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--oi-text-body-s-font-size);
+  line-height: var(--oi-text-body-s-line-height);
+  font-weight: var(--oi-text-body-s-font-weight);
+  color: var(--oi-content-color-secondary);
+}
+
+.iris-stepper__step.is-current .iris-stepper__label {
+  font-weight: var(--oi-text-body-s-strong-font-weight);
+  color: var(--oi-content-color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iris-stepper__indicator {
+    transition: none;
+  }
+}

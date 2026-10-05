@@ -1,0 +1,20 @@
+<section class="iris-card">
+  @if (heading || helper) {
+    <header class="iris-card__header">
+      <div class="iris-card__header-content">
+        @if (heading) {
+          <h3 class="iris-card__title">{{ heading }}</h3>
+        }
+        @if (helper) {
+          <p class="iris-card__helper">{{ helper }}</p>
+        }
+      </div>
+      <div class="iris-card__actions">
+        <ng-content select="[card-actions]"></ng-content>
+      </div>
+    </header>
+  }
+  <div class="iris-card__body">
+    <ng-content></ng-content>
+  </div>
+</section>
