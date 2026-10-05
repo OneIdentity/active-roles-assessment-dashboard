@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input, forwardRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  forwardRef,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -26,13 +33,26 @@ export class IrisCheckboxComponent implements ControlValueAccessor {
   @Input() disabled = false;
   @Input() ariaLabel?: string;
 
-  checked = false;
+  /**
+   * Standalone checked binding for use outside reactive forms (e.g. dynamic
+   * grids). Reactive-form usage via NG_VALUE_ACCESSOR continues to work and
+   * takes precedence through writeValue().
+   */
+  @Input() set checked(value: boolean) {
+    this._checked = !!value;
+  }
+  get checked(): boolean {
+    return this._checked;
+  }
+  @Output() checkedChange = new EventEmitter<boolean>();
+
+  private _checked = false;
 
   private onChange: (value: boolean) => void = () => {};
   private onTouched: () => void = () => {};
 
   writeValue(value: boolean): void {
-    this.checked = !!value;
+    this._checked = !!value;
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
@@ -48,8 +68,9 @@ export class IrisCheckboxComponent implements ControlValueAccessor {
   }
 
   toggle(next: boolean): void {
-    this.checked = next;
+    this._checked = next;
     this.onChange(next);
     this.onTouched();
+    this.checkedChange.emit(next);
   }
 }

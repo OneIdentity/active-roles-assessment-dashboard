@@ -9,7 +9,7 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export type IrisTextInputSize = 's' | 'm' | 'default' | 'l';
-export type IrisTextInputType = 'text' | 'password' | 'email' | 'search';
+export type IrisTextInputType = 'text' | 'password' | 'email' | 'search' | 'number';
 
 /**
  * Reusable IRIS text input. Styled from @oneidentity/iris-ui-tokens to match

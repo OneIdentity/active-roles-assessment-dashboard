@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.collapsible {
+  border: 0.5px var(--oi-border-style-solid) var(--oi-border-color-default);
+  border-radius: var(--oi-border-radius-l);
+  background-color: var(--oi-background-color-primary);
+  // Note: no `overflow: hidden` here — it would clip the absolutely-positioned
+  // dropdown panel (e.g. the language selector) when it extends past the card.
+  // Corner clipping is handled per-element via border-radius instead.
+}
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  gap: var(--oi-spacing-s);
+  width: 100%;
+  padding: var(--oi-spacing-m);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--oi-content-color-primary);
+  border-radius: var(--oi-border-radius-l);
+}
+
+.collapsible.is-open .collapsible-header {
+  border-radius: var(--oi-border-radius-l) var(--oi-border-radius-l) 0 0;
+}
+
+.collapsible-header:hover {
+  background-color: var(--oi-background-color-secondary);
+}
+
+.collapsible-caret {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+  transform: rotate(-90deg);
+  color: var(--oi-content-color-secondary);
+}
+
+.collapsible-caret.is-open {
+  transform: rotate(0deg);
+}
+
+.collapsible-titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oi-spacing-xs);
+  min-width: 0;
+}
+
+.collapsible-heading {
+  font-size: var(--oi-text-heading-05-font-size);
+  line-height: var(--oi-text-heading-05-line-height);
+  font-weight: var(--oi-text-heading-05-font-weight);
+}
+
+.collapsible-helper {
+  font-size: var(--oi-text-caption-font-size);
+  line-height: var(--oi-text-caption-line-height);
+  font-weight: var(--oi-text-caption-font-weight);
+  color: var(--oi-content-color-tertiary);
+}
+
+.collapsible-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oi-spacing-m);
+  padding: 0 var(--oi-spacing-m) var(--oi-spacing-m);
+  border-top: 0.5px var(--oi-border-style-solid) var(--oi-border-color-default);
+  padding-top: var(--oi-spacing-m);
+}
