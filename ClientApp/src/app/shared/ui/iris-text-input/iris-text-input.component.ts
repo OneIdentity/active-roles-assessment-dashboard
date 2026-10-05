@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   Input,
+  Output,
   forwardRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -38,6 +40,8 @@ export class IrisTextInputComponent implements ControlValueAccessor {
   @Input() inputId: string | null = null;
   @Input() invalid = false;
 
+  @Output() valueChange = new EventEmitter<string>();
+
   value = '';
   disabled = false;
 
@@ -63,6 +67,7 @@ export class IrisTextInputComponent implements ControlValueAccessor {
   handleInput(event: Event): void {
     this.value = (event.target as HTMLInputElement).value;
     this.onChange(this.value);
+    this.valueChange.emit(this.value);
   }
 
   handleBlur(): void {

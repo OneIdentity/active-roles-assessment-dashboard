@@ -11,14 +11,43 @@
   list-style: none;
 }
 
+.iris-stepper__mobile-label {
+  display: none;
+}
+
 .iris-stepper__step {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  border-top: 2px var(--oi-border-style-solid) var(--oi-border-color-default);
+}
+
+.iris-stepper__button {
   display: inline-flex;
   align-items: center;
   gap: var(--oi-spacing-xs);
-  flex: 1 1 0;
+  width: 100%;
   min-width: 0;
   padding: var(--oi-spacing-xs) var(--oi-spacing-s);
-  border-top: 2px var(--oi-border-style-solid) var(--oi-border-color-default);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.iris-stepper__button:not(:disabled) {
+  cursor: pointer;
+}
+
+.iris-stepper__button:disabled {
+  cursor: default;
+}
+
+.iris-stepper__button:focus-visible {
+  outline: 2px solid var(--oi-border-color-focus);
+  outline-offset: -2px;
+  border-radius: var(--oi-border-radius-default);
 }
 
 .iris-stepper__step.is-completed,
@@ -76,6 +105,54 @@
 .iris-stepper__step.is-current .iris-stepper__label {
   font-weight: var(--oi-text-body-s-strong-font-weight);
   color: var(--oi-content-color-primary);
+}
+
+@media (max-width: 640px) {
+  .iris-stepper__mobile-label {
+    display: block;
+    margin: 0 0 var(--oi-spacing-xs);
+    font-size: var(--oi-text-body-s-strong-font-size);
+    line-height: var(--oi-text-body-s-strong-line-height);
+    font-weight: var(--oi-text-body-s-strong-font-weight);
+    color: var(--oi-content-color-primary);
+  }
+
+  .iris-stepper {
+    gap: var(--oi-spacing-xs);
+  }
+
+  .iris-stepper__step {
+    border-top: 0;
+  }
+
+  .iris-stepper__button {
+    position: relative;
+    display: block;
+    height: 24px;
+    padding: 0;
+  }
+
+  .iris-stepper__button::before {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 2px;
+    border-radius: var(--oi-border-radius-max);
+    background-color: var(--oi-border-color-default);
+    content: '';
+    transform: translateY(-50%);
+  }
+
+  .iris-stepper__step.is-completed .iris-stepper__button::before,
+  .iris-stepper__step.is-current .iris-stepper__button::before {
+    background-color: var(--oi-base-color-info);
+  }
+
+  .iris-stepper__indicator,
+  .iris-stepper__label {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

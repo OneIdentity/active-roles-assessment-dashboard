@@ -1,18 +1,27 @@
+<p class="iris-stepper__mobile-label">{{ steps[current] }}</p>
 <ol class="iris-stepper" role="list">
   @for (step of steps; track $index) {
     <li class="iris-stepper__step" [class]="'is-' + state($index)" [attr.aria-current]="$index === current ? 'step' : null">
-      <span class="iris-stepper__indicator">
-        @if (state($index) === 'completed') {
-          <svg class="iris-stepper__check" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M3.5 8.5l3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-          </svg>
-        } @else {
-          <span class="iris-stepper__num">{{ $index + 1 }}</span>
+      <button
+        class="iris-stepper__button"
+        type="button"
+        [disabled]="$index >= current"
+        [attr.aria-label]="'Go to step ' + ($index + 1) + ': ' + step"
+        (click)="stepSelected.emit($index)"
+      >
+        <span class="iris-stepper__indicator">
+          @if (state($index) === 'completed') {
+            <svg class="iris-stepper__check" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3.5 8.5l3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            </svg>
+          } @else {
+            <span class="iris-stepper__num">{{ $index + 1 }}</span>
+          }
+        </span>
+        @if (step) {
+          <span class="iris-stepper__label">{{ step }}</span>
         }
-      </span>
-      @if (step) {
-        <span class="iris-stepper__label">{{ step }}</span>
-      }
+      </button>
     </li>
   }
 </ol>

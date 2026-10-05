@@ -9,6 +9,7 @@ import {
   ViewChild,
   signal,
 } from '@angular/core';
+import { IrisIconComponent } from '../iris-icon/iris-icon.component';
 
 export interface IrisDropdownOption {
   value: string;
@@ -28,6 +29,10 @@ export interface IrisDropdownOption {
   selector: 'iris-dropdown',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [IrisIconComponent],
+  host: {
+    '[class.full-width]': 'fullWidth',
+  },
   templateUrl: './iris-dropdown.component.html',
   styleUrl: './iris-dropdown.component.scss',
 })
@@ -36,6 +41,8 @@ export class IrisDropdownComponent {
   @Input() value: string | null = null;
   @Input() ariaLabel: string | null = null;
   @Input() variant: 'default' | 'onColor' = 'default';
+  @Input() fullWidth = false;
+  @Input() showChevron = false;
 
   @Output() valueChange = new EventEmitter<string>();
 

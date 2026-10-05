@@ -16,11 +16,21 @@ import { IrisTextInputComponent } from '../../shared/ui/iris-text-input/iris-tex
 import { IrisFormFieldComponent } from '../../shared/ui/iris-form-field/iris-form-field.component';
 import { IrisCheckboxComponent } from '../../shared/ui/iris-checkbox/iris-checkbox.component';
 import { IrisCardComponent } from '../../shared/ui/iris-card/iris-card.component';
+import { IrisBannerComponent } from '../../shared/ui/iris-banner/iris-banner.component';
 import { IrisStepperComponent } from '../../shared/ui/iris-stepper/iris-stepper.component';
 import {
   IrisDropdownComponent,
   IrisDropdownOption,
 } from '../../shared/ui/iris-dropdown/iris-dropdown.component';
+
+const FALLBACK_LANGUAGES: SetupLanguage[] = [
+  { code: 'en', displayName: 'English', flagImage: '' },
+  { code: 'fr', displayName: 'Français', flagImage: '' },
+  { code: 'it', displayName: 'Italiano', flagImage: '' },
+  { code: 'es', displayName: 'Español', flagImage: '' },
+  { code: 'de', displayName: 'Deutsch', flagImage: '' },
+  { code: 'hu', displayName: 'Magyar', flagImage: '' },
+];
 
 /**
  * Angular replacement for the former Razor setup wizard (Pages/Setup.cshtml).
@@ -40,6 +50,7 @@ import {
     IrisFormFieldComponent,
     IrisCheckboxComponent,
     IrisCardComponent,
+    IrisBannerComponent,
     IrisStepperComponent,
     IrisDropdownComponent,
   ],
@@ -62,9 +73,10 @@ export class SetupComponent implements OnInit {
 
   readonly currentPage = signal(0);
   readonly errorMessage = signal<string | null>(null);
+  readonly fieldErrors = signal<Record<string, string>>({});
   readonly submitting = signal(false);
 
-  readonly languages = signal<SetupLanguage[]>([]);
+  readonly languages = signal<SetupLanguage[]>(FALLBACK_LANGUAGES);
   readonly directoryTypes = signal<string[]>(['ActiveDirectory', 'Entra']);
 
   /** Placeholder hints surfaced by the server defaults for optional fields. */
@@ -135,7 +147,7 @@ export class SetupComponent implements OnInit {
       return;
     }
 
-    if (options.languages) {
+    if (options.languages?.length) {
       this.languages.set(options.languages);
     }
     if (options.directoryTypes?.length) {
@@ -191,6 +203,22 @@ export class SetupComponent implements OnInit {
     this.form.get('roleGroupsDirectoryType')?.setValue(value);
   }
 
+  fieldError(controlName: string): string | null {
+    return this.fieldErrors()[controlName] ?? null;
+  }
+
+  clearFieldError(controlName: string): void {
+    const errors = { ...this.fieldErrors() };
+    if (!(controlName in errors)) {
+      return;
+    }
+    delete errors[controlName];
+    this.fieldErrors.set(errors);
+    if (Object.keys(errors).length === 0) {
+      this.errorMessage.set(null);
+    }
+  }
+
   /**
    * Client-side gate matching the Razor validatePage(): step 0 requires the API
    * + RSTS URLs; step 1 requires the service-account username + password.
@@ -199,25 +227,26 @@ export class SetupComponent implements OnInit {
     const v = this.form.value;
     if (index === 0) {
       if (!(v.apiBaseUrl ?? '').trim()) {
-        return this.fail('REST API URL is required.');
+        return this.fail('REST API URL is required.', 'apiBaseUrl');
       }
       if (!(v.rstsUrl ?? '').trim()) {
-        return this.fail('RSTS Token URL is required.');
+        return this.fail('RSTS Token URL is required.', 'rstsUrl');
       }
     }
     if (index === 1) {
       if (!(v.serviceAccountUsername ?? '').trim()) {
-        return this.fail('Service account username is required.');
+        return this.fail('Service account username is required.', 'serviceAccountUsername');
       }
       if (!(v.serviceAccountPassword ?? '')) {
-        return this.fail('Service account password is required.');
+        return this.fail('Service account password is required.', 'serviceAccountPassword');
       }
     }
     return true;
   }
 
-  private fail(message: string): false {
+  private fail(message: string, controlName: string): false {
     this.errorMessage.set(message);
+    this.fieldErrors.set({ [controlName]: message });
     return false;
   }
 
@@ -226,16 +255,23 @@ export class SetupComponent implements OnInit {
       return;
     }
     this.errorMessage.set(null);
+    this.fieldErrors.set({});
     if (this.currentPage() < this.totalPages - 1) {
       this.currentPage.update((p) => p + 1);
     }
   }
 
-  back(): void {
-    this.errorMessage.set(null);
-    if (this.currentPage() > 0) {
-      this.currentPage.update((p) => p - 1);
+  goToStep(index: number): void {
+    if (index >= this.currentPage()) {
+      return;
     }
+    this.errorMessage.set(null);
+    this.fieldErrors.set({});
+    this.currentPage.set(index);
+  }
+
+  clearError(): void {
+    this.errorMessage.set(null);
   }
 
   private toInt(value: unknown): number {

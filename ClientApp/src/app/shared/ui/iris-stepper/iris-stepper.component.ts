@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 /**
  * Reusable IRIS stepper: a horizontal progress indicator with numbered
@@ -20,6 +20,9 @@ export class IrisStepperComponent {
 
   /** Zero-based index of the current step. */
   @Input() current = 0;
+
+  /** Emits when a user selects a completed step. */
+  @Output() stepSelected = new EventEmitter<number>();
 
   state(index: number): 'completed' | 'current' | 'upcoming' {
     if (index < this.current) return 'completed';

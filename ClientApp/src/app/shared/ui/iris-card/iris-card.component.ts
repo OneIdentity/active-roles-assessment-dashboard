@@ -19,4 +19,7 @@ export class IrisCardComponent {
 
   /** Tertiary helper copy below the title. */
   @Input() helper?: string;
+
+  /** Removes the surface treatment when the content is already inside a card. */
+  @Input() flat = false;
 }

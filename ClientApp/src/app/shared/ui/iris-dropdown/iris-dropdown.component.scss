@@ -3,8 +3,17 @@
   position: relative;
 }
 
+:host(.full-width) {
+  display: block;
+  width: 100%;
+}
+
 .dropdown {
   position: relative;
+}
+
+.dropdown.full-width {
+  width: 100%;
 }
 
 .trigger {
@@ -30,6 +39,15 @@
     outline: 1.5px solid var(--oi-border-color-focus);
     outline-offset: -1.5px;
   }
+}
+
+.trigger.full-width {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.trigger-caret {
+  transform: translateY(-1px);
 }
 
 /* Transparent, white-text variant for use over a brand/colour background. */
@@ -82,6 +100,13 @@
   border: var(--oi-border-width-default) var(--oi-border-style-solid) var(--oi-border-color-muted);
   border-radius: var(--oi-border-radius-default);
   box-shadow: var(--oi-shadow-low);
+}
+
+.dropdown.full-width .menu {
+  left: 0;
+  width: 100%;
+  min-width: 0;
+  transform: none;
 }
 
 /* Flip above the trigger when there isn't enough viewport space below it. */
