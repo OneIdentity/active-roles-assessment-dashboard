@@ -8,22 +8,28 @@
       <p class="brand-subtitle">Initial configuration</p>
     </div>
 
-    <iris-stepper class="setup-stepper" [steps]="stepLabels" [current]="currentPage()" />
+    <iris-stepper class="setup-stepper" [steps]="stepLabels" [current]="currentPage()" (stepSelected)="goToStep($event)" />
 
     @if (errorMessage()) {
-      <div class="alert" role="alert">{{ errorMessage() }}</div>
+      <iris-banner
+        type="error"
+        [colored]="true"
+        title="Setup error"
+        [supportingText]="errorMessage()!"
+        (dismissed)="clearError()"
+      />
     }
 
     <form class="setup-form" [formGroup]="form" (ngSubmit)="finish()" novalidate>
       <!-- Step 1: REST API Configuration -->
       @if (currentPage() === 0) {
-        <iris-card heading="REST API configuration" helper="Connect to the Active Roles Management REST API.">
-          <iris-form-field label="REST API URL" [for]="'apiBaseUrl'" [required]="true">
-            <iris-text-input inputId="apiBaseUrl" size="l" placeholder="https://server:5000/api/v1" formControlName="apiBaseUrl" />
+        <iris-card [flat]="true" heading="REST API configuration" helper="Connect to the Active Roles Management REST API.">
+          <iris-form-field label="REST API URL" [for]="'apiBaseUrl'" [required]="true" [error]="fieldError('apiBaseUrl')">
+            <iris-text-input inputId="apiBaseUrl" size="l" placeholder="https://server:5000/api/v1" [invalid]="!!fieldError('apiBaseUrl')" (valueChange)="clearFieldError('apiBaseUrl')" formControlName="apiBaseUrl" />
             <p class="hint">Base URL of the Active Roles Management REST API.</p>
           </iris-form-field>
-          <iris-form-field label="RSTS Token URL" [for]="'rstsUrl'" [required]="true">
-            <iris-text-input inputId="rstsUrl" size="l" placeholder="https://server:443/rsts/oauth2/token" formControlName="rstsUrl" />
+          <iris-form-field label="RSTS Token URL" [for]="'rstsUrl'" [required]="true" [error]="fieldError('rstsUrl')">
+            <iris-text-input inputId="rstsUrl" size="l" placeholder="https://server:443/rsts/oauth2/token" [invalid]="!!fieldError('rstsUrl')" (valueChange)="clearFieldError('rstsUrl')" formControlName="rstsUrl" />
             <p class="hint">OAuth2 token endpoint of the RSTS.</p>
           </iris-form-field>
           <iris-form-field label="RSTS Scope" [for]="'rstsScope'">
@@ -35,13 +41,13 @@
 
       <!-- Step 2: Service Account Credentials -->
       @if (currentPage() === 1) {
-        <iris-card heading="Service account" helper="Credentials used to collect data from Active Roles.">
-          <iris-form-field label="Service account username" [for]="'serviceAccountUsername'" [required]="true">
-            <iris-text-input inputId="serviceAccountUsername" size="l" placeholder="DOMAIN\svc_ars" autocomplete="off" formControlName="serviceAccountUsername" />
+        <iris-card [flat]="true" heading="Service account" helper="Credentials used to collect data from Active Roles.">
+          <iris-form-field label="Service account username" [for]="'serviceAccountUsername'" [required]="true" [error]="fieldError('serviceAccountUsername')">
+            <iris-text-input inputId="serviceAccountUsername" size="l" placeholder="DOMAIN\svc_ars" autocomplete="off" [invalid]="!!fieldError('serviceAccountUsername')" (valueChange)="clearFieldError('serviceAccountUsername')" formControlName="serviceAccountUsername" />
             <p class="hint">Account used for unattended data collection.</p>
           </iris-form-field>
-          <iris-form-field label="Service account password" [for]="'serviceAccountPassword'" [required]="true">
-            <iris-text-input inputId="serviceAccountPassword" type="password" size="l" autocomplete="new-password" formControlName="serviceAccountPassword" />
+          <iris-form-field label="Service account password" [for]="'serviceAccountPassword'" [required]="true" [error]="fieldError('serviceAccountPassword')">
+            <iris-text-input inputId="serviceAccountPassword" type="password" size="l" autocomplete="new-password" [invalid]="!!fieldError('serviceAccountPassword')" (valueChange)="clearFieldError('serviceAccountPassword')" formControlName="serviceAccountPassword" />
             <p class="hint">Stored encrypted; never saved in plain text.</p>
           </iris-form-field>
         </iris-card>
@@ -49,7 +55,7 @@
 
       <!-- Step 3: Web Interface -->
       @if (currentPage() === 2) {
-        <iris-card heading="Web interface" helper="Optional link to the Active Roles Web Interface.">
+        <iris-card [flat]="true" heading="Web interface" helper="Optional link to the Active Roles Web Interface.">
           <iris-form-field label="Web interface URL" [for]="'webInterfaceUrl'">
             <iris-text-input inputId="webInterfaceUrl" size="l" placeholder="https://server/ARWebAdmin" formControlName="webInterfaceUrl" />
             <p class="hint">Used for deep links back to Active Roles.</p>
@@ -59,20 +65,17 @@
 
       <!-- Step 4: Language -->
       @if (currentPage() === 3) {
-        <iris-card heading="Language" helper="Default display language for the dashboard.">
+        <iris-card [flat]="true" heading="Language" helper="Default display language for the dashboard.">
           <iris-form-field label="Display language" [for]="'language'">
-            <div class="lang-select-wrap">
-              @if (selectedFlag()) {
-                <img class="lang-flag" [src]="selectedFlag()" alt="" aria-hidden="true" />
-              }
-              <iris-dropdown
-                class="lang-dropdown"
-                ariaLabel="Display language"
-                [options]="languageOptions()"
-                [value]="form.get('language')?.value"
-                (valueChange)="setLanguage($event)"
-              />
-            </div>
+            <iris-dropdown
+              class="lang-dropdown"
+              [fullWidth]="true"
+              [showChevron]="true"
+              ariaLabel="Display language"
+              [options]="languageOptions()"
+              [value]="form.get('language')?.value"
+              (valueChange)="setLanguage($event)"
+            />
             <p class="hint">Users can change their own language after signing in.</p>
           </iris-form-field>
         </iris-card>
@@ -80,9 +83,11 @@
 
       <!-- Step 5: Role Mapping & KPI Configuration -->
       @if (currentPage() === 4) {
-        <iris-card heading="Role mapping" helper="Map dashboard roles to directory groups.">
+        <iris-card [flat]="true" heading="Role mapping" helper="Map dashboard roles to directory groups.">
           <iris-form-field label="Directory type" [for]="'roleGroupsDirectoryType'">
             <iris-dropdown
+              [fullWidth]="true"
+              [showChevron]="true"
               ariaLabel="Directory type"
               [options]="directoryTypeOptions()"
               [value]="form.get('roleGroupsDirectoryType')?.value"
@@ -108,7 +113,7 @@
           </iris-form-field>
         </iris-card>
 
-        <iris-card heading="KPI configuration" helper="Optional custom filter overrides.">
+        <iris-card [flat]="true" heading="KPI configuration" helper="Optional custom filter overrides.">
           <iris-form-field label="No-manager user filter" [for]="'customNoManagerUserFilter'">
             <iris-text-input inputId="customNoManagerUserFilter" size="l" [placeholder]="placeholders().noManagerUser" formControlName="customNoManagerUserFilter" />
           </iris-form-field>
@@ -120,7 +125,7 @@
 
       <!-- Step 6: Licensing Thresholds -->
       @if (currentPage() === 5) {
-        <iris-card heading="Licensing thresholds" helper="Licensed object counts used for utilisation KPIs.">
+        <iris-card [flat]="true" heading="Licensing thresholds" helper="Licensed object counts used for utilisation KPIs.">
           <iris-form-field label="Licensed domain objects" [for]="'licensedDomainObjects'">
             <iris-text-input inputId="licensedDomainObjects" size="l" placeholder="0" formControlName="licensedDomainObjects" />
           </iris-form-field>
@@ -139,7 +144,7 @@
 
       <!-- Step 7: Usage Analytics -->
       @if (currentPage() === 6) {
-        <iris-card heading="Usage analytics" helper="Optional, anonymous usage tracking.">
+        <iris-card [flat]="true" heading="Usage analytics" helper="Optional, anonymous usage tracking.">
           <iris-form-field label="">
             <iris-checkbox formControlName="analyticsEnabled">Enable anonymous usage analytics</iris-checkbox>
             <p class="hint">Enabling constitutes organizational opt-in. No PII is ever sent.</p>
@@ -152,9 +157,7 @@
       }
 
       <div class="setup-nav">
-        @if (currentPage() > 0) {
-          <iris-button type="button" variant="secondary" size="l" (click)="back()">Back</iris-button>
-        }
+        <span class="step-count">Step {{ currentPage() + 1 }} of {{ stepLabels.length }}</span>
         @if (currentPage() < 6) {
           <iris-button type="button" variant="primary" size="l" (click)="next()">Next</iris-button>
         } @else {

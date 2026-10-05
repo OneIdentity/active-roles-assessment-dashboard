@@ -12,6 +12,13 @@
   border-radius: var(--oi-border-radius-l);
 }
 
+.iris-card--flat {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
 .iris-card__header {
   display: flex;
   align-items: flex-start;
