@@ -144,8 +144,8 @@ builder.Services.AddSingleton<ReportExporterFactory>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/login";
-        options.LogoutPath = "/api/auth/logout";
+        options.LoginPath = "/Login";
+        options.LogoutPath = "/Logout";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.Cookie.Path = "/";
         options.Events.OnRedirectToLogin = context =>
@@ -156,9 +156,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             {
                 returnUrl = "/";
             }
-            // Send unauthenticated users to the Angular SPA login route, preserving
-            // the originally requested location so the SPA can return there post-login.
-            var loginUrl = $"{pathBase}/login?returnUrl={Uri.EscapeDataString(pathBase + returnUrl)}";
+            var loginUrl = $"{pathBase}/Login?ReturnUrl={Uri.EscapeDataString(pathBase + returnUrl)}";
             context.Response.Redirect(loginUrl);
             return Task.CompletedTask;
         };
@@ -241,19 +239,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-// Serve the compiled Angular SPA (ClientApp build output) from the app root.
-// The Angular build emits to ClientApp/dist/ClientApp/browser. This is served in
-// addition to wwwroot so the SPA assets (JS/CSS/favicon) load at the same origin.
-var spaBrowserPath = Path.Combine(app.Environment.ContentRootPath, "ClientApp", "dist", "ClientApp", "browser");
-if (Directory.Exists(spaBrowserPath))
-{
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(spaBrowserPath),
-    });
-}
-
 app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
@@ -262,28 +247,14 @@ app.UseAuthorization();
 // authenticated user's saved language from their user settings.
 app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>>().Value);
 
-// First-run redirect: if ApiBaseUrl is not configured, send to the Angular setup wizard (/setup).
-// Allow-list the paths the SPA + its setup API need before configuration exists: the setup route
-// itself, the setup/cache APIs, static asset folders, and any direct file request (has an extension)
-// so the Angular bundle, styles and flag images can load.
+// First-run redirect: if ApiBaseUrl is not configured, send to Setup wizard
 app.Use(async (context, next) =>
 {
     var config = context.RequestServices.GetRequiredService<IOptionsMonitor<ActiveRolesConfig>>().CurrentValue;
     var path = context.Request.Path.Value ?? "";
-    var isAllowed =
-        path.StartsWith("/setup", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/api/setup", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/cache", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/images", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/img", StringComparison.OrdinalIgnoreCase) ||
-        Path.HasExtension(path);
-
-    if (string.IsNullOrWhiteSpace(config.ApiBaseUrl) && !isAllowed)
+    if (string.IsNullOrWhiteSpace(config.ApiBaseUrl) && !path.StartsWith("/Setup", StringComparison.OrdinalIgnoreCase) && !path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) && !path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) && !path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase))
     {
-        context.Response.Redirect($"{context.Request.PathBase}/setup");
+        context.Response.Redirect($"{context.Request.PathBase}/Setup");
         return;
     }
     await next();
@@ -336,26 +307,5 @@ app.MapGet("/diagnostics/validate-filter", async (
 
 app.MapRazorPages();
 app.MapControllers();
-
-// SPA fallback: any unmatched non-file GET request serves the Angular shell so
-// client-side routes (e.g. /login) resolve. The <base href> is rewritten at
-// request time to the current PathBase so the app works under IIS sub-apps.
-var spaIndexPath = Path.Combine(spaBrowserPath, "index.html");
-if (File.Exists(spaIndexPath))
-{
-    app.MapFallback(async context =>
-    {
-        var pathBaseValue = context.Request.PathBase.HasValue
-            ? context.Request.PathBase.Value!.TrimEnd('/') + "/"
-            : "/";
-
-        var html = await File.ReadAllTextAsync(spaIndexPath);
-        html = html.Replace("<base href=\"/\">", $"<base href=\"{pathBaseValue}\">");
-
-        context.Response.ContentType = "text/html; charset=utf-8";
-        context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
-        await context.Response.WriteAsync(html);
-    });
-}
 
 app.Run();

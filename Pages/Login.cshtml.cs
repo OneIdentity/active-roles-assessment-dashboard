@@ -1,43 +1,26 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Security.Claims;
 using ActiveRolesDashboard.Models;
-using ActiveRolesDashboard.Resources;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 
-namespace ActiveRolesDashboard.Controllers;
+namespace ActiveRolesDashboard.Pages;
 
-/// <summary>
-/// REST authentication API that backs the Angular SPA. Replaces the former
-/// Razor <c>Pages/Login.cshtml.cs</c> and <c>Pages/Logout.cshtml.cs</c>,
-/// preserving their behaviour exactly: RSTS token acquisition, session state,
-/// a fresh directory-facts evaluation at login (with per-user cache clear when
-/// the resolved role/admin flag changed), claims + cookie sign-in, and culture
-/// cookie alignment to the authenticated user's saved language.
-/// </summary>
-[ApiController]
-[Route("api/auth")]
-public class AuthController : ControllerBase
+public class LoginModel : PageModel
 {
     private readonly RstsAuthService _authService;
-    private readonly IStringLocalizer<AuthMessages> _localizer;
+    private readonly IStringLocalizer<LoginModel> _localizer;
     private readonly UserSettingsService _userSettings;
     private readonly DashboardCacheHolder _cache;
     private readonly DirectoryFactsResolver _directoryFacts;
     private readonly PerUserSummaryCache _userCache;
 
-    public AuthController(
-        RstsAuthService authService,
-        IStringLocalizer<AuthMessages> localizer,
-        UserSettingsService userSettings,
-        DashboardCacheHolder cache,
-        DirectoryFactsResolver directoryFacts,
-        PerUserSummaryCache userCache)
+    public LoginModel(RstsAuthService authService, IStringLocalizer<LoginModel> localizer, UserSettingsService userSettings, DashboardCacheHolder cache, DirectoryFactsResolver directoryFacts, PerUserSummaryCache userCache)
     {
         _authService = authService;
         _localizer = localizer;
@@ -47,30 +30,49 @@ public class AuthController : ControllerBase
         _userCache = userCache;
     }
 
-    public sealed class LoginRequest
+    [BindProperty]
+    public string Username { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string Password { get; set; } = string.Empty;
+
+    public string? ErrorMessage { get; set; }
+
+    /// <summary>
+    /// True when the shared data cache could not be built (e.g. Active Roles unreachable at
+    /// startup). Surfaced on page load so the user sees the outage and Sign In is disabled,
+    /// rather than only discovering the fault after attempting to log in.
+    /// </summary>
+    public bool CacheFaulted { get; private set; }
+
+    public IReadOnlyList<SupportedLanguage> Languages { get; } = SupportedLanguage.All;
+
+    public SupportedLanguage SelectedLanguage =>
+        Languages.FirstOrDefault(l => l.Code == CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
+        ?? Languages.First(l => l.Code == SupportedLanguage.DefaultCode);
+
+    public void OnGet()
     {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string? ReturnUrl { get; set; }
+        CacheFaulted = _cache.State == CacheState.Faulted;
     }
 
-    [HttpPost("login")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
-        if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+        if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
         {
-            return Unauthorized(new { error = _localizer["UsernamePasswordRequired"].Value });
+            ErrorMessage = _localizer["UsernamePasswordRequired"];
+            return Page();
         }
 
-        var tokenResult = await _authService.GetTokenAsync(request.Username, request.Password);
+        var tokenResult = await _authService.GetTokenAsync(Username, Password);
 
         if (!tokenResult.Success)
         {
-            return Unauthorized(new { error = tokenResult.Error ?? _localizer["AuthenticationFailed"].Value });
+            ErrorMessage = tokenResult.Error ?? _localizer["AuthenticationFailed"];
+            return Page();
         }
 
-        // Store token in session to avoid cookie size limits truncating the token.
+        // Store token in session to avoid cookie size limits truncating the token
         HttpContext.Session.SetString("AccessToken", tokenResult.AccessToken);
         HttpContext.Session.SetString("TokenExpiry", DateTime.UtcNow.AddSeconds(tokenResult.ExpiresIn).ToString("o"));
 
@@ -81,7 +83,7 @@ public class AuthController : ControllerBase
         // The fresh results are cached at app scope and mirrored into session, tagged with the
         // directory-facts epoch so a superset rebuild still forces a re-evaluation on the user's
         // next request.
-        var fresh = await _directoryFacts.ResolveFreshAsync(tokenResult.AccessToken, request.Username);
+        var fresh = await _directoryFacts.ResolveFreshAsync(tokenResult.AccessToken, Username);
         var facts = fresh.Facts;
 
         // If the resolved role/admin flag changed since the user last logged in, discard their
@@ -89,7 +91,7 @@ public class AuthController : ControllerBase
         // new role on the first request. The freshly resolved facts themselves are retained.
         if (fresh.Changed)
         {
-            _userCache.ClearUserData(request.Username);
+            _userCache.ClearUserData(Username);
         }
 
         HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
@@ -98,7 +100,7 @@ public class AuthController : ControllerBase
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, request.Username)
+            new(ClaimTypes.Name, Username)
         };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -110,7 +112,7 @@ public class AuthController : ControllerBase
         // Resolve the newly authenticated user's saved language. Once authenticated this is the
         // single source of truth, so align the culture cookie with it (rather than the pre-auth
         // login-page selection) and localize the post-login overlay message in that culture.
-        var userLanguage = ResolveUserLanguage(request.Username);
+        var userLanguage = ResolveUserLanguage(Username);
         if (userLanguage is not null)
         {
             Response.Cookies.Append(
@@ -123,37 +125,24 @@ public class AuthController : ControllerBase
             Response.Cookies.Delete(CookieRequestCultureProvider.DefaultCookieName);
         }
 
-        var pathBase = Request.PathBase.Value ?? string.Empty;
-        var redirectUrl = ResolveRedirectUrl(request.ReturnUrl, pathBase);
-
-        return Ok(new
+        // No-JS fallback: full-page form POST expects an HTML redirect page rather than JSON.
+        if (!AcceptsJson())
         {
-            redirectUrl,
+            RedirectUrl = $"{Request.PathBase}/";
+            return Page();
+        }
+
+        return new JsonResult(new
+        {
+            redirectUrl = $"{Request.PathBase}/",
             loadingMessage = LocalizeInCulture("LoadingData", userLanguage)
         });
     }
 
-    [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    private bool AcceptsJson()
     {
-        HttpContext.Session.Clear();
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var pathBase = Request.PathBase.Value ?? string.Empty;
-        return Ok(new { redirectUrl = $"{pathBase}/login" });
-    }
-
-    /// <summary>
-    /// Only honour a local, same-application return URL to avoid open-redirects.
-    /// Falls back to the application root under the current PathBase.
-    /// </summary>
-    private string ResolveRedirectUrl(string? returnUrl, string pathBase)
-    {
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-        {
-            return returnUrl;
-        }
-        return $"{pathBase}/";
+        var accept = Request.Headers.Accept.ToString();
+        return accept.Contains("application/json", StringComparison.OrdinalIgnoreCase);
     }
 
     private string? ResolveUserLanguage(string username)
@@ -181,4 +170,6 @@ public class AuthController : ControllerBase
             CultureInfo.CurrentUICulture = original;
         }
     }
+
+    public string? RedirectUrl { get; set; }
 }
