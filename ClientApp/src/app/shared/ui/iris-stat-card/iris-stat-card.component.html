@@ -1,0 +1,12 @@
+<section class="card" [style.border-top-color]="accent() ?? null">
+  <header class="header">
+    <p class="label">{{ label() }}</p>
+  </header>
+  <div class="metric">
+    @if (error()) {
+      <p class="error" [attr.title]="error()">—</p>
+    } @else {
+      <p class="value">{{ display() }}</p>
+    }
+  </div>
+</section>

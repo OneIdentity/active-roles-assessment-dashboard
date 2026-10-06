@@ -16,6 +16,13 @@ public class IndexModel : DashboardPageModel
 
     public override async Task<IActionResult> OnGetAsync([FromQuery] bool cached = false)
     {
+        // The main dashboard has moved to the Angular SPA. Temporary redirect until
+        // this Razor page is removed after the Angular dashboard has been validated.
+        return Redirect($"{Request.PathBase}/dashboard");
+    }
+
+    private async Task<IActionResult> LegacyOnGetAsync(bool cached)
+    {
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 

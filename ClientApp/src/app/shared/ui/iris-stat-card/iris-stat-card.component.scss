@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oi-spacing-s);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--oi-spacing-l);
+  background: var(--oi-surface-color-primary, #fff);
+  border: 1px solid var(--oi-border-color-subtle, #e2e8f0);
+  border-top: 3px solid var(--oi-border-color-subtle, #e2e8f0);
+  border-radius: var(--oi-radius-m, 8px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  margin: 0;
+  font-size: var(--oi-text-caption-strong-font-size);
+  line-height: var(--oi-text-caption-strong-line-height);
+  font-weight: var(--oi-text-caption-strong-font-weight);
+  color: var(--oi-content-color-secondary);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oi-spacing-xs);
+}
+
+.value,
+.error {
+  margin: 0;
+  font-family: var(--oi-font-family-code);
+  font-size: var(--oi-text-heading-03-font-size);
+  line-height: var(--oi-text-heading-03-line-height);
+  font-weight: var(--oi-font-weight-400);
+  color: var(--oi-content-color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.error {
+  color: var(--oi-content-color-error);
+}

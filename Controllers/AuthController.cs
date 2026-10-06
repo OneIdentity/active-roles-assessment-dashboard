@@ -145,7 +145,7 @@ public class AuthController : ControllerBase
 
     /// <summary>
     /// Only honour a local, same-application return URL to avoid open-redirects.
-    /// Falls back to the application root under the current PathBase.
+    /// Falls back to the Angular dashboard under the current PathBase.
     /// </summary>
     private string ResolveRedirectUrl(string? returnUrl, string pathBase)
     {
@@ -153,7 +153,7 @@ public class AuthController : ControllerBase
         {
             return returnUrl;
         }
-        return $"{pathBase}/";
+        return $"{pathBase}/dashboard";
     }
 
     private string? ResolveUserLanguage(string username)

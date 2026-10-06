@@ -1,0 +1,83 @@
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--oi-spacing-xxl);
+  row-gap: var(--oi-spacing-m);
+  container-type: inline-size;
+}
+
+@container (max-width: 360px) {
+  .legend {
+    flex-basis: 100%;
+  }
+  .svg {
+    margin-inline: auto;
+  }
+}
+
+.svg {
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+}
+
+.arc {
+  stroke: var(--oi-surface-color-primary, #fff);
+  stroke-width: 1;
+}
+
+.centerNum {
+  font-family: var(--oi-font-family-code);
+  font-size: 18px;
+  font-weight: var(--oi-font-weight-600);
+  fill: var(--oi-content-color-primary);
+}
+
+.centerLbl {
+  font-family: var(--oi-font-family-default);
+  font-size: 10px;
+  fill: var(--oi-content-color-tertiary);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oi-spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.legendItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--oi-spacing-s);
+  font-size: var(--oi-text-caption-font-size);
+  line-height: var(--oi-text-caption-line-height);
+  color: var(--oi-content-color-primary);
+  min-width: 0;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legendLabel {
+  color: var(--oi-content-color-secondary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legendValue {
+  font-weight: var(--oi-text-caption-strong-font-weight);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--oi-font-family-code);
+}

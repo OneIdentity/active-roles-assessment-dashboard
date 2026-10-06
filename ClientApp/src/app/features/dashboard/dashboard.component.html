@@ -1,0 +1,108 @@
+<div class="dashboard-page">
+  <div class="dashboard-content">
+    <header class="dashboard-header">
+      <div class="dashboard-brand">
+        <img class="brand-logo" [src]="logoUrl" alt="One Identity" />
+        <h1 class="brand-title">Active Roles Dashboard</h1>
+      </div>
+      @if (data(); as d) {
+        <nav class="dashboard-actions" aria-label="Dashboard actions">
+          @if (d.capabilities.canViewAssessments) {
+            <a class="action-link" [href]="url('/Assessments')">Assessments</a>
+          }
+          @if (d.capabilities.canViewExposureReport) {
+            url('/AttackExposure')
+          }
+          @if (d.capabilities.canViewSnapshots) {
+            <a class="action-link" [href]="url('/Snapshots')">Snapshots</a>
+          }
+          @if (d.capabilities.canAccessSettings) {
+            <a class="action-link" [href]="url('/settings')">Settings</a>
+          }
+          <span class="user-name">{{ d.userName }}</span>
+          <a class="action-link" [href]="url('/Logout')">Sign out</a>
+        </nav>
+      }
+    </header>
+
+    @if (errorMessage()) {
+      <iris-banner type="error" [colored]="true" title="Dashboard error" [supportingText]="errorMessage()!" />
+    }
+
+    @if (loading() && !data()) {
+      <p class="dashboard-loading">Loading dashboard…</p>
+    } @else if (data(); as d) {
+      @if (d.capabilities.cacheRebuildInProgress) {
+        <iris-banner type="info" [colored]="true" title="Cache rebuild in progress" supportingText="Figures may be incomplete until the rebuild finishes." />
+      }
+
+      @if (d.segmentFilter.enabled) {
+        <iris-card heading="Segments" [flat]="true">
+          <div class="segment-filter" [class.is-busy]="savingSegment()">
+            @if (d.segmentFilter.availableDomains.length) {
+              <fieldset class="segment-group">
+                <legend>AD domains</legend>
+                @for (s of d.segmentFilter.availableDomains; track s) {
+                  <iris-checkbox [checked]="isSelected('Domain', s)" [disabled]="savingSegment()"
+                    (checkedChange)="toggleSegment('Domain', s, $event)">{{ s }}</iris-checkbox>
+                }
+              </fieldset>
+            }
+            @if (d.segmentFilter.availableTenants.length) {
+              <fieldset class="segment-group">
+                <legend>Entra tenants</legend>
+                @for (s of d.segmentFilter.availableTenants; track s) {
+                  <iris-checkbox [checked]="isSelected('Tenant', s)" [disabled]="savingSegment()"
+                    (checkedChange)="toggleSegment('Tenant', s, $event)">{{ s }}</iris-checkbox>
+                }
+              </fieldset>
+            }
+          </div>
+        </iris-card>
+      }
+
+      @if (d.overview.enabled) {
+        <section class="overview" aria-labelledby="overview-title">
+          <h2 id="overview-title" class="section-title">{{ d.overview.title }}</h2>
+          <div class="kpi-grid">
+            @for (k of d.overview.kpis; track k.key) {
+              <iris-stat-card [label]="k.label" [value]="k.count" [error]="k.error" [accent]="k.color" />
+            }
+          </div>
+          @if (d.overview.charts.length) {
+            <div class="chart-grid">
+              @for (c of d.overview.charts; track c.key) {
+                <iris-card [heading]="c.title">
+                  @if (c.type === 'bar') {
+                    <iris-bar-chart [labels]="c.labels" [values]="c.values" [colors]="c.colors" />
+                  } @else {
+                    <iris-donut-chart [labels]="c.labels" [values]="c.values" [colors]="c.colors" [pie]="c.type === 'pie'" />
+                  }
+                </iris-card>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <section class="tiles" aria-labelledby="tiles-title">
+        <h2 id="tiles-title" class="section-title">Dashboards</h2>
+        <div class="tile-grid">
+          @for (t of d.tiles; track t.key) {
+            <a class="tile" [href]="url(t.url)">
+              @if (t.image) {
+                <img class="tile-image" [src]="url(t.image)" alt="" />
+              }
+              <span class="tile-title">{{ t.title }}</span>
+              <span class="tile-subtitle">{{ t.subtitle }}</span>
+            </a>
+          }
+        </div>
+      </section>
+
+      <footer class="dashboard-footer">
+        Generated {{ d.generatedAtUtc | date: 'medium' }}
+      </footer>
+    }
+  </div>
+</div>

@@ -187,6 +187,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<PerUserSummaryCache>();
 builder.Services.AddSingleton<DirectoryFactsResolver>();
+// Shared dashboard data/permission/segment logic used by the Razor dashboards and /api/dashboard.
+builder.Services.AddSingleton<DashboardDataService>();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddRazorPages(options =>

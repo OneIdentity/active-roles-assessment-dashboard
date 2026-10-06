@@ -1,0 +1,22 @@
+<div class="wrap">
+  <svg class="svg" [attr.viewBox]="'0 0 ' + size + ' ' + size" role="img" aria-label="Donut chart">
+    @for (arc of arcs(); track arc.label) {
+      <path class="arc" [attr.d]="arc.path" [attr.fill]="arc.color">
+        <title>{{ arc.label }}: {{ arc.value }}</title>
+      </path>
+    }
+    @if (!pie()) {
+      <text class="centerNum" [attr.x]="size / 2" [attr.y]="size / 2" text-anchor="middle">{{ total().toLocaleString('en-US') }}</text>
+      <text class="centerLbl" [attr.x]="size / 2" [attr.y]="size / 2 + 16" text-anchor="middle">{{ centerLabel() }}</text>
+    }
+  </svg>
+  <ul class="legend">
+    @for (arc of arcs(); track arc.label) {
+      <li class="legendItem">
+        <span class="dot" [style.background]="arc.color"></span>
+        <span class="legendLabel" [attr.title]="arc.label">{{ arc.label }}</span>
+        <span class="legendValue">{{ arc.value.toLocaleString('en-US') }}</span>
+      </li>
+    }
+  </ul>
+</div>

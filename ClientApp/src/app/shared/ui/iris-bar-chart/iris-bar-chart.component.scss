@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.svg {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+
+.gridline {
+  stroke: var(--oi-border-color-subtle, #e2e8f0);
+  stroke-width: 1;
+}
+
+.tick,
+.axisLabel {
+  font-family: var(--oi-font-family-default);
+  font-size: 10px;
+  fill: var(--oi-content-color-tertiary);
+}
+
+.bar {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: bar-grow var(--oi-motion-duration-default, 300ms) ease-out both;
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation: none;
+  }
+}

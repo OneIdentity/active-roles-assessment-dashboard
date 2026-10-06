@@ -1,0 +1,15 @@
+@let g = geometry();
+<svg class="svg" [attr.viewBox]="'0 0 ' + width + ' ' + g.h" preserveAspectRatio="none" role="img" aria-label="Bar chart">
+  @for (t of g.ticks; track t.label) {
+    <g>
+      <line class="gridline" [attr.x1]="padLeft" [attr.x2]="width - padRight" [attr.y1]="t.y" [attr.y2]="t.y" />
+      <text class="tick" [attr.x]="padLeft - 6" [attr.y]="t.y + 3" text-anchor="end">{{ t.label }}</text>
+    </g>
+  }
+  @for (b of g.bars; track b.label) {
+    <rect class="bar" rx="2" tabindex="0" [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" [attr.fill]="b.color">
+      <title>{{ b.label }}: {{ b.value }}</title>
+    </rect>
+    <text class="axisLabel" [attr.x]="b.cx" [attr.y]="g.h - 10" text-anchor="middle">{{ b.label }}</text>
+  }
+</svg>
