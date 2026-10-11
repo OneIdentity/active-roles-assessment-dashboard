@@ -15,8 +15,23 @@ const POLL_MS = 3000;
 
 type Toast = { id: number; kind: 'success' | 'error' | 'info'; text: string };
 
-/** Current tab from `?dashboard=` (matches the UX frame's query parameter). */
-const readTabKey = () => new URLSearchParams(window.location.search).get('dashboard') || OVERVIEW;
+/** Session key remembering the last dashboard tab, so Razor pages can return to it. */
+const LAST_TAB_KEY = 'ard.lastDashboardTab';
+
+/** Current tab from `?dashboard=` (matches the UX frame's query parameter). `?restore=1`
+ *  (used by the Razor pages' "back to dashboard" links) reopens the last tab viewed. */
+const readTabKey = () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('restore')) {
+    let last: string | null = null;
+    try { last = sessionStorage.getItem(LAST_TAB_KEY); } catch { /* storage unavailable */ }
+    const url = new URL(window.location.pathname, window.location.origin);
+    if (last && last !== OVERVIEW) url.searchParams.set('dashboard', last);
+    history.replaceState(null, '', url);
+    return last || OVERVIEW;
+  }
+  return params.get('dashboard') || OVERVIEW;
+};
 
 type ViewState =
   | { status: 'loading' }
@@ -82,6 +97,10 @@ export function DashboardFrame() {
       if (p?.capabilities.cacheRebuildInProgress && p.capabilities.canRebuildCache) pollRebuild(null);
     });
   }, [loadPayload, pollRebuild]);
+
+  useEffect(() => {
+    try { sessionStorage.setItem(LAST_TAB_KEY, tabKey); } catch { /* storage unavailable */ }
+  }, [tabKey]);
 
   useEffect(() => {
     const onPop = () => setTabKey(readTabKey());

@@ -1,4 +1,4 @@
-﻿@import url("iris-tokens.css");
+@import url("iris-tokens.css");
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--oi-font-family-default); background: var(--oi-background-color-secondary); color: var(--oi-content-color-primary); line-height: 1.5; overflow: hidden; }
 .page { position: relative; height: 100vh; max-width: none; margin: 0; padding: 0 24px 20px 256px; background: var(--oi-background-color-primary); overflow-y: auto; overflow-x: hidden; }
@@ -19,6 +19,7 @@ body { font-family: var(--oi-font-family-default); background: var(--oi-backgrou
 .sidebar-nav-asset-exposure { mask-image: url('../images/figma-exposure.svg'); -webkit-mask-image: url('../images/figma-exposure.svg'); }
 .sidebar-nav-asset-snapshots { mask-image: url('../images/figma-snapshots.svg'); -webkit-mask-image: url('../images/figma-snapshots.svg'); }
 .sidebar-nav-asset-settings { mask-image: url('../images/figma-settings.svg'); -webkit-mask-image: url('../images/figma-settings.svg'); }
+.sidebar-nav-asset-signout { mask-image: url('../images/figma-signout.svg'); -webkit-mask-image: url('../images/figma-signout.svg'); }
 .sidebar-nav-asset-help { mask-image: url('../images/figma-help.svg'); -webkit-mask-image: url('../images/figma-help.svg'); }
 .sidebar-group-caret { display: block; flex: 0 0 12px; width: 12px; height: 12px; background-color: var(--oi-content-color-tertiary); mask: url('../images/figma-caret-up.svg') center / contain no-repeat; -webkit-mask: url('../images/figma-caret-up.svg') center / contain no-repeat; }
 .iris-icon-info { background-color: var(--oi-base-color-brand); mask: url('../images/figma-info.svg') center / contain no-repeat; -webkit-mask: url('../images/figma-info.svg') center / contain no-repeat; }
@@ -272,11 +273,11 @@ tbody tr:hover { background: var(--oi-background-color-secondary); }
 .ad-additional-metrics.iris-accordion > summary::after { display: none; content: none; }
 .ad-additional-metrics-content { margin: 0; padding: var(--oi-spacing-l); border: 0; border-radius: 0; background: var(--oi-background-color-primary); box-shadow: none; }
 .footer { text-align: center; padding: 24px; font-size: .73rem; color: var(--oi-content-color-tertiary); margin-top: 12px; }
-.loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: color-mix(in srgb, var(--oi-background-color-secondary) 92%, transparent); display: none; align-items: center; justify-content: center; z-index: 2000; }
+.loading-overlay { position: fixed; inset: 0; background: var(--oi-background-color-modal-backdrop); display: none; align-items: center; justify-content: center; z-index: 2000; }
 .loading-overlay.active { display: flex; }
-.loading-spinner { text-align: center; }
-.loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: var(--oi-content-color-secondary); }
-.spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid var(--oi-border-color-muted); border-top-color: var(--oi-base-color-brand); border-radius: 50%; animation: spin .8s linear infinite; }
+.loading-spinner { text-align: center; background: var(--oi-background-color-primary); border-radius: var(--oi-border-radius-l); box-shadow: var(--oi-shadow-high); padding: 24px 32px; min-width: 240px; }
+.loading-spinner p { margin-top: 12px; font-weight: 500; }
+.spinner { width: 32px; height: 32px; margin: 0 auto; border: 3px solid var(--oi-background-color-tertiary); border-top-color: var(--oi-base-color-brand); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 /* Spin the rebuild-cache icon while a rebuild is in progress, mirroring the Entra
    group-membership loading indicator. */

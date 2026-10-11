@@ -19,37 +19,9 @@ public class IndexModel : DashboardPageModel
         var redirect = await InitializePageAsync();
         if (redirect != null) return redirect;
 
-        // The main dashboard hosts the global segment-filter dropdown.
-        ShowSegmentFilter = true;
-
-        var token = GetAccessToken()!;
-
-        // Always prefer the warm per-user cache (built once from the shared superset). This is
-        // keyed by username and survives logout, so a re-login within the cache lifetime reloads
-        // instantly instead of re-running the (potentially slow) per-user projection. The cached=true
-        // flag only matters as a hint for the lighter overview-totals fallback below.
-        var cachedJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(cachedJson))
-        {
-            Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
-
-            // If this cached summary predates the shared collector finishing Entra membership
-            // loading, adopt the now-complete superset so the client doesn't redundantly re-run a
-            // full membership batch load after its server-progress poll reloads the page.
-            if (!await ReconcileCachedMembershipWithSupersetAsync(token))
-                ApplyActiveSegmentFilter();
-
-            return Page();
-        }
-
-        if (cached && RestoreOverviewTotalsFromCache())
-            return Page();
-
-        // Fresh load or refresh: pre-warm the full dashboard data for all in-scope
-        // dashboards so subsequent exports and sub-dashboard views are served from cache.
-        await LoadFullSummaryAsync(token);
-
-        return Page();
+        // The React dashboard (/app) replaces this page. Legacy "back to dashboard" links land
+        // here, so forward them and ask the SPA to restore the last dashboard tab viewed.
+        return Redirect($"{Request.PathBase}/app/?restore=1");
     }
 
     /// <summary>

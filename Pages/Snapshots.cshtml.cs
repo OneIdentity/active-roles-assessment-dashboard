@@ -40,7 +40,7 @@ public class SnapshotsModel : DashboardPageModel
 
         // Block direct navigation for users whose role lacks ViewSnapshots.
         if (!CanViewSnapshots)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         await LoadSnapshotsAsync();
         await BuildComparisonIfRequestedAsync();
@@ -57,7 +57,7 @@ public class SnapshotsModel : DashboardPageModel
 
         // Run & Save is restricted to users holding RunAndSaveSnapshots.
         if (!CanRunAndSaveSnapshots)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         var token = GetAccessToken()!;
         var userSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
@@ -87,7 +87,7 @@ public class SnapshotsModel : DashboardPageModel
 
         // Deleting a snapshot is restricted to users holding DeleteSnapshots.
         if (!CanDeleteSnapshots)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         StatusMessage = _snapshots.Delete(id) ? "Snapshot deleted." : "Snapshot not found.";
         return RedirectToPage();

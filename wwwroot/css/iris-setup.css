@@ -11,8 +11,9 @@ body.iris-setup {
 .iris-setup .rpt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .iris-setup .hdr-left { display: flex; align-items: center; gap: 12px; }
 .iris-setup .hdr-logo { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--oi-border-radius-l); background: var(--oi-base-color-brand); color: #fff; font-weight: 700; }
-.iris-setup .hdr-logo img { height: 32px; width: auto; }
-.iris-setup .rpt-header h1 { font-size: var(--oi-font-size-xxl); font-weight: 600; }
+.iris-setup .hdr-logo img { display: block; height: 32px; width: auto; }
+.iris-setup .hdr-logo:has(img) { width: auto; height: auto; background: none; border-radius: 0; }
+.iris-setup .rpt-header h1 { margin: 0; line-height: 1.2; font-size: var(--oi-font-size-xxl); font-weight: 600; }
 .iris-setup .hdr-sub { color: var(--oi-content-color-secondary); margin-top: 2px; }
 
 .setup-container { max-width: 640px; margin: 0 auto; }

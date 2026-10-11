@@ -1,0 +1,93 @@
+/* IRIS application shell for Razor pages (sidebar + app bar), matching the React dashboard frame.
+   Load after iris-tokens.css and iris-auth.css. Used with Pages/Shared/_IrisShell.cshtml. */
+body.iris-shell {
+    display: block;
+    min-height: 100vh;
+    font-family: var(--oi-font-family-default);
+    font-size: var(--oi-font-size-s);
+    line-height: 1.5;
+    color: var(--oi-content-color-primary);
+    background: var(--oi-background-color-secondary);
+    overflow: hidden;
+}
+
+.iris-shell-page { display: flex; flex-direction: column; height: 100vh; margin-left: 176px; padding-right: 8px; transition: margin-left var(--oi-motion-duration-default) var(--oi-motion-ease-default); }
+
+/* Sidebar */
+.iris-shell .sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 900; display: flex; flex-direction: column; gap: var(--oi-spacing-s); width: 176px; padding: 0 8px; background: var(--oi-background-color-secondary); overflow-y: auto; transition: transform var(--oi-motion-duration-default) var(--oi-motion-ease-default); }
+.iris-shell .sidebar-header { display: flex; align-items: center; gap: 8px; height: 44px; padding: 10px 4px; border-bottom: 1px solid var(--oi-border-color-muted); }
+.iris-shell .sidebar-logo { display: flex; flex: 0 0 auto; width: 24px; height: 24px; }
+.iris-shell .sidebar-logo img { width: 24px; height: 24px; object-fit: contain; }
+.iris-shell .sidebar-title { overflow: hidden; color: var(--oi-content-color-primary); font-size: 14px; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
+.iris-shell .sidebar-nav-group { display: flex; flex-direction: column; align-items: stretch; }
+.iris-shell .sidebar-nav-group-header { padding: 12px 8px 4px; color: var(--oi-content-color-tertiary); font-size: 12px; }
+.iris-shell .sidebar-nav-item { position: relative; display: flex; align-items: center; gap: 8px; height: 32px; padding: 4px; border-radius: var(--oi-border-radius-default); color: var(--oi-content-color-secondary); font-size: 14px; text-decoration: none; transition: background var(--oi-motion-duration-short) var(--oi-motion-ease-default), color var(--oi-motion-duration-short) var(--oi-motion-ease-default); }
+.iris-shell .sidebar-nav-item:hover { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); }
+.iris-shell .sidebar-nav-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--oi-base-color-brand); }
+.iris-shell .sidebar-nav-item[aria-current="page"] { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); font-weight: 600; }
+.iris-shell .sidebar-nav-item[aria-current="page"]::before { content: ""; position: absolute; top: 4px; left: -4px; width: 2px; height: 24px; background: var(--oi-border-color-focus); }
+.iris-shell .sidebar-nav-item-disabled, .iris-shell .sidebar-nav-item-disabled:hover { background: transparent; color: var(--oi-content-color-tertiary); cursor: not-allowed; }
+.iris-shell .sidebar-nav-asset { display: block; flex: 0 0 24px; width: 24px; height: 24px; background-color: var(--oi-content-color-tertiary); mask-position: center; mask-repeat: no-repeat; mask-size: 16px 16px; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; -webkit-mask-size: 16px 16px; }
+.iris-shell .sidebar-nav-item:hover .sidebar-nav-asset,
+.iris-shell .sidebar-nav-item[aria-current="page"] .sidebar-nav-asset { background-color: var(--oi-content-color-primary); }
+.iris-shell .sidebar-nav-item-disabled .sidebar-nav-asset { background-color: var(--oi-content-color-tertiary); }
+.sidebar-nav-asset-dashboard { mask-image: url('../images/iris/figma-dashboard.svg'); -webkit-mask-image: url('../images/iris/figma-dashboard.svg'); }
+.sidebar-nav-asset-assessment { mask-image: url('../images/iris/figma-assessment.svg'); -webkit-mask-image: url('../images/iris/figma-assessment.svg'); }
+.sidebar-nav-asset-exposure { mask-image: url('../images/iris/figma-exposure.svg'); -webkit-mask-image: url('../images/iris/figma-exposure.svg'); }
+.sidebar-nav-asset-snapshots { mask-image: url('../images/iris/figma-snapshots.svg'); -webkit-mask-image: url('../images/iris/figma-snapshots.svg'); }
+.sidebar-nav-asset-settings { mask-image: url('../images/iris/figma-settings.svg'); -webkit-mask-image: url('../images/iris/figma-settings.svg'); }
+.sidebar-nav-asset-help { mask-image: url('../images/iris/figma-help.svg'); -webkit-mask-image: url('../images/iris/figma-help.svg'); }
+.sidebar-nav-asset-signout { mask-image: url('../images/iris/figma-signout.svg'); -webkit-mask-image: url('../images/iris/figma-signout.svg'); }
+
+/* App bar */
+.iris-app-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 950; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 16px 0 192px; background: var(--oi-background-color-secondary); border-bottom: 1px solid var(--oi-border-color-muted); transition: padding-left var(--oi-motion-duration-default) var(--oi-motion-ease-default); }
+.iris-sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--oi-border-radius-default); background: transparent; color: var(--oi-content-color-secondary); cursor: pointer; }
+.iris-sidebar-toggle:hover { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); }
+.iris-sidebar-toggle:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
+.iris-sidebar-toggle svg { display: block; }
+.iris-sidebar-toggle-pane { width: 8px; transition: width var(--oi-motion-duration-default) var(--oi-motion-ease-default); }
+.iris-breadcrumb { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--oi-content-color-secondary); font-size: 14px; }
+.iris-breadcrumb span:last-child { color: var(--oi-content-color-primary); }
+.iris-app-bar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+/* Content */
+.iris-shell-main { flex: 1 1 auto; min-height: 0; margin-top: 44px; padding: 24px 30px 24px 40px; overflow-y: auto; overflow-x: hidden; background: var(--oi-background-color-primary); scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.iris-shell-main:hover { scrollbar-color: var(--oi-border-color-strong) transparent; }
+.iris-title-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.iris-title-row h1 { color: var(--oi-content-color-primary); font-size: 32px; font-weight: 600; line-height: 40px; }
+
+/* Collapsed sidebar */
+.iris-sidebar-collapsed .sidebar { transform: translateX(-100%); }
+.iris-sidebar-collapsed .iris-shell-page { margin-left: 0; padding-left: 8px; }
+.iris-sidebar-collapsed .iris-app-bar { padding-left: 16px; }
+.iris-sidebar-collapsed .iris-sidebar-toggle-pane { width: 4px; }
+
+/* Membership indicator in the app bar */
+.membership-indicator { position: relative; display: inline-flex; align-items: center; color: var(--oi-content-color-brand); }
+.membership-indicator-icon { animation: iris-spin 1.6s linear infinite; }
+.membership-indicator-badge { position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--oi-content-color-error); color: var(--oi-content-color-constant); font-size: 10px; font-weight: 700; line-height: 16px; text-align: center; }
+
+/* Confirmation dialog */
+.iris-dialog-backdrop { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--oi-background-color-modal-backdrop); }
+.iris-dialog-backdrop[hidden] { display: none; }
+.iris-dialog { width: 100%; max-width: 420px; padding: 24px; border-radius: var(--oi-border-radius-l); background: var(--oi-background-color-primary); box-shadow: var(--oi-shadow-high); }
+.iris-dialog h2 { margin-bottom: 8px; font-size: var(--oi-font-size-l); font-weight: 600; }
+.iris-dialog p { color: var(--oi-content-color-secondary); }
+.iris-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .iris-shell .sidebar, .iris-shell-page, .iris-app-bar, .iris-sidebar-toggle-pane { transition: none !important; }
+    .membership-indicator-icon { animation-duration: 3s !important; animation-iteration-count: infinite !important; }
+}
+
+@media (max-width: 768px) {
+    .iris-shell .sidebar { top: auto; right: 12px; bottom: 12px; left: 12px; width: auto; height: 52px; flex-direction: row; align-items: center; gap: 4px; padding: 0 8px; border-radius: var(--oi-border-radius-l); box-shadow: var(--oi-shadow-high); overflow-x: auto; overflow-y: hidden; transform: none !important; }
+    .iris-shell .sidebar-header, .iris-shell .sidebar-nav-group-header, .iris-shell .sidebar-nav-item span:not(.sidebar-nav-asset), .iris-sidebar-toggle { display: none; }
+    .iris-shell .sidebar-nav-group { flex-direction: row; }
+    .iris-shell .sidebar-nav-item { flex: 0 0 32px; justify-content: center; width: 32px; padding: 0; }
+    .iris-shell .sidebar-nav-item[aria-current="page"]::before { display: none; }
+    .iris-shell-page, .iris-sidebar-collapsed .iris-shell-page { margin-left: 0; padding: 0 0 76px; }
+    .iris-app-bar, .iris-sidebar-collapsed .iris-app-bar { padding-left: 16px; }
+    .iris-shell-main { padding: 24px 16px; }
+    .iris-title-row h1 { font-size: 26px; line-height: 32px; }
+}

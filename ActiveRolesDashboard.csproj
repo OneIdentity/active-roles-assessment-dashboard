@@ -85,6 +85,7 @@
 
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
+    <None Include="ClientApp\src\ux\images\figma-signout.svg" />
   </ItemGroup>
 
   <ItemGroup>

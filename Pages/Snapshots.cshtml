@@ -13,24 +13,27 @@
     <base href="@Url.Content("~/")" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Roles Dashboard - Snapshots</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
 </head>
-<body>
+<body class="iris-shell iris-snapshots">
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
         <p id="loadingOverlayText">@Localizer["CapturingSnapshot"]</p>
     </div>
 </div>
-<div class="page">
-    <div class="sticky-head">
+<div class="page iris-shell-page">
     @{
-        ViewData["HeaderKey"] = "Snapshots";
-        ViewData["RefreshUrl"] = "/Snapshots"; ViewData["ShowHome"] = true;
+        ViewData["IrisActive"] = "snapshots";
+        ViewData["IrisCrumb"] = Localizer["PageTitle"].Value;
     }
-    <partial name="_DashboardHeader" />
-
-    <a href="@(pathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["PageTitle"]</h1>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.StatusMessage))
@@ -126,7 +129,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                                     </span>
                                 }
-                                <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["ConfirmDelete"].Value)));">
+                                <form method="post" asp-page-handler="Delete" class="snap-inline-form snap-delete-form" data-confirm="@Localizer["ConfirmDelete"]">
                                     <input type="hidden" name="id" value="@h.Id" />
                                     <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["Tip_DeleteSnapshot"]" aria-label="@Localizer["Tip_DeleteSnapshot"]" disabled="@(!Model.CanDeleteSnapshots)">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
@@ -235,6 +238,17 @@
             </script>
         </section>
     }
+    </main>
+</div>
+<div class="iris-dialog-backdrop" id="snapDeleteDialog" hidden>
+    <div class="iris-dialog" role="alertdialog" aria-modal="true" aria-labelledby="snapDeleteTitle" aria-describedby="snapDeleteText">
+        <h2 id="snapDeleteTitle">@Localizer["ConfirmDeleteTitle"]</h2>
+        <p id="snapDeleteText">@Localizer["ConfirmDelete"]</p>
+        <div class="iris-dialog-actions">
+            <button type="button" class="snap-btn" id="snapDeleteCancel">@Localizer["Cancel"]</button>
+            <button type="button" class="snap-btn snap-btn-danger-solid" id="snapDeleteOk">@Localizer["Delete"]</button>
+        </div>
+    </div>
 </div>
 <script src="js/chart.umd.min.js" asp-append-version="true"></script>
 <script>
@@ -245,6 +259,37 @@
         allKpis: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["AllKpisFormat"].Value)),
         kpisSelected: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["KpisSelectedFormat"].Value))
     };
+    (function () {
+        var dialog = document.getElementById('snapDeleteDialog');
+        var okBtn = document.getElementById('snapDeleteOk');
+        var cancelBtn = document.getElementById('snapDeleteCancel');
+        var pending = null, opener = null;
+        function close() {
+            dialog.hidden = true;
+            pending = null;
+            if (opener) opener.focus();
+        }
+        document.querySelectorAll('form.snap-delete-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (form.dataset.confirmed === '1') return;
+                e.preventDefault();
+                pending = form;
+                opener = document.activeElement;
+                dialog.hidden = false;
+                cancelBtn.focus();
+            });
+        });
+        okBtn.addEventListener('click', function () {
+            if (!pending) return;
+            var form = pending;
+            form.dataset.confirmed = '1';
+            dialog.hidden = true;
+            form.submit();
+        });
+        cancelBtn.addEventListener('click', close);
+        dialog.addEventListener('mousedown', function (e) { if (e.target === dialog) close(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !dialog.hidden) close(); });
+    })();
     (function () {
         // Show the loading overlay while a snapshot is being captured or compared.
         var captureForm = document.getElementById('snapCaptureForm');
@@ -305,8 +350,8 @@
                 var chart = null;
 
                 var palette = [
-                    '#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed',
-                    '#0891b2', '#db2777', '#65a30d', '#ea580c', '#4b5563'
+                    '#00a6f4', '#ad46ff', '#ff6900', '#00c950', '#f6339a',
+                    '#00bba7', '#d08700', '#45556c', '#e7000b', '#0069a8'
                 ];
                 function hexToRgba(hex, alpha) {
                     var n = parseInt(hex.slice(1), 16);
@@ -378,7 +423,7 @@
                     var single = kpis.length === 1;
                     var datasets = kpis.map(function (kpi, i) {
                         var color = single
-                            ? (kpi.isRiskKpi ? '#dc2626' : '#2563eb')
+                            ? (kpi.isRiskKpi ? '#e7000b' : '#00a6f4')
                             : palette[i % palette.length];
                         return {
                             label: kpi.displayName,
