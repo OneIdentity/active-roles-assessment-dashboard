@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -16,6 +16,31 @@
     <None Remove="$(SpaRoot)**" />
     <TypeScriptCompile Remove="$(SpaRoot)**" />
   </ItemGroup>
+
+  <!-- Build the React front end into wwwroot/app. node_modules is restored on first build;
+       the Vite bundle is built when it is missing, in Release builds and on publish. During
+       day-to-day work run `npm run dev` (Vite dev server) or `npm run build` in ClientApp. -->
+  <Target Name="ClientAppNpmInstall" BeforeTargets="Build" Condition="!Exists('$(SpaRoot)node_modules')">
+    <Message Importance="high" Text="Restoring ClientApp npm packages..." />
+    <Exec Command="npm ci" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+
+  <Target Name="ClientAppBuild" AfterTargets="ClientAppNpmInstall" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release' Or !Exists('wwwroot\app\index.html')">
+    <Message Importance="high" Text="Building ClientApp (Vite)..." />
+    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+
+  <Target Name="ClientAppPublish" AfterTargets="ComputeFilesToPublish">
+    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
+    <ItemGroup>
+      <ClientAppDist Include="wwwroot\app\**" />
+      <ResolvedFileToPublish Include="@(ClientAppDist->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>wwwroot\app\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <COMReference Include="EDMLib">
@@ -47,20 +72,6 @@
     </COMReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="ClientApp\src\app\features\dashboard\dashboard.component.html" />
-    <Content Include="ClientApp\src\app\features\settings\settings.component.html" />
-    <Content Include="ClientApp\src\app\features\setup\setup.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-bar-chart\iris-bar-chart.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-card\iris-card.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-checkbox\iris-checkbox.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-collapsible-section\iris-collapsible-section.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-donut-chart\iris-donut-chart.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-form-field\iris-form-field.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-icon\iris-icon.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-stat-card\iris-stat-card.component.html" />
-    <Content Include="ClientApp\src\app\shared\ui\iris-stepper\iris-stepper.component.html" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.10" />

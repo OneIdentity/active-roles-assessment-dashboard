@@ -309,4 +309,8 @@ app.MapGet("/diagnostics/validate-filter", async (
 app.MapRazorPages();
 app.MapControllers();
 
+// React front end (ClientApp, built by Vite into wwwroot/app). Static assets are served by
+// UseStaticFiles; any other /app/* route falls back to the SPA shell for client-side routing.
+app.MapFallbackToFile("/app/{**path}", "app/index.html").RequireAuthorization();
+
 app.Run();
