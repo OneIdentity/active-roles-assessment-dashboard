@@ -19,3 +19,7 @@ appsettings.Development.json
 
 # GraphPerfTest moved to its own repository (kept locally, not tracked)
 GraphPerfTest/
+
+# React ClientApp
+ClientApp/node_modules/
+wwwroot/app/

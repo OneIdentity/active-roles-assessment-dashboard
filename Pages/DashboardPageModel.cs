@@ -35,6 +35,17 @@ public abstract class DashboardPageModel : PageModel
     // Per-user server-side cache for the large summary/overview blobs (previously held in Session).
     protected PerUserSummaryCache UserSummaryCache => HttpContext.RequestServices.GetRequiredService<PerUserSummaryCache>();
 
+    /// <summary>Shared dashboard data/permission/segment logic (also used by /api/dashboard).</summary>
+    protected DashboardDataService DataService => HttpContext.RequestServices.GetRequiredService<DashboardDataService>();
+
+    /// <summary>Snapshot of the resolved access state for calls into <see cref="DataService"/>.</summary>
+    private DashboardAccess CurrentAccess => new()
+    {
+        IsActiveRolesAdmin = IsActiveRolesAdmin,
+        Role = DashboardRole,
+        Permissions = DashboardPermissions
+    };
+
     /// <summary>Cache key for the current authenticated user's per-user summary/overview blobs.</summary>
     protected string UserCacheKey => User.Identity?.Name ?? string.Empty;
 
@@ -317,33 +328,10 @@ public abstract class DashboardPageModel : PageModel
         // a superset rebuild, not on every request. Prefer the session values, but only while they
         // match the current directory-facts epoch; a superset rebuild advances the epoch, making the
         // session values stale and forcing a single re-evaluation here.
-        var currentEpoch = DirectoryFacts.CurrentEpoch;
-        var sessionEpoch = HttpContext.Session.GetString("DirectoryFactsEpoch");
-        var sessionAdmin = HttpContext.Session.GetString("IsActiveRolesAdmin");
-        var sessionRole = HttpContext.Session.GetString("DashboardRole");
-
-        DashboardRole role;
-        if (sessionEpoch == currentEpoch.ToString()
-            && sessionAdmin != null
-            && sessionRole != null
-            && Enum.TryParse(sessionRole, out DashboardRole parsedRole))
-        {
-            IsActiveRolesAdmin = bool.TryParse(sessionAdmin, out var val) && val;
-            role = parsedRole;
-        }
-        else
-        {
-            var facts = await DirectoryFacts.ResolveAsync(token, username);
-            IsActiveRolesAdmin = facts.IsActiveRolesAdmin;
-            role = facts.Role;
-
-            HttpContext.Session.SetString("IsActiveRolesAdmin", facts.IsActiveRolesAdmin.ToString());
-            HttpContext.Session.SetString("DashboardRole", facts.Role.ToString());
-            HttpContext.Session.SetString("DirectoryFactsEpoch", facts.Epoch.ToString());
-        }
-
-        DashboardRole = role;
-        DashboardPermissions = RoleService.GetPermissions(role);
+        var access = await DataService.ResolveAccessAsync(HttpContext, token);
+        IsActiveRolesAdmin = access.IsActiveRolesAdmin;
+        DashboardRole = access.Role;
+        DashboardPermissions = access.Permissions;
 
         // Publish settings-button visibility to the shared header/toolbar (which reads ViewData).
         // The gear is shown only when the user's role grants some settings access; the Settings
@@ -383,32 +371,8 @@ public abstract class DashboardPageModel : PageModel
     /// this) and cached in session as a JSON SID array. Returns null for AR admins (who bypass
     /// filtering) and when the permission model or service account is unavailable.
     /// </summary>
-    protected async Task<UserSidSet?> GetViewerSidSetAsync(CancellationToken ct = default)
-    {
-        if (IsActiveRolesAdmin)
-            return null;
-
-        var username = User.Identity?.Name ?? string.Empty;
-        if (string.IsNullOrEmpty(username))
-            return null;
-
-        var cached = HttpContext.Session.GetString("ViewerSids");
-        if (cached != null)
-        {
-            var sids = JsonSerializer.Deserialize<string[]>(cached) ?? Array.Empty<string>();
-            var set = new UserSidSet { Username = username };
-            foreach (var sid in sids) set.Sids.Add(sid);
-            return set;
-        }
-
-        var serviceToken = await ServiceAccountTokens.GetTokenAsync(ct);
-        if (string.IsNullOrEmpty(serviceToken))
-            return null;
-
-        var resolved = await PermissionModelService.ResolveUserSidSetAsync(serviceToken, username, ct);
-        HttpContext.Session.SetString("ViewerSids", JsonSerializer.Serialize(resolved.Sids.ToArray()));
-        return resolved;
-    }
+    protected Task<UserSidSet?> GetViewerSidSetAsync(CancellationToken ct = default) =>
+        DataService.GetViewerSidSetAsync(HttpContext, CurrentAccess, ct);
 
     /// <summary>
     /// Determines whether the current viewer may see the Licensing dashboard: Active Roles admins
@@ -417,23 +381,8 @@ public abstract class DashboardPageModel : PageModel
     /// model. Falls back to <c>true</c> when the shared permission model / SID set is unavailable
     /// (cache-cold direct queries are already scoped by the caller's own AR permissions).
     /// </summary>
-    protected async Task<bool> CanViewLicensingAsync(CancellationToken ct = default)
-    {
-        // An explicit View Licensing dashboard permission always grants access, regardless of
-        // delegated data visibility (mirrors the Active Roles dashboard rule).
-        if (HasPermission(DashboardPermission.ViewLicensingDashboard))
-            return true;
-
-        if (UsesFullVisibility)
-            return true;
-
-        var model = Cache.PermissionModel;
-        if (model is null)
-            return true;
-
-        var viewer = await GetViewerSidSetAsync(ct);
-        return viewer is null || model.GrantsLicensingVisibility(viewer);
-    }
+    protected Task<bool> CanViewLicensingAsync(CancellationToken ct = default) =>
+        DataService.CanViewLicensingAsync(HttpContext, CurrentAccess, ct);
 
     /// <summary>
     /// Determines whether the current viewer may see the Exchange dashboard. Two conditions must
@@ -446,49 +395,8 @@ public abstract class DashboardPageModel : PageModel
     /// the app-level cache, membership in session) so the directory lookups run at most once per
     /// cache lifetime rather than on every page load.
     /// </summary>
-    protected async Task<bool> CanViewExchangeAsync(CancellationToken ct = default)
-    {
-        var token = GetAccessToken();
-        if (string.IsNullOrEmpty(token))
-            return false;
-
-        // (1) Org-wide precondition: Exchange must be deployed. Cache the result app-wide.
-        bool deployed;
-        var cachedDeployed = UserSummaryCache.GetExchangeDeployed();
-        if (cachedDeployed is bool knownDeployed)
-        {
-            deployed = knownDeployed;
-        }
-        else
-        {
-            deployed = await ArService.IsExchangeDeployedAsync(token);
-            UserSummaryCache.SetExchangeDeployed(deployed);
-        }
-
-        if (!deployed)
-            return false;
-
-        // (2) An explicit View Exchange dashboard permission grants access once Exchange is
-        // deployed (mirrors the Active Roles dashboard rule); so do Active Roles admins and other
-        // full-visibility roles (e.g. Auditors).
-        if (HasPermission(DashboardPermission.ViewExchangeDashboard))
-            return true;
-
-        if (UsesFullVisibility)
-            return true;
-
-        // Otherwise the viewer must be a member of an Exchange administrative group. Cache the
-        // per-user result in session so the membership lookup runs at most once per session.
-        var cachedMember = HttpContext.Session.GetString("IsExchangeAdmin");
-        if (cachedMember != null)
-            return bool.TryParse(cachedMember, out var v) && v;
-
-        var username = User.Identity?.Name ?? string.Empty;
-        var isMember = !string.IsNullOrEmpty(username)
-            && await ArService.IsUserExchangeAdminAsync(token, username);
-        HttpContext.Session.SetString("IsExchangeAdmin", isMember.ToString());
-        return isMember;
-    }
+    protected Task<bool> CanViewExchangeAsync(CancellationToken ct = default) =>
+        DataService.CanViewExchangeAsync(HttpContext, CurrentAccess, ct);
 
     /// <summary>
     /// Applies the session's active segment (domain/tenant) filter to <see cref="Summary"/>.
@@ -502,22 +410,11 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected void ApplyActiveSegmentFilter()
     {
-        var filter = SegmentFilterSession.Get(HttpContext.Session);
-
-        // Capture available segments (both dimensions) from the unfiltered summary BEFORE
-        // reducing it, otherwise the lists would collapse to the current selection and could
-        // never widen. The filter is global, so both dimensions are always captured.
-        AvailableDomains = Summary.GetAdDomains();
-        AvailableTenants = Summary.EntraTotals.Tenants
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        SelectedDomains = filter.DomainSelection.Resolve(AvailableDomains);
-        SelectedTenants = filter.TenantSelection.Resolve(AvailableTenants);
-
-        Summary.ApplySegmentFilter(filter);
+        var view = DataService.ApplyActiveSegmentFilter(HttpContext, Summary);
+        AvailableDomains = view.AvailableDomains;
+        AvailableTenants = view.AvailableTenants;
+        SelectedDomains = view.SelectedDomains;
+        SelectedTenants = view.SelectedTenants;
     }
 
     /// <summary>
@@ -542,19 +439,10 @@ public abstract class DashboardPageModel : PageModel
     /// <returns>True if the cached summary was refreshed from the completed superset snapshot.</returns>
     protected async Task<bool> ReconcileCachedMembershipWithSupersetAsync(string token)
     {
-        var totals = Summary?.EntraTotals;
-        if (totals is null || !totals.MembershipDataPending)
+        if (!DataService.ShouldReconcileMembership(Summary))
             return false;
 
-        // Only worth rebuilding once the shared collector has actually finished membership loading;
-        // while it is still running the client keeps polling server progress and the stale cache is
-        // expected. Rebuilding from the superset re-applies per-user scoping (so non-admins never
-        // see groups outside their delegation) and yields MembershipLoaded = true.
-        var supersetTotals = Cache.Current?.Summary?.EntraTotals;
-        if (Cache.MembershipLoading || supersetTotals is null || !supersetTotals.MembershipLoaded)
-            return false;
-
-        UserSummaryCache.Clear(UserCacheKey);
+        DataService.ClearCachedSummary(HttpContext);
         await LoadFullSummaryAsync(token);
         return true;
     }
@@ -759,55 +647,9 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     protected async Task LoadFullSummaryAsync(string token)
     {
-        var superset = Cache.Current?.Summary;
-        if (superset is null)
-        {
-            // Shared cache not yet ready: fall back to a direct per-user query so the page still
-            // renders (already correctly scoped by the caller's own Active Roles permissions).
-            var fallbackSettings = UserSettingsService.Load(User.Identity?.Name ?? "");
-            Summary = await ArService.GetDashboardSummaryAsync(token, KpiSettings, fallbackSettings);
-
-            // Even on the cache-cold path, resolve Exchange visibility so the tile renders correctly.
-            Summary.ExchangeVisible = await CanViewExchangeAsync(HttpContext.RequestAborted);
-        }
-        else
-        {
-            // Serve from the shared service-account superset. Admins and full-visibility roles
-            // (e.g. Auditors, which lack UseDelegatedPermissionsForVisibility) see the unfiltered
-            // data; delegated roles (e.g. Power Users) see a per-user projection scoped to their AR
-            // delegation.
-            var model = Cache.PermissionModel;
-            var viewer = UsesFullVisibility ? null : await GetViewerSidSetAsync(HttpContext.RequestAborted);
-
-            Summary = (viewer is not null && model is not null)
-                ? PerUserFilter.Filter(superset, viewer, model)
-                : superset;
-
-            // The Licensing dashboard is gated on read access to edsManagedObjectStatisticsData.
-            // Admins (and the cache-cold fallback above) keep the default true; a non-admin viewer
-            // must EITHER be granted the View Licensing dashboard permission OR have List Object +
-            // Read objectClass (or Read all properties) on that class.
-            Summary.LicensingVisible = HasPermission(DashboardPermission.ViewLicensingDashboard)
-                || viewer is null || model is null || model.GrantsLicensingVisibility(viewer);
-
-            // The Exchange dashboard is gated on Exchange being deployed AND the viewer being an
-            // Active Roles admin or a member of an Exchange administrative group. CanViewExchangeAsync
-            // encapsulates both conditions (and caches the directory lookups).
-            Summary.ExchangeVisible = await CanViewExchangeAsync(HttpContext.RequestAborted);
-        }
-
-        // Cache the (already permission-scoped) summary for export and sub-dashboard reuse.
-        CacheSummary();
-
-        // Also cache the overview totals derived from the full summary so the main
-        // dashboard's cached back-navigation path keeps working.
-        UserSummaryCache.SetOverview(UserCacheKey, JsonSerializer.Serialize(new OverviewTotalsCache
-        {
-            ADUserAccounts = Summary.ADUserAccounts,
-            ADGroups = Summary.ADGroups.WithoutMemberPayload(),
-            Computers = Summary.Computers,
-            EntraTotals = Summary.EntraTotals
-        }));
+        // Loads (superset or cache-cold fallback), resolves Licensing/Exchange visibility and caches
+        // the permission-scoped summary plus overview totals for this user.
+        Summary = await DataService.LoadFullSummaryAsync(HttpContext, token, CurrentAccess, KpiSettings);
 
         // Cache stores unfiltered data; apply the active selection for rendering.
         ApplyActiveSegmentFilter();
@@ -855,24 +697,7 @@ public abstract class DashboardPageModel : PageModel
         if (string.IsNullOrEmpty(token))
             return RedirectToPage("/Login");
 
-        var state = SegmentFilterSession.Get(HttpContext.Session);
-        var selected = (segments ?? new List<string>())
-            .Where(s => !string.IsNullOrWhiteSpace(s))
-            .Select(s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        switch (dimension)
-        {
-            case "Domain":
-                state.Domains = selected;
-                break;
-            case "Tenant":
-                state.Tenants = selected;
-                break;
-        }
-
-        SegmentFilterSession.Set(HttpContext.Session, state);
+        DataService.SetSegmentFilter(HttpContext, dimension, segments);
 
         var page = string.IsNullOrWhiteSpace(returnPage) ? "/Index" : returnPage;
         return RedirectToPage(page, new { cached = true });

@@ -4,7 +4,18 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <SpaRoot>ClientApp\</SpaRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The React front end is built separately with Vite (output: wwwroot/app); keep its
+         sources and node_modules out of the web project so VS/MSBuild do not process them. -->
+    <Content Remove="$(SpaRoot)**" />
+    <None Remove="$(SpaRoot)**" />
+    <TypeScriptCompile Remove="$(SpaRoot)**" />
+  </ItemGroup>
 
   <ItemGroup>
     <COMReference Include="EDMLib">
@@ -37,6 +48,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ClientApp\src\app\features\dashboard\dashboard.component.html" />
+    <Content Include="ClientApp\src\app\features\settings\settings.component.html" />
+    <Content Include="ClientApp\src\app\features\setup\setup.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-bar-chart\iris-bar-chart.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-card\iris-card.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-checkbox\iris-checkbox.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-collapsible-section\iris-collapsible-section.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-donut-chart\iris-donut-chart.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-form-field\iris-form-field.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-icon\iris-icon.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-stat-card\iris-stat-card.component.html" />
+    <Content Include="ClientApp\src\app\shared\ui\iris-stepper\iris-stepper.component.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.10" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.8" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
@@ -48,6 +74,35 @@
 
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
+    <None Include="ClientApp\src\app\features\dashboard\dashboard.component.scss" />
+    <None Include="ClientApp\src\app\features\settings\settings.component.scss" />
+    <None Include="ClientApp\src\app\features\setup\setup.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-bar-chart\iris-bar-chart.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-card\iris-card.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-checkbox\iris-checkbox.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-collapsible-section\iris-collapsible-section.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-donut-chart\iris-donut-chart.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-icon\iris-icon.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-stat-card\iris-stat-card.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\iris-stepper\iris-stepper.component.scss" />
+    <None Include="ClientApp\src\app\shared\ui\README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\app.routes.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\core\dashboard.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\core\settings.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\core\setup.service.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\features\settings\settings.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\features\setup\setup.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-bar-chart\iris-bar-chart.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-card\iris-card.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-checkbox\iris-checkbox.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-collapsible-section\iris-collapsible-section.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-icon\iris-icon.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-stat-card\iris-stat-card.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-stepper\iris-stepper.component.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-text-input\iris-text-input.component.ts" />
   </ItemGroup>
 
   <ItemGroup>
