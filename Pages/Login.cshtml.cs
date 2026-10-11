@@ -128,13 +128,13 @@ public class LoginModel : PageModel
         // No-JS fallback: full-page form POST expects an HTML redirect page rather than JSON.
         if (!AcceptsJson())
         {
-            RedirectUrl = $"{Request.PathBase}/";
+            RedirectUrl = $"{Request.PathBase}/app/";
             return Page();
         }
 
         return new JsonResult(new
         {
-            redirectUrl = $"{Request.PathBase}/",
+            redirectUrl = $"{Request.PathBase}/app/",
             loadingMessage = LocalizeInCulture("LoadingData", userLanguage)
         });
     }

@@ -85,35 +85,6 @@
 
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
-    <None Include="ClientApp\src\app\features\dashboard\dashboard.component.scss" />
-    <None Include="ClientApp\src\app\features\settings\settings.component.scss" />
-    <None Include="ClientApp\src\app\features\setup\setup.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-bar-chart\iris-bar-chart.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-card\iris-card.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-checkbox\iris-checkbox.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-collapsible-section\iris-collapsible-section.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-donut-chart\iris-donut-chart.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-icon\iris-icon.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-stat-card\iris-stat-card.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\iris-stepper\iris-stepper.component.scss" />
-    <None Include="ClientApp\src\app\shared\ui\README.md" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\app.routes.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\core\dashboard.service.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\core\settings.service.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\core\setup.service.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\features\settings\settings.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\features\setup\setup.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-bar-chart\iris-bar-chart.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-card\iris-card.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-checkbox\iris-checkbox.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-collapsible-section\iris-collapsible-section.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-icon\iris-icon.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-stat-card\iris-stat-card.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-stepper\iris-stepper.component.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\shared\ui\iris-text-input\iris-text-input.component.ts" />
   </ItemGroup>
 
   <ItemGroup>

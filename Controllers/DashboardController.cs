@@ -2,6 +2,7 @@ using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ActiveRolesDashboard.Controllers;
 
@@ -38,12 +39,14 @@ public class DashboardController : ControllerBase
     private readonly DashboardDataService _data;
     private readonly UserSettingsService _userSettingsService;
     private readonly DashboardCacheHolder _cache;
+    private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
 
-    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache)
+    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig)
     {
         _data = data;
         _userSettingsService = userSettingsService;
         _cache = cache;
+        _arConfig = arConfig;
     }
 
     // ---------------------------------------------------------------------
@@ -86,6 +89,8 @@ public class DashboardController : ControllerBase
         public List<int> Values { get; set; } = new();
         /// <summary>Hex colours, parallel to <see cref="Labels"/>.</summary>
         public List<string> Colors { get; set; } = new();
+        /// <summary>Named colour tokens, parallel to <see cref="Labels"/> (mapped to IRIS CSS variables by the client).</summary>
+        public List<string> ColorTokens { get; set; } = new();
     }
 
     public sealed class NavigationTile
@@ -169,7 +174,55 @@ public class DashboardController : ControllerBase
         public List<ViewCategory> Categories { get; set; } = new();
         public List<SourceSplitItem> SourceSplit { get; set; } = new();
         public ViewKpi? ManagedObjects { get; set; }
+        public LicensingView? Licensing { get; set; }
         public DateTime GeneratedAtUtc { get; set; }
+    }
+
+    /// <summary>A labelled count; <see cref="Kind"/> lets the client localise suffixes (e.g. "tenant-hybrid").</summary>
+    public sealed class LicensingSegment
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Kind { get; set; } = string.Empty;
+        public int Value { get; set; }
+    }
+
+    public sealed class LicensingThreshold
+    {
+        /// <summary>"Domain" | "Partition" | "Azure" | "Total".</summary>
+        public string Key { get; set; } = string.Empty;
+        public int Total { get; set; }
+        /// <summary>0 = not configured.</summary>
+        public int Threshold { get; set; }
+    }
+
+    public sealed class LicensingTrendSeries
+    {
+        public string Name { get; set; } = string.Empty;
+        /// <summary>"Domain" | "Partition" | "Azure".</summary>
+        public string Category { get; set; } = string.Empty;
+        public List<int> Values { get; set; } = new();
+    }
+
+    /// <summary>Port of the specialised charts in <c>Pages/Licensing.cshtml</c>.</summary>
+    public sealed class LicensingView
+    {
+        public string? Error { get; set; }
+        public List<string> TrendLabels { get; set; } = new();
+        public List<LicensingTrendSeries> Trend { get; set; } = new();
+        public List<LicensingThreshold> Thresholds { get; set; } = new();
+        public bool OverThreshold { get; set; }
+        public List<LicensingSegment> Composition { get; set; } = new();
+        public List<LicensingSegment> Excluded { get; set; } = new();
+    }
+
+    public sealed class KpiDetail
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+        public int Count { get; set; }
+        public string? Error { get; set; }
+        public List<string> Columns { get; set; } = new();
+        public List<IReadOnlyList<string>> Rows { get; set; } = new();
     }
 
     public sealed class SegmentRequest
@@ -302,7 +355,220 @@ public class DashboardController : ControllerBase
             view.ManagedObjects = ToViewKpi(managedObjects, summary);
         }
 
+        if (!isOverview && view.Key.Equals(DashboardInfo.Licensing.Key, StringComparison.OrdinalIgnoreCase)
+            && kpiSettings.IsCategoryEnabled(CategoryInfo.Licensing.Key)
+            && kpiSettings.IsKpiEnabled(CategoryInfo.Licensing.Key, "ManagedObjects"))
+        {
+            view.Licensing = BuildLicensing(summary);
+        }
+
         return Ok(view);
+    }
+
+    /// <summary>
+    /// Detail rows for one KPI (same table as the export's detail section). Rejects KPIs whose
+    /// owning dashboard is not visible to the caller, and honours the active segment filter.
+    /// </summary>
+    [HttpGet("kpi/{key}")]
+    public async Task<IActionResult> GetKpiDetail(string key)
+    {
+        var token = DashboardDataService.GetAccessToken(HttpContext);
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized();
+
+        var kpi = KpiInfo.All.FirstOrDefault(k => string.Equals(k.Key, key, StringComparison.OrdinalIgnoreCase));
+        if (kpi is null)
+            return NotFound();
+
+        var kpiSettings = _userSettingsService.Load(User.Identity?.Name ?? string.Empty).KpiSettings;
+        if (!kpiSettings.IsKpiEnabled(kpi.CategoryKey, kpi.Key))
+            return NotFound();
+
+        var access = await _data.ResolveAccessAsync(HttpContext, token);
+        var summary = await _data.LoadIndexSummaryAsync(HttpContext, token, access, kpiSettings);
+        _data.ApplyActiveSegmentFilter(HttpContext, summary);
+
+        var category = CategoryInfo.All.FirstOrDefault(c => KpiInfo.ForCategory(c).Any(k => k.Key == kpi.Key));
+        var dashboardKey = category?.DashboardKey ?? string.Empty;
+        var visible = dashboardKey == "Main"
+            || BuildTiles(summary, access).Any(t => t.Key == dashboardKey);
+        if (!visible)
+            return NotFound();
+
+        var result = summary.GetKpiResult(kpi.Key);
+        var table = summary.GetKpiDetailTable(kpi.Key);
+        return Ok(new KpiDetail
+        {
+            Key = kpi.Key,
+            Label = kpi.Label,
+            Count = result.Count,
+            Error = table?.Error ?? result.Error,
+            Columns = table?.Columns ?? new(),
+            Rows = table?.Rows ?? new()
+        });
+    }
+
+    /// <summary>Rebuild polling endpoint (mirrors <c>IndexModel.OnGetRefreshStatusAsync</c>).</summary>
+    [HttpGet("refresh-status")]
+    public async Task<IActionResult> GetRefreshStatus()
+    {
+        var token = DashboardDataService.GetAccessToken(HttpContext);
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized();
+
+        var access = await _data.ResolveAccessAsync(HttpContext, token);
+        if (!(access.IsActiveRolesAdmin || access.HasPermission(DashboardPermission.RebuildCache)))
+            return Forbid();
+
+        return Ok(new
+        {
+            sequence = _cache.RefreshSequence,
+            refreshing = _cache.State == CacheState.Refreshing,
+            failed = _cache.LastRefreshFailed,
+            error = _cache.LastError
+        });
+    }
+
+    /// <summary>Server-side port of the licensing calculations in <c>Pages/Licensing.cshtml</c>.</summary>
+    private LicensingView BuildLicensing(DashboardSummary summary)
+    {
+        var view = new LicensingView();
+        var managed = summary.ManagedObjects;
+        if (managed.Error != null)
+        {
+            view.Error = managed.Error;
+            return view;
+        }
+
+        // Historical trend: one series per source (domain total / partition total / tenant cloud-only).
+        var points = managed.DataPoints.OrderBy(p => p.RunTime).ToList();
+        view.TrendLabels = points.Select(p => p.RunTime.ToString("yyyy-MM-dd HH:mm")).ToList();
+        var sources = points.SelectMany(p => p.Items)
+            .Where(i => !string.Equals(i.Category, "SAAS", StringComparison.OrdinalIgnoreCase))
+            .Select(i => (i.Category, i.DisplayName))
+            .Distinct()
+            .ToList();
+        foreach (var (category, name) in sources)
+        {
+            var isAzure = string.Equals(category, "Azure", StringComparison.OrdinalIgnoreCase);
+            view.Trend.Add(new LicensingTrendSeries
+            {
+                Name = name,
+                Category = category,
+                Values = points.Select(p =>
+                {
+                    var item = p.Items.FirstOrDefault(i => i.Category == category && i.DisplayName == name);
+                    return item is null ? 0 : (isAzure ? item.CloudOnlyCount : item.Count);
+                }).ToList()
+            });
+        }
+
+        var cfg = _arConfig.CurrentValue.Licensing;
+        var latest = points.LastOrDefault(p => p.Items.Count > 0) ?? points.LastOrDefault();
+        if (latest != null)
+        {
+            int Total(string cat) => latest.Items
+                .Where(i => string.Equals(i.Category, cat, StringComparison.OrdinalIgnoreCase)).Sum(i => i.Count);
+            var domain = Total("Domain");
+            var partition = Total("Partition");
+            var azure = latest.Items
+                .Where(i => string.Equals(i.Category, "Azure", StringComparison.OrdinalIgnoreCase)).Sum(i => i.CloudOnlyCount);
+            var grand = domain + partition + azure;
+            view.Thresholds =
+            [
+                new() { Key = "Domain", Total = domain, Threshold = Math.Max(0, cfg.DomainObjects) },
+                new() { Key = "Partition", Total = partition, Threshold = Math.Max(0, cfg.PartitionObjects) },
+                new() { Key = "Azure", Total = azure, Threshold = Math.Max(0, cfg.AzureObjects) },
+                new() { Key = "Total", Total = grand, Threshold = Math.Max(0, cfg.TotalObjects) }
+            ];
+            view.OverThreshold = view.Thresholds.Any(t => t.Threshold > 0 && t.Total > t.Threshold);
+        }
+
+        // Composition (licensed) and excluded segments.
+        var comp = view.Composition;
+        var excl = view.Excluded;
+        var addedDomainFromKpi = false;
+        if (summary.EnabledUsers?.Items is { Count: > 0 } enabled)
+        {
+            foreach (var g in enabled.Where(i => i.IsManaged)
+                .GroupBy(i => string.IsNullOrWhiteSpace(i.Domain) ? "(unknown)" : i.Domain)
+                .OrderByDescending(g => g.Count()))
+            {
+                comp.Add(new() { Name = g.Key, Kind = "domain", Value = g.Count() });
+                addedDomainFromKpi = true;
+            }
+            var adExcluded = enabled.Count(i => !i.IsManaged);
+            if (adExcluded > 0)
+                excl.Add(new() { Name = "Active Directory", Kind = "excluded-mgmt-ad", Value = adExcluded });
+        }
+
+        if (summary.DisabledUsers?.Items is { Count: > 0 } disabled)
+        {
+            foreach (var g in disabled
+                .GroupBy(i => string.IsNullOrWhiteSpace(i.Domain) ? "(unknown)" : i.Domain)
+                .OrderByDescending(g => g.Count()))
+                excl.Add(new() { Name = g.Key, Kind = "domain-disabled", Value = g.Count() });
+        }
+
+        if (latest != null)
+        {
+            if (!addedDomainFromKpi)
+            {
+                foreach (var d in latest.Items
+                    .Where(i => string.Equals(i.Category, "Domain", StringComparison.OrdinalIgnoreCase) && i.Count > 0)
+                    .OrderByDescending(i => i.Count))
+                    comp.Add(new() { Name = d.DisplayName, Kind = "domain", Value = d.Count });
+            }
+
+            var azureItems = latest.Items
+                .Where(i => string.Equals(i.Category, "Azure", StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var t in azureItems.Where(i => i.CloudOnlyCount > 0).OrderByDescending(i => i.CloudOnlyCount))
+                comp.Add(new() { Name = t.DisplayName, Kind = "tenant", Value = t.CloudOnlyCount });
+            foreach (var t in azureItems.Where(i => i.HybridCount > 0).OrderByDescending(i => i.HybridCount))
+                excl.Add(new() { Name = t.DisplayName, Kind = "tenant-hybrid", Value = t.HybridCount });
+            foreach (var t in azureItems.Where(i => i.GuestCount > 0).OrderByDescending(i => i.GuestCount))
+                excl.Add(new() { Name = t.DisplayName, Kind = "tenant-guest", Value = t.GuestCount });
+        }
+
+        if (summary.EntraTotals?.Error == null && summary.EntraTotals != null)
+        {
+            var entraExcluded = summary.EntraTotals.EntraUsers(onPremSynced: false).Items.Count(i => !i.IsManaged);
+            if (entraExcluded > 0)
+            {
+                var remaining = entraExcluded;
+                foreach (var seg in comp.Where(s => s.Kind == "tenant"))
+                {
+                    if (remaining <= 0) break;
+                    var take = Math.Min(remaining, seg.Value);
+                    seg.Value -= take;
+                    remaining -= take;
+                }
+                comp.RemoveAll(s => s.Kind == "tenant" && s.Value <= 0);
+                excl.Add(new() { Name = "Entra ID", Kind = "excluded-mgmt-cloud", Value = entraExcluded });
+            }
+        }
+
+        return view;
+    }
+
+    /// <summary>
+    /// Triggers a rebuild of the shared superset cache (mirrors <c>IndexModel.OnPostRefreshAsync</c>)
+    /// and clears the caller's cached summary. Returns the refresh sequence captured at trigger time.
+    /// </summary>
+    [HttpPost("rebuild")]
+    public async Task<IActionResult> Rebuild([FromServices] SupersetLoaderHostedService loader)
+    {
+        var token = DashboardDataService.GetAccessToken(HttpContext);
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized();
+
+        var access = await _data.ResolveAccessAsync(HttpContext, token);
+        if (!(access.IsActiveRolesAdmin || access.HasPermission(DashboardPermission.RebuildCache)))
+            return Forbid();
+
+        loader.TriggerManualRefresh();
+        _data.ClearCachedSummary(HttpContext);
+        return Ok(new { refreshFrom = _cache.RefreshSequence });
     }
 
     private const string OverviewKey = "Overview";
@@ -427,6 +693,7 @@ public class DashboardController : ControllerBase
                     dataset.Labels.Add(part.Source);
                     dataset.Values.Add(part.Count);
                     dataset.Colors.Add(ResolveColor(token));
+                    dataset.ColorTokens.Add(token);
                     colorIndex++;
                 }
             }
@@ -442,7 +709,9 @@ public class DashboardController : ControllerBase
 
                     dataset.Labels.Add(string.IsNullOrEmpty(item.Label) ? kpi.Label : item.Label);
                     dataset.Values.Add(kpiResult.Count);
-                    dataset.Colors.Add(ResolveColor(string.IsNullOrEmpty(item.CssColor) ? kpi.CssColor : item.CssColor));
+                    var colorToken = string.IsNullOrEmpty(item.CssColor) ? kpi.CssColor : item.CssColor;
+                    dataset.Colors.Add(ResolveColor(colorToken));
+                    dataset.ColorTokens.Add(colorToken);
                 }
             }
 
