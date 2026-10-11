@@ -11,7 +11,27 @@ body.iris-auth {
     justify-content: center;
     padding: var(--oi-spacing-l);
 }
+/* Login: One Identity brand backdrop (exact UX spec) with white concentric watermark, lower-right. */
+body.iris-auth.iris-login {
+    isolation: isolate;
+    overflow: hidden;
+    background-color: var(--oi-base-color-info, #00a6f4);
+    background-image: linear-gradient(149.74deg, rgba(70, 236, 213, 0.37) 6.55%, rgba(0, 166, 244, 0.37) 47.73%, rgba(0, 105, 168, 0.37) 91.97%);
+}
+.iris-login .login-watermark {
+    position: fixed;
+    right: -260px;
+    bottom: -300px;
+    width: 850px;
+    height: 850px;
+    object-fit: contain;
+    opacity: 0.12;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+}
 .login-card {
+    z-index: 1;
     position: relative;
     width: 100%;
     max-width: 400px;

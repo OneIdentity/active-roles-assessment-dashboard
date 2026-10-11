@@ -19,8 +19,9 @@
     <link rel="stylesheet" href="@Url.Content("~/css/iris-tokens.css")" asp-append-version="true" />
     <link rel="stylesheet" href="@Url.Content("~/css/iris-auth.css")" asp-append-version="true" />
 </head>
-<body class="iris-auth">
-    <div class="login-card">
+<body class="iris-auth iris-login">
+      <img class="login-watermark" src="@(HttpContext.Request.PathBase)/images/login-watermark.svg" alt="" aria-hidden="true" />
+      <div class="login-card">
         <div class="lang-switch">
             <img id="langFlag" src="@(HttpContext.Request.PathBase)/@(Model.SelectedLanguage.FlagImage)" alt="@Model.SelectedLanguage.DisplayName" />
             <select id="langSelect" aria-label="Language" onchange="setLanguage(this)">
