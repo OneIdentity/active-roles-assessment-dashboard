@@ -942,6 +942,7 @@ initCategoryCharts();
                 renderRows('singleOwner', data.singleOwner);
                 renderRows('largeGroups', data.largeGroups);
                 if (window.showToast) window.showToast(strings.toastLoaded, 'success');
+                document.dispatchEvent(new CustomEvent('entra-membership-loaded'));
             })
             .catch(function (err) {
                 showFailure();
@@ -1018,6 +1019,7 @@ initCategoryCharts();
                     cancelStartToast();
                     if (window.membershipBadge) window.membershipBadge.hide();
                     if (window.showToast) window.showToast(strings.toastLoaded, 'success');
+                    document.dispatchEvent(new CustomEvent('entra-membership-loaded'));
                     return;
                 }
                 loadBatch(loaded);
