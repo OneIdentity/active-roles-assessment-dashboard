@@ -56,44 +56,4 @@
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
-  <!-- Angular (ClientApp) build integration.
-       SpaRoot is the Angular workspace; SpaDist is its browser build output.
-       These properties feed the build/publish targets below. -->
-  <PropertyGroup>
-    <SpaRoot>ClientApp\</SpaRoot>
-    <SpaDist>$(SpaRoot)dist\ClientApp\browser\</SpaDist>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Keep the Angular source/build artifacts out of the default content glob so they are
-         not copied verbatim; the browser output is added explicitly for publish below. -->
-    <Content Remove="$(SpaRoot)**" />
-    <None Remove="$(SpaRoot)node_modules\**" />
-  </ItemGroup>
-
-  <!-- Restore npm packages when node_modules is missing (fresh clone / CI). -->
-  <Target Name="EnsureNpmInstall" BeforeTargets="BuildAngular" Condition="!Exists('$(SpaRoot)node_modules')">
-    <Message Importance="high" Text="Restoring npm packages for $(SpaRoot)..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-  </Target>
-
-  <!-- Build the Angular app on Build and Publish so the SPA assets are always current.
-       Skipped when SkipAngularBuild=true (e.g. fast inner-loop backend builds). -->
-  <Target Name="BuildAngular" BeforeTargets="Build;Publish" Condition="'$(SkipAngularBuild)' != 'true'">
-    <Message Importance="high" Text="Building Angular SPA ($(SpaRoot))..." />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
-  </Target>
-
-  <!-- Include the Angular browser build output in the publish package, preserving the
-       dist\ClientApp\browser path that Program.cs serves from. -->
-  <Target Name="IncludeAngularDistInPublish" AfterTargets="BuildAngular" BeforeTargets="Publish">
-    <ItemGroup>
-      <_SpaDistFiles Include="$(SpaDist)**" />
-      <ResolvedFileToPublish Include="@(_SpaDistFiles)">
-        <RelativePath>ClientApp\dist\ClientApp\browser\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-  </Target>
-
 </Project>

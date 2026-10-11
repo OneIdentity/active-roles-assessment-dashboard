@@ -19,11 +19,3 @@ appsettings.Development.json
 
 # GraphPerfTest moved to its own repository (kept locally, not tracked)
 GraphPerfTest/
-
-# --- IRIS/Angular ClientApp ---
-ClientApp/node_modules/
-ClientApp/dist/
-ClientApp/.angular/
-ClientApp/npm-debug.log*
-# Never commit a user/token npmrc; the committed ClientApp/.npmrc is secret-free (scope mapping only)
-**/.npmrc.user
