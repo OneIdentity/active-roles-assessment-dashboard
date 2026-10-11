@@ -11,44 +11,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Roles Dashboard - Setup</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
-    <style>
-        .setup-container { max-width: 640px; margin: 40px auto; padding: 0 20px; }
-        .setup-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 24px; }
-        .setup-card h2 { font-size: 1.05rem; font-weight: 600; color: #111827; margin-bottom: 16px; }
-        .setup-card p.subtitle { font-size: .85rem; color: #6b7280; margin-bottom: 24px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
-        .form-group input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group input[type="password"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
-        .form-group input[type="password"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
-        .required { color: #dc2626; }
-        .error-msg { margin-bottom: 16px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: .82rem; color: #991b1b; }
-        .wizard-page { display: none; }
-        .wizard-page.active { display: block; }
-        .wizard-steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 28px; }
-        .wizard-steps .step { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; transition: background .2s; }
-        .wizard-steps .step.active { background: #2563eb; }
-        .wizard-steps .step.completed { background: #059669; }
-        .wizard-nav { display: flex; gap: 12px; margin-top: 8px; }
-        .wizard-nav button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s; }
-        .btn-back { background: #e5e7eb; color: #374151; }
-        .btn-back:hover { background: #d1d5db; }
-        .btn-next { background: #2563eb; color: #fff; }
-        .btn-next:hover { background: #1d4ed8; }
-        .btn-finish { background: #059669; color: #fff; }
-        .btn-finish:hover { background: #047857; }
-        .lang-select-wrap { display: flex; align-items: center; gap: 10px; }
-        .lang-flag { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.08); flex-shrink: 0; }
-        .lang-select { flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; }
-        .lang-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; transition: border-color .2s; box-sizing: border-box; }
-        .form-group select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-    </style>
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-tokens.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-auth.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-setup.css")" asp-append-version="true" />
 </head>
-<body>
+<body class="iris-setup">
 <div class="page">
     @{
         ViewData["HeaderKey"] = "Setup";
@@ -58,15 +25,15 @@
     <partial name="_DashboardHeader" />
 
     <div class="setup-container">
-        <div class="wizard-steps">
-            <div class="step active" data-step="0"></div>
-            <div class="step" data-step="1"></div>
-            <div class="step" data-step="2"></div>
-            <div class="step" data-step="3"></div>
-            <div class="step" data-step="4"></div>
-            <div class="step" data-step="5"></div>
-            <div class="step" data-step="6"></div>
-        </div>
+        <ol class="wizard-steps">
+            <li class="step active" data-step="0"><span class="step-dot">1</span><span class="step-label">@Localizer["RestApiConfig"]</span></li>
+            <li class="step" data-step="1"><span class="step-dot">2</span><span class="step-label">@Localizer["ServiceAccountConfig"]</span></li>
+            <li class="step" data-step="2"><span class="step-dot">3</span><span class="step-label">@Localizer["WebInterface"]</span></li>
+            <li class="step" data-step="3"><span class="step-dot">4</span><span class="step-label">@Localizer["Language"]</span></li>
+            <li class="step" data-step="4"><span class="step-dot">5</span><span class="step-label">@Localizer["RoleMappingConfig"]</span></li>
+            <li class="step" data-step="5"><span class="step-dot">6</span><span class="step-label">@Localizer["LicensingThresholds"]</span></li>
+            <li class="step" data-step="6"><span class="step-dot">7</span><span class="step-label">@Localizer["AnalyticsConfig"]</span></li>
+        </ol>
 
         <div id="wizardError" class="error-msg" style="display:none;"></div>
 

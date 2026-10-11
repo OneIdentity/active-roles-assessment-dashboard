@@ -45,15 +45,15 @@ body.iris-auth {
     margin-top: 8px;
     font: inherit;
     font-weight: 600;
-    color: #fff;
-    background: var(--oi-content-color-brand);
-    border: none;
-    border-radius: var(--oi-border-radius-default);
+    color: var(--oi-content-color-constant);
+    background: var(--oi-button-background-primary);
+    border: 1px solid var(--oi-button-background-primary);
+    border-radius: var(--oi-border-radius-l);
     cursor: pointer;
 }
-.btn-login:hover { filter: brightness(.92); }
+.btn-login:hover { background: var(--oi-button-background-primary-hover); border-color: var(--oi-button-background-primary-hover); }
 .btn-login:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
-.btn-login:disabled { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-secondary); cursor: not-allowed; filter: none; }
+.btn-login:disabled { background: var(--oi-background-color-tertiary); border-color: var(--oi-background-color-tertiary); color: var(--oi-content-color-secondary); cursor: not-allowed; }
 .error-msg {
     background: var(--oi-background-color-error);
     border: 1px solid var(--oi-border-color-badge-error);
