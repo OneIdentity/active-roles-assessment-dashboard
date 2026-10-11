@@ -239,4 +239,7 @@
   <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
 	<value>Votre ID de mesure GA4 (par exemple, G-XXXXXXXXXX). Requis pour l'envoi des analyses.</value>
   </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
 </root>

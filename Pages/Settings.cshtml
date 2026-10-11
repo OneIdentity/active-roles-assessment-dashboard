@@ -13,18 +13,20 @@
     <title>Active Roles Dashboard - Settings</title>
     <link rel="stylesheet" href="@Url.Content("~/css/iris-tokens.css")" asp-append-version="true" />
     <link rel="stylesheet" href="@Url.Content("~/css/iris-auth.css")" asp-append-version="true" />
-    <link rel="stylesheet" href="@Url.Content("~/css/iris-setup.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-shell.css")" asp-append-version="true" />
     <link rel="stylesheet" href="@Url.Content("~/css/iris-settings.css")" asp-append-version="true" />
 </head>
-<body class="iris-setup iris-settings">
-<div class="page">
+<body class="iris-shell iris-settings">
+<div class="page iris-shell-page">
     @{
-        ViewData["HeaderKey"] = "Settings";
-        ViewData["HeaderRight"] = "signout";
+        ViewData["IrisActive"] = "settings";
+        ViewData["IrisCrumb"] = Localizer["PageTitle"].Value;
     }
-    <partial name="_DashboardHeader" />
-
-    <a href="@(HttpContext.Request.PathBase)/" class="back-link" id="backLink">&larr; @Localizer["BackToDashboard"]</a>
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["PageTitle"]</h1>
+    </div>
 
     <form method="post">
         @if (!Model.CanAccessSettings)
@@ -1164,6 +1166,7 @@
             }
         </div>
     </form>
+    </main>
 </div>
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
@@ -1173,18 +1176,6 @@
 </div>
 @await Html.PartialAsync("_AppBaseScript")
 <script>
-    var settingsChanged = @(Model.SettingsChanged ? "true" : "false");
-
-    document.getElementById('backLink').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (settingsChanged) {
-            document.getElementById('loadingOverlay').classList.add('active');
-            window.location.href = appBase + '/';
-        } else {
-            window.location.href = appBase + '/?cached=true';
-        }
-    });
-
     function toggleSection(header) {
         header.classList.toggle('collapsed');
         var body = header.nextElementSibling;

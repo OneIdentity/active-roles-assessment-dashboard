@@ -1,5 +1,4 @@
-/* IRIS styling for the Settings page. Load after iris-tokens.css, iris-auth.css and iris-setup.css. */
-.iris-settings .page { max-width: 960px; }
+/* IRIS styling for the Settings page. Load after iris-tokens.css, iris-auth.css and iris-shell.css. */
 .iris-settings .hdr-right { display: flex; align-items: center; gap: 8px; }
 .iris-settings .hdr-user { color: var(--oi-content-color-secondary); margin-right: 4px; }
 .iris-settings .btn-icon {
@@ -15,10 +14,7 @@
 .iris-settings .btn-icon:hover { background: var(--oi-background-color-secondary); }
 .iris-settings .btn-icon:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
 
-.back-link { display: inline-block; max-width: 640px; margin: 0 0 var(--oi-spacing-l); color: var(--oi-content-color-brand); text-decoration: none; font-weight: 500; }
-.back-link:hover { text-decoration: underline; }
-.iris-settings form { max-width: 640px; margin: 0 auto; }
-.iris-settings .back-link { display: block; margin-left: auto; margin-right: auto; }
+.iris-settings form { max-width: 960px; }
 
 .settings-category { margin-bottom: 24px; }
 .category-header {

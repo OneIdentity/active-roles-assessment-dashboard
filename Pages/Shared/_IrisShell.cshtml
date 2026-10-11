@@ -10,6 +10,9 @@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     var page = ViewContext.ViewData.Model as DashboardPageModel;
+    // Pages that are not DashboardPageModels (e.g. Settings) still expose their permission set.
+    var perms = page?.DashboardPermissions ?? (ViewContext.ViewData.Model as SettingsModel)?.Permissions;
+    bool Has(ActiveRolesDashboard.Models.DashboardPermission p) => perms?.Contains(p) == true;
     var active = ViewData["IrisActive"] as string ?? "";
     var crumb = ViewData["IrisCrumb"] as string ?? "";
     var appBase = Context.Request.PathBase.Value ?? "";
@@ -25,21 +28,21 @@
             <span class="sidebar-nav-asset sidebar-nav-asset-dashboard" aria-hidden="true"></span>
             <span>@Localizer["Dashboard"]</span>
         </a>
-        @if (page?.CanViewAssessments == true)
+        @if (Has(ActiveRolesDashboard.Models.DashboardPermission.ViewAssessments))
         {
             <a href="@(appBase)/Assessments" class="sidebar-nav-item" aria-current="@Current("assessment")">
                 <span class="sidebar-nav-asset sidebar-nav-asset-assessment" aria-hidden="true"></span>
                 <span>@Localizer["Assessment"]</span>
             </a>
         }
-        @if (page?.CanViewExposureReport == true)
+        @if (Has(ActiveRolesDashboard.Models.DashboardPermission.ViewExposureReport))
         {
             <a href="@(appBase)/AttackExposure" class="sidebar-nav-item" aria-current="@Current("exposure")">
                 <span class="sidebar-nav-asset sidebar-nav-asset-exposure" aria-hidden="true"></span>
                 <span>@Localizer["AttackExposure"]</span>
             </a>
         }
-        @if (page?.CanViewSnapshots == true)
+        @if (Has(ActiveRolesDashboard.Models.DashboardPermission.ViewSnapshots))
         {
             <a href="@(appBase)/Snapshots" class="sidebar-nav-item" aria-current="@Current("snapshots")">
                 <span class="sidebar-nav-asset sidebar-nav-asset-snapshots" aria-hidden="true"></span>
@@ -51,7 +54,7 @@
         <div class="sidebar-nav-group-header">
             <span>@Localizer["Other"]</span>
         </div>
-        @if (page?.CanAccessSettings == true)
+        @if (perms != null && ActiveRolesDashboard.Models.RolePermissionRegistry.CanAccessSettings(perms))
         {
             <a href="@(appBase)/Settings" class="sidebar-nav-item" aria-current="@Current("settings")">
                 <span class="sidebar-nav-asset sidebar-nav-asset-settings" aria-hidden="true"></span>
