@@ -1,0 +1,97 @@
+/* IRIS styling for pre-authentication Razor pages (login, setup). Requires iris-tokens.css. */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body.iris-auth {
+    font-family: var(--oi-font-family-default);
+    font-size: var(--oi-font-size-s);
+    color: var(--oi-content-color-primary);
+    background: var(--oi-background-color-secondary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--oi-spacing-l);
+}
+.login-card {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    background: var(--oi-background-color-primary);
+    border: 1px solid var(--oi-border-color-muted);
+    border-radius: var(--oi-border-radius-l);
+    box-shadow: var(--oi-shadow-low);
+    padding: 40px 32px 32px;
+}
+.login-card h1 { font-size: var(--oi-font-size-xl); font-weight: 600; margin-bottom: 4px; }
+.login-card p.sub { font-size: var(--oi-font-size-s); color: var(--oi-content-color-secondary); margin-bottom: 24px; }
+.logo { margin-bottom: 24px; }
+.logo img { height: 32px; width: auto; }
+.form-group { margin-bottom: var(--oi-spacing-l); }
+.form-group label { display: block; font-size: var(--oi-font-size-s); font-weight: 500; margin-bottom: 4px; }
+.form-group input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    font: inherit;
+    color: inherit;
+    background: var(--oi-background-color-primary);
+    border: 1px solid var(--oi-border-color-default);
+    border-radius: var(--oi-border-radius-default);
+}
+.form-group input:hover { border-color: var(--oi-border-color-strong); }
+.form-group input:focus { outline: none; border-color: var(--oi-border-color-focus); box-shadow: 0 0 0 1px var(--oi-border-color-focus); }
+.btn-login {
+    width: 100%;
+    height: 36px;
+    margin-top: 8px;
+    font: inherit;
+    font-weight: 600;
+    color: #fff;
+    background: var(--oi-content-color-brand);
+    border: none;
+    border-radius: var(--oi-border-radius-default);
+    cursor: pointer;
+}
+.btn-login:hover { filter: brightness(.92); }
+.btn-login:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
+.btn-login:disabled { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-secondary); cursor: not-allowed; filter: none; }
+.error-msg {
+    background: var(--oi-background-color-error);
+    border: 1px solid var(--oi-border-color-badge-error);
+    color: var(--oi-content-color-error);
+    padding: 8px 12px;
+    border-radius: var(--oi-border-radius-default);
+    margin-bottom: var(--oi-spacing-l);
+}
+.error-msg[hidden] { display: none; }
+.lang-switch { position: absolute; top: 16px; right: 16px; display: flex; align-items: center; gap: 6px; }
+.lang-switch img { height: 14px; width: 20px; object-fit: cover; border-radius: var(--oi-border-radius-s); box-shadow: 0 0 0 1px var(--oi-border-color-muted); }
+.lang-switch select {
+    height: 28px;
+    padding: 0 6px;
+    font: inherit;
+    font-size: var(--oi-font-size-xs);
+    color: inherit;
+    background: var(--oi-background-color-primary);
+    border: 1px solid var(--oi-border-color-default);
+    border-radius: var(--oi-border-radius-default);
+    cursor: pointer;
+}
+.lang-switch select:focus { outline: none; border-color: var(--oi-border-color-focus); }
+.loading-overlay { position: fixed; inset: 0; background: var(--oi-background-color-modal-backdrop); display: none; align-items: center; justify-content: center; z-index: 2000; }
+.loading-overlay.active { display: flex; }
+.loading-spinner {
+    text-align: center;
+    background: var(--oi-background-color-primary);
+    border-radius: var(--oi-border-radius-l);
+    box-shadow: var(--oi-shadow-high);
+    padding: 24px 32px;
+    min-width: 240px;
+}
+.loading-spinner p { margin-top: 12px; font-weight: 500; }
+.spinner { width: 32px; height: 32px; margin: 0 auto; border: 3px solid var(--oi-background-color-tertiary); border-top-color: var(--oi-base-color-brand); border-radius: 50%; animation: iris-spin .8s linear infinite; }
+@keyframes iris-spin { to { transform: rotate(360deg); } }
+/* iris-tokens.css stops all animations when the OS has "reduce motion" on (e.g. Windows Server
+   with animations disabled). The spinner shows that work is still in progress, so keep it turning, more slowly. */
+@media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 1.6s !important; animation-iteration-count: infinite !important; }
+}
