@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ActiveRolesDashboard.Controllers;
 
 /// <summary>
-/// REST API that backs the Angular main dashboard (the former Razor <c>Pages/Index.cshtml</c>).
+/// REST API that backs the React dashboard
 /// All loading, permission, caching and segment-filter behaviour is shared with the Razor
 /// dashboards through <see cref="DashboardDataService"/>; this controller only shapes the
 /// result into a typed payload (overview KPI tiles, overview charts, navigation tiles,
@@ -123,6 +123,52 @@ public class DashboardController : ControllerBase
         public OverviewSection Overview { get; set; } = new();
         public SegmentFilterView SegmentFilter { get; set; } = new();
         public List<NavigationTile> Tiles { get; set; } = new();
+        /// <summary>Tabs visible to the caller: "Overview" followed by each permitted dashboard.</summary>
+        public List<DashboardTab> Tabs { get; set; } = new();
+        public DateTime GeneratedAtUtc { get; set; }
+    }
+
+    public sealed class SourceSplitItem
+    {
+        public string Source { get; set; } = string.Empty;
+        public int Count { get; set; }
+    }
+
+    public sealed class ViewKpi
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+        public int Count { get; set; }
+        public string? Error { get; set; }
+        public string ColorToken { get; set; } = string.Empty;
+        public string Color { get; set; } = FallbackChartColor;
+        public string SectionId { get; set; } = string.Empty;
+        public bool IsRisk { get; set; }
+    }
+
+    public sealed class ViewCategory
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public bool IsOverview { get; set; }
+        public bool IsRisk { get; set; }
+        public List<ViewKpi> Kpis { get; set; } = new();
+        public List<ChartDataset> Charts { get; set; } = new();
+    }
+
+    public sealed class DashboardTab
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+    }
+
+    public sealed class DashboardView
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public List<ViewCategory> Categories { get; set; } = new();
+        public List<SourceSplitItem> SourceSplit { get; set; } = new();
+        public ViewKpi? ManagedObjects { get; set; }
         public DateTime GeneratedAtUtc { get; set; }
     }
 
@@ -168,8 +214,113 @@ public class DashboardController : ControllerBase
             Tiles = BuildTiles(summary, access),
             GeneratedAtUtc = DateTime.UtcNow
         };
+        payload.Tabs.Add(new DashboardTab { Key = OverviewKey, Title = CategoryInfo.Overview.DisplayName });
+        payload.Tabs.AddRange(payload.Tiles.Select(t => new DashboardTab { Key = t.Key, Title = t.Title }));
 
         return Ok(payload);
+    }
+
+    /// <summary>
+    /// Returns the content of one dashboard tab ("Overview" or a <see cref="DashboardInfo"/> key):
+    /// its enabled categories with KPIs and charts, plus the source split shown in the
+    /// Source Distribution section. Uses the same permission gating as the Razor dashboards.
+    /// </summary>
+    [HttpGet("view/{key}")]
+    public async Task<IActionResult> GetView(string key)
+    {
+        var token = DashboardDataService.GetAccessToken(HttpContext);
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized();
+
+        var kpiSettings = _userSettingsService.Load(User.Identity?.Name ?? string.Empty).KpiSettings;
+        var access = await _data.ResolveAccessAsync(HttpContext, token);
+        var summary = await _data.LoadIndexSummaryAsync(HttpContext, token, access, kpiSettings);
+        _data.ApplyActiveSegmentFilter(HttpContext, summary);
+
+        var isOverview = string.Equals(key, OverviewKey, StringComparison.OrdinalIgnoreCase);
+        IEnumerable<CategoryInfo> categories;
+        string title;
+        string sourceSplitKey;
+        if (isOverview)
+        {
+            categories = [CategoryInfo.Overview, CategoryInfo.ADGovernance];
+            title = CategoryInfo.Overview.DisplayName;
+            sourceSplitKey = "ADUserAccounts";
+        }
+        else
+        {
+            var tile = BuildTiles(summary, access).FirstOrDefault(t => string.Equals(t.Key, key, StringComparison.OrdinalIgnoreCase));
+            var dashboard = DashboardInfo.All.FirstOrDefault(d => d.Key == tile?.Key);
+            if (dashboard is null)
+                return NotFound();
+            categories = CategoryInfo.ForDashboard(dashboard);
+            title = dashboard.Title;
+            sourceSplitKey = dashboard.Key == "ActiveDirectory" ? "AdOverviewUsers" : string.Empty;
+        }
+
+        var view = new DashboardView
+        {
+            Key = isOverview ? OverviewKey : key,
+            Title = title,
+            GeneratedAtUtc = DateTime.UtcNow
+        };
+
+        foreach (var category in categories)
+        {
+            if (!kpiSettings.IsCategoryEnabled(category.Key)) continue;
+            var viewCategory = new ViewCategory
+            {
+                Key = category.Key,
+                Title = category.DisplayName,
+                IsOverview = category.IsOverviewCategory,
+                IsRisk = category.IsRiskCategory,
+                Charts = BuildCharts(category, summary, kpiSettings)
+            };
+            foreach (var kpi in KpiInfo.ForCategory(category))
+            {
+                if (!kpiSettings.IsKpiEnabled(kpi.CategoryKey, kpi.Key)) continue;
+                if (kpi.Key == "MainTotalMailboxes" && !summary.ExchangeVisible) continue;
+                viewCategory.Kpis.Add(ToViewKpi(kpi, summary));
+            }
+            if (viewCategory.Kpis.Count > 0 || viewCategory.Charts.Count > 0)
+                view.Categories.Add(viewCategory);
+        }
+
+        if (!string.IsNullOrEmpty(sourceSplitKey))
+        {
+            view.SourceSplit = summary.GetSourceSplit(sourceSplitKey)
+                .Where(s => s.Count > 0)
+                .Select(s => new SourceSplitItem { Source = s.Source, Count = s.Count })
+                .ToList();
+        }
+
+        var canViewLicensing = access.HasPermission(DashboardPermission.ViewLicensingDashboard) || summary.LicensingVisible;
+        var managedObjects = KpiInfo.All.FirstOrDefault(k => k.Key == "ManagedObjects");
+        if (isOverview && canViewLicensing && managedObjects is not null
+            && kpiSettings.IsKpiEnabled(managedObjects.CategoryKey, managedObjects.Key))
+        {
+            view.ManagedObjects = ToViewKpi(managedObjects, summary);
+        }
+
+        return Ok(view);
+    }
+
+    private const string OverviewKey = "Overview";
+
+    private static ViewKpi ToViewKpi(KpiInfo kpi, DashboardSummary summary)
+    {
+        var result = summary.GetKpiResult(kpi.Key);
+        return new ViewKpi
+        {
+            Key = kpi.Key,
+            Label = kpi.Label,
+            Count = result.Count,
+            Error = result.Error,
+            ColorToken = kpi.CssColor,
+            Color = ResolveColor(kpi.CssColor),
+            SectionId = kpi.SectionId,
+            IsRisk = kpi.IsRiskKpi
+        };
     }
 
     /// <summary>
