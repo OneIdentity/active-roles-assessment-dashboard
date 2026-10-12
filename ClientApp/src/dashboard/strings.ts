@@ -8,7 +8,7 @@ const en = {
   snapshots: 'Snapshots',
   other: 'Other',
   settings: 'Settings',
-  helpWith: 'Help with',
+  helpWith: 'Help with', privacy: 'Privacy',
   signOut: 'Sign out',
   collapseNavigation: 'Collapse navigation',
   expandNavigation: 'Expand navigation',
@@ -118,7 +118,7 @@ const merge = (o: Overrides): Strings => ({
 
 const de = merge({
   dashboard: 'Dashboard', assessment: 'Bewertung', attackExposure: 'Angriffsfläche', snapshots: 'Momentaufnahmen',
-  other: 'Sonstiges', settings: 'Einstellungen', helpWith: 'Hilfe zu', signOut: 'Abmelden', collapseNavigation: 'Navigation einklappen',
+  other: 'Sonstiges', settings: 'Einstellungen', helpWith: 'Hilfe zu', privacy: 'Datenschutz', signOut: 'Abmelden', collapseNavigation: 'Navigation einklappen',
   expandNavigation: 'Navigation ausklappen', breadcrumb: 'Navigationspfad', mainNavigation: 'Hauptnavigation',
   dashboards: 'Dashboards', refresh: 'Aktualisieren', rebuildCache: 'Cache neu aufbauen', export: 'Exportieren',
   overview: 'Übersicht', dashboardTitleSuffix: 'Dashboard', environmentOverview: 'Übersicht der Active Directory-Umgebung',
@@ -149,7 +149,7 @@ const de = merge({
 
 const es = merge({
   assessment: 'Evaluación', attackExposure: 'Exposición a ataques', snapshots: 'Instantáneas', other: 'Otros',
-  settings: 'Configuración', helpWith: 'Ayuda con', signOut: 'Cerrar sesión', collapseNavigation: 'Contraer navegación', expandNavigation: 'Expandir navegación',
+  settings: 'Configuración', helpWith: 'Ayuda con', privacy: 'Privacidad', signOut: 'Cerrar sesión', collapseNavigation: 'Contraer navegación', expandNavigation: 'Expandir navegación',
   breadcrumb: 'Ruta de navegación', mainNavigation: 'Navegación principal', dashboards: 'Paneles', dashboard: 'Panel',
   refresh: 'Actualizar', rebuildCache: 'Reconstruir caché', export: 'Exportar', overview: 'Resumen', dashboardTitleSuffix: 'Panel',
   environmentOverview: 'Resumen del entorno de Active Directory', loading: 'Cargando datos del panel...',
@@ -179,7 +179,7 @@ const es = merge({
 
 const fr = merge({
   dashboard: 'Tableau de bord', assessment: 'Évaluation', attackExposure: 'Exposition aux attaques', snapshots: 'Instantanés',
-  other: 'Autre', settings: 'Paramètres', helpWith: 'Aide sur', signOut: 'Se déconnecter', collapseNavigation: 'Réduire la navigation',
+  other: 'Autre', settings: 'Paramètres', helpWith: 'Aide sur', privacy: 'Confidentialité', signOut: 'Se déconnecter', collapseNavigation: 'Réduire la navigation',
   expandNavigation: 'Développer la navigation', breadcrumb: "Fil d'Ariane", mainNavigation: 'Navigation principale',
   dashboards: 'Tableaux de bord', refresh: 'Actualiser', rebuildCache: 'Reconstruire le cache', export: 'Exporter',
   overview: 'Vue d’ensemble', dashboardTitleSuffix: '– tableau de bord', environmentOverview: "Vue d’ensemble de l’environnement Active Directory",
@@ -208,7 +208,7 @@ const fr = merge({
 
 const hu = merge({
   dashboard: 'Irányítópult', assessment: 'Értékelés', attackExposure: 'Támadási kitettség', snapshots: 'Pillanatképek',
-  other: 'Egyéb', settings: 'Beállítások', helpWith: 'Súgó ehhez', signOut: 'Kijelentkezés', collapseNavigation: 'Navigáció összecsukása',
+  other: 'Egyéb', settings: 'Beállítások', helpWith: 'Súgó ehhez', privacy: 'Adatvédelem', signOut: 'Kijelentkezés', collapseNavigation: 'Navigáció összecsukása',
   expandNavigation: 'Navigáció kibontása', breadcrumb: 'Navigációs útvonal', mainNavigation: 'Fő navigáció', dashboards: 'Irányítópultok',
   refresh: 'Frissítés', rebuildCache: 'Gyorsítótár újraépítése', export: 'Exportálás', overview: 'Áttekintés', dashboardTitleSuffix: 'irányítópult',
   environmentOverview: 'Az Active Directory-környezet áttekintése', loading: 'Irányítópult-adatok betöltése...',
@@ -236,7 +236,7 @@ const hu = merge({
 
 const it = merge({
   assessment: 'Valutazione', attackExposure: 'Esposizione agli attacchi', snapshots: 'Snapshot', other: 'Altro',
-  settings: 'Impostazioni', helpWith: 'Guida per', signOut: 'Esci', collapseNavigation: 'Comprimi navigazione', expandNavigation: 'Espandi navigazione',
+  settings: 'Impostazioni', helpWith: 'Guida per', privacy: 'Privacy', signOut: 'Esci', collapseNavigation: 'Comprimi navigazione', expandNavigation: 'Espandi navigazione',
   breadcrumb: 'Percorso di navigazione', mainNavigation: 'Navigazione principale', refresh: 'Aggiorna', rebuildCache: 'Ricostruisci cache',
   export: 'Esporta', overview: 'Panoramica', environmentOverview: "Panoramica dell'ambiente Active Directory",
   loading: 'Caricamento dei dati della dashboard...', loadFailed: 'Impossibile caricare il contenuto della dashboard.',

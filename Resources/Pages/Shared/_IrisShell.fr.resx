@@ -48,6 +48,7 @@
 	<value>Développer la navigation</value>
   </data>
   <data name="Breadcrumb" xml:space="preserve">
-	<value>Fil d&apos;Ariane</value>
+	<value>Fil d'Ariane</value>
   </data>
+<data name="Privacy" xml:space="preserve"><value>Confidentialité</value></data>
 </root>

@@ -71,6 +71,10 @@ export function Sidebar({ capabilities }: Props) {
           <span className="sidebar-nav-asset sidebar-nav-asset-help" aria-hidden="true" />
           <span>{t.helpWith}</span>
         </span>
+        <a href="/Privacy" className="sidebar-nav-item">
+          <span className="sidebar-nav-asset sidebar-nav-asset-privacy" aria-hidden="true" />
+          <span>{t.privacy}</span>
+        </a>
         <a href="/Logout" className="sidebar-nav-item">
           <span className="sidebar-nav-asset sidebar-nav-asset-signout" aria-hidden="true" />
           <span>{t.signOut}</span>

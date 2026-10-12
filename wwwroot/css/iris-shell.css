@@ -37,6 +37,7 @@ body.iris-shell {
 .sidebar-nav-asset-snapshots { mask-image: url('../images/iris/figma-snapshots.svg'); -webkit-mask-image: url('../images/iris/figma-snapshots.svg'); }
 .sidebar-nav-asset-settings { mask-image: url('../images/iris/figma-settings.svg'); -webkit-mask-image: url('../images/iris/figma-settings.svg'); }
 .sidebar-nav-asset-help { mask-image: url('../images/iris/figma-help.svg'); -webkit-mask-image: url('../images/iris/figma-help.svg'); }
+.sidebar-nav-asset-privacy { mask-image: url('../images/iris/figma-privacy.svg'); -webkit-mask-image: url('../images/iris/figma-privacy.svg'); }
 .sidebar-nav-asset-signout { mask-image: url('../images/iris/figma-signout.svg'); -webkit-mask-image: url('../images/iris/figma-signout.svg'); }
 
 /* App bar */

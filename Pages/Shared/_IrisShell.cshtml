@@ -11,7 +11,9 @@
 @{
     var page = ViewContext.ViewData.Model as DashboardPageModel;
     // Pages that are not DashboardPageModels (e.g. Settings) still expose their permission set.
-    var perms = page?.DashboardPermissions ?? (ViewContext.ViewData.Model as SettingsModel)?.Permissions;
+    var perms = page?.DashboardPermissions
+        ?? (ViewContext.ViewData.Model as SettingsModel)?.Permissions
+        ?? (ViewContext.ViewData.Model as PrivacyModel)?.Permissions;
     bool Has(ActiveRolesDashboard.Models.DashboardPermission p) => perms?.Contains(p) == true;
     var active = ViewData["IrisActive"] as string ?? "";
     var crumb = ViewData["IrisCrumb"] as string ?? "";
@@ -65,6 +67,10 @@
             <span class="sidebar-nav-asset sidebar-nav-asset-help" aria-hidden="true"></span>
             <span>@Localizer["HelpWith"]</span>
         </span>
+        <a href="@(appBase)/Privacy" class="sidebar-nav-item" aria-current="@Current("privacy")">
+            <span class="sidebar-nav-asset sidebar-nav-asset-privacy" aria-hidden="true"></span>
+            <span>@Localizer["Privacy"]</span>
+        </a>
         <a href="@(appBase)/Logout" class="sidebar-nav-item">
             <span class="sidebar-nav-asset sidebar-nav-asset-signout" aria-hidden="true"></span>
             <span>@Localizer["SignOut"]</span>

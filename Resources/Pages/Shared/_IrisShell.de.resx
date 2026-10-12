@@ -50,4 +50,5 @@
   <data name="Breadcrumb" xml:space="preserve">
 	<value>Navigationspfad</value>
   </data>
+<data name="Privacy" xml:space="preserve"><value>Datenschutz</value></data>
 </root>

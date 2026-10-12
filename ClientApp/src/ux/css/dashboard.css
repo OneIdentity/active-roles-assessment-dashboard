@@ -21,6 +21,7 @@ body { font-family: var(--oi-font-family-default); background: var(--oi-backgrou
 .sidebar-nav-asset-settings { mask-image: url('../images/figma-settings.svg'); -webkit-mask-image: url('../images/figma-settings.svg'); }
 .sidebar-nav-asset-signout { mask-image: url('../images/figma-signout.svg'); -webkit-mask-image: url('../images/figma-signout.svg'); }
 .sidebar-nav-asset-help { mask-image: url('../images/figma-help.svg'); -webkit-mask-image: url('../images/figma-help.svg'); }
+.sidebar-nav-asset-privacy { mask-image: url('../images/figma-privacy.svg'); -webkit-mask-image: url('../images/figma-privacy.svg'); }
 .sidebar-group-caret { display: block; flex: 0 0 12px; width: 12px; height: 12px; background-color: var(--oi-content-color-tertiary); mask: url('../images/figma-caret-up.svg') center / contain no-repeat; -webkit-mask: url('../images/figma-caret-up.svg') center / contain no-repeat; }
 .iris-icon-info { background-color: var(--oi-base-color-brand); mask: url('../images/figma-info.svg') center / contain no-repeat; -webkit-mask: url('../images/figma-info.svg') center / contain no-repeat; }
 .iris-nav-page .rpt-header { width: calc(100% + 168px); margin-left: 0; padding: 0 16px; }

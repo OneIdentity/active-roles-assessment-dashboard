@@ -50,4 +50,5 @@
   <data name="Breadcrumb" xml:space="preserve">
 	<value>Navigációs útvonal</value>
   </data>
+<data name="Privacy" xml:space="preserve"><value>Adatvédelem</value></data>
 </root>

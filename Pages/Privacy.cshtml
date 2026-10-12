@@ -10,45 +10,43 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="@Url.Content("~/")" />
     <title>Active Roles Dashboard - @Localizer["Title"]</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
     <style>
-        .content-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); max-width: 720px; margin: 0 auto 24px; }
-        .content-card h2 { font-size: 1.1rem; font-weight: 600; color: #111827; margin-bottom: 16px; }
-        .content-card p { font-size: .9rem; color: #374151; line-height: 1.6; }
-        .back-link { display: inline-block; margin-bottom: 18px; font-size: .82rem; color: #2563eb; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
+        .iris-privacy .iris-title-row { display: flex; align-items: center; justify-content: space-between; gap: var(--oi-spacing-m); flex-wrap: wrap; }
+        .iris-privacy .privacy-back { display: inline-flex; align-items: center; text-decoration: none; }
+        .iris-privacy .privacy-back:hover { background: var(--oi-background-color-secondary); }
+        .iris-privacy .snap-card { max-width: 820px; }
+        .iris-privacy .snap-card p { font-size: var(--oi-font-size-s); color: var(--oi-content-color-secondary); line-height: 1.6; margin: 0; }
     </style>
 </head>
-<body>
-<div class="page">
-    <header class="rpt-header">
-        <div class="hdr-left">
-            <span class="hdr-logo"><img src="images/oneidentity-logo-v2.svg" alt="One Identity" /></span>
-            <div>
-                <h1>Active Roles Dashboard</h1>
-                <p class="hdr-sub">@Localizer["HeaderSubtitle"]</p>
-            </div>
-        </div>
-        <div class="hdr-right">
-            <span class="hdr-user">@User.Identity?.Name</span>
-            <a href="@(HttpContext.Request.PathBase)/Logout" class="btn-icon" title="@Localizer["SignOut"]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </a>
-        </div>
-    </header>
+<body class="iris-shell iris-privacy">
+<div class="page iris-shell-page">
+    @{
+        ViewData["IrisActive"] = "privacy";
+        ViewData["IrisCrumb"] = Localizer["Title"].Value;
+    }
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["Title"]</h1>
+        <a class="snap-btn privacy-back" href="@(HttpContext.Request.PathBase)/app/?restore=1">@Localizer["BackToDashboard"]</a>
+    </div>
 
-    <a href="@(HttpContext.Request.PathBase)/?cached=true" class="back-link">@Localizer["BackToDashboard"]</a>
-
-    <div class="content-card">
+    <section class="snap-card">
         <h2>@Localizer["Title"]</h2>
         <p>@Localizer["Body"]</p>
-    </div>
+    </section>
 
-    <div class="content-card">
+    <section class="snap-card">
         <h2>@Localizer["AnalyticsTitle"]</h2>
         <p>@Localizer["AnalyticsBody"]</p>
-    </div>
+    </section>
+    </main>
 </div>
 </body>
 </html>
