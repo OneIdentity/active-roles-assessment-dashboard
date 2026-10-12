@@ -684,25 +684,6 @@ public abstract class DashboardPageModel : PageModel
         return JsonSerializer.Deserialize<OverviewTotalsCache>(cached);
     }
 
-    /// <summary>
-    /// Persists a segment (domain/tenant) filter selection to session and redirects back
-    /// to the current dashboard, re-rendering from cache (no re-query). The posted names
-    /// are stored raw; resolution ("unset ⇒ all", "explicit empty ⇒ none") happens at the
-    /// choke points. Only the dimension being changed is updated, preserving the other.
-    /// An empty selection for the posted dimension is stored as an explicit "none".
-    /// </summary>
-    public IActionResult OnPostSetSegmentFilter(string dimension, string returnPage, List<string>? segments)
-    {
-        var token = HttpContext.Session.GetString("AccessToken");
-        if (string.IsNullOrEmpty(token))
-            return RedirectToPage("/Login");
-
-        DataService.SetSegmentFilter(HttpContext, dimension, segments);
-
-        var page = string.IsNullOrWhiteSpace(returnPage) ? "/Index" : returnPage;
-        return RedirectToPage(page, new { cached = true });
-    }
-
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] bool cached = false)
     {
         var redirect = await InitializePageAsync();

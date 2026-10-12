@@ -1,4 +1,4 @@
-using ActiveRolesDashboard.Models;
+﻿using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -52,7 +52,7 @@ public class AttackExposureModel : DashboardPageModel
 
         // Block direct navigation for users whose role lacks ViewExposureReport.
         if (!CanViewExposureReport)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         // Prefer the session-cached dashboard summary so the exposure view reflects the same
         // Entra membership state as the dashboard. Re-fetching here would always report

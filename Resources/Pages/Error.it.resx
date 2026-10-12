@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -57,4 +57,5 @@
   <data name="DevMode" xml:space="preserve"><value>Modalità sviluppo</value></data>
   <data name="DevModeLine1" xml:space="preserve"><value>Il passaggio all'ambiente &lt;strong&gt;Sviluppo&lt;/strong&gt; mostra informazioni dettagliate sull'errore verificatosi.</value></data>
   <data name="DevModeLine2" xml:space="preserve"><value>&lt;strong&gt;L'ambiente di sviluppo non deve essere abilitato per le applicazioni distribuite.&lt;/strong&gt; Può comportare la visualizzazione di informazioni sensibili provenienti dalle eccezioni agli utenti finali. Per il debug locale, abilita l'ambiente &lt;strong&gt;Sviluppo&lt;/strong&gt; impostando la variabile di ambiente &lt;strong&gt;ASPNETCORE_ENVIRONMENT&lt;/strong&gt; su &lt;strong&gt;Development&lt;/strong&gt; e riavviando l'applicazione.</value></data>
+<data name="BackToDashboard" xml:space="preserve"><value>Torna alla dashboard</value></data>
 </root>

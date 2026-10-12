@@ -1,24 +1,47 @@
 ﻿@page
 @model ErrorModel
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 @{
     ViewData["Title"] = Localizer["Title"].Value;
+    Layout = null;
 }
-
-<h1 class="text-danger">@Localizer["Heading"]</h1>
-<h2 class="text-danger">@Localizer["Subheading"]</h2>
-
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>@Localizer["RequestId"]</strong> <code>@Model.RequestId</code>
-    </p>
-}
-
-<h3>@Localizer["DevMode"]</h3>
-<p>
-    @Html.Raw(Localizer["DevModeLine1"])
-</p>
-<p>
-    @Html.Raw(Localizer["DevModeLine2"])
-</p>
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Roles Dashboard - @Localizer["Title"]</title>
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-tokens.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-auth.css")" asp-append-version="true" />
+    <style>
+        .iris-error .login-card { max-width: 560px; }
+        .iris-error .error-details { font-size: var(--oi-font-size-s); color: var(--oi-content-color-secondary); line-height: 1.6; margin-top: 16px; }
+        .iris-error .error-details h2 { font-size: var(--oi-font-size-m); font-weight: 600; color: var(--oi-content-color-primary); margin: 0 0 8px; }
+        .iris-error .error-details p { margin: 0 0 8px; }
+        .iris-error code { font-family: var(--oi-font-family-mono, monospace); word-break: break-all; }
+        .iris-error .btn-login { display: flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 24px; }
+    </style>
+</head>
+<body class="iris-auth iris-login iris-error">
+    <img class="login-watermark" src="@Url.Content("~/images/login-watermark.svg")" alt="" aria-hidden="true" />
+    <main class="login-card">
+        <div class="logo"><img src="@Url.Content("~/images/oneidentity-logo-v2.svg")" alt="One Identity" /></div>
+        <h1>@Localizer["Heading"]</h1>
+        <p class="sub">@Localizer["Subheading"]</p>
+        @if (Model.ShowRequestId)
+        {
+            <div class="error-msg" role="alert"><strong>@Localizer["RequestId"]</strong> <code>@Model.RequestId</code></div>
+        }
+        @if (Env.IsDevelopment())
+        {
+            <section class="error-details">
+                <h2>@Localizer["DevMode"]</h2>
+                <p>@Localizer["DevModeLine1"]</p>
+                <p>@Localizer["DevModeLine2"]</p>
+            </section>
+        }
+        <a class="btn-login" href="@Url.Content("~/app/?restore=1")">@Localizer["BackToDashboard"]</a>
+    </main>
+</body>
+</html>

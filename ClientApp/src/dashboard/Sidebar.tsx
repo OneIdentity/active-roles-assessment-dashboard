@@ -67,10 +67,11 @@ export function Sidebar({ capabilities }: Props) {
             <span>{t.settings}</span>
           </a>
         )}
-        <span className="sidebar-nav-item sidebar-nav-item-disabled" aria-disabled="true">
+        {/* Help page exists at /Help but is hidden from navigation until its content is finalized. */}
+        <a href="/Help" className="sidebar-nav-item" hidden>
           <span className="sidebar-nav-asset sidebar-nav-asset-help" aria-hidden="true" />
           <span>{t.helpWith}</span>
-        </span>
+        </a>
         <a href="/Privacy" className="sidebar-nav-item">
           <span className="sidebar-nav-asset sidebar-nav-asset-privacy" aria-hidden="true" />
           <span>{t.privacy}</span>

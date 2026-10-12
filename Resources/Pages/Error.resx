@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -57,4 +57,5 @@
   <data name="DevMode" xml:space="preserve"><value>Development Mode</value></data>
   <data name="DevModeLine1" xml:space="preserve"><value>Swapping to the &lt;strong&gt;Development&lt;/strong&gt; environment displays detailed information about the error that occurred.</value></data>
   <data name="DevModeLine2" xml:space="preserve"><value>&lt;strong&gt;The Development environment shouldn't be enabled for deployed applications.&lt;/strong&gt; It can result in displaying sensitive information from exceptions to end users. For local debugging, enable the &lt;strong&gt;Development&lt;/strong&gt; environment by setting the &lt;strong&gt;ASPNETCORE_ENVIRONMENT&lt;/strong&gt; environment variable to &lt;strong&gt;Development&lt;/strong&gt; and restarting the app.</value></data>
+<data name="BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
 </root>

@@ -1,4 +1,4 @@
-using ActiveRolesDashboard.Models;
+﻿using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -203,7 +203,7 @@ public class DashboardController : ControllerBase
         public List<int> Values { get; set; } = new();
     }
 
-    /// <summary>Port of the specialised charts in <c>Pages/Licensing.cshtml</c>.</summary>
+    /// <summary>Specialised licensing charts (formerly the legacy Razor Licensing page).</summary>
     public sealed class LicensingView
     {
         public string? Error { get; set; }
@@ -436,7 +436,7 @@ public class DashboardController : ControllerBase
         });
     }
 
-    /// <summary>Server-side port of the licensing calculations in <c>Pages/Licensing.cshtml</c>.</summary>
+    /// <summary>Server-side licensing calculations (formerly the legacy Razor Licensing page).</summary>
     private LicensingView BuildLicensing(DashboardSummary summary)
     {
         var view = new LicensingView();
@@ -663,7 +663,7 @@ public class DashboardController : ControllerBase
         return section;
     }
 
-    /// <summary>Server-side port of <c>Pages/Shared/_CategoryCharts.cshtml</c>.</summary>
+    /// <summary>Server-side category chart data (formerly rendered by the legacy Razor category charts).</summary>
     private static List<ChartDataset> BuildCharts(CategoryInfo category, DashboardSummary summary, KpiSettings settings)
     {
         var result = new List<ChartDataset>();
@@ -729,7 +729,7 @@ public class DashboardController : ControllerBase
         return result;
     }
 
-    /// <summary>Navigation tiles with the same gating as <c>Pages/Index.cshtml</c>.</summary>
+    /// <summary>Navigation tiles with the same gating as the former legacy Razor overview.</summary>
     private static List<NavigationTile> BuildTiles(DashboardSummary summary, DashboardAccess access)
     {
         var canViewActiveRoles = access.IsActiveRolesAdmin || access.HasPermission(DashboardPermission.ViewActiveRolesDashboard);

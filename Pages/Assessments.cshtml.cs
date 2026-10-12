@@ -1,4 +1,4 @@
-using ActiveRolesDashboard.Models;
+﻿using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Services.Reporting;
@@ -61,7 +61,7 @@ public class AssessmentsModel : DashboardPageModel
 
         // Block direct navigation for users whose role lacks ViewAssessments.
         if (!CanViewAssessments)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         // Load the dashboard summary so the page knows whether Entra group membership is still
         // loading. Without this, EntraMembershipDataPending is always false on GET and the
@@ -172,7 +172,7 @@ public class AssessmentsModel : DashboardPageModel
 
         // Enforce the run-and-save permission server-side; the UI also disables the Run button.
         if (!CanRunAndSaveAssessments)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         var token = GetAccessToken()!;
 
@@ -216,7 +216,7 @@ public class AssessmentsModel : DashboardPageModel
 
         // Enforce the delete permission server-side; the UI also disables the delete button.
         if (!CanDeleteAssessments)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         StatusMessage = _assessments.Delete(id) ? "Assessment deleted." : "Assessment not found.";
         return RedirectToPage(new { Type });
@@ -230,7 +230,7 @@ public class AssessmentsModel : DashboardPageModel
 
         // Enforce the export permission server-side; the UI also hides the export controls.
         if (!CanExportAssessments)
-            return RedirectToPage("/Index");
+            return Redirect($"{Request.PathBase}/app/");
 
         var assessment = await _assessments.LoadAsync(id);
         if (assessment == null)

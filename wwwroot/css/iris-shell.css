@@ -92,3 +92,4 @@ body.iris-shell {
     .iris-shell-main { padding: 24px 16px; }
     .iris-title-row h1 { font-size: 26px; line-height: 32px; }
 }
+.iris-shell .sidebar-nav-item[hidden] { display: none; }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -57,4 +57,5 @@
   <data name="DevMode" xml:space="preserve"><value>Fejlesztői mód</value></data>
   <data name="DevModeLine1" xml:space="preserve"><value>A &lt;strong&gt;Development&lt;/strong&gt; környezetre való váltás részletes információkat jelenít meg a bekövetkezett hibáról.</value></data>
   <data name="DevModeLine2" xml:space="preserve"><value>&lt;strong&gt;A Development környezetet nem szabad engedélyezni telepített alkalmazásoknál.&lt;/strong&gt; Ez ahhoz vezethet, hogy a kivételekből származó érzékeny információk a végfelhasználók számára megjelennek. Helyi hibakereséshez engedélyezze a &lt;strong&gt;Development&lt;/strong&gt; környezetet az &lt;strong&gt;ASPNETCORE_ENVIRONMENT&lt;/strong&gt; környezeti változó &lt;strong&gt;Development&lt;/strong&gt; értékre állításával, majd indítsa újra az alkalmazást.</value></data>
+<data name="BackToDashboard" xml:space="preserve"><value>Vissza az irányítópultra</value></data>
 </root>

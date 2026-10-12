@@ -63,10 +63,11 @@
                 <span>@Localizer["Settings"]</span>
             </a>
         }
-        <span class="sidebar-nav-item sidebar-nav-item-disabled" aria-disabled="true">
+        @* Help page exists at /Help but is hidden from navigation until its content is finalized. *@
+        <a href="@(appBase)/Help" class="sidebar-nav-item" aria-current="@Current("help")" hidden>
             <span class="sidebar-nav-asset sidebar-nav-asset-help" aria-hidden="true"></span>
             <span>@Localizer["HelpWith"]</span>
-        </span>
+        </a>
         <a href="@(appBase)/Privacy" class="sidebar-nav-item" aria-current="@Current("privacy")">
             <span class="sidebar-nav-asset sidebar-nav-asset-privacy" aria-hidden="true"></span>
             <span>@Localizer["Privacy"]</span>
