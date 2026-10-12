@@ -46,4 +46,16 @@
   <data name="SelectKpis" xml:space="preserve"><value>KPI-k kiválasztása</value></data>
   <data name="AllKpisFormat" xml:space="preserve"><value>Összes KPI ({0})</value></data>
   <data name="KpisSelectedFormat" xml:space="preserve"><value>{0} KPI kiválasztva</value></data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve">
+	<value>Pillanatkép törlése</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+	<value>Mégse</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+	<value>Törlés</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Pillanatképek</value>
+  </data>
 </root>

@@ -11,76 +11,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Roles Dashboard - Settings</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
-    <style>
-        .settings-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); max-width: 600px; margin: 0 auto 24px; }
-        .settings-card h2 { font-size: 1.1rem; font-weight: 600; color: #111827; margin-bottom: 20px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        .form-group input[type="number"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; }
-        .form-group input[type="number"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; }
-        .form-group input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group input[type="password"] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
-        .form-group input[type="password"]:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; transition: border-color .2s; box-sizing: border-box; resize: vertical; font-family: inherit; }
-        .form-group textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .form-group .hint { font-size: .75rem; color: #6b7280; margin-top: 4px; }
-        .form-group select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; transition: border-color .2s; box-sizing: border-box; }
-        .form-group select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-        .btn-save { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s; }
-        .btn-save:hover { background: #1d4ed8; }
-        .msg { margin-top: 14px; padding: 10px 14px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: .82rem; color: #065f46; }
-        .msg-warn { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
-        .back-link { display: inline-block; margin-bottom: 18px; font-size: .82rem; color: #2563eb; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
-        .kpi-section { margin-bottom: 20px; }
-        .kpi-section h3 { font-size: .92rem; font-weight: 600; color: #374151; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
-        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
-        .toggle-row:last-child { border-bottom: none; }
-        .toggle-row .toggle-label { font-size: .84rem; color: #374151; }
-        .toggle-row .toggle-label.category-label { font-weight: 700; }
-        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; border-radius: 24px; transition: .2s; }
-        .toggle-slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
-        .toggle-switch input:checked + .toggle-slider { background: #2563eb; }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
-        .kpi-items { padding-left: 20px; }
-
-        .section-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 0; }
-        .section-header h2 { margin-bottom: 0; }
-        .section-toggle { background: none; border: none; cursor: pointer; padding: 4px 8px; font-size: 1.2rem; color: #6b7280; transition: transform .2s; display: flex; align-items: center; }
-        .section-toggle svg { width: 20px; height: 20px; transition: transform .2s; }
-        .section-header.collapsed .section-toggle svg { transform: rotate(-90deg); }
-        .section-body { overflow: hidden; transition: max-height .3s ease, opacity .2s ease; max-height: 2000px; opacity: 1; }
-        .section-body.collapsed { max-height: 0; opacity: 0; margin-top: 0; }
-        .section-body:not(.collapsed) { margin-top: 20px; }
-        .lang-select-wrap { display: flex; align-items: center; gap: 10px; }
-        .lang-flag { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.08); flex-shrink: 0; }
-        .lang-select { flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; outline: none; background: #fff; transition: border-color .2s; }
-        .lang-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-
-        .settings-category { max-width: 600px; margin: 0 auto 24px; }
-        .category-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; background: #111827; color: #fff; border-radius: 12px; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-        .category-header h2 { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0; }
-        .category-toggle { background: none; border: none; cursor: pointer; padding: 4px 8px; color: #fff; display: flex; align-items: center; }
-        .category-toggle svg { width: 22px; height: 22px; transition: transform .2s; }
-        .category-header.collapsed .category-toggle svg { transform: rotate(-90deg); }
-        .category-body { overflow: hidden; transition: max-height .35s ease, opacity .2s ease; max-height: 6000px; opacity: 1; margin-top: 16px; }
-        .category-body.collapsed { max-height: 0; opacity: 0; margin-top: 0; }
-        .settings-category .settings-card { margin-bottom: 16px; }
-    </style>
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-tokens.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-auth.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-shell.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-settings.css")" asp-append-version="true" />
 </head>
-<body>
-<div class="page">
+<body class="iris-shell iris-settings">
+<div class="page iris-shell-page">
     @{
-        ViewData["HeaderKey"] = "Settings";
-        ViewData["HeaderRight"] = "signout";
+        ViewData["IrisActive"] = "settings";
+        ViewData["IrisCrumb"] = Localizer["PageTitle"].Value;
     }
-    <partial name="_DashboardHeader" />
-
-    <a href="@(HttpContext.Request.PathBase)/" class="back-link" id="backLink">&larr; @Localizer["BackToDashboard"]</a>
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["PageTitle"]</h1>
+    </div>
 
     <form method="post">
         @if (!Model.CanAccessSettings)
@@ -1220,6 +1166,7 @@
             }
         </div>
     </form>
+    </main>
 </div>
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
@@ -1227,28 +1174,8 @@
         <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
-<style>
-    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(243,244,246,.92); display: none; align-items: center; justify-content: center; z-index: 2000; }
-    .loading-overlay.active { display: flex; }
-    .loading-spinner { text-align: center; }
-    .loading-spinner p { margin-top: 16px; font-size: .9rem; font-weight: 600; color: #374151; }
-    .spinner { width: 40px; height: 40px; margin: 0 auto; border: 4px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
-    @@keyframes spin { to { transform: rotate(360deg); } }
-</style>
 @await Html.PartialAsync("_AppBaseScript")
 <script>
-    var settingsChanged = @(Model.SettingsChanged ? "true" : "false");
-
-    document.getElementById('backLink').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (settingsChanged) {
-            document.getElementById('loadingOverlay').classList.add('active');
-            window.location.href = appBase + '/';
-        } else {
-            window.location.href = appBase + '/?cached=true';
-        }
-    });
-
     function toggleSection(header) {
         header.classList.toggle('collapsed');
         var body = header.nextElementSibling;

@@ -1,0 +1,52 @@
+@page
+@model HelpModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Title"].Value;
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="@Url.Content("~/")" />
+    <title>Active Roles Dashboard - @Localizer["Title"]</title>
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
+    <style>
+        .iris-help .iris-title-row { display: flex; align-items: center; justify-content: space-between; gap: var(--oi-spacing-m); flex-wrap: wrap; }
+        .iris-help .help-back { display: inline-flex; align-items: center; text-decoration: none; }
+        .iris-help .help-back:hover { background: var(--oi-background-color-secondary); }
+        .iris-help .snap-card { max-width: 820px; }
+        .iris-help .snap-card p { font-size: var(--oi-font-size-s); color: var(--oi-content-color-secondary); line-height: 1.6; margin: 0; }
+    </style>
+</head>
+<body class="iris-shell iris-help">
+<div class="page iris-shell-page">
+    @{
+        ViewData["IrisActive"] = "help";
+        ViewData["IrisCrumb"] = Localizer["Title"].Value;
+    }
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["Title"]</h1>
+        <a class="snap-btn help-back" href="@(HttpContext.Request.PathBase)/app/?restore=1">@Localizer["BackToDashboard"]</a>
+    </div>
+
+    <section class="snap-card">
+        <h2>@Localizer["OverviewTitle"]</h2>
+        <p>@Localizer["OverviewBody"]</p>
+    </section>
+
+    <section class="snap-card">
+        <h2>@Localizer["SupportTitle"]</h2>
+        <p>@Localizer["SupportBody"]</p>
+    </section>
+    </main>
+</div>
+</body>
+</html>

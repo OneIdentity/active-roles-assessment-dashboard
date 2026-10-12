@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Tactic_InitialAccess" xml:space="preserve"><value>Initial Access</value></data>
+  <data name="Tactic_Execution" xml:space="preserve"><value>Execution</value></data>
+  <data name="Tactic_Persistence" xml:space="preserve"><value>Persistence</value></data>
+  <data name="Tactic_PrivilegeEscalation" xml:space="preserve"><value>Privilege Escalation</value></data>
+  <data name="Tactic_DefenseEvasion" xml:space="preserve"><value>Defense Evasion</value></data>
+  <data name="Tactic_CredentialAccess" xml:space="preserve"><value>Credential Access</value></data>
+  <data name="Tactic_Discovery" xml:space="preserve"><value>Discovery</value></data>
+  <data name="Tactic_LateralMovement" xml:space="preserve"><value>Lateral Movement</value></data>
+  <data name="Tactic_Collection" xml:space="preserve"><value>Collection</value></data>
+  <data name="Tactic_Impact" xml:space="preserve"><value>Impact</value></data>
+  <data name="Tech_T1078.004_Name" xml:space="preserve"><value>Valid Accounts: Cloud Accounts</value></data>
+  <data name="Tech_T1558.003_Name" xml:space="preserve"><value>Kerberoasting</value></data>
+  <data name="Tech_T1558.004_Name" xml:space="preserve"><value>AS-REP Roasting</value></data>
+  <data name="Tech_T1555_Name" xml:space="preserve"><value>Credentials from Password Stores</value></data>
+  <data name="Tech_T1110_Name" xml:space="preserve"><value>Brute Force</value></data>
+  <data name="Tech_T1078.002_Name" xml:space="preserve"><value>Valid Accounts: Domain Accounts</value></data>
+  <data name="Tech_T1550_Name" xml:space="preserve"><value>Use Alternate Authentication Material (Delegation Abuse)</value></data>
+  <data name="Tech_T1098_Name" xml:space="preserve"><value>Account Manipulation</value></data>
+  <data name="Tech_T1136_Name" xml:space="preserve"><value>Create Account</value></data>
+  <data name="Tech_T1550.003_Name" xml:space="preserve"><value>Use Alternate Authentication Material: Pass the Ticket</value></data>
+  <data name="Tech_T1484.001_Name" xml:space="preserve"><value>Domain Policy Modification: Group Policy Modification</value></data>
+  <data name="Tech_T1078_Name" xml:space="preserve"><value>Valid Accounts (Expired / Locked)</value></data>
+  <data name="Tech_T1069_Name" xml:space="preserve"><value>Permission Groups Discovery</value></data>
+  <data name="Tech_T1114_Name" xml:space="preserve"><value>Email Collection</value></data>
+  <data name="Tech_T1078.004_Desc" xml:space="preserve"><value>Guest (external) identities and the groups that contain them provide an attacker-controllable entry vector into the tenant; guests inheriting group-based access widen the reachable resources from outside the organisation.</value></data>
+  <data name="Tech_T1078.004_Mit" xml:space="preserve"><value>Govern guest lifecycle with access reviews and expiration; restrict guest permissions and remove guests from privileged or broadly-scoped groups; limit which groups may contain guests.</value></data>
+  <data name="Tech_T1558.003_Desc" xml:space="preserve"><value>Adversaries request service tickets for accounts that expose a Service Principal Name and crack them offline to recover the account password.</value></data>
+  <data name="Tech_T1558.003_Mit" xml:space="preserve"><value>Minimise user accounts carrying an SPN; use Group Managed Service Accounts (gMSA) and enforce long, complex passwords.</value></data>
+  <data name="Tech_T1558.004_Desc" xml:space="preserve"><value>Accounts that do not require Kerberos pre-authentication allow an attacker to request encrypted material and crack it offline.</value></data>
+  <data name="Tech_T1558.004_Mit" xml:space="preserve"><value>Require Kerberos pre-authentication on all accounts.</value></data>
+  <data name="Tech_T1555_Desc" xml:space="preserve"><value>Reversible encryption and DES encryption store or transmit passwords in a recoverable/weak form, easing credential recovery.</value></data>
+  <data name="Tech_T1555_Mit" xml:space="preserve"><value>Disable reversible encryption and DES; require AES encryption types.</value></data>
+  <data name="Tech_T1110_Desc" xml:space="preserve"><value>Accounts that do not require a password, or whose passwords never expire, weaken resistance to guessing and reuse attacks.</value></data>
+  <data name="Tech_T1110_Mit" xml:space="preserve"><value>Require passwords on all accounts and limit non-expiring passwords to hardened service accounts.</value></data>
+  <data name="Tech_T1078.002_Desc" xml:space="preserve"><value>Highly privileged group membership expands the blast radius of any compromised credential.</value></data>
+  <data name="Tech_T1078.002_Mit" xml:space="preserve"><value>Minimise and regularly review membership of privileged groups; apply tiered administration.</value></data>
+  <data name="Tech_T1550_Desc" xml:space="preserve"><value>Unconstrained delegation lets a compromised host impersonate any user that authenticates to it, enabling credential theft and lateral movement.</value></data>
+  <data name="Tech_T1550_Mit" xml:space="preserve"><value>Remove unconstrained delegation from computers and users (except domain controllers); use constrained or resource-based constrained delegation.</value></data>
+  <data name="Tech_T1098_Desc" xml:space="preserve"><value>Stale, orphaned, or unmanaged accounts (no manager, never logged in, deprovisioned but present) provide durable footholds that evade routine review.</value></data>
+  <data name="Tech_T1098_Mit" xml:space="preserve"><value>Enforce ownership and lifecycle management; disable and remove dormant accounts promptly.</value></data>
+  <data name="Tech_T1136_Desc" xml:space="preserve"><value>Accounts left in a deprovisioned or long-inactive state can be silently reactivated (or their residue reused) to establish persistent access that bypasses normal joiner controls.</value></data>
+  <data name="Tech_T1136_Mit" xml:space="preserve"><value>Complete the deprovisioning lifecycle by disabling and removing dormant accounts; alert on reactivation of previously deprovisioned or stale accounts.</value></data>
+  <data name="Tech_T1550.003_Desc" xml:space="preserve"><value>Service accounts with SPNs and accounts trusted for delegation expand the opportunities to forge or reuse Kerberos tickets (including Silver Tickets) for lateral movement.</value></data>
+  <data name="Tech_T1550.003_Mit" xml:space="preserve"><value>Reduce SPN-bearing user accounts (prefer gMSA), remove unnecessary delegation, and rotate service-account keys regularly.</value></data>
+  <data name="Tech_T1484.001_Desc" xml:space="preserve"><value>Membership in powerful legacy operator groups (Account, Server, Backup Operators) grants directory- or DC-level capabilities that can be abused to modify policy, sign in to controllers, or restore/read protected data.</value></data>
+  <data name="Tech_T1484.001_Mit" xml:space="preserve"><value>Keep legacy operator groups empty and delegate specific, least-privilege permissions instead; monitor membership changes.</value></data>
+  <data name="Tech_T1078_Desc" xml:space="preserve"><value>Expired or locked accounts that remain enabled create inconsistent state that can mask malicious re-use.</value></data>
+  <data name="Tech_T1078_Mit" xml:space="preserve"><value>Reconcile expired and locked accounts; disable rather than leave in an ambiguous state.</value></data>
+  <data name="Tech_T1069_Desc" xml:space="preserve"><value>Empty or unowned groups clutter the directory and complicate the review of effective access an attacker can enumerate.</value></data>
+  <data name="Tech_T1069_Mit" xml:space="preserve"><value>Assign owners to all groups and remove empty groups to keep group scope auditable.</value></data>
+  <data name="Tech_T1114_Desc" xml:space="preserve"><value>Mailbox delegation grants one principal access to another user's mailbox. Full Access exposes another user's mail contents for reading/exfiltration, while Send As and Send on Behalf let a principal send mail as (or on behalf of) another identity - enabling impersonation, spoofing, and business email compromise. Broad or unreviewed delegation widens the mail attack surface.</value></data>
+  <data name="Tech_T1114_Mit" xml:space="preserve"><value>Review mailbox delegation regularly and grant it least-privilege; remove standing Full Access, Send As, and Send on Behalf rights that are not required; prefer shared mailboxes with governed membership over per-user delegation and alert on delegation changes to high-value mailboxes.</value></data>
+  <data name="Rat_T1078.004_EntraGuestUsers" xml:space="preserve"><value>Guest (external) accounts are an external foothold into the tenant.</value></data>
+  <data name="Rat_T1078.004_EntraGuestContainingGroups" xml:space="preserve"><value>Groups containing guests extend group-based access to external identities.</value></data>
+  <data name="Rat_T1558.003_SpnUserAccounts" xml:space="preserve"><value>User accounts with an SPN are directly Kerberoastable.</value></data>
+  <data name="Rat_T1558.004_NoKerberosPreauth" xml:space="preserve"><value>Accounts without pre-auth are AS-REP roastable.</value></data>
+  <data name="Rat_T1555_ReversibleEncryption" xml:space="preserve"><value>Reversible encryption stores recoverable passwords.</value></data>
+  <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>DES is cryptographically weak.</value></data>
+  <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Accounts with no password requirement.</value></data>
+  <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Stale, non-rotating credentials.</value></data>
+  <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Domain Admins hold full domain control.</value></data>
+  <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Enterprise Admins hold forest-wide control.</value></data>
+  <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Accounts flagged as protected/privileged.</value></data>
+  <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>Computers trusted for unconstrained delegation are high-value pivot points.</value></data>
+  <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>User accounts trusted for unconstrained delegation.</value></data>
+  <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Dormant accounts are prime persistence candidates.</value></data>
+  <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Enabled but inactive accounts are durable, low-visibility footholds.</value></data>
+  <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Unowned service accounts evade review.</value></data>
+  <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Deprovisioned-but-present accounts.</value></data>
+  <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Deprovisioned accounts that persist can be reactivated.</value></data>
+  <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Inactive enabled accounts are candidates for takeover/reuse.</value></data>
+  <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>SPN user accounts enable Silver Ticket / ticket reuse.</value></data>
+  <data name="Rat_T1550.003_TrustedForDelegation" xml:space="preserve"><value>Delegation-trusted accounts broaden ticket reuse.</value></data>
+  <data name="Rat_T1484.001_AccountOperators" xml:space="preserve"><value>Account Operators can manage most users and groups.</value></data>
+  <data name="Rat_T1484.001_ServerOperators" xml:space="preserve"><value>Server Operators can sign in to and control domain controllers.</value></data>
+  <data name="Rat_T1484.001_BackupOperators" xml:space="preserve"><value>Backup Operators can read/restore any file (escalation path).</value></data>
+  <data name="Rat_T1078_ExpiredUsers" xml:space="preserve"><value>Expired accounts still present.</value></data>
+  <data name="Rat_T1078_UserAccountLockedOut" xml:space="preserve"><value>Locked accounts may indicate active attacks.</value></data>
+  <data name="Rat_T1069_NoGroupOwner" xml:space="preserve"><value>Unowned groups lack review.</value></data>
+  <data name="Rat_T1069_EntraNoGroupOwner" xml:space="preserve"><value>Unowned Entra groups add unreviewed, enumerable access scope.</value></data>
+  <data name="Rat_T1069_EmptyGroups" xml:space="preserve"><value>Empty groups add enumeration noise.</value></data>
+  <data name="Rat_T1114_ExchangeFullAccessDelegatesKpi" xml:space="preserve"><value>Full Access delegates can read another user's mailbox contents.</value></data>
+  <data name="Rat_T1114_ExchangeSendAsKpi" xml:space="preserve"><value>Send As delegates can impersonate the mailbox owner in outbound mail.</value></data>
+  <data name="Rat_T1114_ExchangeSendOnBehalfKpi" xml:space="preserve"><value>Send on Behalf delegates can send mail on behalf of another identity.</value></data>
+</root>

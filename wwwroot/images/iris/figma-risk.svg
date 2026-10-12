@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Security/ShieldWarning">
+<path id="Vector" d="M10 12.25C10.6558 12.25 11.1875 12.7817 11.1875 13.4375C11.1875 14.0933 10.6558 14.625 10 14.625C9.34416 14.625 8.8125 14.0933 8.8125 13.4375C8.8125 12.7817 9.34416 12.25 10 12.25Z" fill="#314158" stroke="#00A6F4" stroke-width="0.125"/>
+<path id="Vector_2" d="M10 10.3125V7.5M16.875 8.75V4.375C16.875 4.20924 16.8092 4.05027 16.6919 3.93306C16.5747 3.81585 16.4158 3.75 16.25 3.75H3.75C3.58424 3.75 3.42527 3.81585 3.30806 3.93306C3.19085 4.05027 3.125 4.20924 3.125 4.375V8.75C3.125 16.25 10 18.125 10 18.125C10 18.125 16.875 16.25 16.875 8.75Z" stroke="#00A6F4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>

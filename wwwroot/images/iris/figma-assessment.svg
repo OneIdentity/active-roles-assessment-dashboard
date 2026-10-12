@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Editing/ListChecks">
+<g id="Vector">
+<path d="M2.5 4L3.5 5L5.5 3" fill="#62748E"/>
+<path d="M2.5 8L3.5 9L5.5 7" fill="#62748E"/>
+<path d="M2.5 12L3.5 13L5.5 11" fill="#62748E"/>
+<path d="M8 8H13.5M8 4H13.5M8 12H13.5M2.5 4L3.5 5L5.5 3M2.5 8L3.5 9L5.5 7M2.5 12L3.5 13L5.5 11" stroke="#314158" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>

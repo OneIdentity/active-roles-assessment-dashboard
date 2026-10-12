@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>  <data name="ActiveRoles" xml:space="preserve">
+	<value>Active Roles</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+	<value>Panel</value>
+  </data>
+  <data name="Assessment" xml:space="preserve">
+	<value>Evaluación</value>
+  </data>
+  <data name="AttackExposure" xml:space="preserve">
+	<value>Exposición a ataques</value>
+  </data>
+  <data name="Snapshots" xml:space="preserve">
+	<value>Instantáneas</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+	<value>Otros</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+	<value>Configuración</value>
+  </data>
+  <data name="HelpWith" xml:space="preserve">
+	<value>Ayuda con</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+	<value>Cerrar sesión</value>
+  </data>
+  <data name="MainNavigation" xml:space="preserve">
+	<value>Navegación principal</value>
+  </data>
+  <data name="CollapseNavigation" xml:space="preserve">
+	<value>Contraer navegación</value>
+  </data>
+  <data name="ExpandNavigation" xml:space="preserve">
+	<value>Expandir navegación</value>
+  </data>
+  <data name="Breadcrumb" xml:space="preserve">
+	<value>Ruta de navegación</value>
+  </data>
+<data name="Privacy" xml:space="preserve"><value>Privacidad</value></data>
+</root>

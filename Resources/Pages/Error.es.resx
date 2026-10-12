@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -57,4 +57,5 @@
   <data name="DevMode" xml:space="preserve"><value>Modo de desarrollo</value></data>
   <data name="DevModeLine1" xml:space="preserve"><value>Cambiar al entorno de &lt;strong&gt;Desarrollo&lt;/strong&gt; muestra información detallada sobre el error que se produjo.</value></data>
   <data name="DevModeLine2" xml:space="preserve"><value>&lt;strong&gt;El entorno de desarrollo no debe habilitarse para aplicaciones implementadas.&lt;/strong&gt; Puede provocar que se muestre información confidencial de las excepciones a los usuarios finales. Para la depuración local, habilite el entorno de &lt;strong&gt;Desarrollo&lt;/strong&gt; estableciendo la variable de entorno &lt;strong&gt;ASPNETCORE_ENVIRONMENT&lt;/strong&gt; en &lt;strong&gt;Development&lt;/strong&gt; y reiniciando la aplicación.</value></data>
+<data name="BackToDashboard" xml:space="preserve"><value>Volver al panel</value></data>
 </root>

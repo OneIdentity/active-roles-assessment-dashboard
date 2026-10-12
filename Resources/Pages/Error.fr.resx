@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -57,4 +57,5 @@
   <data name="DevMode" xml:space="preserve"><value>Mode Développement</value></data>
   <data name="DevModeLine1" xml:space="preserve"><value>Le passage à l'environnement &lt;strong&gt;Développement&lt;/strong&gt; affiche des informations détaillées sur l'erreur survenue.</value></data>
   <data name="DevModeLine2" xml:space="preserve"><value>&lt;strong&gt;L'environnement de développement ne doit pas être activé pour les applications déployées.&lt;/strong&gt; Il peut entraîner l'affichage d'informations sensibles issues des exceptions aux utilisateurs finaux. Pour le débogage local, activez l'environnement &lt;strong&gt;Développement&lt;/strong&gt; en définissant la variable d'environnement &lt;strong&gt;ASPNETCORE_ENVIRONMENT&lt;/strong&gt; sur &lt;strong&gt;Development&lt;/strong&gt; et en redémarrant l'application.</value></data>
+<data name="BackToDashboard" xml:space="preserve"><value>Retour au tableau de bord</value></data>
 </root>

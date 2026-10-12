@@ -1,5 +1,6 @@
 @page
 @using ActiveRolesDashboard.Models
+@using ActiveRolesDashboard.Services
 @model ActiveRolesDashboard.Pages.AttackExposureModel
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
@@ -50,23 +51,27 @@
     <base href="@Url.Content("~/")" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Roles Dashboard - ATT&CK Exposure</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-attack-exposure.css" asp-append-version="true" />
 </head>
-<body>
-<div class="page">
-    <div class="sticky-head">
+<body class="iris-shell iris-exposure">
+<div class="page iris-shell-page">
     @{
-        ViewData["HeaderKey"] = "AttackExposure";
-        ViewData["RefreshUrl"] = "/AttackExposure"; ViewData["ShowHome"] = true;
+        ViewData["IrisActive"] = "exposure";
+        ViewData["IrisCrumb"] = Localizer["PageTitle"].Value;
     }
-    <partial name="_DashboardHeader" />
-
-    <a href="@(pathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["PageTitle"]</h1>
     </div>
 
     @if (Model.EntraMembershipDataPending)
     {
-        <div class="membership-warning" role="status">@Model.EntraMembershipPendingWarning</div>
+        <div class="membership-warning" id="expMembershipWarning" role="status">@Model.EntraMembershipPendingWarning</div>
     }
 
     <div class="atk-summary">
@@ -93,8 +98,8 @@
         @Localizer["GeneratedAt", Model.Exposure.GeneratedAt.ToString("yyyy-MM-dd HH:mm:ss")]
     </p>
 
-    <section class="exp-history">
-        <h2 class="exp-h2">@Localizer["CompareAndTrend"]</h2>
+    <section class="snap-card exp-history">
+        <h2>@Localizer["CompareAndTrend"]</h2>
         <p class="atk-note">
             @Localizer["CompareNote", $"{pathBase}/Snapshots"]
         </p>
@@ -110,7 +115,7 @@
             <form method="get" class="exp-compare-form" id="expCompareForm">
                 <label>
                     @Localizer["Baseline"]
-                    <select name="FromId" id="expFromId"@(Model.CanCompareExposureReports ? "" : " disabled")>
+                    <select name="FromId" id="expFromId" class="snap-input"@(Model.CanCompareExposureReports ? "" : " disabled")>
                         <option value="">@Localizer["SelectPlaceholder"]</option>
                         @foreach (var s in Model.Snapshots)
                         {
@@ -123,7 +128,7 @@
                 </label>
                 <label>
                     @Localizer["CompareTo"]
-                    <select name="ToId" id="expToId"@(Model.CanCompareExposureReports ? "" : " disabled")>
+                    <select name="ToId" id="expToId" class="snap-input"@(Model.CanCompareExposureReports ? "" : " disabled")>
                         <option value="current" selected="@(Model.ToId == "current" || string.IsNullOrEmpty(Model.ToId))">@Localizer["CurrentLive"]</option>
                         @foreach (var s in Model.Snapshots)
                         {
@@ -221,40 +226,58 @@
     <div class="atk-matrix">
         @foreach (var tactic in Model.Exposure.Tactics)
         {
-            <div class="atk-tactic">
-                <div class="atk-tactic-head @LevelClass(tactic.MaxLevel)">
-                    <span class="atk-tactic-name">@MitreTacticInfo.DisplayName(tactic.Tactic)</span>
-                    <span class="atk-tactic-id">@MitreTacticInfo.Id(tactic.Tactic)</span>
-                </div>
+            <details class="atk-tactic @LevelClass(tactic.MaxLevel)" open>
+                <summary class="atk-tactic-head">
+                    <span class="atk-chevron" aria-hidden="true"></span>
+                    <span class="atk-tactic-title">
+                        <span class="atk-tactic-name">@MitreLocalizer.TacticName(tactic.Tactic)</span>
+                        <span class="atk-tactic-id">@MitreTacticInfo.Id(tactic.Tactic)</span>
+                    </span>
+                    <span class="atk-status @LevelClass(tactic.MaxLevel)">@LevelLabel(tactic.MaxLevel)</span>
+                </summary>
                 <div class="atk-tactic-body">
                     @foreach (var tech in tactic.Techniques)
                     {
-                        <div class="atk-tech @LevelClass(tech.Level)">
-                            <div class="atk-tech-head">
-                                <span class="atk-tech-name">@tech.Technique.Name</span>
-                                <span class="atk-tech-badge @LevelClass(tech.Level)">@LevelLabel(tech.Level)</span>
+                        var techId = tech.Technique.Id;
+                        <details class="atk-tech @LevelClass(tech.Level)" open>
+                            <summary class="atk-tech-head">
+                                <span class="atk-chevron" aria-hidden="true"></span>
+                                <span class="atk-tech-title">
+                                    <span class="atk-tech-name">@MitreLocalizer.TechniqueName(techId, tech.Technique.Name)</span>
+                                    <span class="atk-tech-id">@techId</span>
+                                </span>
+                                <span class="atk-status @LevelClass(tech.Level)">@LevelLabel(tech.Level)</span>
+                            </summary>
+                            <div class="atk-tech-body">
+                                <p class="atk-tech-desc">@MitreLocalizer.TechniqueDescription(techId, tech.Technique.Description)</p>
+                                <ul class="atk-kpis">
+                                    @foreach (var c in tech.Contributions)
+                                    {
+                                        var kpiName = KpiInfo.All.FirstOrDefault(k => string.Equals(k.Key, c.KpiKey, StringComparison.OrdinalIgnoreCase))?.DisplayName ?? c.DisplayName;
+                                        <li class="atk-kpi" title="@MitreLocalizer.Rationale(techId, c.KpiKey, c.Rationale)">
+                                            <span class="atk-kpi-count @LevelClass(c.Level)">@(c.HasError ? Localizer["NotAvailable"].Value : c.Count.ToString())</span>
+                                            <span class="atk-kpi-text">
+                                                <span class="atk-kpi-name">@kpiName</span>
+                                                <span class="atk-kpi-rationale">@MitreLocalizer.Rationale(techId, c.KpiKey, c.Rationale)</span>
+                                            </span>
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="atk-mitigation">
+                                    <div class="atk-mitigation-label">@Localizer["Mitigation"]</div>
+                                    <p>@MitreLocalizer.TechniqueMitigation(techId, tech.Technique.Mitigation)</p>
+                                </div>
                             </div>
-                            <div class="atk-tech-id">@tech.Technique.Id</div>
-                            <p class="atk-tech-desc">@tech.Technique.Description</p>
-                            <div class="atk-contribs">
-                                @foreach (var c in tech.Contributions)
-                                {
-                                    <div class="atk-contrib @LevelClass(c.Level)">
-                                        <span class="atk-contrib-name">@c.DisplayName</span>
-                                        <span class="atk-contrib-count">@(c.HasError ? Localizer["NotAvailable"].Value : c.Count.ToString())</span>
-                                    </div>
-                                }
-                            </div>
-                            <p class="atk-tech-mit"><strong>@Localizer["Mitigation"]:</strong> @tech.Technique.Mitigation</p>
-                        </div>
+                        </details>
                     }
                 </div>
-            </div>
+            </details>
         }
     </div>
 
     <footer class="footer">@Localizer["Footer", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")]</footer>
     @await Html.PartialAsync("_EntraMembershipConfig")
+    </main>
 </div>
 @await Html.PartialAsync("_ToastAndMembership")
 <script src="js/dashboard.js" asp-append-version="true"></script>
@@ -273,6 +296,19 @@
                 fromSel.addEventListener('change', syncCompare);
                 syncCompare();
             }
+        })();
+
+        // Entra membership finished loading in the background: exposure levels for
+        // group-based KPIs depend on it, so reload once to clear the warning and
+        // recompute the techniques with complete data.
+        (function () {
+            var pending = @(Model.EntraMembershipDataPending ? "true" : "false");
+            if (!pending) return;
+            document.addEventListener('entra-membership-loaded', function () {
+                var w = document.getElementById('expMembershipWarning');
+                if (w) w.remove();
+                window.location.reload();
+            }, { once: true });
         })();
     </script>
 </body>

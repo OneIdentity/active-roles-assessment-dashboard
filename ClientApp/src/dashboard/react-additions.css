@@ -1,0 +1,25 @@
+/* React-only additions for components with no UX reference markup. Uses IRIS tokens only. */
+.licensing-trend svg { display: block; max-height: 260px; }
+.licensing-legend { margin-top: var(--oi-spacing-m); display: flex; flex-wrap: wrap; gap: var(--oi-spacing-s) var(--oi-spacing-l); }
+.licensing-thresholds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--oi-spacing-m); }
+.licensing-threshold-head { display: flex; justify-content: space-between; margin-bottom: var(--oi-spacing-xs); font-size: 14px; color: var(--oi-content-color-secondary); }
+.licensing-threshold-head strong { color: var(--oi-content-color-primary); font-weight: 600; }
+.licensing-threshold-track { position: relative; }
+.licensing-threshold-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--oi-content-color-primary); }
+.licensing-over-badge { margin-left: var(--oi-spacing-s); vertical-align: middle; }
+.licensing-intro { margin: var(--oi-spacing-m) 0 0; }
+.licensing-donut { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: var(--oi-spacing-l); min-width: 0; }
+.licensing-donut > :first-child { flex: 0 0 auto; }
+.licensing-donut-legend { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: flex-start; justify-content: flex-start; gap: var(--oi-spacing-s); margin: 0; padding: 0; text-align: left; min-width: 0; }
+.licensing-donut-legend li { justify-content: flex-start; margin: 0; white-space: nowrap; }
+.licensing-donut-legend li > * { flex: 0 0 auto; white-space: nowrap; }
+.licensing-donut-legend { flex: 0 0 auto; }
+@media (max-width: 720px) { .licensing-donut { flex-direction: column; } }
+
+.kpi-detail-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.kpi-detail-table th, .kpi-detail-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--oi-border-color-muted); vertical-align: top; overflow-wrap: anywhere; }
+.kpi-detail-table th { position: sticky; top: 0; background: var(--oi-background-color-primary); color: var(--oi-content-color-secondary); font-weight: 600; }
+.kpi-detail-meta { margin: 0 0 var(--oi-spacing-m); color: var(--oi-content-color-tertiary); font-size: 13px; }
+
+.react-toasts { position: fixed; top: 56px; right: var(--oi-spacing-l); z-index: 2500; width: min(360px, calc(100vw - 32px)); }
+.react-segment-bar { margin: 0 0 var(--oi-spacing-l); }

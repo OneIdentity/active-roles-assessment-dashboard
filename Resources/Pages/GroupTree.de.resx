@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>ZurÃ¼ck zum Dashboard</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Reduzieren</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Erweitern</value>
+  </data>
+  <data name="ExpandFailed" xml:space="preserve">
+    <value>Erweitern fehlgeschlagen.</value>
+  </data>
+  <data name="LookupFailed" xml:space="preserve">
+    <value>Suche fehlgeschlagen ({0}).</value>
+  </data>
+  <data name="NoGroup" xml:space="preserve">
+    <value>Keine Gruppe ausgewÃ¤hlt. Ã–ffnen Sie diese Seite Ã¼ber eine Gruppe im Dashboard.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Keine Gruppe gefunden, die &apos;{0}&apos; entspricht.</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Gruppenmitgliedschaftsbaum</value>
+  </data>
+  <data name="Subtitle" xml:space="preserve">
+    <value>Erweitern Sie eine Gruppe, um ihre verschachtelte Mitgliedschaft anzuzeigen.</value>
+  </data>
+</root>

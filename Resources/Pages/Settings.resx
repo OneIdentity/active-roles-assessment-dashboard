@@ -264,4 +264,7 @@
   <data name="Hint_AnalyticsMeasurementId" xml:space="preserve">
 	<value>Your GA4 Measurement ID (for example, G-XXXXXXXXXX). Required for analytics to be sent.</value>
   </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Settings</value>
+  </data>
 </root>

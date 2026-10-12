@@ -1,0 +1,82 @@
+/* IRIS styling for the Assessments page content. Load after iris-tokens.css, iris-auth.css, iris-shell.css and iris-snapshots.css. */
+.iris-assessments form { margin: 0; }
+
+.asmt-card { background: var(--oi-background-color-primary); border: 1px solid var(--oi-border-color-muted); border-radius: var(--oi-border-radius-l); box-shadow: var(--oi-shadow-low); padding: 20px 24px; margin-top: var(--oi-spacing-l); }
+.snap-panels .asmt-card { margin-top: 0; }
+.asmt-card h2 { font-size: var(--oi-font-size-l); font-weight: 600; margin-bottom: 8px; }
+.asmt-card h4.snap-cmp-category { font-size: var(--oi-font-size-xs); font-weight: 600; margin: 12px 0 4px; color: var(--oi-content-color-secondary); text-transform: uppercase; letter-spacing: .03em; }
+
+.asmt-runbar { padding-top: 18px; padding-bottom: 18px; }
+.asmt-run-form { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+.asmt-run-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--oi-font-size-xs); color: var(--oi-content-color-secondary); }
+
+.asmt-scope-note { margin-top: var(--oi-spacing-l); padding: 8px 12px; border-radius: var(--oi-border-radius-default); background: var(--oi-background-color-info, var(--oi-background-color-secondary)); border: 1px solid var(--oi-border-color-muted); color: var(--oi-content-color-primary); }
+
+.asmt-scorecard { display: flex; align-items: center; gap: 24px; }
+.asmt-export { margin-left: auto; display: flex; gap: 8px; align-self: center; }
+.asmt-export .snap-icon-btn { width: auto; padding: 0 12px; gap: 6px; }
+.asmt-export-label { font-size: var(--oi-font-size-xs); font-weight: 600; }
+
+.asmt-grade { flex: 0 0 auto; width: 80px; height: 80px; border-radius: var(--oi-border-radius-l); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; font-weight: 700; color: var(--oi-content-color-constant, #fff); }
+.asmt-grade-a, .asmt-grade-badge.asmt-grade-a { background: var(--oi-chart-color-green, #059669); }
+.asmt-grade-b, .asmt-grade-badge.asmt-grade-b { background: var(--oi-chart-color-teal); }
+.asmt-grade-c, .asmt-grade-badge.asmt-grade-c { background: var(--oi-chart-color-amber, #d97706); }
+.asmt-grade-d, .asmt-grade-badge.asmt-grade-d { background: var(--oi-chart-color-orange, #ea580c); }
+.asmt-grade-f, .asmt-grade-badge.asmt-grade-f { background: var(--oi-chart-color-red, #dc2626); }
+.asmt-grade-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: var(--oi-border-radius-default); color: var(--oi-content-color-constant, #fff); font-weight: 700; font-size: var(--oi-font-size-xs); }
+
+.asmt-score-body { flex: 1; }
+.asmt-score-line { display: flex; align-items: baseline; gap: 6px; }
+.asmt-score-num { font-size: var(--oi-font-size-xxl); font-weight: 700; color: var(--oi-content-color-primary); }
+.asmt-score-max { font-size: var(--oi-font-size-m); color: var(--oi-content-color-tertiary); font-weight: 600; }
+.asmt-score-caption { font-size: var(--oi-font-size-xs); color: var(--oi-content-color-secondary); margin: 2px 0 10px; }
+
+.asmt-cat-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.asmt-cat-counts { display: flex; gap: 6px; }
+.asmt-tag, .asmt-pill { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-size: var(--oi-font-size-xs); font-weight: 600; border: 1px solid transparent; }
+.asmt-tag-fail { background: var(--oi-background-color-error); color: var(--oi-content-color-error); border-color: var(--oi-border-color-badge-error); }
+.asmt-tag-warn, .asmt-pill-warn { background: var(--oi-background-color-warning); color: var(--oi-content-color-warning); border-color: var(--oi-border-color-badge-warning); }
+.asmt-tag-pass { background: var(--oi-background-color-success); color: var(--oi-content-color-success); border-color: var(--oi-border-color-badge-success); }
+
+.asmt-table { table-layout: fixed; }
+.asmt-table td { vertical-align: top; }
+.asmt-table th, .asmt-table td { overflow-wrap: anywhere; }
+.asmt-table col.asmt-col-check { width: 28%; }
+.asmt-table col.asmt-col-sev { width: 10%; }
+.asmt-table col.asmt-col-count { width: 8%; }
+.asmt-table col.asmt-col-status { width: 12%; }
+.asmt-table col.asmt-col-reco { width: 42%; }
+.asmt-row-fail td { background: var(--oi-background-color-error); }
+.asmt-row-warning td { background: var(--oi-background-color-warning); }
+.snap-table tbody tr.asmt-row-fail:hover td { background: var(--oi-background-color-error); }
+.snap-table tbody tr.asmt-row-warning:hover td { background: var(--oi-background-color-warning); }
+.asmt-hist-active td { background: var(--oi-background-color-brand); }
+
+.asmt-sev { display: inline-block; font-size: var(--oi-font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; border-radius: var(--oi-border-radius-default); padding: 2px 8px; border: 1px solid transparent; }
+.asmt-sev-critical { background: var(--oi-content-color-error); color: var(--oi-content-color-constant, #fff); }
+.asmt-sev-high { background: var(--oi-background-color-error); color: var(--oi-content-color-error); border-color: var(--oi-border-color-badge-error); }
+.asmt-sev-medium { background: var(--oi-background-color-warning); color: var(--oi-content-color-warning); border-color: var(--oi-border-color-badge-warning); }
+.asmt-sev-low { background: var(--oi-background-color-secondary); color: var(--oi-content-color-secondary); border-color: var(--oi-border-color-muted); }
+.asmt-sev-info { background: var(--oi-background-color-info, var(--oi-background-color-secondary)); color: var(--oi-content-color-info, var(--oi-content-color-brand)); border-color: var(--oi-border-color-badge-info, var(--oi-border-color-muted)); }
+
+.asmt-status { font-size: var(--oi-font-size-xs); font-weight: 600; }
+.asmt-status-pass { color: var(--oi-content-color-success); }
+.asmt-status-warning { color: var(--oi-content-color-warning); }
+.asmt-status-fail { color: var(--oi-content-color-error); }
+.asmt-status-notapplicable { color: var(--oi-content-color-tertiary); }
+.asmt-status-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--oi-font-size-xs); font-weight: 600; line-height: 1.5; border: 1px solid transparent; }
+.asmt-st-pass { background: var(--oi-background-color-success); color: var(--oi-content-color-success); border-color: var(--oi-border-color-badge-success); }
+.asmt-st-warn { background: var(--oi-background-color-warning); color: var(--oi-content-color-warning); border-color: var(--oi-border-color-badge-warning); }
+.asmt-st-fail { background: var(--oi-background-color-error); color: var(--oi-content-color-error); border-color: var(--oi-border-color-badge-error); }
+.asmt-st-na { background: var(--oi-background-color-secondary); color: var(--oi-content-color-tertiary); border-color: var(--oi-border-color-muted); }
+
+.asmt-compare-link:hover { color: var(--oi-content-color-brand); }
+.asmt-reco { color: var(--oi-content-color-primary); }
+.asmt-ok { color: var(--oi-content-color-tertiary); }
+.asmt-err { color: var(--oi-content-color-error); }
+.snap-good { color: var(--oi-content-color-success); }
+.snap-bad { color: var(--oi-content-color-error); }
+
+.asmt-trend-wrap { position: relative; height: 260px; }
+
+@media (max-width: 700px) { .asmt-scorecard { flex-direction: column; align-items: flex-start; } .asmt-export { margin-left: 0; } }

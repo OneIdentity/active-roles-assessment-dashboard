@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>Vissza az irÃ¡nyÃ­tÃ³pultra</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Ã–sszecsukÃ¡s</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>KibontÃ¡s</value>
+  </data>
+  <data name="ExpandFailed" xml:space="preserve">
+    <value>A kibontÃ¡s sikertelen.</value>
+  </data>
+  <data name="LookupFailed" xml:space="preserve">
+    <value>A keresÃ©s sikertelen ({0}).</value>
+  </data>
+  <data name="NoGroup" xml:space="preserve">
+    <value>Nincs kivÃ¡lasztott csoport. Nyissa meg ezt az oldalt az irÃ¡nyÃ­tÃ³pult egyik csoportjÃ¡bÃ³l.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Nem talÃ¡lhatÃ³ a(z) &apos;{0}&apos; kifejezÃ©snek megfelelÅ‘ csoport.</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>CsoporttagsÃ¡gi fa</value>
+  </data>
+  <data name="Subtitle" xml:space="preserve">
+    <value>Bontson ki egy csoportot a beÃ¡gyazott tagsÃ¡g megtekintÃ©sÃ©hez.</value>
+  </data>
+</root>

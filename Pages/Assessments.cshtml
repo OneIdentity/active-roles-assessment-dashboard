@@ -13,24 +13,28 @@
     <base href="@Url.Content("~/")" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Roles Dashboard - Assessment</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-assessments.css" asp-append-version="true" />
 </head>
-<body>
+<body class="iris-shell iris-assessments">
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner"></div>
         <p>@Localizer["RunningAssessment"]</p>
     </div>
 </div>
-<div class="page">
-    <div class="sticky-head">
+<div class="page iris-shell-page">
     @{
-        ViewData["HeaderKey"] = "Assessments";
-        ViewData["RefreshUrl"] = "/Assessments"; ViewData["ShowHome"] = true;
+        ViewData["IrisActive"] = "assessment";
+        ViewData["IrisCrumb"] = Localizer["PageTitle"].Value;
     }
-    <partial name="_DashboardHeader" />
-
-    <a href="@(pathBase)/?cached=true" class="back-link">&larr; @Localizer["BackToDashboard"]</a>
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["PageTitle"]</h1>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.StatusMessage))
@@ -111,7 +115,7 @@
         </div>
     }
 
-    @if (Model.History.Count >= 2)
+    @if (Model.History.Count >= 1)
     {
         var trend = Model.History.OrderBy(h => h.GeneratedUtc).ToList();
         var trendLabels = System.Text.Json.JsonSerializer.Serialize(trend.Select(h => h.GeneratedUtc.ToString("MM-dd HH:mm")));
@@ -182,7 +186,7 @@
                                 }
                                 @if (Model.CanDeleteAssessments)
                                 {
-                                    <form method="post" asp-page-handler="Delete" class="snap-inline-form" onsubmit="return confirm('@Localizer["ConfirmDelete"]');">
+                                    <form method="post" asp-page-handler="Delete" class="snap-inline-form asmt-delete-form">
                                         <input type="hidden" name="id" value="@h.Id" />
                                         <input type="hidden" name="Type" value="@Model.Type" />
                                         <button type="submit" class="snap-icon-btn snap-icon-danger" title="@Localizer["DeleteAssessment"]" aria-label="@Localizer["DeleteAssessment"]">
@@ -374,6 +378,17 @@
         }
     }
     @await Html.PartialAsync("_EntraMembershipConfig")
+    </main>
+</div>
+<div class="iris-dialog-backdrop" id="asmtDeleteDialog" hidden>
+    <div class="iris-dialog" role="alertdialog" aria-modal="true" aria-labelledby="asmtDeleteTitle" aria-describedby="asmtDeleteText">
+        <h2 id="asmtDeleteTitle">@Localizer["ConfirmDeleteTitle"]</h2>
+        <p id="asmtDeleteText">@Localizer["ConfirmDelete"]</p>
+        <div class="iris-dialog-actions">
+            <button type="button" class="snap-btn" id="asmtDeleteCancel">@Localizer["Cancel"]</button>
+            <button type="button" class="snap-btn snap-btn-danger-solid" id="asmtDeleteOk">@Localizer["Delete"]</button>
+        </div>
+    </div>
 </div>
 <div id="assessments-i18n"
      data-run-blocked="@Localizer["RunBlockedTitle"]"
@@ -387,7 +402,38 @@
 <script src="js/chart.umd.min.js" asp-append-version="true"></script>
 <script>
     (function () {
-        // Localized strings emitted by the #assessments-i18n element (English fallbacks kept).
+        var dialog = document.getElementById('asmtDeleteDialog');
+        var okBtn = document.getElementById('asmtDeleteOk');
+        var cancelBtn = document.getElementById('asmtDeleteCancel');
+        var pending = null, opener = null;
+        function close() {
+            dialog.hidden = true;
+            pending = null;
+            if (opener) opener.focus();
+        }
+        document.querySelectorAll('form.asmt-delete-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (form.dataset.confirmed === '1') return;
+                e.preventDefault();
+                pending = form;
+                opener = document.activeElement;
+                dialog.hidden = false;
+                cancelBtn.focus();
+            });
+        });
+        okBtn.addEventListener('click', function () {
+            if (!pending) return;
+            var form = pending;
+            form.dataset.confirmed = '1';
+            dialog.hidden = true;
+            form.submit();
+        });
+        cancelBtn.addEventListener('click', close);
+        dialog.addEventListener('mousedown', function (e) { if (e.target === dialog) close(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !dialog.hidden) close(); });
+    })();
+    (function () {
+        // Localized strings emitted
         var i18nEl = document.getElementById('assessments-i18n');
         function t(attr, fallback) {
             var v = i18nEl && i18nEl.getAttribute(attr);
@@ -476,6 +522,14 @@
             }
             syncRunButton();
             typeSelect.addEventListener('change', syncRunButton);
+
+            // Client-side lazy loading finished: lift the membership block in place.
+            document.addEventListener('entra-membership-loaded', function () {
+                membershipPending = false;
+                typeSelect.setAttribute('data-membership-pending', 'false');
+                document.querySelectorAll('.membership-warning').forEach(function (el) { el.remove(); });
+                syncRunButton();
+            });
         }
 
         var canvas = document.getElementById('assessmentTrendChart');
@@ -510,8 +564,8 @@
                         label: i18n.chartScore,
                         data: scores,
                         yAxisID: 'yScore',
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        borderColor: '#00a6f4',
+                        backgroundColor: 'rgba(0, 166, 244, 0.12)',
                         fill: true,
                         tension: 0.25,
                         pointRadius: 3
@@ -520,8 +574,8 @@
                         label: i18n.chartFailing,
                         data: fails,
                         yAxisID: 'yFails',
-                        borderColor: '#dc2626',
-                        backgroundColor: 'rgba(220, 38, 38, 0.0)',
+                        borderColor: '#e7000b',
+                        backgroundColor: 'rgba(231, 0, 11, 0.0)',
                         borderDash: [5, 4],
                         tension: 0.25,
                         pointRadius: 3
@@ -585,27 +639,27 @@
                         {
                             label: i18n.chartPass,
                             data: passData,
-                            borderColor: '#059669',
-                            backgroundColor: 'rgba(5, 150, 105, 0.35)',
-                            fill: true,
+                            borderColor: '#00c950',
+                            backgroundColor: 'rgba(0, 201, 80, 0.35)',
+                            fill: 'origin',
                             tension: 0.25,
                             pointRadius: 2
                         },
                         {
                             label: i18n.chartWarning,
                             data: warnData,
-                            borderColor: '#d97706',
-                            backgroundColor: 'rgba(217, 119, 6, 0.35)',
-                            fill: true,
+                            borderColor: '#d08700',
+                            backgroundColor: 'rgba(208, 135, 0, 0.35)',
+                            fill: '-1',
                             tension: 0.25,
                             pointRadius: 2
                         },
                         {
                             label: i18n.chartFail,
                             data: failData,
-                            borderColor: '#dc2626',
-                            backgroundColor: 'rgba(220, 38, 38, 0.35)',
-                            fill: true,
+                            borderColor: '#e7000b',
+                            backgroundColor: 'rgba(231, 0, 11, 0.35)',
+                            fill: '-1',
                             tension: 0.25,
                             pointRadius: 2
                         }

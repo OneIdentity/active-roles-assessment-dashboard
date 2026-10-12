@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>  <data name="ActiveRoles" xml:space="preserve">
+	<value>Active Roles</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+	<value>Dashboard</value>
+  </data>
+  <data name="Assessment" xml:space="preserve">
+	<value>Assessment</value>
+  </data>
+  <data name="AttackExposure" xml:space="preserve">
+	<value>Attack exposure</value>
+  </data>
+  <data name="Snapshots" xml:space="preserve">
+	<value>Snapshots</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+	<value>Other</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+	<value>Settings</value>
+  </data>
+  <data name="HelpWith" xml:space="preserve">
+	<value>Help with</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+	<value>Sign out</value>
+  </data>
+  <data name="MainNavigation" xml:space="preserve">
+	<value>Main navigation</value>
+  </data>
+  <data name="CollapseNavigation" xml:space="preserve">
+	<value>Collapse navigation</value>
+  </data>
+  <data name="ExpandNavigation" xml:space="preserve">
+	<value>Expand navigation</value>
+  </data>
+  <data name="Breadcrumb" xml:space="preserve">
+	<value>Breadcrumb</value>
+  </data>
+<data name="Privacy" xml:space="preserve"><value>Privacy</value></data>
+</root>

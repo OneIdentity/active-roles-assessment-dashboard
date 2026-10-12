@@ -2644,6 +2644,46 @@ public class DashboardSummary
     /// Only data columns are included; UI action/button columns are intentionally omitted.
     /// Returns null when the KPI has no row-based detail (e.g. pure count/breakdown tiles).
     /// </summary>
+    /// <summary>
+    /// Group Membership Tree targets for a KPI's detail view, matching the Razor drill-down panels:
+    /// <c>GroupDn</c> is the privileged group itself (only when it has nested members), and
+    /// <c>RowDns</c> holds a per-row group DN (null when that row has no tree to show), aligned
+    /// with the rows of <see cref="GetKpiDetailTable"/>.
+    /// </summary>
+    public (string? GroupDn, List<string?>? RowDns) GetKpiGroupTreeTargets(string kpiKey)
+    {
+        static (string?, List<string?>?) Priv(PrivilegedGroupSummary s, string fallbackName)
+        {
+            if (s.Error != null || !s.HasIndirectMembers) return (null, null);
+            var target = !string.IsNullOrEmpty(s.GroupDn) ? s.GroupDn
+                : !string.IsNullOrEmpty(s.GroupName) ? s.GroupName
+                : fallbackName;
+            return (string.IsNullOrEmpty(target) ? null : target, null);
+        }
+        static (string?, List<string?>?) Groups(ADGroupDetailSummary s) =>
+            (null, s.Items.Select(i => !string.IsNullOrEmpty(i.Dn) && i.IndirectMembers > 0 ? i.Dn : null).ToList());
+
+        return kpiKey switch
+        {
+            "AccountOperators" => Priv(AccountOperators, "Account Operators"),
+            "Administrators" => Priv(Administrators, "Administrators"),
+            "BackupOperators" => Priv(BackupOperators, "Backup Operators"),
+            "DomainAdmins" => Priv(DomainAdmins, "Domain Admins"),
+            "ServerOperators" => Priv(ServerOperators, "Server Operators"),
+            "EnterpriseAdmins" => Priv(EnterpriseAdmins, "Enterprise Admins"),
+            "SchemaAdmins" => Priv(SchemaAdmins, "Schema Admins"),
+            "ActiveRolesAdmins" => Priv(ActiveRolesAdmins, string.Empty),
+            "DistributionGroups" => Groups(DistributionGroups),
+            "DomainLocalGroups" => Groups(DomainLocalGroups),
+            "GlobalGroups" => Groups(GlobalGroups),
+            "MailEnabledSecurityGroups" => Groups(MailEnabledSecurityGroups),
+            "SecurityGroups" => Groups(SecurityGroups),
+            "UniversalGroups" => Groups(UniversalGroups),
+            "NoGroupOwner" => (null, NoGroupOwner.Items.Select(i => string.IsNullOrEmpty(i.Dn) ? null : i.Dn).ToList()),
+            _ => (null, null)
+        };
+    }
+
     public ReportTable? GetKpiDetailTable(string kpiKey)
     {
         // Strongly-typed AD user-account detail summaries (Name / Domain / Distinguished Name).

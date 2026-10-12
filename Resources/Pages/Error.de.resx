@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -57,4 +57,5 @@
   <data name="DevMode" xml:space="preserve"><value>Entwicklungsmodus</value></data>
   <data name="DevModeLine1" xml:space="preserve"><value>Der Wechsel zur Umgebung &lt;strong&gt;Entwicklung&lt;/strong&gt; zeigt detaillierte Informationen über den aufgetretenen Fehler an.</value></data>
   <data name="DevModeLine2" xml:space="preserve"><value>&lt;strong&gt;Die Entwicklungsumgebung sollte für bereitgestellte Anwendungen nicht aktiviert werden.&lt;/strong&gt; Sie kann dazu führen, dass vertrauliche Informationen aus Ausnahmen für Endbenutzer angezeigt werden. Aktivieren Sie zum lokalen Debuggen die Umgebung &lt;strong&gt;Entwicklung&lt;/strong&gt;, indem Sie die Umgebungsvariable &lt;strong&gt;ASPNETCORE_ENVIRONMENT&lt;/strong&gt; auf &lt;strong&gt;Development&lt;/strong&gt; setzen und die App neu starten.</value></data>
+<data name="BackToDashboard" xml:space="preserve"><value>Zurück zum Dashboard</value></data>
 </root>

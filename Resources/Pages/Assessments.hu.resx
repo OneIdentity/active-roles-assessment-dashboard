@@ -89,4 +89,8 @@
   <data name="Chart_Warning" xml:space="preserve"><value>Figyelmeztetés</value></data>
   <data name="Chart_Fail" xml:space="preserve"><value>Sikertelen</value></data>
   <data name="Chart_Checks" xml:space="preserve"><value>Ellenőrzések</value></data>
+  <data name="PageTitle" xml:space="preserve"><value>Értékelés</value></data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Értékelés törlése</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Mégse</value></data>
+  <data name="Delete" xml:space="preserve"><value>Törlés</value></data>
 </root>

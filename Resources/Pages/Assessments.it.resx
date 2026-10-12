@@ -79,4 +79,8 @@
   <data name="Chart_Warning" xml:space="preserve"><value>Avviso</value></data>
   <data name="Chart_Fail" xml:space="preserve"><value>Non superato</value></data>
   <data name="Chart_Checks" xml:space="preserve"><value>Controlli</value></data>
+  <data name="PageTitle" xml:space="preserve"><value>Valutazione</value></data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Elimina valutazione</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annulla</value></data>
+  <data name="Delete" xml:space="preserve"><value>Elimina</value></data>
 </root>

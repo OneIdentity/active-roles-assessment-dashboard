@@ -185,6 +185,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<PerUserSummaryCache>();
 builder.Services.AddSingleton<DirectoryFactsResolver>();
+builder.Services.AddSingleton<DashboardDataService>();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddRazorPages(options =>
@@ -221,6 +222,10 @@ ActiveRolesDashboard.Services.KpiLocalizer.Initialize(
 // Wire the static assessment localizer so persisted rule titles/recommendations/categories
 // (identified by RuleId) resolve from resources at render-time in the current UI culture.
 ActiveRolesDashboard.Services.AssessmentLocalizer.Initialize(
+    app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizerFactory>());
+
+// Wire the static MITRE localizer so tactic/technique text resolves in the current UI culture.
+ActiveRolesDashboard.Services.MitreLocalizer.Initialize(
     app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizerFactory>());
 
 // PathBase: set manually for reverse-proxy/Kestrel scenarios.
@@ -307,5 +312,13 @@ app.MapGet("/diagnostics/validate-filter", async (
 
 app.MapRazorPages();
 app.MapControllers();
+
+// React front end (ClientApp, built by Vite into wwwroot/app). Static assets are served by
+// UseStaticFiles; any other /app/* route falls back to the SPA shell for client-side routing.
+app.MapFallbackToFile("/app/{**path}", "app/index.html", new StaticFileOptions
+{
+    // The shell references hashed bundles; never cache it so new builds are picked up immediately.
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate"
+}).RequireAuthorization();
 
 app.Run();

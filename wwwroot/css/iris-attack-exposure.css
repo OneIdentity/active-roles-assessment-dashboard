@@ -1,0 +1,104 @@
+/* IRIS styling for the ATT&CK Exposure page. Loaded after iris-tokens, iris-shell and iris-snapshots. */
+
+.iris-exposure {
+  --exp-high: var(--oi-chart-color-red, #e7000b);
+  --exp-medium: var(--oi-chart-color-amber, #d08700);
+  --exp-low: var(--oi-chart-color-blue, #00a6f4);
+  --exp-none: var(--oi-content-color-tertiary, #62748e);
+}
+
+.iris-exposure .atk-note { font-size: var(--oi-font-size-xs); color: var(--oi-content-color-secondary); margin: 8px 0 16px; }
+
+/* Summary stats */
+.atk-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: var(--oi-spacing-l); }
+.atk-stat { background: var(--oi-background-color-primary); border: 1px solid var(--oi-border-color-muted); border-left: 4px solid var(--exp-none); border-radius: var(--oi-border-radius-l); box-shadow: var(--oi-shadow-low); padding: 16px 20px; }
+.atk-stat-val { font-size: var(--oi-font-size-xxl); font-weight: 700; color: var(--oi-content-color-primary); }
+.atk-stat-lbl { font-size: var(--oi-font-size-xs); color: var(--oi-content-color-secondary); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+
+/* Compare & trend */
+.exp-history h2 { font-size: var(--oi-font-size-l); font-weight: 600; margin-bottom: 4px; }
+.exp-h3 { font-size: var(--oi-font-size-m); font-weight: 600; margin: 20px 0 4px; color: var(--oi-content-color-primary); }
+.exp-compare-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 16px; }
+.exp-compare-form label { display: flex; flex-direction: column; gap: 4px; font-size: var(--oi-font-size-xs); color: var(--oi-content-color-secondary); }
+.exp-compare-form select { min-width: 240px; }
+.exp-cmp-summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.exp-cmp-summary > span { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-size: var(--oi-font-size-xs); font-weight: 600; border: 1px solid var(--oi-border-color-muted); background: var(--oi-background-color-secondary); }
+.exp-cmp-tactics { display: flex; flex-direction: column; gap: 16px; }
+.exp-cmp-tactic-head { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--oi-content-color-primary); margin-bottom: 4px; }
+.exp-cmp-tactic-head .atk-tactic-id { color: var(--oi-content-color-tertiary); }
+.exp-cmp-table { width: 100%; border-collapse: collapse; font-size: var(--oi-font-size-s); table-layout: fixed; }
+.exp-cmp-table th, .exp-cmp-table td { text-align: left; padding: 8px; border-bottom: 1px solid var(--oi-border-color-muted); overflow: hidden; text-overflow: ellipsis; }
+.exp-cmp-table th { font-size: var(--oi-font-size-xs); text-transform: uppercase; letter-spacing: .03em; font-weight: 600; color: var(--oi-content-color-secondary); background: var(--oi-background-color-secondary); }
+.exp-cmp-table col.exp-col-level { width: 22%; }
+.exp-cmp-table col.exp-col-arrow { width: 8%; }
+.exp-cmp-arrow { text-align: center; font-weight: 700; }
+.exp-cmp-tid { color: var(--oi-content-color-tertiary); font-family: var(--oi-font-family-mono, monospace); margin-right: 6px; }
+
+.delta-bad { color: var(--oi-content-color-error); }
+.delta-good { color: var(--oi-content-color-success); }
+.delta-added { color: var(--oi-content-color-info); }
+.delta-removed, .delta-none { color: var(--oi-content-color-tertiary); }
+tr.delta-bad td:first-child { box-shadow: inset 3px 0 0 var(--oi-content-color-error); }
+tr.delta-good td:first-child { box-shadow: inset 3px 0 0 var(--oi-content-color-success); }
+tr.delta-added td:first-child { box-shadow: inset 3px 0 0 var(--oi-content-color-info); }
+tr.delta-removed td:first-child { box-shadow: inset 3px 0 0 var(--oi-content-color-tertiary); }
+
+.exp-trend { display: flex; align-items: flex-end; gap: 12px; height: 170px; padding: 10px 4px 0; overflow-x: auto; border-bottom: 1px solid var(--oi-border-color-muted); }
+.exp-trend-col { display: flex; flex-direction: column; align-items: center; min-width: 48px; }
+.exp-trend-bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; }
+.exp-bar { width: 10px; border-radius: 2px 2px 0 0; }
+.exp-bar.exp-high { background: var(--exp-high); }
+.exp-bar.exp-medium { background: var(--exp-medium); }
+.exp-bar.exp-low { background: var(--exp-low); }
+.exp-trend-lbl { font-size: var(--oi-font-size-xxs, .65rem); color: var(--oi-content-color-tertiary); margin-top: 6px; text-align: center; word-break: break-word; }
+
+/* Matrix */
+.atk-matrix { display: flex; flex-direction: column; gap: var(--oi-spacing-m, 16px); margin-top: var(--oi-spacing-l); }
+.atk-tactic { width: 100%; background: var(--oi-background-color-primary); border: 1px solid var(--oi-border-color-muted); border-left: 4px solid var(--exp-none); border-radius: var(--oi-border-radius-l); box-shadow: var(--oi-shadow-low); overflow: hidden; }
+.atk-tactic > summary, .atk-tech > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+.atk-tactic > summary::-webkit-details-marker, .atk-tech > summary::-webkit-details-marker { display: none; }
+.atk-tactic > summary:focus-visible, .atk-tech > summary:focus-visible { outline: 2px solid var(--oi-base-color-brand); outline-offset: -2px; }
+.atk-tactic-head { padding: 14px 20px; background: var(--oi-background-color-secondary); }
+.atk-tactic[open] > .atk-tactic-head { border-bottom: 1px solid var(--oi-border-color-muted); }
+.atk-chevron { flex: none; width: 8px; height: 8px; border-right: 2px solid var(--oi-content-color-secondary); border-bottom: 2px solid var(--oi-content-color-secondary); transform: rotate(-45deg); transition: transform .15s ease; }
+details[open] > summary > .atk-chevron { transform: rotate(45deg); }
+.atk-tactic-title, .atk-tech-title { flex: 1; min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.atk-tactic-name { font-size: var(--oi-font-size-m, 1rem); font-weight: 600; color: var(--oi-content-color-primary); }
+.atk-tactic-id, .atk-tech-id { font-family: var(--oi-font-family-code); font-size: var(--oi-font-size-xs); color: var(--oi-content-color-tertiary); }
+.atk-status { flex: none; font-size: var(--oi-font-size-xs); font-weight: 700; height: 22px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 999px; color: var(--oi-content-color-constant); background: var(--exp-none); white-space: nowrap; }
+.atk-tactic-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.atk-tech { border: 1px solid var(--oi-border-color-muted); border-left: 4px solid var(--exp-none); border-radius: var(--oi-border-radius-default); background: var(--oi-background-color-primary); }
+.atk-tech-head { padding: 12px 16px; }
+.atk-tech-name { font-weight: 600; font-size: var(--oi-font-size-s); color: var(--oi-content-color-primary); }
+.atk-tech-body { padding: 0 16px 16px 36px; display: flex; flex-direction: column; gap: 12px; }
+.atk-tech-desc { font-size: var(--oi-font-size-s); color: var(--oi-content-color-secondary); margin: 0; }
+.atk-kpis { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.atk-kpi { display: flex; align-items: center; gap: 10px; min-width: 240px; flex: 1 1 280px; }
+.atk-kpi-count { flex: none; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: var(--oi-font-size-s); font-weight: 700; color: var(--oi-content-color-constant); background: var(--exp-none); }
+.atk-kpi-text { display: flex; flex-direction: column; min-width: 0; }
+.atk-kpi-name { font-size: var(--oi-font-size-s); font-weight: 600; color: var(--oi-content-color-primary); }
+.atk-kpi-rationale { font-size: var(--oi-font-size-xs); color: var(--oi-content-color-tertiary); }
+.atk-mitigation { background: var(--oi-background-color-secondary); border: 1px solid var(--oi-border-color-muted); border-radius: var(--oi-border-radius-default); padding: 12px 16px; }
+.atk-mitigation-label { font-size: var(--oi-font-size-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--oi-content-color-secondary); margin-bottom: 4px; }
+.atk-mitigation p { margin: 0; font-size: var(--oi-font-size-s); color: var(--oi-content-color-primary); }
+
+.atk-stat.exp-high, .atk-tactic.exp-high, .atk-tech.exp-high { border-left-color: var(--exp-high); }
+.atk-stat.exp-medium, .atk-tactic.exp-medium, .atk-tech.exp-medium { border-left-color: var(--exp-medium); }
+.atk-stat.exp-low, .atk-tactic.exp-low, .atk-tech.exp-low { border-left-color: var(--exp-low); }
+.atk-status.exp-high, .atk-kpi-count.exp-high { background: var(--exp-high); }
+.atk-status.exp-medium, .atk-kpi-count.exp-medium { background: var(--exp-medium); }
+.atk-status.exp-low, .atk-kpi-count.exp-low { background: var(--exp-low); }
+
+.iris-exposure .footer {
+
+@media (max-width: 1024px) {
+  .atk-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .atk-summary { grid-template-columns: 1fr; }
+  .exp-compare-form select { min-width: 0; width: 100%; }
+  .exp-compare-form label { width: 100%; }
+  .atk-tactic-head, .atk-tactic-body { padding-left: 12px; padding-right: 12px; }
+  .atk-tech-body { padding-left: 16px; }
+  .atk-kpi { min-width: 0; flex-basis: 100%; }
+}

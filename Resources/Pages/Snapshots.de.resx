@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
@@ -46,4 +46,16 @@
   <data name="SelectKpis" xml:space="preserve"><value>KPIs auswählen</value></data>
   <data name="AllKpisFormat" xml:space="preserve"><value>Alle KPIs ({0})</value></data>
   <data name="KpisSelectedFormat" xml:space="preserve"><value>{0} KPIs ausgewählt</value></data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve">
+	<value>Momentaufnahme löschen</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+	<value>Abbrechen</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+	<value>Löschen</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Snapshots</value>
+  </data>
 </root>
