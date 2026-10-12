@@ -224,6 +224,10 @@ ActiveRolesDashboard.Services.KpiLocalizer.Initialize(
 ActiveRolesDashboard.Services.AssessmentLocalizer.Initialize(
     app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizerFactory>());
 
+// Wire the static MITRE localizer so tactic/technique text resolves in the current UI culture.
+ActiveRolesDashboard.Services.MitreLocalizer.Initialize(
+    app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizerFactory>());
+
 // PathBase: set manually for reverse-proxy/Kestrel scenarios.
 // IIS in-process/out-of-process hosting sets PathBase automatically for sub-applications.
 var pathBase = app.Configuration["PathBase"];

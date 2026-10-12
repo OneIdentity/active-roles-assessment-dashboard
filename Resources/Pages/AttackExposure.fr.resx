@@ -38,4 +38,5 @@
   <data name="NotAvailable" xml:space="preserve"><value>s.o.</value></data>
   <data name="Mitigation" xml:space="preserve"><value>Atténuation</value></data>
   <data name="Footer" xml:space="preserve"><value>Active Roles Dashboard &#8212; Exposition ATT&amp;CK générée le {0} UTC</value></data>
+  <data name="PageTitle" xml:space="preserve"><value>Exposition ATT&amp;CK</value></data>
 </root>

@@ -38,4 +38,5 @@
   <data name="NotAvailable" xml:space="preserve"><value>k. A.</value></data>
   <data name="Mitigation" xml:space="preserve"><value>Gegenmaßnahme</value></data>
   <data name="Footer" xml:space="preserve"><value>Active Roles Dashboard &#8212; ATT&amp;CK-Gefährdung erstellt am {0} UTC</value></data>
+  <data name="PageTitle" xml:space="preserve"><value>ATT&amp;CK-Gefährdung</value></data>
 </root>

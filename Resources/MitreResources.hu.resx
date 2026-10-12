@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Tactic_InitialAccess" xml:space="preserve"><value>Kezdeti hozzáférés</value></data>
+  <data name="Tactic_Execution" xml:space="preserve"><value>Végrehajtás</value></data>
+  <data name="Tactic_Persistence" xml:space="preserve"><value>Perzisztencia</value></data>
+  <data name="Tactic_PrivilegeEscalation" xml:space="preserve"><value>Jogosultság-emelés</value></data>
+  <data name="Tactic_DefenseEvasion" xml:space="preserve"><value>Védelem kijátszása</value></data>
+  <data name="Tactic_CredentialAccess" xml:space="preserve"><value>Hitelesítő adatok megszerzése</value></data>
+  <data name="Tactic_Discovery" xml:space="preserve"><value>Felderítés</value></data>
+  <data name="Tactic_LateralMovement" xml:space="preserve"><value>Oldalirányú mozgás</value></data>
+  <data name="Tactic_Collection" xml:space="preserve"><value>Adatgyűjtés</value></data>
+  <data name="Tactic_Impact" xml:space="preserve"><value>Hatás</value></data>
+  <data name="Tech_T1078.004_Name" xml:space="preserve"><value>Érvényes fiókok: felhőfiókok</value></data>
+  <data name="Tech_T1558.003_Name" xml:space="preserve"><value>Kerberoasting</value></data>
+  <data name="Tech_T1558.004_Name" xml:space="preserve"><value>AS-REP Roasting</value></data>
+  <data name="Tech_T1555_Name" xml:space="preserve"><value>Hitelesítő adatok jelszótárolókból</value></data>
+  <data name="Tech_T1110_Name" xml:space="preserve"><value>Találgatásos támadás</value></data>
+  <data name="Tech_T1078.002_Name" xml:space="preserve"><value>Érvényes fiókok: tartományi fiókok</value></data>
+  <data name="Tech_T1550_Name" xml:space="preserve"><value>Alternatív hitelesítési anyag használata (delegálással való visszaélés)</value></data>
+  <data name="Tech_T1098_Name" xml:space="preserve"><value>Fiókmanipuláció</value></data>
+  <data name="Tech_T1136_Name" xml:space="preserve"><value>Fiók létrehozása</value></data>
+  <data name="Tech_T1550.003_Name" xml:space="preserve"><value>Alternatív hitelesítési anyag használata: Pass the Ticket</value></data>
+  <data name="Tech_T1484.001_Name" xml:space="preserve"><value>Tartományi házirend módosítása: csoportházirend módosítása</value></data>
+  <data name="Tech_T1078_Name" xml:space="preserve"><value>Érvényes fiókok (lejárt / zárolt)</value></data>
+  <data name="Tech_T1069_Name" xml:space="preserve"><value>Jogosultsági csoportok felderítése</value></data>
+  <data name="Tech_T1114_Name" xml:space="preserve"><value>E-mailek gyűjtése</value></data>
+  <data name="Tech_T1078.004_Desc" xml:space="preserve"><value>A vendég (külső) identitások és az őket tartalmazó csoportok a támadó által irányítható belépési pontot jelentenek a bérlőbe; a csoportalapú hozzáférést öröklő vendégek bővítik a szervezeten kívülről elérhető erőforrások körét.</value></data>
+  <data name="Tech_T1078.004_Mit" xml:space="preserve"><value>Szabályozza a vendégek életciklusát hozzáférési felülvizsgálatokkal és lejárattal; korlátozza a vendégjogosultságokat, távolítsa el a vendégeket a kiemelt vagy tág hatókörű csoportokból, és korlátozza, mely csoportok tartalmazhatnak vendégeket.</value></data>
+  <data name="Tech_T1558.003_Desc" xml:space="preserve"><value>A támadók szolgáltatásjegyeket kérnek a szolgáltatásnévvel (SPN) rendelkező fiókokhoz, majd offline feltörik azokat a fiók jelszavának megszerzéséhez.</value></data>
+  <data name="Tech_T1558.003_Mit" xml:space="preserve"><value>Minimalizálja az SPN-nel rendelkező felhasználói fiókokat; használjon csoportosan felügyelt szolgáltatásfiókokat (gMSA), és követeljen meg hosszú, összetett jelszavakat.</value></data>
+  <data name="Tech_T1558.004_Desc" xml:space="preserve"><value>A Kerberos-előhitelesítést nem igénylő fiókok lehetővé teszik a támadó számára titkosított adatok lekérését és offline feltörését.</value></data>
+  <data name="Tech_T1558.004_Mit" xml:space="preserve"><value>Követelje meg a Kerberos-előhitelesítést minden fióknál.</value></data>
+  <data name="Tech_T1555_Desc" xml:space="preserve"><value>A visszafejthető titkosítás és a DES-titkosítás visszaállítható vagy gyenge formában tárolja vagy továbbítja a jelszavakat, megkönnyítve azok megszerzését.</value></data>
+  <data name="Tech_T1555_Mit" xml:space="preserve"><value>Tiltsa le a visszafejthető titkosítást és a DES-t; követelje meg az AES titkosítási típusokat.</value></data>
+  <data name="Tech_T1110_Desc" xml:space="preserve"><value>A jelszót nem igénylő vagy soha le nem járó jelszavú fiókok gyengítik a találgatásos és újrafelhasználási támadásokkal szembeni ellenállást.</value></data>
+  <data name="Tech_T1110_Mit" xml:space="preserve"><value>Követeljen meg jelszót minden fióknál, és a soha le nem járó jelszavakat korlátozza megerősített szolgáltatásfiókokra.</value></data>
+  <data name="Tech_T1078.002_Desc" xml:space="preserve"><value>A kiemelt jogosultságú csoportokban való tagság növeli bármely kompromittált hitelesítő adat okozta kár mértékét.</value></data>
+  <data name="Tech_T1078.002_Mit" xml:space="preserve"><value>Minimalizálja és rendszeresen vizsgálja felül a kiemelt csoportok tagságát; alkalmazzon rétegzett adminisztrációt.</value></data>
+  <data name="Tech_T1550_Desc" xml:space="preserve"><value>A korlátlan delegálás lehetővé teszi, hogy egy kompromittált gazdagép megszemélyesítsen bármely hozzá hitelesítő felhasználót, ami hitelesítőadat-lopást és oldalirányú mozgást tesz lehetővé.</value></data>
+  <data name="Tech_T1550_Mit" xml:space="preserve"><value>Szüntesse meg a korlátlan delegálást a számítógépeken és felhasználókon (a tartományvezérlők kivételével); használjon korlátozott vagy erőforrásalapú korlátozott delegálást.</value></data>
+  <data name="Tech_T1098_Desc" xml:space="preserve"><value>Az elavult, árva vagy nem kezelt fiókok (felelős nélküli, soha be nem jelentkezett, megszüntetett, de még létező) tartós hídfőállást biztosítanak, amelyek elkerülik a rutinszerű felülvizsgálatot.</value></data>
+  <data name="Tech_T1098_Mit" xml:space="preserve"><value>Érvényesítse a felelősséget és az életciklus-kezelést; a nem használt fiókokat haladéktalanul tiltsa le és távolítsa el.</value></data>
+  <data name="Tech_T1136_Desc" xml:space="preserve"><value>A megszüntetett vagy hosszú ideje inaktív állapotban hagyott fiókok észrevétlenül újraaktiválhatók (vagy maradványaik újrahasznosíthatók), így a szokásos belépési ellenőrzéseket megkerülő tartós hozzáférés hozható létre.</value></data>
+  <data name="Tech_T1136_Mit" xml:space="preserve"><value>Fejezze be a megszüntetési életciklust a nem használt fiókok letiltásával és eltávolításával; riasszon a korábban megszüntetett vagy elavult fiókok újraaktiválásakor.</value></data>
+  <data name="Tech_T1550.003_Desc" xml:space="preserve"><value>Az SPN-nel rendelkező szolgáltatásfiókok és a delegálásra megbízható fiókok növelik a Kerberos-jegyek (köztük a Silver Ticketek) hamisításának vagy újrafelhasználásának lehetőségét oldalirányú mozgáshoz.</value></data>
+  <data name="Tech_T1550.003_Mit" xml:space="preserve"><value>Csökkentse az SPN-nel rendelkező felhasználói fiókok számát (részesítse előnyben a gMSA-t), szüntesse meg a szükségtelen delegálásokat, és rendszeresen cserélje a szolgáltatásfiókok kulcsait.</value></data>
+  <data name="Tech_T1484.001_Desc" xml:space="preserve"><value>A nagy hatalmú örökölt operátorcsoportokban (fiók-, kiszolgáló- és biztonsági mentési operátorok) való tagság címtár- vagy tartományvezérlő-szintű képességeket ad, amelyekkel vissza lehet élni házirendek módosítására, tartományvezérlőkre való bejelentkezésre vagy védett adatok visszaállítására/olvasására.</value></data>
+  <data name="Tech_T1484.001_Mit" xml:space="preserve"><value>Tartsa üresen az örökölt operátorcsoportokat, és helyettük delegáljon konkrét, minimális jogosultságokat; figyelje a tagsági változásokat.</value></data>
+  <data name="Tech_T1078_Desc" xml:space="preserve"><value>Az engedélyezve maradó lejárt vagy zárolt fiókok következetlen állapotot hoznak létre, amely elfedheti a rosszindulatú újrafelhasználást.</value></data>
+  <data name="Tech_T1078_Mit" xml:space="preserve"><value>Rendezze a lejárt és zárolt fiókokat; inkább tiltsa le őket, mint hogy kétértelmű állapotban hagyja.</value></data>
+  <data name="Tech_T1069_Desc" xml:space="preserve"><value>Az üres vagy tulajdonos nélküli csoportok zsúfolttá teszik a címtárat, és megnehezítik a támadó által feltérképezhető tényleges hozzáférés felülvizsgálatát.</value></data>
+  <data name="Tech_T1069_Mit" xml:space="preserve"><value>Rendeljen tulajdonost minden csoporthoz, és távolítsa el az üres csoportokat, hogy a csoportok hatóköre auditálható maradjon.</value></data>
+  <data name="Tech_T1114_Desc" xml:space="preserve"><value>A postafiók-delegálás hozzáférést ad egy rendszerbiztonsági tagnak egy másik felhasználó postafiókjához. A teljes hozzáférés felfedi a levelek tartalmát olvasásra/kiszivárogtatásra, míg a Küldés másként és a Küldés más nevében lehetővé teszi levelek küldését egy másik identitásként (vagy nevében) – ami megszemélyesítést, hamisítást és üzleti e-mail-kompromittálást tesz lehetővé. A széles körű vagy felülvizsgálatlan delegálás növeli a levelezés támadási felületét.</value></data>
+  <data name="Tech_T1114_Mit" xml:space="preserve"><value>Rendszeresen vizsgálja felül a postafiók-delegálásokat, és a legkisebb jogosultság elve szerint adja meg őket; távolítsa el a szükségtelen állandó teljes hozzáférési, Küldés másként és Küldés más nevében jogokat; a felhasználónkénti delegálás helyett részesítse előnyben a szabályozott tagságú megosztott postafiókokat, és riasszon a kiemelt értékű postafiókok delegálásának változásakor.</value></data>
+  <data name="Rat_T1078.004_EntraGuestUsers" xml:space="preserve"><value>A vendég (külső) fiókok külső hídfőállást jelentenek a bérlőben.</value></data>
+  <data name="Rat_T1078.004_EntraGuestContainingGroups" xml:space="preserve"><value>A vendégeket tartalmazó csoportok a csoportalapú hozzáférést külső identitásokra is kiterjesztik.</value></data>
+  <data name="Rat_T1558.003_SpnUserAccounts" xml:space="preserve"><value>Az SPN-nel rendelkező felhasználói fiókok közvetlenül sebezhetők Kerberoastinggal.</value></data>
+  <data name="Rat_T1558.004_NoKerberosPreauth" xml:space="preserve"><value>Az előhitelesítés nélküli fiókok sebezhetők AS-REP Roastinggal.</value></data>
+  <data name="Rat_T1555_ReversibleEncryption" xml:space="preserve"><value>A visszafejthető titkosítás visszaállítható jelszavakat tárol.</value></data>
+  <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>A DES kriptográfiailag gyenge.</value></data>
+  <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Jelszót nem igénylő fiókok.</value></data>
+  <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Elavult, nem cserélt hitelesítő adatok.</value></data>
+  <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>A tartományi rendszergazdák teljes irányítással rendelkeznek a tartomány felett.</value></data>
+  <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>A vállalati rendszergazdák az egész erdő felett irányítással rendelkeznek.</value></data>
+  <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Védettként/kiemeltként megjelölt fiókok.</value></data>
+  <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>A korlátlan delegálásra megbízható számítógépek nagy értékű ugródeszkák.</value></data>
+  <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Korlátlan delegálásra megbízható felhasználói fiókok.</value></data>
+  <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>A nem használt fiókok kiváló jelöltek a perzisztenciára.</value></data>
+  <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Az engedélyezett, de inaktív fiókok tartós, kevéssé látható hídfőállások.</value></data>
+  <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>A felelős nélküli szolgáltatásfiókok elkerülik a felülvizsgálatot.</value></data>
+  <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Megszüntetett, de még létező fiókok.</value></data>
+  <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>A megmaradt megszüntetett fiókok újraaktiválhatók.</value></data>
+  <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Az inaktív, engedélyezett fiókok átvételre/újrafelhasználásra alkalmasak.</value></data>
+  <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Az SPN-nel rendelkező felhasználói fiókok lehetővé teszik a Silver Ticket / jegy-újrafelhasználást.</value></data>
+  <data name="Rat_T1550.003_TrustedForDelegation" xml:space="preserve"><value>A delegálásra megbízható fiókok kiterjesztik a jegyek újrafelhasználását.</value></data>
+  <data name="Rat_T1484.001_AccountOperators" xml:space="preserve"><value>A fiókoperátorok a legtöbb felhasználót és csoportot kezelhetik.</value></data>
+  <data name="Rat_T1484.001_ServerOperators" xml:space="preserve"><value>A kiszolgálóoperátorok bejelentkezhetnek a tartományvezérlőkre és irányíthatják azokat.</value></data>
+  <data name="Rat_T1484.001_BackupOperators" xml:space="preserve"><value>A biztonsági mentési operátorok bármely fájlt olvashatnak/visszaállíthatnak (jogosultság-emelési útvonal).</value></data>
+  <data name="Rat_T1078_ExpiredUsers" xml:space="preserve"><value>Még létező lejárt fiókok.</value></data>
+  <data name="Rat_T1078_UserAccountLockedOut" xml:space="preserve"><value>A zárolt fiókok aktív támadásra utalhatnak.</value></data>
+  <data name="Rat_T1069_NoGroupOwner" xml:space="preserve"><value>A tulajdonos nélküli csoportokat senki nem vizsgálja felül.</value></data>
+  <data name="Rat_T1069_EntraNoGroupOwner" xml:space="preserve"><value>A tulajdonos nélküli Entra-csoportok felülvizsgálatlan, feltérképezhető hozzáférési hatókört adnak hozzá.</value></data>
+  <data name="Rat_T1069_EmptyGroups" xml:space="preserve"><value>Az üres csoportok zajt okoznak a feltérképezésben.</value></data>
+  <data name="Rat_T1114_ExchangeFullAccessDelegatesKpi" xml:space="preserve"><value>A teljes hozzáférésű meghatalmazottak olvashatják egy másik felhasználó postafiókjának tartalmát.</value></data>
+  <data name="Rat_T1114_ExchangeSendAsKpi" xml:space="preserve"><value>A Küldés másként meghatalmazottak a kimenő levelekben megszemélyesíthetik a postafiók tulajdonosát.</value></data>
+  <data name="Rat_T1114_ExchangeSendOnBehalfKpi" xml:space="preserve"><value>A Küldés más nevében meghatalmazottak egy másik identitás nevében küldhetnek leveleket.</value></data>
+</root>
