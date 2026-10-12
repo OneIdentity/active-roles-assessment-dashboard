@@ -145,30 +145,25 @@ function CategoryCharts({ category }: { category: ViewCategory }) {
   );
 }
 
-function AdditionalMetrics({ categories, onKpi }: { categories: ViewCategory[]; onKpi: (kpi: ViewKpi) => void }) {
-  if (categories.length === 0) return null;
+/** One collapsible accordion per category; any category charts sit directly under the header. */
+function CategoryAccordion({ category, onKpi }: { category: ViewCategory; onKpi: (kpi: ViewKpi) => void }) {
   return (
-    <details className="iris-accordion ad-additional-metrics">
+    <details className="iris-accordion ad-category-accordion">
       <summary className="iris-accordion-header">
         <span className="iris-accordion-caret" aria-hidden="true" />
-        <span>{t.additionalMetrics}</span>
+        <span>{category.title}</span>
       </summary>
-      <div className="iris-accordion-content ad-additional-metrics-content">
-        {categories.map((category) => (
-          <section className="ad-additional-category" key={category.key}>
-            <h3>{category.title}</h3>
-            <div className="kpi-grid">
-              {category.kpis.map((kpi) => (
-                <button type="button" key={kpi.key} data-section={kpi.sectionId} onClick={() => onKpi(kpi)}
-                  className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''}`}>
-                  <span className="lbl">{kpi.label}</span>
-                  <span className="val">{kpiValue(kpi)}</span>
-                </button>
-              ))}
-            </div>
-            <CategoryCharts category={category} />
-          </section>
-        ))}
+      <div className="iris-accordion-content ad-category-content">
+        <CategoryCharts category={category} />
+        <div className="kpi-grid">
+          {category.kpis.map((kpi) => (
+            <button type="button" key={kpi.key} data-section={kpi.sectionId} onClick={() => onKpi(kpi)}
+              className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''}`}>
+              <span className="lbl">{kpi.label}</span>
+              <span className="val">{kpiValue(kpi)}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </details>
   );
@@ -183,7 +178,9 @@ interface Props {
 export function DashboardContent({ view, onKpi }: Props) {
   const overview = view.categories.find((c) => c.isOverview);
   const risk = view.categories.filter((c) => c.isRisk);
-  const additional = view.categories.filter((c) => !c.isOverview && !c.isRisk);
+  const additional = view.categories
+    .filter((c) => !c.isOverview && !c.isRisk)
+    .sort((a, b) => a.title.localeCompare(b.title, document.documentElement.lang || undefined, { sensitivity: 'base' }));
 
   return (
     <div className="ad-sections">
@@ -192,7 +189,7 @@ export function DashboardContent({ view, onKpi }: Props) {
       {risk.map((c) => <Governance key={c.key} category={c} onKpi={onKpi} />)}
       {view.licensing && <LicensingDonuts view={view.licensing} />}
       {view.licensing && <LicensingThresholds view={view.licensing} />}
-      <AdditionalMetrics categories={additional} onKpi={onKpi} />
+      {additional.map((c) => <CategoryAccordion key={c.key} category={c} onKpi={onKpi} />)}
       {view.licensing && <LicensingTrend view={view.licensing} />}
     </div>
   );
