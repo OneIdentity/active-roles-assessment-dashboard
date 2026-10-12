@@ -71,7 +71,7 @@
 
     @if (Model.EntraMembershipDataPending)
     {
-        <div class="membership-warning" role="status">@Model.EntraMembershipPendingWarning</div>
+        <div class="membership-warning" id="expMembershipWarning" role="status">@Model.EntraMembershipPendingWarning</div>
     }
 
     <div class="atk-summary">
@@ -296,6 +296,19 @@
                 fromSel.addEventListener('change', syncCompare);
                 syncCompare();
             }
+        })();
+
+        // Entra membership finished loading in the background: exposure levels for
+        // group-based KPIs depend on it, so reload once to clear the warning and
+        // recompute the techniques with complete data.
+        (function () {
+            var pending = @(Model.EntraMembershipDataPending ? "true" : "false");
+            if (!pending) return;
+            document.addEventListener('entra-membership-loaded', function () {
+                var w = document.getElementById('expMembershipWarning');
+                if (w) w.remove();
+                window.location.reload();
+            }, { once: true });
         })();
     </script>
 </body>

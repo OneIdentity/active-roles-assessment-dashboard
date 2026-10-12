@@ -64,6 +64,7 @@ public class AttackExposureModel : DashboardPageModel
         if (!string.IsNullOrEmpty(cachedJson))
         {
             Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            await ReconcileCachedMembershipWithSupersetAsync(token);
         }
         else
         {
