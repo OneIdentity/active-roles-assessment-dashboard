@@ -315,6 +315,10 @@ app.MapControllers();
 
 // React front end (ClientApp, built by Vite into wwwroot/app). Static assets are served by
 // UseStaticFiles; any other /app/* route falls back to the SPA shell for client-side routing.
-app.MapFallbackToFile("/app/{**path}", "app/index.html").RequireAuthorization();
+app.MapFallbackToFile("/app/{**path}", "app/index.html", new StaticFileOptions
+{
+    // The shell references hashed bundles; never cache it so new builds are picked up immediately.
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate"
+}).RequireAuthorization();
 
 app.Run();

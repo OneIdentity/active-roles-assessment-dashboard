@@ -27,7 +27,11 @@ public class GroupTreeModel : DashboardPageModel
 
     public string? RootDn { get; set; }
     public string? RootName { get; set; }
-    public string? LookupError { get; set; }
+
+    // Lookup outcome. The view localizes the message; LookupFailureDetail carries the
+    // exception text for a failed lookup.
+    public bool LookupNotFound { get; set; }
+    public string? LookupFailureDetail { get; set; }
 
     public override async Task<IActionResult> OnGetAsync([FromQuery] bool cached = false)
     {
@@ -43,6 +47,7 @@ public class GroupTreeModel : DashboardPageModel
         if (!string.IsNullOrEmpty(cachedJson))
         {
             Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            await ReconcileCachedMembershipWithSupersetAsync(GetAccessToken()!);
         }
         else
         {
@@ -58,7 +63,7 @@ public class GroupTreeModel : DashboardPageModel
                 var group = await ArService.ResolveGroupAsync(token, Group.Trim());
                 if (group == null)
                 {
-                    LookupError = $"No group found matching '{Group}'.";
+                    LookupNotFound = true;
                 }
                 else
                 {
@@ -68,7 +73,7 @@ public class GroupTreeModel : DashboardPageModel
             }
             catch (Exception ex)
             {
-                LookupError = $"Lookup failed ({ex.GetType().Name}: {ex.Message}).";
+                LookupFailureDetail = $"{ex.GetType().Name}: {ex.Message}";
             }
         }
 

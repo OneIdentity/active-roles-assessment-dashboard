@@ -223,6 +223,10 @@ public class DashboardController : ControllerBase
         public string? Error { get; set; }
         public List<string> Columns { get; set; } = new();
         public List<IReadOnlyList<string>> Rows { get; set; } = new();
+        /// <summary>DN of the group itself when its nested membership can be viewed (privileged groups).</summary>
+        public string? GroupTreeDn { get; set; }
+        /// <summary>Per-row group DN for the nested-membership tree (aligned with Rows; null entries have none).</summary>
+        public List<string?>? RowGroupTreeDns { get; set; }
     }
 
     public sealed class SegmentRequest
@@ -397,6 +401,7 @@ public class DashboardController : ControllerBase
 
         var result = summary.GetKpiResult(kpi.Key);
         var table = summary.GetKpiDetailTable(kpi.Key);
+        var (groupTreeDn, rowGroupTreeDns) = summary.GetKpiGroupTreeTargets(kpi.Key);
         return Ok(new KpiDetail
         {
             Key = kpi.Key,
@@ -404,7 +409,9 @@ public class DashboardController : ControllerBase
             Count = result.Count,
             Error = table?.Error ?? result.Error,
             Columns = table?.Columns ?? new(),
-            Rows = table?.Rows ?? new()
+            Rows = table?.Rows ?? new(),
+            GroupTreeDn = groupTreeDn,
+            RowGroupTreeDns = rowGroupTreeDns is not null && rowGroupTreeDns.Count == (table?.Rows.Count ?? 0) ? rowGroupTreeDns : null
         });
     }
 

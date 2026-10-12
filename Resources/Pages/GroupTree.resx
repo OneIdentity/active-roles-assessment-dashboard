@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>Back to Dashboard</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Collapse</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Expand</value>
+  </data>
+  <data name="ExpandFailed" xml:space="preserve">
+    <value>Failed to expand.</value>
+  </data>
+  <data name="LookupFailed" xml:space="preserve">
+    <value>Lookup failed ({0}).</value>
+  </data>
+  <data name="NoGroup" xml:space="preserve">
+    <value>No group selected. Open this page from a group on the dashboard.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>No group found matching &apos;{0}&apos;.</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Group Membership Tree</value>
+  </data>
+  <data name="Subtitle" xml:space="preserve">
+    <value>Expand a group to explore its nested membership.</value>
+  </data>
+</root>

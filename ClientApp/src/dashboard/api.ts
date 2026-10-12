@@ -113,6 +113,8 @@ export interface KpiDetail {
   error: string | null;
   columns: string[];
   rows: string[][];
+  groupTreeDn?: string | null;
+  rowGroupTreeDns?: (string | null)[] | null;
 }
 
 export interface RefreshStatus {

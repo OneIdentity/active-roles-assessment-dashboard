@@ -1,9 +1,9 @@
 @page
 @model ActiveRolesDashboard.Pages.GroupTreeModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Group Membership Tree";
+    ViewData["Title"] = Localizer["PageTitle"].Value;
     Layout = null;
-    var webUrl = Model.WebInterfaceUrl?.TrimEnd('/');
     // Build a safe return anchor: allow only a "panel-<alnum>" fragment.
     var returnAnchor = "";
     if (!string.IsNullOrEmpty(Model.Return) &&
@@ -13,103 +13,110 @@
     }
     // Allow only a small whitelist of return pages; default to the AD dashboard.
     var returnPage = Model.ReturnPage == "ActiveRoles" ? "ActiveRoles" : "ActiveDirectory";
+    var backHref = Model.ReturnPage == "App" ? Url.Content("~/app/?restore=1") : returnPage + returnAnchor;
+    string Js(string s) => System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(s);
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <base href="@Url.Content("~/")" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Active Roles Dashboard - Group Membership Tree</title>
-    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
-    <style>
-        .group-tree { list-style: none; margin: 0; padding-left: 1.25rem; }
-        .group-tree-row { display: flex; align-items: center; gap: .5rem; padding: 2px 0; }
-        .tree-toggle { cursor: pointer; border: none; background: none; font-size: .8rem; width: 1.2rem; }
-        .tree-toggle-placeholder { display: inline-block; width: 1.2rem; }
-        .tree-name { font-weight: 600; }
-        .tree-icon { display: inline-flex; align-items: center; }
-        .tree-icon.is-group { color: #2563eb; }
-        .tree-icon.is-user { color: #6b7280; }
-        .tree-dn { color: #888; font-size: .75rem; margin-left: .5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }
-        .tree-note { margin-left: .35rem; }
-        .gt-search { display: flex; gap: .5rem; margin: 1rem 0; }
-        .gt-search input { flex: 0 1 360px; padding: .4rem .6rem; }
-    </style>
+    <title>Active Roles Dashboard - @Localizer["PageTitle"]</title>
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-group-tree.css" asp-append-version="true" />
 </head>
-<body>
-<div class="page">
-    <div class="sticky-head">
+<body class="iris-shell iris-group-tree">
+<div class="page iris-shell-page">
     @{
-        ViewData["HeaderKey"] = "GroupTree";
-        ViewData["HeaderRight"] = "membership";
+        ViewData["IrisActive"] = "dashboard";
+        ViewData["IrisCrumb"] = Localizer["PageTitle"].Value;
     }
-    <partial name="_DashboardHeader" />
-    <a class="back-link" href="@returnPage@(returnAnchor)">&larr; Back to Dashboard</a>
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Localizer["PageTitle"]</h1>
+        <a class="snap-btn gt-back" href="@backHref">&larr; @Localizer["BackToDashboard"]</a>
     </div>
+    <p class="gt-subtitle">@Localizer["Subtitle"]</p>
 
-    <div class="panel active">
-        <div class="panel-content">
-            <form method="get" class="gt-search">
-                <input type="text" name="Group" value="@Model.Group" placeholder="Enter group name or distinguished name" readonly />
-            </form>
-
-            @if (Model.LookupError != null)
-            {
-                <p class="muted">@Model.LookupError</p>
-            }
-            else if (Model.RootDn != null)
-            {
-                <ul class="group-tree" id="tree-root">
-                    <li class="group-tree-item">
-                        <div class="group-tree-row">
-                            <button type="button" class="tree-toggle" data-dn="@Model.RootDn" data-depth="0" aria-expanded="false">&#9654;</button>
-                            <span class="tree-icon is-group">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            </span>
-                            <span class="tree-name">@Model.RootName</span>
-                            <span class="tree-dn" title="@Model.RootDn">@Model.RootDn</span>
-                        </div>
-                        <div class="tree-children"></div>
-                    </li>
-                </ul>
-            }
-        </div>
-    </div>
+    <section class="snap-card gt-card">
+        @if (Model.LookupNotFound)
+        {
+            <p class="gt-message">@Localizer["NotFound", Model.Group ?? ""]</p>
+        }
+        else if (Model.LookupFailureDetail != null)
+        {
+            <p class="gt-message gt-error">@Localizer["LookupFailed", Model.LookupFailureDetail]</p>
+        }
+        else if (Model.RootDn != null)
+        {
+            <ul class="group-tree gt-root" id="tree-root">
+                <li class="group-tree-item">
+                    <div class="group-tree-row">
+                        <button type="button" class="tree-toggle" data-dn="@Model.RootDn" data-depth="0" aria-expanded="false" aria-label="@Localizer["Expand"]"></button>
+                        <span class="tree-icon is-group" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </span>
+                        <span class="tree-name">@Model.RootName</span>
+                        <span class="tree-dn" title="@Model.RootDn">@Model.RootDn</span>
+                    </div>
+                    <div class="tree-children"></div>
+                </li>
+            </ul>
+        }
+        else
+        {
+            <p class="gt-message">@Localizer["NoGroup"]</p>
+        }
+    </section>
     @await Html.PartialAsync("_EntraMembershipConfig")
+    </main>
 </div>
 
 <script>
-    document.addEventListener('click', async function (e) {
-        var btn = e.target.closest('.tree-toggle');
-        if (!btn) return;
+    (function () {
+        var labelExpand = '@Html.Raw(Js(Localizer["Expand"].Value))';
+        var labelCollapse = '@Html.Raw(Js(Localizer["Collapse"].Value))';
+        var labelFailed = '@Html.Raw(Js(Localizer["ExpandFailed"].Value))';
 
-        var container = btn.closest('.group-tree-item').querySelector('.tree-children');
-        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        document.addEventListener('click', async function (e) {
+            var btn = e.target.closest('.tree-toggle');
+            if (!btn || btn.classList.contains('is-loading')) return;
 
-        if (expanded) {
-            container.innerHTML = '';
-            btn.setAttribute('aria-expanded', 'false');
-            btn.innerHTML = '\u25B6';
-            return;
-        }
+            var container = btn.closest('.group-tree-item').querySelector('.tree-children');
+            var expanded = btn.getAttribute('aria-expanded') === 'true';
 
-        var dn = btn.getAttribute('data-dn');
-        var depth = btn.getAttribute('data-depth');
-        btn.innerHTML = '\u2026';
+            if (expanded) {
+                container.innerHTML = '';
+                btn.setAttribute('aria-expanded', 'false');
+                btn.setAttribute('aria-label', labelExpand);
+                return;
+            }
 
-        try {
-            var resp = await fetch('GroupTree?handler=Expand&dn=' + encodeURIComponent(dn) + '&depth=' + encodeURIComponent(depth), {
-                headers: { 'RequestVerificationToken': '' }
-            });
-            container.innerHTML = await resp.text();
-            btn.setAttribute('aria-expanded', 'true');
-            btn.innerHTML = '\u25BC';
-        } catch (err) {
-            container.innerHTML = '<p class="muted">Failed to expand.</p>';
-            btn.innerHTML = '\u25B6';
-        }
-    });
+            var dn = btn.getAttribute('data-dn');
+            var depth = btn.getAttribute('data-depth');
+            btn.classList.add('is-loading');
+
+            try {
+                var resp = await fetch('GroupTree?handler=Expand&dn=' + encodeURIComponent(dn) + '&depth=' + encodeURIComponent(depth));
+                if (!resp.ok) throw new Error(resp.status);
+                container.innerHTML = await resp.text();
+                btn.setAttribute('aria-expanded', 'true');
+                btn.setAttribute('aria-label', labelCollapse);
+            } catch (err) {
+                var p = document.createElement('p');
+                p.className = 'gt-message gt-error';
+                p.textContent = labelFailed;
+                container.replaceChildren(p);
+            } finally {
+                btn.classList.remove('is-loading');
+            }
+        });
+    })();
 </script>
 @await Html.PartialAsync("_ToastAndMembership")
 <script src="js/dashboard.js" asp-append-version="true"></script>

@@ -205,6 +205,9 @@ body { font-family: var(--oi-font-family-default); background: var(--oi-backgrou
 .iris-kpi-modal-close { width: 32px; height: 32px; padding: 0; }
 .iris-kpi-modal-export:hover, .iris-kpi-modal-close:hover { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); }
 .iris-kpi-modal-export:focus-visible, .iris-kpi-modal-close:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
+a.iris-kpi-modal-export, a.iris-kpi-modal-close, a.iris-kpi-modal-export:hover, a.iris-kpi-modal-close:hover, a.iris-kpi-modal-export:visited { text-decoration: none; }
+.kpi-detail-table td.kpi-detail-action { width: 40px; padding-top: 2px; padding-bottom: 2px; text-align: center; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .iris-kpi-modal-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: var(--oi-spacing-l); }
 .iris-kpi-modal-body > .panel { display: block; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .iris-kpi-modal-body > .panel > h2, .iris-kpi-modal-body > .panel > summary h2 { display: none; }

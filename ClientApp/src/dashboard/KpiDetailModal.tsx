@@ -4,6 +4,16 @@ import { formatNumber, t } from './strings';
 
 const MAX_ROWS = 500;
 
+const treeHref = (dn: string) => `/GroupTree?Group=${encodeURIComponent(dn)}&returnPage=App`;
+
+function TreeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
 interface Props {
   kpi: ViewKpi;
   canExport: boolean;
@@ -34,6 +44,13 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
   }, [onClose]);
 
   const rows = detail?.rows.slice(0, MAX_ROWS) ?? [];
+  const rowDns = detail?.rowGroupTreeDns?.some((d) => d) ? detail.rowGroupTreeDns : null;
+  // Privileged-group details list members with a Membership column; when any member is indirect,
+  // the group itself has a nested tree. Prefer the server-supplied DN, else fall back to the group
+  // name (GroupTree resolves names as well as DNs).
+  const membershipCol = detail ? detail.columns.indexOf('Membership') : -1;
+  const hasIndirect = membershipCol >= 0 && !!detail?.rows.some((r) => /^indirect$/i.test(r[membershipCol] ?? ''));
+  const groupTreeTarget = detail?.groupTreeDn || (hasIndirect ? detail?.label || kpi.label : null);
 
   return (
     <div className="iris-kpi-modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -41,6 +58,12 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
         <header className="iris-kpi-modal-header">
           <h2 id="kpiDetailModalTitle">{kpi.label} ({kpi.error ?? formatNumber(kpi.count)})</h2>
           <div className="iris-kpi-modal-actions">
+            {groupTreeTarget && (
+              <a className="iris-kpi-modal-export" href={treeHref(groupTreeTarget)}>
+                <TreeIcon />
+                <span>{t.viewNestedMembership}</span>
+              </a>
+            )}
             {canExport && (
               <button type="button" className="iris-kpi-modal-export" onClick={() => onExport(kpi)}>
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 16v4h14v-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -62,9 +85,22 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
               <div className="panel-content">
                 {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
                 <table className="kpi-detail-table">
-                  <thead><tr>{detail.columns.map((c) => <th key={c} scope="col">{c}</th>)}</tr></thead>
+                  <thead><tr>{detail.columns.map((c) => <th key={c} scope="col">{c}</th>)}{rowDns && <th scope="col"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
                   <tbody>
-                    {rows.map((row, i) => <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>)}
+                    {rows.map((row, i) => (
+                      <tr key={i}>
+                        {row.map((cell, j) => <td key={j}>{cell}</td>)}
+                        {rowDns && (
+                          <td className="kpi-detail-action">
+                            {rowDns[i] && (
+                              <a className="iris-kpi-modal-close" href={treeHref(rowDns[i]!)} title={t.viewNestedMembership} aria-label={`${t.viewNestedMembership}: ${row[0]}`}>
+                                <TreeIcon />
+                              </a>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
