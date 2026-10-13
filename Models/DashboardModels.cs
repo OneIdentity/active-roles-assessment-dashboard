@@ -972,6 +972,9 @@ public class ActiveRolesConfig
     // an entry keep their built-in assessment rule and MITRE mapping thresholds.
     public Dictionary<string, KpiThresholdConfig> KpiThresholds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
+    // Optional exclusion patterns (ActiveRoles:KpiExclusions). Empty by default.
+    public KpiExclusionConfig KpiExclusions { get; set; } = new();
+
     // Default base DNs for all KPI searches (grouped under the DefaultDNs section).
     public DefaultDnsConfig DefaultDNs { get; set; } = new();
 

@@ -41,14 +41,16 @@ public class DashboardController : ControllerBase
     private readonly DashboardCacheHolder _cache;
     private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
     private readonly KpiThresholdService _thresholds;
+    private readonly KpiExclusionService _exclusions;
 
-    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig, KpiThresholdService thresholds)
+    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig, KpiThresholdService thresholds, KpiExclusionService exclusions)
     {
         _data = data;
         _userSettingsService = userSettingsService;
         _cache = cache;
         _arConfig = arConfig;
         _thresholds = thresholds;
+        _exclusions = exclusions;
     }
 
     // ---------------------------------------------------------------------
@@ -403,8 +405,9 @@ public class DashboardController : ControllerBase
         if (!visible)
             return NotFound();
 
-        var result = summary.GetKpiResult(kpi.Key);
+        var result = _exclusions.GetAdjustedResult(summary, kpi.Key);
         var table = summary.GetKpiDetailTable(kpi.Key);
+        _exclusions.ApplyToTable(kpi.Key, table);
         var (groupTreeDn, rowGroupTreeDns) = summary.GetKpiGroupTreeTargets(kpi.Key);
         return Ok(new KpiDetail
         {
@@ -586,7 +589,7 @@ public class DashboardController : ControllerBase
 
     private ViewKpi ToViewKpi(KpiInfo kpi, DashboardSummary summary)
     {
-        var result = summary.GetKpiResult(kpi.Key);
+        var result = _exclusions.GetAdjustedResult(summary, kpi.Key);
         return new ViewKpi
         {
             Key = kpi.Key,
@@ -604,10 +607,11 @@ public class DashboardController : ControllerBase
     private string? ResolveSeverity(string kpiKey, int count, DashboardSummary summary)
     {
         ResolvedKpiThresholds? thresholds = null;
+        var lookup = _exclusions.LookupFor(summary);
         if (KpiThresholdDefaults.BuiltIn.TryGetValue(kpiKey, out var builtIn))
-            thresholds = _thresholds.Resolve(kpiKey, builtIn, summary.GetKpiResult);
+            thresholds = _thresholds.Resolve(kpiKey, builtIn, lookup);
         else if (_thresholds.GetConfigured(kpiKey) is { } configured)
-            thresholds = KpiThresholdService.Resolve(configured, kpiKey, new ResolvedKpiThresholds(1, 1), summary.GetKpiResult);
+            thresholds = KpiThresholdService.Resolve(configured, kpiKey, new ResolvedKpiThresholds(1, 1), lookup);
         if (thresholds is null) return null;
         return KpiThresholdService.LevelFor(count, thresholds.Value).ToString().ToLowerInvariant();
     }

@@ -249,4 +249,9 @@
   <data name="Label_Customized" xml:space="preserve"><value>personalizzato</value></data>
   <data name="Option_ThresholdCount" xml:space="preserve"><value>Conteggio</value></data>
   <data name="Option_ThresholdPercent" xml:space="preserve"><value>Percentuale</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Escludere i falsi positivi noti (ad esempio krbtgt) dai conteggi KPI. Un modello con caratteri jolly per riga, confrontato senza distinzione tra maiuscole e minuscole con il nome o il nome distinto dell’oggetto (* e ? sono supportati). Gli oggetti esclusi restano visibili nei dettagli contrassegnati come Escluso, ma non vengono conteggiati.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Si applicano a tutti i KPI. Un modello indicato qui non deve essere ripetuto in un elenco specifico di un KPI.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Esclusioni globali</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Modelli di esclusione (uno per riga)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>Esclusioni KPI</value></data>
 </root>

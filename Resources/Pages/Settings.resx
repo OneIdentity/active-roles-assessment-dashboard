@@ -280,4 +280,9 @@
   <data name="Label_Customized" xml:space="preserve"><value>customized</value></data>
   <data name="Option_ThresholdCount" xml:space="preserve"><value>Count</value></data>
   <data name="Option_ThresholdPercent" xml:space="preserve"><value>Percent</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Exclude known false positives (for example krbtgt) from KPI counts. One wildcard pattern per line, matched case-insensitively against the object name or distinguished name (* and ? are supported). Excluded objects remain visible in drill-down details marked as Excluded but are not counted.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Applied to every KPI. A pattern listed here must not be repeated in a KPI-specific list.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Global exclusions</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Exclusion patterns (one per line)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>KPI Exclusions</value></data>
 </root>

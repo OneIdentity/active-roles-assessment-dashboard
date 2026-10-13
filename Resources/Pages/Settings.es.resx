@@ -256,4 +256,9 @@
   <data name="Label_Customized" xml:space="preserve"><value>personalizado</value></data>
   <data name="Option_ThresholdCount" xml:space="preserve"><value>Recuento</value></data>
   <data name="Option_ThresholdPercent" xml:space="preserve"><value>Porcentaje</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Excluya falsos positivos conocidos (por ejemplo krbtgt) de los recuentos de KPI. Un patrón con comodines por línea, comparado sin distinguir mayúsculas con el nombre o el nombre distintivo del objeto (se admiten * y ?). Los objetos excluidos siguen visibles en los detalles marcados como Excluido, pero no se cuentan.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Se aplican a todos los KPI. Un patrón indicado aquí no debe repetirse en una lista específica de KPI.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Exclusiones globales</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Patrones de exclusión (uno por línea)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>Exclusiones de KPI</value></data>
 </root>

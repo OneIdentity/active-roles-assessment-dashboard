@@ -11,14 +11,16 @@ namespace ActiveRolesDashboard.Services;
 public class MitreExposureService
 {
     private readonly KpiThresholdService _thresholds;
+    private readonly KpiExclusionService _exclusions;
 
-    public MitreExposureService(KpiThresholdService thresholds)
+    public MitreExposureService(KpiThresholdService thresholds, KpiExclusionService exclusions)
     {
         _thresholds = thresholds;
+        _exclusions = exclusions;
     }
 
     public AttackExposureView Build(DashboardSummary summary)
-        => Build(summary.GetKpiResult);
+        => Build(_exclusions.LookupFor(summary));
 
     /// <summary>
     /// Recomputes the exposure view from a saved snapshot's KPI counts. Because exposure

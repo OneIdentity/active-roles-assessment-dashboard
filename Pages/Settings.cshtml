@@ -988,6 +988,45 @@
 
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
+                <h2>@Localizer["Card_KpiExclusions"]</h2>
+                <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            </div>
+            <div class="section-body collapsed">
+                <p class="hint">@Localizer["Hint_KpiExclusions"]</p>
+                <div class="form-group">
+                    <label for="globalKpiExclusions">@Localizer["Label_GlobalExclusions"]</label>
+                    <textarea id="globalKpiExclusions" name="GlobalKpiExclusions" rows="4" class="kpi-exclusion-input" placeholder="krbtgt&#10;CN=svc_*,OU=Service Accounts,*">@Model.GlobalKpiExclusions</textarea>
+                    <p class="hint">@Localizer["Hint_GlobalExclusions"]</p>
+                </div>
+                <div class="form-group">
+                    <input type="search" id="kpiExclusionFilter" placeholder="@Localizer["Placeholder_KpiThresholdFilter"]" oninput="filterKpiExclusions(this.value)" />
+                </div>
+                <table class="role-matrix-table kpi-threshold-table kpi-exclusion-table" style="border-collapse:collapse;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">@Localizer["Col_Kpi"]</th>
+                            <th style="text-align:left;">@Localizer["Col_ExclusionPatterns"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.KpiExclusionRows.Count; i++)
+                    {
+                        var row = Model.KpiExclusionRows[i];
+                        <tr class="kpi-exclusion-row" data-name="@row.DisplayName.ToLowerInvariant()">
+                            <td>
+                                @row.DisplayName
+                                <input type="hidden" name="KpiExclusionRows[@i].Key" value="@row.Key" />
+                            </td>
+                            <td><textarea name="KpiExclusionRows[@i].Patterns" rows="1" class="kpi-exclusion-input">@row.Patterns</textarea></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_Licensing"]</h2>
                 <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
             </div>
@@ -1236,6 +1275,13 @@
     function filterKpiThresholds(text) {
         var q = (text || '').toLowerCase();
         document.querySelectorAll('.kpi-threshold-row').forEach(function (r) {
+            r.style.display = r.getAttribute('data-name').indexOf(q) >= 0 ? '' : 'none';
+        });
+    }
+
+    function filterKpiExclusions(text) {
+        var q = (text || '').toLowerCase();
+        document.querySelectorAll('.kpi-exclusion-row').forEach(function (r) {
             r.style.display = r.getAttribute('data-name').indexOf(q) >= 0 ? '' : 'none';
         });
     }

@@ -150,14 +150,101 @@ public class SettingsModel : PageModel
     /// Writes KpiThresholds into appsettings.&lt;Environment&gt;.json when that file already defines
     /// the section (it would otherwise override the base file).
     /// </summary>
-    private void SaveEnvironmentKpiThresholds(JsonObject section)
+    private void SaveEnvironmentKpiThresholds(JsonObject section) => SaveEnvironmentSection("KpiThresholds", section);
+
+    /// <summary>Global exclusion patterns, one per line (ActiveRoles:KpiExclusions:Global).</summary>
+    [BindProperty]
+    public string GlobalKpiExclusions { get; set; } = string.Empty;
+
+    /// <summary>Per-KPI exclusion patterns (ActiveRoles:KpiExclusions:PerKpi).</summary>
+    [BindProperty]
+    public List<KpiExclusionRow> KpiExclusionRows { get; set; } = new();
+
+    /// <summary>Validation messages for KPI exclusions (duplicates of global patterns are dropped).</summary>
+    public List<string> KpiExclusionErrors { get; } = new();
+
+    public class KpiExclusionRow
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Patterns { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+    }
+
+    private static List<string> SplitPatterns(string? text) =>
+        KpiExclusionConfig.Normalize((text ?? string.Empty).Split('\n'));
+
+    private void LoadKpiExclusionRows(ActiveRolesConfig config)
+    {
+        var cfg = config.KpiExclusions ?? new KpiExclusionConfig();
+        GlobalKpiExclusions = string.Join("\n", KpiExclusionConfig.Normalize(cfg.Global));
+        KpiExclusionRows = KpiInfo.All
+            .Where(k => k.HasDrilldown)
+            .Select(k =>
+            {
+                var perKpi = cfg.PerKpi?.FirstOrDefault(kv => string.Equals(kv.Key, k.Key, StringComparison.OrdinalIgnoreCase)).Value;
+                return new KpiExclusionRow
+                {
+                    Key = k.Key,
+                    DisplayName = k.DisplayName,
+                    Patterns = string.Join("\n", KpiExclusionConfig.Normalize(perKpi))
+                };
+            })
+            .OrderBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Builds the KpiExclusions JSON section from the posted values. Per-KPI patterns that duplicate a
+    /// global pattern are dropped and reported. Per-KPI entries for KPIs not shown in the UI are preserved.
+    /// </summary>
+    private JsonObject BuildKpiExclusionsJson(ActiveRolesConfig config)
+    {
+        var global = SplitPatterns(GlobalKpiExclusions);
+        var globalSet = new HashSet<string>(global, StringComparer.OrdinalIgnoreCase);
+        var perKpi = new JsonObject();
+
+        var shownKeys = new HashSet<string>(KpiExclusionRows.Select(r => r.Key), StringComparer.OrdinalIgnoreCase);
+        foreach (var (key, patterns) in config.KpiExclusions?.PerKpi ?? new())
+        {
+            if (shownKeys.Contains(key)) continue;
+            var kept = KpiExclusionConfig.Normalize(patterns).Where(p => !globalSet.Contains(p)).ToList();
+            if (kept.Count > 0) perKpi[key] = new JsonArray(kept.Select(p => (JsonNode)JsonValue.Create(p)!).ToArray());
+        }
+
+        foreach (var row in KpiExclusionRows)
+        {
+            if (string.IsNullOrWhiteSpace(row.Key)) continue;
+            var patterns = SplitPatterns(row.Patterns);
+            var duplicates = patterns.Where(globalSet.Contains).ToList();
+            if (duplicates.Count > 0)
+            {
+                var name = KpiInfo.All.FirstOrDefault(k => string.Equals(k.Key, row.Key, StringComparison.OrdinalIgnoreCase))?.DisplayName ?? row.Key;
+                KpiExclusionErrors.Add(string.Format(_localizer["Error_ExclusionDuplicatesGlobal"], name, string.Join(", ", duplicates)));
+                patterns = patterns.Where(p => !globalSet.Contains(p)).ToList();
+            }
+            if (patterns.Count > 0)
+                perKpi[row.Key] = new JsonArray(patterns.Select(p => (JsonNode)JsonValue.Create(p)!).ToArray());
+        }
+
+        return new JsonObject
+        {
+            ["Global"] = new JsonArray(global.Select(p => (JsonNode)JsonValue.Create(p)!).ToArray()),
+            ["PerKpi"] = perKpi
+        };
+    }
+
+    /// <summary>
+    /// Writes an ActiveRoles sub-section into appsettings.&lt;Environment&gt;.json when that file already
+    /// defines it (it would otherwise override the base file).
+    /// </summary>
+    private void SaveEnvironmentSection(string sectionName, JsonObject section)
     {
         var envPath = Path.Combine(_env.ContentRootPath, $"appsettings.{_env.EnvironmentName}.json");
         if (!System.IO.File.Exists(envPath)) return;
         var node = JsonNode.Parse(System.IO.File.ReadAllText(envPath), documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip });
         var activeRoles = (node as JsonObject)?["ActiveRoles"] as JsonObject;
-        if (activeRoles == null || !activeRoles.ContainsKey("KpiThresholds")) return;
-        activeRoles["KpiThresholds"] = section.DeepClone();
+        if (activeRoles == null || !activeRoles.ContainsKey(sectionName)) return;
+        activeRoles[sectionName] = section.DeepClone();
         System.IO.File.WriteAllText(envPath, node!.ToJsonString(new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -371,6 +458,7 @@ public class SettingsModel : PageModel
         EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
         DynamicGroupExpensiveRuleThreshold = config.DynamicGroupExpensiveRuleThreshold;
         LoadKpiThresholdRows(config);
+        LoadKpiExclusionRows(config);
 
         // REST API Configuration
         ApiBaseUrl = config.ApiBaseUrl;
@@ -482,6 +570,8 @@ public class SettingsModel : PageModel
 
         var username = User.Identity?.Name ?? "";
         var postedThresholds = KpiThresholdRows.ToList();
+        var postedGlobalExclusions = GlobalKpiExclusions;
+        var postedExclusions = KpiExclusionRows.ToList();
 
         // User settings (Language
         if (CanManageUserSettings)
@@ -524,10 +614,29 @@ public class SettingsModel : PageModel
             row.IsCustomized = posted.Mode != KpiThresholdMode.Count || posted.Medium != row.DefaultMedium || posted.High != row.DefaultHigh;
         }
 
+        if (CanManageSystemSettings)
+        {
+            var globalSet = new HashSet<string>(SplitPatterns(postedGlobalExclusions), StringComparer.OrdinalIgnoreCase);
+            LoadKpiExclusionRows(_arConfig.CurrentValue);
+            GlobalKpiExclusions = string.Join("\n", globalSet);
+            foreach (var row in KpiExclusionRows)
+            {
+                var posted = postedExclusions.FirstOrDefault(p => string.Equals(p.Key, row.Key, StringComparison.OrdinalIgnoreCase));
+                if (posted == null) continue;
+                row.Patterns = string.Join("\n", SplitPatterns(posted.Patterns).Where(p => !globalSet.Contains(p)));
+            }
+        }
+        else
+        {
+            LoadKpiExclusionRows(_arConfig.CurrentValue);
+        }
+
         SettingsChanged = true;
         Message = _localizer["SavedSuccessfully"];
         if (KpiThresholdErrors.Count > 0)
             Message += " " + string.Join(" ", KpiThresholdErrors);
+        if (KpiExclusionErrors.Count > 0)
+            Message += " " + string.Join(" ", KpiExclusionErrors);
 
         return Page();
     }
@@ -570,6 +679,11 @@ public class SettingsModel : PageModel
                 var kpiThresholds = BuildKpiThresholdsJson(_arConfig.CurrentValue);
                 activeRoles["KpiThresholds"] = kpiThresholds;
                 SaveEnvironmentKpiThresholds(kpiThresholds);
+
+                // KPI exclusion patterns (global + per-KPI, no per-KPI duplicates of global).
+                var kpiExclusions = BuildKpiExclusionsJson(_arConfig.CurrentValue);
+                activeRoles["KpiExclusions"] = kpiExclusions;
+                SaveEnvironmentSection("KpiExclusions", kpiExclusions);
 
                 // REST API Configuration (takes effect after a restart)
                 activeRoles["ApiBaseUrl"] = ApiBaseUrl?.Trim() ?? "";

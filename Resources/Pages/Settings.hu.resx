@@ -112,4 +112,9 @@
   <data name="Label_Customized" xml:space="preserve"><value>testreszabott</value></data>
   <data name="Option_ThresholdCount" xml:space="preserve"><value>Darabszám</value></data>
   <data name="Option_ThresholdPercent" xml:space="preserve"><value>Százalék</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Ismert téves riasztások (például krbtgt) kizárása a KPI-számokból. Soronként egy helyettesítő karakteres minta, amely kis- és nagybetűtől függetlenül az objektum nevével vagy megkülönböztető nevével egyezik (* és ? támogatott). A kizárt objektumok Kizárva jelöléssel láthatók maradnak a részletekben, de nem számítanak bele.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Minden KPI-re vonatkozik. Az itt megadott minta nem ismételhető meg KPI-specifikus listában.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Globális kizárások</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Kizárási minták (soronként egy)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>KPI-kizárások</value></data>
 </root>

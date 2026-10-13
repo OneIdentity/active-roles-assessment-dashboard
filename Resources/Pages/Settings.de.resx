@@ -256,4 +256,9 @@
   <data name="Label_Customized" xml:space="preserve"><value>angepasst</value></data>
   <data name="Option_ThresholdCount" xml:space="preserve"><value>Anzahl</value></data>
   <data name="Option_ThresholdPercent" xml:space="preserve"><value>Prozent</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Bekannte Fehlalarme (z. B. krbtgt) von KPI-Zählungen ausschließen. Ein Platzhaltermuster pro Zeile, abgeglichen ohne Berücksichtigung der Groß-/Kleinschreibung mit Objektname oder Distinguished Name (* und ? werden unterstützt). Ausgeschlossene Objekte bleiben in den Details als Ausgeschlossen sichtbar, werden aber nicht gezählt.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Gilt für alle KPIs. Ein hier aufgeführtes Muster darf nicht in einer KPI-spezifischen Liste wiederholt werden.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Globale Ausschlüsse</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Ausschlussmuster (eines pro Zeile)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>KPI-Ausschlüsse</value></data>
 </root>

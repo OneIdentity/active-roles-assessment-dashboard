@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
 	<value>text/microsoft-resx</value>
@@ -15,4 +15,5 @@
   <data name="SavedSuccessfully" xml:space="preserve">
 	<value>Impostazioni salvate correttamente.</value>
   </data>
+  <data name="Error_ExclusionDuplicatesGlobal" xml:space="preserve"><value>{0}: rimossi i modelli già presenti nelle esclusioni globali ({1}).</value></data>
 </root>
