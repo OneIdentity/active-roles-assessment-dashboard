@@ -750,6 +750,16 @@
     color: var(--oi-content-color-error);
 }
 
+/* Threshold severity: Low = informational, Medium = warning, High = error. */
+.ad-risk-icon.has-risk.severity-low {
+    background-color: var(--oi-content-color-tertiary);
+    mask-image: url('../images/figma-info-status.svg');
+    -webkit-mask-image: url('../images/figma-info-status.svg');
+}
+.ad-risk-icon.has-risk.severity-medium { background-color: var(--oi-content-color-warning); }
+.ad-risk-row.has-risk.severity-low .ad-risk-value { color: var(--oi-content-color-primary); }
+.ad-risk-row.has-risk.severity-medium .ad-risk-value { color: var(--oi-content-color-warning); }
+
 .ad-category-accordion {
     border-top: 1px solid var(--oi-border-color-muted);
 }

@@ -52,6 +52,7 @@ export interface ViewKpi {
   color: string;
   sectionId: string;
   isRisk: boolean;
+  severity?: 'none' | 'low' | 'medium' | 'high' | null;
 }
 
 export interface ViewCategory {

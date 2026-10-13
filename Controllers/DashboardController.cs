@@ -40,13 +40,15 @@ public class DashboardController : ControllerBase
     private readonly UserSettingsService _userSettingsService;
     private readonly DashboardCacheHolder _cache;
     private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
+    private readonly KpiThresholdService _thresholds;
 
-    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig)
+    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig, KpiThresholdService thresholds)
     {
         _data = data;
         _userSettingsService = userSettingsService;
         _cache = cache;
         _arConfig = arConfig;
+        _thresholds = thresholds;
     }
 
     // ---------------------------------------------------------------------
@@ -149,6 +151,8 @@ public class DashboardController : ControllerBase
         public string Color { get; set; } = FallbackChartColor;
         public string SectionId { get; set; } = string.Empty;
         public bool IsRisk { get; set; }
+        /// <summary>Threshold severity (none/low/medium/high), or null when the KPI has no thresholds.</summary>
+        public string? Severity { get; set; }
     }
 
     public sealed class ViewCategory
@@ -580,7 +584,7 @@ public class DashboardController : ControllerBase
 
     private const string OverviewKey = "Overview";
 
-    private static ViewKpi ToViewKpi(KpiInfo kpi, DashboardSummary summary)
+    private ViewKpi ToViewKpi(KpiInfo kpi, DashboardSummary summary)
     {
         var result = summary.GetKpiResult(kpi.Key);
         return new ViewKpi
@@ -592,8 +596,20 @@ public class DashboardController : ControllerBase
             ColorToken = kpi.CssColor,
             Color = ResolveColor(kpi.CssColor),
             SectionId = kpi.SectionId,
-            IsRisk = kpi.IsRiskKpi
+            IsRisk = kpi.IsRiskKpi,
+            Severity = result.Error == null ? ResolveSeverity(kpi.Key, result.Count, summary) : null
         };
+    }
+
+    private string? ResolveSeverity(string kpiKey, int count, DashboardSummary summary)
+    {
+        ResolvedKpiThresholds? thresholds = null;
+        if (KpiThresholdDefaults.BuiltIn.TryGetValue(kpiKey, out var builtIn))
+            thresholds = _thresholds.Resolve(kpiKey, builtIn, summary.GetKpiResult);
+        else if (_thresholds.GetConfigured(kpiKey) is { } configured)
+            thresholds = KpiThresholdService.Resolve(configured, kpiKey, new ResolvedKpiThresholds(1, 1), summary.GetKpiResult);
+        if (thresholds is null) return null;
+        return KpiThresholdService.LevelFor(count, thresholds.Value).ToString().ToLowerInvariant();
     }
 
     /// <summary>

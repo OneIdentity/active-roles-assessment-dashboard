@@ -23,7 +23,14 @@ const SOURCE_COLOR: Record<string, string> = {
 };
 
 const kpiValue = (kpi: ViewKpi) => kpi.error ?? formatNumber(kpi.count);
-const hasRisk = (kpi: ViewKpi) => kpi.error != null || kpi.count > 0;
+/** A KPI needs attention on error, or when its threshold severity is above none (any count when no thresholds apply). */
+const hasRisk = (kpi: ViewKpi) => kpi.error != null || (kpi.severity ? kpi.severity !== 'none' : kpi.count > 0);
+const severityClass = (kpi: ViewKpi) => (kpi.error == null && kpi.severity ? `severity-${kpi.severity}` : '');
+const severityLabel = (kpi: ViewKpi) => {
+  if (kpi.error != null || !kpi.severity) return '';
+  return { none: t.severityNone, low: t.severityLow, medium: t.severityMedium, high: t.severityHigh }[kpi.severity];
+};
+const severitySuffix = (kpi: ViewKpi) => (severityLabel(kpi) ? ` (${severityLabel(kpi)})` : '');
 
 function SummaryMetrics({ category }: { category: ViewCategory }) {
   const kpis = category.kpis.filter((k) => SUMMARY_KEYS[k.key]);
@@ -112,10 +119,11 @@ function Governance({ category, onKpi }: { category: ViewCategory; onKpi: (kpi: 
                 {group.map((kpi) => {
                   const risk = hasRisk(kpi);
                   return (
-                    <button type="button" key={kpi.key} className={`kpi ad-risk-row ${risk ? 'has-risk' : 'is-clear'}`}
-                      data-section={kpi.sectionId} aria-label={`${kpi.label}: ${kpiValue(kpi)}. ${t.viewDetails}`}
+                    <button type="button" key={kpi.key} className={`kpi ad-risk-row ${risk ? 'has-risk' : 'is-clear'} ${severityClass(kpi)}`}
+                      data-section={kpi.sectionId} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}. ${t.viewDetails}`}
+                      title={severityLabel(kpi) || undefined}
                       onClick={() => onKpi(kpi)}>
-                      <span className={`ad-risk-icon ${risk ? 'has-risk' : ''}`} aria-hidden="true" />
+                      <span className={`ad-risk-icon ${risk ? 'has-risk' : ''} ${severityClass(kpi)}`} aria-hidden="true" />
                       <span className="ad-risk-copy">
                         <span className="ad-risk-title">{kpi.label}</span>
                         <span className="ad-risk-description">{t.risk[kpi.key] ?? ''}</span>
@@ -158,7 +166,8 @@ function CategoryAccordion({ category, onKpi }: { category: ViewCategory; onKpi:
         <div className="kpi-grid">
           {category.kpis.map((kpi) => (
             <button type="button" key={kpi.key} data-section={kpi.sectionId} onClick={() => onKpi(kpi)}
-              className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''}`}>
+              title={severityLabel(kpi) || undefined} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}`}
+              className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''} ${kpi.isRisk ? severityClass(kpi) : ''}`}>
               <span className="lbl">{kpi.label}</span>
               <span className="val">{kpiValue(kpi)}</span>
             </button>
