@@ -77,6 +77,25 @@
 .role-matrix-table th { font-weight: 600; color: var(--oi-content-color-secondary); border-bottom: 1px solid var(--oi-border-color-default); }
 .role-matrix-table td { border-bottom: 1px solid var(--oi-border-color-muted); }
 .role-matrix-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--oi-content-color-brand); }
+
+.iris-settings .form-group input[type="search"],
+.kpi-threshold-table input[type="number"],
+.kpi-threshold-table select {
+    font: inherit; color: inherit; height: 36px; padding: 0 12px;
+    background: var(--oi-background-color-primary);
+    border: 1px solid var(--oi-border-color-default);
+    border-radius: var(--oi-border-radius-default);
+}
+.iris-settings .form-group input[type="search"] { width: 100%; max-width: 360px; }
+.kpi-threshold-table input[type="number"] { width: 7rem; }
+.kpi-threshold-table select { padding-right: 8px; }
+.kpi-threshold-table input:hover, .kpi-threshold-table select:hover { border-color: var(--oi-border-color-strong); }
+.iris-settings .form-group input[type="search"]:focus,
+.kpi-threshold-table input:focus, .kpi-threshold-table select:focus { outline: none; border-color: var(--oi-border-color-focus); box-shadow: 0 0 0 1px var(--oi-border-color-focus); }
+border-color: var(--oi-border-color-badge-error); }
+.iris-settings fieldset:disabled .kpi-threshold-table input,
+.iris-settings fieldset:disabled .kpi-threshold-table select { background: var(--oi-background-color-secondary); color: var(--oi-content-color-secondary); cursor: not-allowed; }
+.kpi-threshold-table th, .kpi-threshold-table td { padding: 6px 8px; vertical-align: middle; }
 .muted { color: var(--oi-content-color-secondary); font-style: italic; }
 
 .btn-save {

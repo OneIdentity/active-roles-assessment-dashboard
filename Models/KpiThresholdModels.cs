@@ -54,6 +54,24 @@ public readonly record struct ResolvedKpiThresholds(int Medium, int High);
 /// <summary>Built-in defaults used by the threshold resolver.</summary>
 public static class KpiThresholdDefaults
 {
+    private static readonly Lazy<IReadOnlyDictionary<string, ResolvedKpiThresholds>> _builtIn = new(BuildBuiltIn);
+
+    /// <summary>
+    /// Built-in Count thresholds per KPI, derived from the existing MITRE mappings (preferred) and
+    /// "higher is worse" assessment rules. These are the values shown/used when nothing is configured.
+    /// </summary>
+    public static IReadOnlyDictionary<string, ResolvedKpiThresholds> BuiltIn => _builtIn.Value;
+
+    private static IReadOnlyDictionary<string, ResolvedKpiThresholds> BuildBuiltIn()
+    {
+        var result = new Dictionary<string, ResolvedKpiThresholds>(StringComparer.OrdinalIgnoreCase);
+        foreach (var mapping in MitreTechniqueLibrary.All.SelectMany(t => t.Mappings))
+            result.TryAdd(mapping.KpiKey, new ResolvedKpiThresholds(mapping.MediumThreshold, mapping.HighThreshold));
+        foreach (var rule in AssessmentRuleLibrary.All.Where(r => r.Comparison == AssessmentComparison.AtLeast))
+            result.TryAdd(rule.KpiKey, new ResolvedKpiThresholds(rule.WarnThreshold, rule.FailThreshold));
+        return result;
+    }
+
     /// <summary>
     /// Default total-population KPI used for percentage thresholds, by KPI key prefix/family.
     /// Returns null when no sensible total is known (percentage mode then falls back).

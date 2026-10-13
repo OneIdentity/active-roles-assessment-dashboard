@@ -59,6 +59,112 @@ public class SettingsModel : PageModel
     [BindProperty]
     public int DynamicGroupExpensiveRuleThreshold { get; set; }
 
+    /// <summary>Editable per-KPI Medium/High thresholds (ActiveRoles:KpiThresholds).</summary>
+    [BindProperty]
+    public List<KpiThresholdRow> KpiThresholdRows { get; set; } = new();
+
+    /// <summary>Validation errors for KPI threshold rows (rows with errors are not saved).</summary>
+    public List<string> KpiThresholdErrors { get; } = new();
+
+    public class KpiThresholdRow
+    {
+        public string Key { get; set; } = string.Empty;
+        public KpiThresholdMode Mode { get; set; } = KpiThresholdMode.Count;
+        public double Medium { get; set; }
+        public double High { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+        public int DefaultMedium { get; set; }
+        public int DefaultHigh { get; set; }
+        public bool IsCustomized { get; set; }
+    }
+
+    private void LoadKpiThresholdRows(ActiveRolesConfig config)
+    {
+        KpiThresholdRows = KpiThresholdDefaults.BuiltIn
+            .Select(kv =>
+            {
+                config.KpiThresholds.TryGetValue(kv.Key, out var configured);
+                if (configured?.Validate() != null) configured = null;
+                return new KpiThresholdRow
+                {
+                    Key = kv.Key,
+                    DisplayName = KpiInfo.All.FirstOrDefault(k => string.Equals(k.Key, kv.Key, StringComparison.OrdinalIgnoreCase))?.DisplayName ?? kv.Key,
+                    DefaultMedium = kv.Value.Medium,
+                    DefaultHigh = kv.Value.High,
+                    Mode = configured?.Mode ?? KpiThresholdMode.Count,
+                    Medium = configured?.Medium ?? kv.Value.Medium,
+                    High = configured?.High ?? kv.Value.High,
+                    IsCustomized = configured != null
+                };
+            })
+            .OrderBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Builds the KpiThresholds JSON section. Only rows that differ from the built-in Count defaults
+    /// are persisted; invalid rows are reported and keep their previously saved value.
+    /// </summary>
+    private JsonObject BuildKpiThresholdsJson(ActiveRolesConfig config)
+    {
+        var section = new JsonObject();
+        foreach (var (key, value) in config.KpiThresholds.Where(kv => !KpiThresholdDefaults.BuiltIn.ContainsKey(kv.Key)))
+        {
+            var preserved = new JsonObject { ["Mode"] = value.Mode.ToString(), ["Medium"] = value.Medium, ["High"] = value.High };
+            if (!string.IsNullOrWhiteSpace(value.TotalKpiKey)) preserved["TotalKpiKey"] = value.TotalKpiKey;
+            section[key] = preserved;
+        }
+        foreach (var row in KpiThresholdRows)
+        {
+            if (!KpiThresholdDefaults.BuiltIn.TryGetValue(row.Key, out var builtIn)) continue;
+            var candidate = new KpiThresholdConfig { Mode = row.Mode, Medium = row.Medium, High = row.High };
+            if (config.KpiThresholds.TryGetValue(row.Key, out var existing))
+                candidate.TotalKpiKey = existing.TotalKpiKey;
+            var error = candidate.Validate();
+            if (error != null)
+            {
+                var name = KpiInfo.All.FirstOrDefault(k => string.Equals(k.Key, row.Key, StringComparison.OrdinalIgnoreCase))?.DisplayName ?? row.Key;
+                KpiThresholdErrors.Add($"{name}: {error}");
+                if (config.KpiThresholds.TryGetValue(row.Key, out var previous) && previous.Validate() == null)
+                    candidate = previous;
+                else
+                    continue;
+            }
+            if (candidate.Mode == KpiThresholdMode.Count
+                && candidate.Medium == builtIn.Medium && candidate.High == builtIn.High)
+                continue;
+            var entry = new JsonObject
+            {
+                ["Mode"] = candidate.Mode.ToString(),
+                ["Medium"] = candidate.Medium,
+                ["High"] = candidate.High
+            };
+            if (!string.IsNullOrWhiteSpace(candidate.TotalKpiKey))
+                entry["TotalKpiKey"] = candidate.TotalKpiKey;
+            section[row.Key] = entry;
+        }
+        return section;
+    }
+
+    /// <summary>
+    /// Writes KpiThresholds into appsettings.&lt;Environment&gt;.json when that file already defines
+    /// the section (it would otherwise override the base file).
+    /// </summary>
+    private void SaveEnvironmentKpiThresholds(JsonObject section)
+    {
+        var envPath = Path.Combine(_env.ContentRootPath, $"appsettings.{_env.EnvironmentName}.json");
+        if (!System.IO.File.Exists(envPath)) return;
+        var node = JsonNode.Parse(System.IO.File.ReadAllText(envPath), documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip });
+        var activeRoles = (node as JsonObject)?["ActiveRoles"] as JsonObject;
+        if (activeRoles == null || !activeRoles.ContainsKey("KpiThresholds")) return;
+        activeRoles["KpiThresholds"] = section.DeepClone();
+        System.IO.File.WriteAllText(envPath, node!.ToJsonString(new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        }));
+    }
+
     [BindProperty]
     public KpiSettings KpiSettings { get; set; } = new();
 
@@ -264,6 +370,7 @@ public class SettingsModel : PageModel
         CustomNoManagerServiceAccountFilter = config.CustomNoManagerServiceAccountFilter;
         EntraLargeGroupMemberThreshold = config.Entra.LargeGroupMemberThreshold;
         DynamicGroupExpensiveRuleThreshold = config.DynamicGroupExpensiveRuleThreshold;
+        LoadKpiThresholdRows(config);
 
         // REST API Configuration
         ApiBaseUrl = config.ApiBaseUrl;
@@ -374,8 +481,9 @@ public class SettingsModel : PageModel
             !string.IsNullOrEmpty(ServiceAccountPassword));
 
         var username = User.Identity?.Name ?? "";
+        var postedThresholds = KpiThresholdRows.ToList();
 
-        // User settings (Language, KPI visibility, auto-refresh) require ManageUserSettings.
+        // User settings (Language
         if (CanManageUserSettings)
         {
             var selectedLanguage = SupportedLanguage.All.Any(l => l.Code == Language)
@@ -405,8 +513,21 @@ public class SettingsModel : PageModel
             SaveAppSettings(persistRoleMatrix: IsActiveRolesAdmin);
         }
 
+        LoadKpiThresholdRows(_arConfig.CurrentValue);
+        foreach (var row in KpiThresholdRows)
+        {
+            var posted = postedThresholds.FirstOrDefault(p => string.Equals(p.Key, row.Key, StringComparison.OrdinalIgnoreCase));
+            if (posted == null) continue;
+            row.Mode = posted.Mode;
+            row.Medium = posted.Medium;
+            row.High = posted.High;
+            row.IsCustomized = posted.Mode != KpiThresholdMode.Count || posted.Medium != row.DefaultMedium || posted.High != row.DefaultHigh;
+        }
+
         SettingsChanged = true;
         Message = _localizer["SavedSuccessfully"];
+        if (KpiThresholdErrors.Count > 0)
+            Message += " " + string.Join(" ", KpiThresholdErrors);
 
         return Page();
     }
@@ -444,6 +565,11 @@ public class SettingsModel : PageModel
 
                 // Dynamic Groups "expensive" rule-count threshold (flat ActiveRoles property).
                 activeRoles["DynamicGroupExpensiveRuleThreshold"] = DynamicGroupExpensiveRuleThreshold;
+
+                // Per-KPI Medium/High thresholds (only values differing from built-in defaults).
+                var kpiThresholds = BuildKpiThresholdsJson(_arConfig.CurrentValue);
+                activeRoles["KpiThresholds"] = kpiThresholds;
+                SaveEnvironmentKpiThresholds(kpiThresholds);
 
                 // REST API Configuration (takes effect after a restart)
                 activeRoles["ApiBaseUrl"] = ApiBaseUrl?.Trim() ?? "";

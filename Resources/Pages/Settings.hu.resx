@@ -99,4 +99,17 @@
   <data name="PageTitle" xml:space="preserve">
     <value>Beállítások</value>
   </data>
+  <data name="Card_KpiThresholds" xml:space="preserve"><value>KPI-küszöbértékek</value></data>
+  <data name="Hint_KpiThresholds" xml:space="preserve"><value>Adja meg KPI-nként a Közepes és Magas küszöbértékeket, amelyeket az Értékelések és a Támadási kitettség használ. A Nincs mindig 0, az Alacsony bármely 0-nál nagyobb, Közepesnél kisebb érték. Egy KPI mindkét küszöbértéke ugyanazt a módot használja: rögzített darabszám vagy a kapcsolódó összesítés százaléka (felhasználók, csoportok vagy számítógépek).</value></data>
+  <data name="Placeholder_KpiThresholdFilter" xml:space="preserve"><value>KPI-k szűrése...</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_ThresholdNone" xml:space="preserve"><value>Nincs</value></data>
+  <data name="Col_ThresholdLow" xml:space="preserve"><value>Alacsony</value></data>
+  <data name="Col_ThresholdMode" xml:space="preserve"><value>Mód</value></data>
+  <data name="Col_ThresholdMedium" xml:space="preserve"><value>Közepes</value></data>
+  <data name="Col_ThresholdHigh" xml:space="preserve"><value>Magas</value></data>
+  <data name="Col_ThresholdDefault" xml:space="preserve"><value>Alapértelmezett (K / M)</value></data>
+  <data name="Label_Customized" xml:space="preserve"><value>testreszabott</value></data>
+  <data name="Option_ThresholdCount" xml:space="preserve"><value>Darabszám</value></data>
+  <data name="Option_ThresholdPercent" xml:space="preserve"><value>Százalék</value></data>
 </root>
