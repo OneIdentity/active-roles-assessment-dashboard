@@ -17,11 +17,13 @@ public class AssessmentService
 
     private readonly IWebHostEnvironment _env;
     private readonly Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> _config;
+    private readonly KpiThresholdService _thresholds;
 
-    public AssessmentService(IWebHostEnvironment env, Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> config)
+    public AssessmentService(IWebHostEnvironment env, Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> config, KpiThresholdService thresholds)
     {
         _env = env;
         _config = config;
+        _thresholds = thresholds;
     }
 
     private string AssessmentFolder
@@ -76,7 +78,7 @@ public class AssessmentService
             }
             else
             {
-                check.Status = Evaluate(rule, count);
+                check.Status = Evaluate(rule, count, summary.GetKpiResult);
                 switch (check.Status)
                 {
                     case AssessmentStatus.Pass: result.PassCount++; break;
@@ -128,7 +130,7 @@ public class AssessmentService
         return result;
     }
 
-    private static AssessmentStatus Evaluate(AssessmentRule rule, int count)
+    private AssessmentStatus Evaluate(AssessmentRule rule, int count, Func<string, (int Count, string? Error)> kpiLookup)
     {
         if (rule.Comparison == AssessmentComparison.AtMost)
         {
@@ -140,9 +142,16 @@ public class AssessmentService
             return AssessmentStatus.Pass;
         }
 
-        if (count >= rule.FailThreshold)
+        // Configured KPI thresholds map Medium -> Warning and High -> Fail; unconfigured KPIs
+        // keep the rule's built-in thresholds.
+        var thresholds = _thresholds.Resolve(
+            rule.KpiKey,
+            new ResolvedKpiThresholds(rule.WarnThreshold, rule.FailThreshold),
+            kpiLookup);
+
+        if (count >= thresholds.High)
             return AssessmentStatus.Fail;
-        if (count >= rule.WarnThreshold)
+        if (count >= thresholds.Medium)
             return AssessmentStatus.Warning;
         return AssessmentStatus.Pass;
     }
