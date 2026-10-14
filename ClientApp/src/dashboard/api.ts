@@ -7,6 +7,7 @@ export interface DashboardCapabilities {
   canExportDashboardData: boolean;
   canRebuildCache: boolean;
   cacheRebuildInProgress: boolean;
+  performanceTestDashboards: string[];
 }
 
 export interface DashboardTab {
@@ -166,6 +167,60 @@ export const setSegments = (dimension: 'Domain' | 'Tenant', segments: string[]) 
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ dimension, segments }),
+  });
+
+export type PerfStatus = 'Ok' | 'Warn' | 'Fail' | 'Skipped';
+
+export interface PerfTarget {
+  id: string;
+  name: string;
+  serverType: string;
+  applicableTests: string[];
+}
+
+export interface PerfProbe {
+  targetId: string;
+  targetName: string;
+  serverType: string;
+  testType: string;
+  status: PerfStatus;
+  latencyMs: number | null;
+  message: string;
+}
+
+export interface PerfRunResult {
+  error?: string;
+  okCount: number;
+  warnCount: number;
+  failCount: number;
+  probes: PerfProbe[];
+}
+
+export interface PerfTrendSeries {
+  targetId: string;
+  targetName: string;
+  serverType: string;
+  testType: string;
+  samples: { timestampUtc: string; latencyMs: number | null; status: PerfStatus }[];
+}
+
+export interface PerfTrendResponse {
+  intervalMinutes: number;
+  retentionHours: number;
+  series: PerfTrendSeries[];
+}
+
+export const getPerfTargets = (dashboard: string) =>
+  request<PerfTarget[] | { error: string }>(`/api/diagnostics/targets?dashboard=${encodeURIComponent(dashboard)}`);
+
+export const getPerfTrends = (dashboard: string, periodHours: number) =>
+  request<PerfTrendResponse>(`/api/diagnostics/trends?dashboard=${encodeURIComponent(dashboard)}&periodHours=${periodHours}`);
+
+export const runPerfTests = (dashboard: string, testType: string | null, targetIds: string[]) =>
+  request<PerfRunResult>('/api/diagnostics/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dashboard, testType, targetIds }),
   });
 
 export interface ExportRequest {

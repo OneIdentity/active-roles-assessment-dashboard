@@ -283,7 +283,7 @@ export function DashboardFrame() {
 
               <div className="ad-content-scroll" ref={scrollRef} aria-busy={viewState.status === 'loading'}>
                 <SegmentFilter filter={payload.segmentFilter} onApply={onSegments} />
-                {viewState.status === 'ready' && <DashboardContent view={viewState.view} onKpi={onKpi} />}
+                {viewState.status === 'ready' && <DashboardContent view={viewState.view} onKpi={onKpi} perfDashboards={payload.capabilities.performanceTestDashboards} />}
                 {viewState.status === 'notFound' && (
                   <section className="ad-source-card" role="alert">
                     <div className="ad-section-heading">
