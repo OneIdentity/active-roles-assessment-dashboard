@@ -213,6 +213,8 @@ a.iris-kpi-modal-export, a.iris-kpi-modal-close, a.iris-kpi-modal-export:hover, 
 .kpi-detail-table tr.is-excluded td { color: var(--oi-content-color-secondary); text-decoration: line-through; }
 .kpi-detail-table tr.is-excluded td:has(.kpi-excluded-badge) { text-decoration: none; }
 .kpi-excluded-badge { display: inline-block; padding: 1px 6px; border-radius: 10px; background: var(--oi-background-color-tertiary); color: var(--oi-content-color-secondary); font-size: 0.75rem; white-space: nowrap; }
+.kpi-exclusion-na { margin-left: 2px; color: var(--oi-content-color-warning, #b45309); font-weight: 600; cursor: help; }
+.kpi-exclusion-na-note { margin: 0 0 var(--oi-spacing-m, 12px); padding: 8px 12px; border-left: 3px solid var(--oi-border-color-badge-warning); background: var(--oi-background-color-warning); border-radius: 4px; font-size: 0.875rem; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .iris-kpi-modal-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: var(--oi-spacing-l); }
 .iris-kpi-modal-body > .panel { display: block; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }

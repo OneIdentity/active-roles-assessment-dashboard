@@ -71,14 +71,26 @@ public class KpiExclusionService
     /// <summary>KPI count with excluded objects removed (raw result when not applicable).</summary>
     public (int Count, string? Error) GetAdjustedResult(DashboardSummary summary, string kpiKey)
     {
+        var r = Evaluate(summary, kpiKey);
+        return (r.Count, r.Error);
+    }
+
+    /// <summary>
+    /// Adjusted KPI result plus a flag indicating exclusion patterns are configured for the KPI but
+    /// could not be applied to its count (detail list incomplete, or no Name/DN columns).
+    /// </summary>
+    public (int Count, string? Error, bool NotApplied) Evaluate(DashboardSummary summary, string kpiKey)
+    {
         var raw = summary.GetKpiResult(kpiKey);
-        if (raw.Error != null || raw.Count <= 0 || GetPatterns(kpiKey).Count == 0) return raw;
+        if (raw.Error != null || raw.Count <= 0 || GetPatterns(kpiKey).Count == 0) return (raw.Count, raw.Error, false);
 
         var table = summary.GetKpiDetailTable(kpiKey);
-        if (table == null || table.Error != null || table.Rows.Count != raw.Count) return raw;
+        if (table == null || table.Error != null || table.Rows.Count != raw.Count
+            || (!table.Columns.Contains(NameColumn) && !table.Columns.Contains(DnColumn)))
+            return (raw.Count, raw.Error, true);
 
         var excluded = ApplyToTable(kpiKey, table);
-        return (Math.Max(0, raw.Count - excluded), raw.Error);
+        return (Math.Max(0, raw.Count - excluded), raw.Error, false);
     }
 
     /// <summary>Convenience lookup delegate for consumers that take a KPI lookup function.</summary>

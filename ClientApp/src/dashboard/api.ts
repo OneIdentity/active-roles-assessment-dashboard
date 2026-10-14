@@ -53,6 +53,7 @@ export interface ViewKpi {
   sectionId: string;
   isRisk: boolean;
   severity?: 'none' | 'low' | 'medium' | 'high' | null;
+  exclusionsNotApplied?: boolean;
 }
 
 export interface ViewCategory {
@@ -116,6 +117,7 @@ export interface KpiDetail {
   rows: string[][];
   groupTreeDn?: string | null;
   rowGroupTreeDns?: (string | null)[] | null;
+  exclusionsNotApplied?: boolean;
 }
 
 export interface RefreshStatus {

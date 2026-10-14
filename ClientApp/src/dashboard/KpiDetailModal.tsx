@@ -81,6 +81,7 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
         <div className="iris-kpi-modal-body" aria-busy={!detail && !failed}>
           {!detail && !failed && <div className="spinner" aria-label={t.loading} />}
           {failed && <p role="alert">{t.loadFailed}</p>}
+          {detail && detail.exclusionsNotApplied && <p className="kpi-exclusion-na-note" role="note">{t.exclusionsNotAppliedDetail}</p>}
           {detail && detail.error && <p className="muted">{detail.error}</p>}
           {detail && !detail.error && detail.rows.length === 0 && <p className="muted">{t.noDetails}</p>}
           {detail && detail.rows.length > 0 && (

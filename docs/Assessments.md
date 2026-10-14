@@ -44,6 +44,12 @@ Each rule (`AssessmentRule`) has:
 - Two saved runs **of the same type** can be compared side-by-side, or a saved baseline can be compared against a fresh **current (live)** evaluation. The comparison shows per-check status transitions (e.g. Fail → Pass), score/grade movement, and checks that were added or removed between runs.
 - Comparing a membership-dependent type against *current* honors the same Entra-membership gate as running one, so a live comparison is never computed against provisional data.
 
+### KPI thresholds and exclusions
+
+- Rule counts are read **after** configured KPI exclusions (`ActiveRoles:KpiExclusions`) are applied, so excluded objects never cause a warning or failure. See [Configuration Settings](ConfigSettings.md#kpi-thresholds-and-exclusions).
+- Percentage-based KPI thresholds (`ActiveRoles:KpiThresholds`) are resolved against the related total at evaluation time.
+- Saved runs keep the counts that were evaluated at the time; changing exclusions or thresholds affects new runs and *current* comparisons only.
+
 ---
 
 ## 2. Assessment types (frameworks)
