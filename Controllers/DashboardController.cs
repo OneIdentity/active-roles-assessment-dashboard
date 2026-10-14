@@ -67,6 +67,7 @@ public class DashboardController : ControllerBase
         public bool CanExportDashboardData { get; set; }
         public bool CanRebuildCache { get; set; }
         public bool CacheRebuildInProgress { get; set; }
+        public List<string> PerformanceTestDashboards { get; set; } = new();
     }
 
     public sealed class KpiTile
@@ -655,7 +656,11 @@ public class DashboardController : ControllerBase
         CanViewAssessments = access.HasPermission(DashboardPermission.ViewAssessments),
         CanExportDashboardData = RolePermissionRegistry.CanExportDashboardData(access.Permissions, access.IsActiveRolesAdmin),
         CanRebuildCache = access.IsActiveRolesAdmin || access.HasPermission(DashboardPermission.RebuildCache),
-        CacheRebuildInProgress = _cache.State == CacheState.Refreshing
+        CacheRebuildInProgress = _cache.State == CacheState.Refreshing,
+        PerformanceTestDashboards = Enum.GetValues<DiagnosticsDashboard>()
+            .Where(d => RolePermissionRegistry.CanRunPerformanceTests(access.Permissions, access.IsActiveRolesAdmin, d))
+            .Select(d => d.ToString())
+            .ToList()
     };
 
     private OverviewSection BuildOverview(DashboardSummary summary, KpiSettings settings)

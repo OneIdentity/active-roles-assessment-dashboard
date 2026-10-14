@@ -1,5 +1,6 @@
 import type { DashboardView, ViewCategory, ViewKpi } from './api';
 import { LicensingDonuts, LicensingThresholds, LicensingTrend } from './LicensingCharts';
+import { PerformanceTests } from './PerformanceTests';
 import { RingChart } from './RingChart';
 import { formatNumber, t } from './strings';
 
@@ -185,10 +186,11 @@ function CategoryAccordion({ category, onKpi }: { category: ViewCategory; onKpi:
 interface Props {
   view: DashboardView;
   onKpi: (kpi: ViewKpi) => void;
+  perfDashboards?: string[];
 }
 
 /** Port of the `.ad-sections` body of the UX `_AdDashboardFrame.cshtml`. */
-export function DashboardContent({ view, onKpi }: Props) {
+export function DashboardContent({ view, onKpi, perfDashboards = [] }: Props) {
   const overview = view.categories.find((c) => c.isOverview);
   const risk = view.categories.filter((c) => c.isRisk);
   const additional = view.categories
@@ -204,6 +206,7 @@ export function DashboardContent({ view, onKpi }: Props) {
       {view.licensing && <LicensingThresholds view={view.licensing} />}
       {additional.map((c) => <CategoryAccordion key={c.key} category={c} onKpi={onKpi} />)}
       {view.licensing && <LicensingTrend view={view.licensing} />}
+      {perfDashboards.includes(view.key) && <PerformanceTests dashboard={view.key} />}
     </div>
   );
 }
