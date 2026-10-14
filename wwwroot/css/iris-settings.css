@@ -119,3 +119,5 @@
 .btn-save:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
 .msg { margin-top: 12px; padding: 8px 12px; border-radius: var(--oi-border-radius-default); background: var(--oi-background-color-success); border: 1px solid var(--oi-border-color-badge-success); color: var(--oi-content-color-primary); }
 .msg-warn { background: var(--oi-background-color-warning); border-color: var(--oi-border-color-badge-warning); }
+.kpi-exclusion-scroll { max-height: 60vh; overflow-y: auto; border: 1px solid var(--oi-border-color-default); border-radius: var(--oi-border-radius-m, 4px); }
+.kpi-exclusion-scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--oi-background-color-primary); }
