@@ -116,6 +116,8 @@ builder.Services.AddSingleton<DiagnosticsTargetProvider>();
 builder.Services.AddSingleton<RoleService>();
 builder.Services.AddSingleton<UserSettingsService>();
 builder.Services.AddSingleton<SnapshotService>();
+builder.Services.AddSingleton<KpiThresholdService>();
+builder.Services.AddSingleton<KpiExclusionService>();
 builder.Services.AddSingleton<AssessmentService>();
 builder.Services.AddSingleton<MitreExposureService>();
 

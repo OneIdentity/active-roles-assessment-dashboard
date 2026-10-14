@@ -23,7 +23,18 @@ const SOURCE_COLOR: Record<string, string> = {
 };
 
 const kpiValue = (kpi: ViewKpi) => kpi.error ?? formatNumber(kpi.count);
-const hasRisk = (kpi: ViewKpi) => kpi.error != null || kpi.count > 0;
+/** A KPI needs attention on error, or when its threshold severity is above none (any count when no thresholds apply). */
+const hasRisk = (kpi: ViewKpi) => kpi.error != null || (kpi.severity ? kpi.severity !== 'none' : kpi.count > 0);
+const severityClass = (kpi: ViewKpi) => (kpi.error == null && kpi.severity ? `severity-${kpi.severity}` : '');
+const severityLabel = (kpi: ViewKpi) => {
+  if (kpi.error != null || !kpi.severity) return '';
+  return { none: t.severityNone, low: t.severityLow, medium: t.severityMedium, high: t.severityHigh }[kpi.severity];
+};
+const severitySuffix = (kpi: ViewKpi) => (severityLabel(kpi) ? ` (${severityLabel(kpi)})` : '');
+const exclusionSuffix = (kpi: ViewKpi) => (kpi.exclusionsNotApplied ? `. ${t.exclusionsNotApplied}` : '');
+const kpiTitle = (kpi: ViewKpi) => [severityLabel(kpi), kpi.exclusionsNotApplied ? t.exclusionsNotApplied : ''].filter(Boolean).join(' \u2013 ') || undefined;
+const ExclusionMark = ({ kpi }: { kpi: ViewKpi }) =>
+  kpi.exclusionsNotApplied ? <span className="kpi-exclusion-na" aria-hidden="true">*</span> : null;
 
 function SummaryMetrics({ category }: { category: ViewCategory }) {
   const kpis = category.kpis.filter((k) => SUMMARY_KEYS[k.key]);
@@ -39,7 +50,7 @@ function SummaryMetrics({ category }: { category: ViewCategory }) {
                 <span className={`ad-summary-icon ad-summary-icon-${meta.icon}`} aria-hidden="true" />
                 <span>{kpi.label}</span>
               </div>
-              <div className="ad-summary-value">{kpiValue(kpi)}</div>
+              <div className="ad-summary-value" title={kpiTitle(kpi)}>{kpiValue(kpi)}<ExclusionMark kpi={kpi} /></div>
               <div className="ad-capacity-track" aria-hidden="true"><span style={{ width: meta.capacity }} /></div>
             </div>
           );
@@ -112,15 +123,16 @@ function Governance({ category, onKpi }: { category: ViewCategory; onKpi: (kpi: 
                 {group.map((kpi) => {
                   const risk = hasRisk(kpi);
                   return (
-                    <button type="button" key={kpi.key} className={`kpi ad-risk-row ${risk ? 'has-risk' : 'is-clear'}`}
-                      data-section={kpi.sectionId} aria-label={`${kpi.label}: ${kpiValue(kpi)}. ${t.viewDetails}`}
+                    <button type="button" key={kpi.key} className={`kpi ad-risk-row ${risk ? 'has-risk' : 'is-clear'} ${severityClass(kpi)}`}
+                      data-section={kpi.sectionId} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}${exclusionSuffix(kpi)}. ${t.viewDetails}`}
+                      title={kpiTitle(kpi)}
                       onClick={() => onKpi(kpi)}>
-                      <span className={`ad-risk-icon ${risk ? 'has-risk' : ''}`} aria-hidden="true" />
+                      <span className={`ad-risk-icon ${risk ? 'has-risk' : ''} ${severityClass(kpi)}`} aria-hidden="true" />
                       <span className="ad-risk-copy">
                         <span className="ad-risk-title">{kpi.label}</span>
                         <span className="ad-risk-description">{t.risk[kpi.key] ?? ''}</span>
                       </span>
-                      <span className="ad-risk-value">{kpiValue(kpi)}</span>
+                      <span className="ad-risk-value">{kpiValue(kpi)}<ExclusionMark kpi={kpi} /></span>
                     </button>
                   );
                 })}
@@ -158,9 +170,10 @@ function CategoryAccordion({ category, onKpi }: { category: ViewCategory; onKpi:
         <div className="kpi-grid">
           {category.kpis.map((kpi) => (
             <button type="button" key={kpi.key} data-section={kpi.sectionId} onClick={() => onKpi(kpi)}
-              className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''}`}>
+              title={kpiTitle(kpi)} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}${exclusionSuffix(kpi)}`}
+              className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''} ${kpi.isRisk ? severityClass(kpi) : ''}`}>
               <span className="lbl">{kpi.label}</span>
-              <span className="val">{kpiValue(kpi)}</span>
+              <span className="val">{kpiValue(kpi)}<ExclusionMark kpi={kpi} /></span>
             </button>
           ))}
         </div>

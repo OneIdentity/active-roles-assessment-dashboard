@@ -267,4 +267,22 @@
   <data name="PageTitle" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="Card_KpiThresholds" xml:space="preserve"><value>KPI Thresholds</value></data>
+  <data name="Hint_KpiThresholds" xml:space="preserve"><value>Configure the Medium and High thresholds per KPI used by Assessments and Attack Exposure. None is always 0 and Low is any value above 0 below Medium. Both thresholds of a KPI use the same mode: a fixed count, or a percentage of the related total (users, groups or computers).</value></data>
+  <data name="Placeholder_KpiThresholdFilter" xml:space="preserve"><value>Filter KPIs...</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_ThresholdNone" xml:space="preserve"><value>None</value></data>
+  <data name="Col_ThresholdLow" xml:space="preserve"><value>Low</value></data>
+  <data name="Col_ThresholdMode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Col_ThresholdMedium" xml:space="preserve"><value>Medium</value></data>
+  <data name="Col_ThresholdHigh" xml:space="preserve"><value>High</value></data>
+  <data name="Col_ThresholdDefault" xml:space="preserve"><value>Default (M / H)</value></data>
+  <data name="Label_Customized" xml:space="preserve"><value>customized</value></data>
+  <data name="Option_ThresholdCount" xml:space="preserve"><value>Count</value></data>
+  <data name="Option_ThresholdPercent" xml:space="preserve"><value>Percent</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Exclude known false positives (for example krbtgt) from KPI counts. One wildcard pattern per line, matched case-insensitively against the object name or distinguished name (* and ? are supported). Excluded objects remain visible in drill-down details marked as Excluded but are not counted.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Applied to every KPI. A pattern listed here must not be repeated in a KPI-specific list.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Global exclusions</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Exclusion patterns (one per line)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>KPI Exclusions</value></data>
 </root>

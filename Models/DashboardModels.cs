@@ -968,6 +968,13 @@ public class ActiveRolesConfig
     // Default UI language / culture code applied before a user selects their own in Settings.
     public string DefaultLanguage { get; set; } = SupportedLanguage.DefaultCode;
 
+    // Optional per-KPI Medium/High thresholds (ActiveRoles:KpiThresholds:<KpiKey>). KPIs without
+    // an entry keep their built-in assessment rule and MITRE mapping thresholds.
+    public Dictionary<string, KpiThresholdConfig> KpiThresholds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    // Optional exclusion patterns (ActiveRoles:KpiExclusions). Empty by default.
+    public KpiExclusionConfig KpiExclusions { get; set; } = new();
+
     // Default base DNs for all KPI searches (grouped under the DefaultDNs section).
     public DefaultDnsConfig DefaultDNs { get; set; } = new();
 

@@ -10,8 +10,17 @@ namespace ActiveRolesDashboard.Services;
 /// </summary>
 public class MitreExposureService
 {
+    private readonly KpiThresholdService _thresholds;
+    private readonly KpiExclusionService _exclusions;
+
+    public MitreExposureService(KpiThresholdService thresholds, KpiExclusionService exclusions)
+    {
+        _thresholds = thresholds;
+        _exclusions = exclusions;
+    }
+
     public AttackExposureView Build(DashboardSummary summary)
-        => Build(summary.GetKpiResult);
+        => Build(_exclusions.LookupFor(summary));
 
     /// <summary>
     /// Recomputes the exposure view from a saved snapshot's KPI counts. Because exposure
@@ -62,7 +71,7 @@ public class MitreExposureService
                         Rationale = mapping.Rationale,
                         Count = count,
                         HasError = error != null,
-                        Level = error != null ? ExposureLevel.None : LevelFor(count, mapping)
+                        Level = error != null ? ExposureLevel.None : LevelFor(count, mapping, kpiLookup)
                     };
                     exposure.Contributions.Add(contribution);
                 }
@@ -86,12 +95,20 @@ public class MitreExposureService
         return view;
     }
 
-    private static ExposureLevel LevelFor(int count, TechniqueKpiMapping mapping)
+    private ExposureLevel LevelFor(int count, TechniqueKpiMapping mapping, Func<string, (int Count, string? Error)> kpiLookup)
     {
-        if (count <= 0) return ExposureLevel.None;
-        if (count >= mapping.HighThreshold) return ExposureLevel.High;
-        if (count >= mapping.MediumThreshold) return ExposureLevel.Medium;
-        return ExposureLevel.Low;
+        var thresholds = _thresholds.Resolve(
+            mapping.KpiKey,
+            new ResolvedKpiThresholds(mapping.MediumThreshold, mapping.HighThreshold),
+            kpiLookup);
+
+        return KpiThresholdService.LevelFor(count, thresholds) switch
+        {
+            KpiThresholdLevel.High => ExposureLevel.High,
+            KpiThresholdLevel.Medium => ExposureLevel.Medium,
+            KpiThresholdLevel.Low => ExposureLevel.Low,
+            _ => ExposureLevel.None
+        };
     }
 
     private static string ResolveKpiName(string kpiKey) =>

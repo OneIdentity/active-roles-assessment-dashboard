@@ -42,7 +42,7 @@ Capture rules (`SnapshotService.Capture`):
 
 - Iterates `DashboardInfo.All`, then `CategoryInfo.ForDashboard`, then `KpiInfo.ForCategory`.
 - **Risk categories are skipped** (`IsRiskCategory`) because they are aggregations of KPIs owned elsewhere.
-- Each KPI count comes from `summary.GetKpiResult(key)`; any collection error is stored in `Error`.
+- Each KPI count comes from `summary.GetKpiResult(key)` with configured KPI exclusions applied (`KpiExclusionService`); any collection error is stored in `Error`. Snapshots captured before exclusions were added or changed keep their original counts, so compare and trend views can show a step change caused by configuration rather than by the directory.
 - Empty categories/dashboards (no KPIs) are omitted.
 - `IsRiskKpi` marks KPIs where an **increase** means a **worse** posture — this drives comparison colouring.
 

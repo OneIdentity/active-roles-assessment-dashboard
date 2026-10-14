@@ -40,13 +40,17 @@ public class DashboardController : ControllerBase
     private readonly UserSettingsService _userSettingsService;
     private readonly DashboardCacheHolder _cache;
     private readonly IOptionsMonitor<ActiveRolesConfig> _arConfig;
+    private readonly KpiThresholdService _thresholds;
+    private readonly KpiExclusionService _exclusions;
 
-    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig)
+    public DashboardController(DashboardDataService data, UserSettingsService userSettingsService, DashboardCacheHolder cache, IOptionsMonitor<ActiveRolesConfig> arConfig, KpiThresholdService thresholds, KpiExclusionService exclusions)
     {
         _data = data;
         _userSettingsService = userSettingsService;
         _cache = cache;
         _arConfig = arConfig;
+        _thresholds = thresholds;
+        _exclusions = exclusions;
     }
 
     // ---------------------------------------------------------------------
@@ -75,6 +79,8 @@ public class DashboardController : ControllerBase
         public string ColorToken { get; set; } = string.Empty;
         /// <summary>Resolved hex colour for the token.</summary>
         public string Color { get; set; } = FallbackChartColor;
+        /// <summary>Exclusions are configured for this KPI but could not be applied to its count.</summary>
+        public bool ExclusionsNotApplied { get; set; }
     }
 
     public sealed class ChartDataset
@@ -149,6 +155,10 @@ public class DashboardController : ControllerBase
         public string Color { get; set; } = FallbackChartColor;
         public string SectionId { get; set; } = string.Empty;
         public bool IsRisk { get; set; }
+        /// <summary>Threshold severity (none/low/medium/high), or null when the KPI has no thresholds.</summary>
+        public string? Severity { get; set; }
+        /// <summary>Exclusions are configured for this KPI but could not be applied to its count.</summary>
+        public bool ExclusionsNotApplied { get; set; }
     }
 
     public sealed class ViewCategory
@@ -227,6 +237,8 @@ public class DashboardController : ControllerBase
         public string? GroupTreeDn { get; set; }
         /// <summary>Per-row group DN for the nested-membership tree (aligned with Rows; null entries have none).</summary>
         public List<string?>? RowGroupTreeDns { get; set; }
+        /// <summary>Exclusions are configured for this KPI but could not be applied to its count.</summary>
+        public bool ExclusionsNotApplied { get; set; }
     }
 
     public sealed class SegmentRequest
@@ -399,8 +411,9 @@ public class DashboardController : ControllerBase
         if (!visible)
             return NotFound();
 
-        var result = summary.GetKpiResult(kpi.Key);
+        var result = _exclusions.Evaluate(summary, kpi.Key);
         var table = summary.GetKpiDetailTable(kpi.Key);
+        _exclusions.ApplyToTable(kpi.Key, table);
         var (groupTreeDn, rowGroupTreeDns) = summary.GetKpiGroupTreeTargets(kpi.Key);
         return Ok(new KpiDetail
         {
@@ -411,7 +424,8 @@ public class DashboardController : ControllerBase
             Columns = table?.Columns ?? new(),
             Rows = table?.Rows ?? new(),
             GroupTreeDn = groupTreeDn,
-            RowGroupTreeDns = rowGroupTreeDns is not null && rowGroupTreeDns.Count == (table?.Rows.Count ?? 0) ? rowGroupTreeDns : null
+            RowGroupTreeDns = rowGroupTreeDns is not null && rowGroupTreeDns.Count == (table?.Rows.Count ?? 0) ? rowGroupTreeDns : null,
+            ExclusionsNotApplied = result.NotApplied
         });
     }
 
@@ -580,9 +594,9 @@ public class DashboardController : ControllerBase
 
     private const string OverviewKey = "Overview";
 
-    private static ViewKpi ToViewKpi(KpiInfo kpi, DashboardSummary summary)
+    private ViewKpi ToViewKpi(KpiInfo kpi, DashboardSummary summary)
     {
-        var result = summary.GetKpiResult(kpi.Key);
+        var result = _exclusions.Evaluate(summary, kpi.Key);
         return new ViewKpi
         {
             Key = kpi.Key,
@@ -592,8 +606,22 @@ public class DashboardController : ControllerBase
             ColorToken = kpi.CssColor,
             Color = ResolveColor(kpi.CssColor),
             SectionId = kpi.SectionId,
-            IsRisk = kpi.IsRiskKpi
+            IsRisk = kpi.IsRiskKpi,
+            Severity = result.Error == null ? ResolveSeverity(kpi.Key, result.Count, summary) : null,
+            ExclusionsNotApplied = result.NotApplied
         };
+    }
+
+    private string? ResolveSeverity(string kpiKey, int count, DashboardSummary summary)
+    {
+        ResolvedKpiThresholds? thresholds = null;
+        var lookup = _exclusions.LookupFor(summary);
+        if (KpiThresholdDefaults.BuiltIn.TryGetValue(kpiKey, out var builtIn))
+            thresholds = _thresholds.Resolve(kpiKey, builtIn, lookup);
+        else if (_thresholds.GetConfigured(kpiKey) is { } configured)
+            thresholds = KpiThresholdService.Resolve(configured, kpiKey, new ResolvedKpiThresholds(1, 1), lookup);
+        if (thresholds is null) return null;
+        return KpiThresholdService.LevelFor(count, thresholds.Value).ToString().ToLowerInvariant();
     }
 
     /// <summary>
@@ -630,7 +658,7 @@ public class DashboardController : ControllerBase
         CacheRebuildInProgress = _cache.State == CacheState.Refreshing
     };
 
-    private static OverviewSection BuildOverview(DashboardSummary summary, KpiSettings settings)
+    private OverviewSection BuildOverview(DashboardSummary summary, KpiSettings settings)
     {
         var category = CategoryInfo.Overview;
         var section = new OverviewSection
@@ -647,7 +675,7 @@ public class DashboardController : ControllerBase
             // The mailbox total is only meaningful/authorized when the Exchange dashboard is visible.
             if (kpi.Key == "MainTotalMailboxes" && !summary.ExchangeVisible) continue;
 
-            var result = summary.GetKpiResult(kpi.Key);
+            var result = _exclusions.Evaluate(summary, kpi.Key);
             section.Kpis.Add(new KpiTile
             {
                 Key = kpi.Key,
@@ -655,7 +683,8 @@ public class DashboardController : ControllerBase
                 Count = result.Count,
                 Error = result.Error,
                 ColorToken = kpi.CssColor,
-                Color = ResolveColor(kpi.CssColor)
+                Color = ResolveColor(kpi.CssColor),
+                ExclusionsNotApplied = result.NotApplied
             });
         }
 
@@ -664,7 +693,7 @@ public class DashboardController : ControllerBase
     }
 
     /// <summary>Server-side category chart data (formerly rendered by the legacy Razor category charts).</summary>
-    private static List<ChartDataset> BuildCharts(CategoryInfo category, DashboardSummary summary, KpiSettings settings)
+    private List<ChartDataset> BuildCharts(CategoryInfo category, DashboardSummary summary, KpiSettings settings)
     {
         var result = new List<ChartDataset>();
 
@@ -711,7 +740,7 @@ public class DashboardController : ControllerBase
                     var kpi = KpiInfo.All.FirstOrDefault(k => k.Key == item.KpiKey);
                     if (kpi is null || !settings.IsKpiEnabled(kpi.CategoryKey, kpi.Key)) continue;
 
-                    var kpiResult = summary.GetKpiResult(kpi.Key);
+                    var kpiResult = _exclusions.GetAdjustedResult(summary, kpi.Key);
                     if (kpiResult.Error is not null || kpiResult.Count <= 0) continue;
 
                     dataset.Labels.Add(string.IsNullOrEmpty(item.Label) ? kpi.Label : item.Label);

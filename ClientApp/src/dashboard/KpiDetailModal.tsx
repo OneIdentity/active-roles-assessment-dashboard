@@ -51,6 +51,9 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
   const membershipCol = detail ? detail.columns.indexOf('Membership') : -1;
   const hasIndirect = membershipCol >= 0 && !!detail?.rows.some((r) => /^indirect$/i.test(r[membershipCol] ?? ''));
   const groupTreeTarget = detail?.groupTreeDn || (hasIndirect ? detail?.label || kpi.label : null);
+  // The server appends an "Excluded" column (True/False) when exclusion patterns match rows.
+  const excludedCol = detail ? detail.columns.indexOf('Excluded') : -1;
+  const isExcluded = (row: string[]) => excludedCol >= 0 && /^true$/i.test(row[excludedCol] ?? '');
 
   return (
     <div className="iris-kpi-modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -78,6 +81,7 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
         <div className="iris-kpi-modal-body" aria-busy={!detail && !failed}>
           {!detail && !failed && <div className="spinner" aria-label={t.loading} />}
           {failed && <p role="alert">{t.loadFailed}</p>}
+          {detail && detail.exclusionsNotApplied && <p className="kpi-exclusion-na-note" role="note">{t.exclusionsNotAppliedDetail}</p>}
           {detail && detail.error && <p className="muted">{detail.error}</p>}
           {detail && !detail.error && detail.rows.length === 0 && <p className="muted">{t.noDetails}</p>}
           {detail && detail.rows.length > 0 && (
@@ -85,11 +89,11 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
               <div className="panel-content">
                 {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
                 <table className="kpi-detail-table">
-                  <thead><tr>{detail.columns.map((c) => <th key={c} scope="col">{c}</th>)}{rowDns && <th scope="col"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
+                  {detail.columns.map((c, j) => <th key={c} scope="col">{j === excludedCol ? t.excluded : c}</th>)}
                   <tbody>
                     {rows.map((row, i) => (
-                      <tr key={i}>
-                        {row.map((cell, j) => <td key={j}>{cell}</td>)}
+                      <tr key={i} className={isExcluded(row) ? 'is-excluded' : undefined}>
+                        {row.map((cell, j) => <td key={j}>{j === excludedCol ? (isExcluded(row) ? <span className="kpi-excluded-badge" title={t.excludedHint}>{t.excluded}</span> : null) : cell}</td>)}
                         {rowDns && (
                           <td className="kpi-detail-action">
                             {rowDns[i] && (

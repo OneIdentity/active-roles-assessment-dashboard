@@ -57,6 +57,8 @@ Levels are `None`, `Low`, `Medium`, `High`. For a single KPI mapping, the level 
 
 Exposure is computed from the **current** dashboard summary each time the page is built; it is not saved or compared like assessments.
 
+KPI counts used for exposure have configured KPI exclusions applied, and technique levels use the configured KPI thresholds (`ActiveRoles:KpiExclusions` / `ActiveRoles:KpiThresholds`, see [Configuration Settings](ConfigSettings.md#kpi-thresholds-and-exclusions)). Exposure derived from snapshots uses the counts stored in those snapshots.
+
 ---
 
 ## 2. Tactics

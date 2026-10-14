@@ -15,11 +15,13 @@ public class SnapshotService
 
     private readonly IWebHostEnvironment _env;
     private readonly IOptionsMonitor<ActiveRolesConfig> _config;
+    private readonly KpiExclusionService _exclusions;
 
-    public SnapshotService(IWebHostEnvironment env, IOptionsMonitor<ActiveRolesConfig> config)
+    public SnapshotService(IWebHostEnvironment env, IOptionsMonitor<ActiveRolesConfig> config, KpiExclusionService exclusions)
     {
         _env = env;
         _config = config;
+        _exclusions = exclusions;
     }
 
     private string SnapshotFolder
@@ -79,7 +81,7 @@ public class SnapshotService
 
                 foreach (var kpi in KpiInfo.ForCategory(category))
                 {
-                    var (count, error) = summary.GetKpiResult(kpi.Key);
+                    var (count, error) = _exclusions.GetAdjustedResult(summary, kpi.Key);
                     snapCategory.Kpis.Add(new SnapshotKpi
                     {
                         Key = kpi.Key,

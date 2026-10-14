@@ -243,4 +243,22 @@
   <data name="PageTitle" xml:space="preserve">
     <value>Einstellungen</value>
   </data>
+  <data name="Card_KpiThresholds" xml:space="preserve"><value>KPI-Schwellenwerte</value></data>
+  <data name="Hint_KpiThresholds" xml:space="preserve"><value>Konfigurieren Sie die Schwellenwerte Mittel und Hoch je KPI für Bewertungen und Angriffsexposition. Keine ist immer 0, Niedrig ist jeder Wert über 0 unter Mittel. Beide Schwellenwerte eines KPI verwenden denselben Modus: eine feste Anzahl oder ein Prozentsatz der zugehörigen Gesamtzahl (Benutzer, Gruppen oder Computer).</value></data>
+  <data name="Placeholder_KpiThresholdFilter" xml:space="preserve"><value>KPIs filtern...</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_ThresholdNone" xml:space="preserve"><value>Keine</value></data>
+  <data name="Col_ThresholdLow" xml:space="preserve"><value>Niedrig</value></data>
+  <data name="Col_ThresholdMode" xml:space="preserve"><value>Modus</value></data>
+  <data name="Col_ThresholdMedium" xml:space="preserve"><value>Mittel</value></data>
+  <data name="Col_ThresholdHigh" xml:space="preserve"><value>Hoch</value></data>
+  <data name="Col_ThresholdDefault" xml:space="preserve"><value>Standard (M / H)</value></data>
+  <data name="Label_Customized" xml:space="preserve"><value>angepasst</value></data>
+  <data name="Option_ThresholdCount" xml:space="preserve"><value>Anzahl</value></data>
+  <data name="Option_ThresholdPercent" xml:space="preserve"><value>Prozent</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Bekannte Fehlalarme (z. B. krbtgt) von KPI-Zählungen ausschließen. Ein Platzhaltermuster pro Zeile, abgeglichen ohne Berücksichtigung der Groß-/Kleinschreibung mit Objektname oder Distinguished Name (* und ? werden unterstützt). Ausgeschlossene Objekte bleiben in den Details als Ausgeschlossen sichtbar, werden aber nicht gezählt.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Gilt für alle KPIs. Ein hier aufgeführtes Muster darf nicht in einer KPI-spezifischen Liste wiederholt werden.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Globale Ausschlüsse</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Ausschlussmuster (eines pro Zeile)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>KPI-Ausschlüsse</value></data>
 </root>

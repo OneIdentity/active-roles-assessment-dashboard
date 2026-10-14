@@ -243,4 +243,22 @@
   <data name="PageTitle" xml:space="preserve">
     <value>Configuración</value>
   </data>
+  <data name="Card_KpiThresholds" xml:space="preserve"><value>Umbrales de KPI</value></data>
+  <data name="Hint_KpiThresholds" xml:space="preserve"><value>Configure los umbrales Medio y Alto por KPI utilizados por Evaluaciones y Exposición a ataques. Ninguno siempre es 0 y Bajo es cualquier valor mayor que 0 y menor que Medio. Ambos umbrales de un KPI usan el mismo modo: un recuento fijo o un porcentaje del total relacionado (usuarios, grupos o equipos).</value></data>
+  <data name="Placeholder_KpiThresholdFilter" xml:space="preserve"><value>Filtrar KPI...</value></data>
+  <data name="Col_Kpi" xml:space="preserve"><value>KPI</value></data>
+  <data name="Col_ThresholdNone" xml:space="preserve"><value>Ninguno</value></data>
+  <data name="Col_ThresholdLow" xml:space="preserve"><value>Bajo</value></data>
+  <data name="Col_ThresholdMode" xml:space="preserve"><value>Modo</value></data>
+  <data name="Col_ThresholdMedium" xml:space="preserve"><value>Medio</value></data>
+  <data name="Col_ThresholdHigh" xml:space="preserve"><value>Alto</value></data>
+  <data name="Col_ThresholdDefault" xml:space="preserve"><value>Predeterminado (M / A)</value></data>
+  <data name="Label_Customized" xml:space="preserve"><value>personalizado</value></data>
+  <data name="Option_ThresholdCount" xml:space="preserve"><value>Recuento</value></data>
+  <data name="Option_ThresholdPercent" xml:space="preserve"><value>Porcentaje</value></data>
+  <data name="Hint_KpiExclusions" xml:space="preserve"><value>Excluya falsos positivos conocidos (por ejemplo krbtgt) de los recuentos de KPI. Un patrón con comodines por línea, comparado sin distinguir mayúsculas con el nombre o el nombre distintivo del objeto (se admiten * y ?). Los objetos excluidos siguen visibles en los detalles marcados como Excluido, pero no se cuentan.</value></data>
+  <data name="Hint_GlobalExclusions" xml:space="preserve"><value>Se aplican a todos los KPI. Un patrón indicado aquí no debe repetirse en una lista específica de KPI.</value></data>
+  <data name="Label_GlobalExclusions" xml:space="preserve"><value>Exclusiones globales</value></data>
+  <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Patrones de exclusión (uno por línea)</value></data>
+  <data name="Card_KpiExclusions" xml:space="preserve"><value>Exclusiones de KPI</value></data>
 </root>
