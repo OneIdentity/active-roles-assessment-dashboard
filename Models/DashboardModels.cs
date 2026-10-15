@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ActiveRolesDashboard.Models.Reporting;
@@ -2956,8 +2957,89 @@ public class DashboardSummary
                 Rows = HistoryDatabases.Items.Select(i => (IReadOnlyList<string>)[i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationRole.ToString()]).ToList(),
                 Error = HistoryDatabases.Error
             },
+            "AccessTemplates" => ArTemplateDetail(AccessTemplates),
+            "EmptyAccessTemplates" => ArNameDnDetail(EmptyAccessTemplates.Items.Select(i => (i.Name, i.Dn)), EmptyAccessTemplates.Error),
+            "UnlinkedAccessTemplates" => ArNameDnDetail(UnlinkedAccessTemplates.Items.Select(i => (i.Name, i.Dn)), UnlinkedAccessTemplates.Error),
+            "DenyAccessTemplates" => ArNameDnDetail(DenyAccessTemplates.Items.Select(i => (i.Name, i.Dn)), DenyAccessTemplates.Error),
+            "PolicyObjects" => ArPolicyDetail(PolicyObjects),
+            "PolicyObjectsNoRules" => ArNameDnDetail(PolicyObjectsNoRules.Items.Select(i => (i.Name, i.Dn)), PolicyObjectsNoRules.Error),
+            "UnlinkedPolicyObjects" => ArNameDnDetail(UnlinkedPolicyObjects.Items.Select(i => (i.Name, i.Dn)), UnlinkedPolicyObjects.Error),
+            "GroupFamilies" => ArNameDnDetail(GroupFamilies.Items.Select(i => (i.Name, i.Dn)), GroupFamilies.Error),
+            "ManagedUnits" => new ReportTable
+            {
+                Columns = ["Name", "Membership Rules", "Distinguished Name"],
+                Rows = ManagedUnits.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.RuleCount.ToString(), i.Dn]).ToList(),
+                Error = ManagedUnits.Error
+            },
+            "DynamicGroupsBrokenRules" => ArNameDnDetail(DynamicGroupsBrokenRules.Items.Select(i => (i.Name, i.Dn)), DynamicGroupsBrokenRules.Error),
+            "ManagedUnitsBrokenRules" => ArNameDnDetail(ManagedUnitsBrokenRules.Items.Select(i => (i.Name, i.Dn)), ManagedUnitsBrokenRules.Error),
+            "OrphanAccessTemplateLinks" => new ReportTable
+            {
+                Columns = ["Name", "Directory Object", "Access Template", "Trustee", "Missing", "Distinguished Name"],
+                Rows = OrphanAccessTemplateLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.DirectoryObject, i.AccessTemplate, i.Trustee, i.MissingAttributes, i.Dn]).ToList(),
+                Error = OrphanAccessTemplateLinks.Error
+            },
+            "OrphanPolicyObjectLinks" => new ReportTable
+            {
+                Columns = ["Name", "Missing", "Distinguished Name"],
+                Rows = OrphanPolicyObjectLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.MissingAttributes, i.Dn]).ToList(),
+                Error = OrphanPolicyObjectLinks.Error
+            },
+            "ScriptModules" => new ReportTable
+            {
+                Columns = ["Name", "Language", "Type", "System", "Distinguished Name"],
+                Rows = ScriptModules.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Language, i.Type, i.IsSystem.ToString(), i.Dn]).ToList(),
+                Error = ScriptModules.Error
+            },
+            "EntraManagedTenants" => new ReportTable
+            {
+                Columns = ["Name", "Objects", "Note", "Distinguished Name"],
+                Rows = EntraManagedTenants.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.ObjectCount?.ToString() ?? string.Empty, i.Note, i.Dn]).ToList(),
+                Error = EntraManagedTenants.Error
+            },
+            "VirtualAttributes" => new ReportTable
+            {
+                Columns = ["Name", "LDAP Display Name", "Multi-valued", "Built-in"],
+                Rows = VirtualAttributes.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.LdapDisplayName, i.IsMultivalued.ToString(), i.IsBuiltIn.ToString()]).ToList(),
+                Error = VirtualAttributes.Error
+            },
+            "Workflows" => new ReportTable
+            {
+                Columns = ["Name", "Enabled", "Automation", "Distinguished Name"],
+                Rows = Workflows.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.IsEnabled.ToString(), i.IsAutomationWorkflow.ToString(), i.Dn]).ToList(),
+                Error = Workflows.Error
+            },
+            "ScheduledTasks" => new ReportTable
+            {
+                Columns = ["Name", "Enabled", "Last Run (UTC)", "Next Run (UTC)", "Distinguished Name"],
+                Rows = ScheduledTasks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.IsEnabled.ToString(),
+                    i.LastRunTime?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty,
+                    i.NextRunTime?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty, i.Dn]).ToList(),
+                Error = ScheduledTasks.Error
+            },
 
             _ => null
+        };
+
+        static ReportTable ArNameDnDetail(IEnumerable<(string Name, string Dn)> items, string? error) => new()
+        {
+            Columns = ["Name", "Distinguished Name"],
+            Rows = items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
+            Error = error
+        };
+
+        static ReportTable ArTemplateDetail(AccessTemplateSummary s) => new()
+        {
+            Columns = ["Name", "Container", "Built-in", "Distinguished Name"],
+            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Parent, i.IsBuiltIn.ToString(), i.Dn]).ToList(),
+            Error = s.Error
+        };
+
+        static ReportTable ArPolicyDetail(PolicyObjectSummary s) => new()
+        {
+            Columns = ["Name", "Rules", "Built-in", "Distinguished Name"],
+            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.RuleCount.ToString(), i.IsBuiltIn.ToString(), i.Dn]).ToList(),
+            Error = s.Error
         };
     }
 
