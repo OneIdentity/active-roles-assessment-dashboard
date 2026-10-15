@@ -134,15 +134,30 @@ export class HttpError extends Error {
   }
 }
 
+/**
+ * Application path base (e.g. "/ActiveRolesDashboard" when hosted as an IIS sub-application,
+ * "" at the server root), derived from the SPA location, which is always "{base}/app/...".
+ */
+export const appBase = (() => {
+  const path = window.location.pathname;
+  const idx = path.toLowerCase().indexOf('/app/');
+  return idx > 0 ? path.slice(0, idx) : idx === 0 ? '' : path.toLowerCase().endsWith('/app') ? path.slice(0, -4) : '';
+})();
+
+/** Prefixes a root-relative application path ("/api/...") with the application path base. */
+export const withBase = (path: string) => (path.startsWith('/') ? `${appBase}${path}` : path);
+
+const loginUrl = () => withBase(`/Login?ReturnUrl=${encodeURIComponent(window.location.pathname)}`);
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { credentials: 'same-origin', ...init });
+  const response = await fetch(withBase(url), { credentials: 'same-origin', ...init });
   // A cookie-auth challenge is answered with a redirect to the Razor login page.
-  if (response.redirected && new URL(response.url).pathname.toLowerCase().startsWith('/login')) {
-    window.location.href = `/Login?ReturnUrl=${encodeURIComponent(window.location.pathname)}`;
+  if (response.redirected && new URL(response.url).pathname.toLowerCase().startsWith(withBase('/login').toLowerCase())) {
+    window.location.href = loginUrl();
     return new Promise<T>(() => {});
   }
   if (response.status === 401) {
-    window.location.href = `/Login?ReturnUrl=${encodeURIComponent(window.location.pathname)}`;
+    window.location.href = loginUrl();
     return new Promise<T>(() => {});
   }
   if (!response.ok) throw new HttpError(response.status);
@@ -243,9 +258,9 @@ export async function exportReport(req: ExportRequest): Promise<void> {
   if (req.categoryKey) form.set('CategoryKey', req.categoryKey);
   if (req.kpiKey) form.set('KpiKey', req.kpiKey);
   form.set('IncludeDetails', String(req.includeDetails));
-  const response = await fetch('/Export', { method: 'POST', body: form, credentials: 'same-origin' });
+  const response = await fetch(withBase('/Export'), { method: 'POST', body: form, credentials: 'same-origin' });
   if (response.status === 401) {
-    window.location.href = `/Login?ReturnUrl=${encodeURIComponent(window.location.pathname)}`;
+    window.location.href = loginUrl();
     return;
   }
   if (!response.ok) throw new HttpError(response.status);

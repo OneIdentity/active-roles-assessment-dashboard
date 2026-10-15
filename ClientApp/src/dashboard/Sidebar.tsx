@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import type { DashboardCapabilities } from './api';
+import { withBase, type DashboardCapabilities } from './api';
 import { t } from './strings';
 import logo from '../ux/images/figma-active-roles.svg';
 
@@ -33,24 +33,24 @@ export function Sidebar({ capabilities }: Props) {
       </div>
       <span ref={indicatorRef} className="sidebar-active-indicator" aria-hidden="true" />
       <nav className="sidebar-nav-group">
-        <a href="/app/" className="sidebar-nav-item" aria-current="page">
+        <a href={withBase('/app/')} className="sidebar-nav-item" aria-current="page">
           <span className="sidebar-nav-asset sidebar-nav-asset-dashboard" aria-hidden="true" />
           <span>{t.dashboard}</span>
         </a>
         {capabilities.canViewAssessments && (
-          <a href="/Assessments" className="sidebar-nav-item">
+          <a href={withBase('/Assessments')} className="sidebar-nav-item">
             <span className="sidebar-nav-asset sidebar-nav-asset-assessment" aria-hidden="true" />
             <span>{t.assessment}</span>
           </a>
         )}
         {capabilities.canViewExposureReport && (
-          <a href="/AttackExposure" className="sidebar-nav-item">
+          <a href={withBase('/AttackExposure')} className="sidebar-nav-item">
             <span className="sidebar-nav-asset sidebar-nav-asset-exposure" aria-hidden="true" />
             <span>{t.attackExposure}</span>
           </a>
         )}
         {capabilities.canViewSnapshots && (
-          <a href="/Snapshots" className="sidebar-nav-item">
+          <a href={withBase('/Snapshots')} className="sidebar-nav-item">
             <span className="sidebar-nav-asset sidebar-nav-asset-snapshots" aria-hidden="true" />
             <span>{t.snapshots}</span>
           </a>
@@ -62,21 +62,21 @@ export function Sidebar({ capabilities }: Props) {
           <span className="sidebar-group-caret" aria-hidden="true" />
         </div>
         {capabilities.canAccessSettings && (
-          <a href="/Settings" className="sidebar-nav-item">
+          <a href={withBase('/Settings')} className="sidebar-nav-item">
             <span className="sidebar-nav-asset sidebar-nav-asset-settings" aria-hidden="true" />
             <span>{t.settings}</span>
           </a>
         )}
         {/* Help page exists at /Help but is hidden from navigation until its content is finalized. */}
-        <a href="/Help" className="sidebar-nav-item" hidden>
+        <a href={withBase('/Help')} className="sidebar-nav-item" hidden>
           <span className="sidebar-nav-asset sidebar-nav-asset-help" aria-hidden="true" />
           <span>{t.helpWith}</span>
         </a>
-        <a href="/Privacy" className="sidebar-nav-item">
+        <a href={withBase('/Privacy')} className="sidebar-nav-item">
           <span className="sidebar-nav-asset sidebar-nav-asset-privacy" aria-hidden="true" />
           <span>{t.privacy}</span>
         </a>
-        <a href="/Logout" className="sidebar-nav-item">
+        <a href={withBase('/Logout')} className="sidebar-nav-item">
           <span className="sidebar-nav-asset sidebar-nav-asset-signout" aria-hidden="true" />
           <span>{t.signOut}</span>
         </a>

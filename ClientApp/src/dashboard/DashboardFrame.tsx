@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import {
   getDashboard, getDashboardView, getRefreshStatus, HttpError, rebuildCache, setSegments,
   type DashboardPayload, type DashboardView, type ViewKpi,
+  withBase,
 } from './api';
 import { DashboardContent } from './DashboardContent';
 import { ExportDialog } from './ExportDialog';
@@ -269,7 +270,7 @@ export function DashboardFrame() {
                 <nav className="ad-tabs" aria-label={t.dashboards} ref={tabsRef}>
                   {payload.tabs.map((tab) => {
                     const active = tab.key.toLowerCase() === tabKey.toLowerCase();
-                    const href = tab.key === OVERVIEW ? '/app/' : `/app/?dashboard=${encodeURIComponent(tab.key)}`;
+                    const href = withBase(tab.key === OVERVIEW ? '/app/' : `/app/?dashboard=${encodeURIComponent(tab.key)}`);
                     return (
                       <a key={tab.key} href={href} className={active ? 'active' : ''}
                         aria-current={active ? 'page' : undefined} onClick={selectTab(tab.key)}>
@@ -290,7 +291,7 @@ export function DashboardFrame() {
                       <h2>{t.notFoundTitle}</h2>
                       <p>{t.notFoundBody}</p>
                     </div>
-                    <a href="/app/" onClick={selectTab(OVERVIEW)}>{t.backToOverview}</a>
+                    <a href={withBase('/app/')} onClick={selectTab(OVERVIEW)}>{t.backToOverview}</a>
                   </section>
                 )}
                 {viewState.status === 'error' && <p role="alert">{t.loadFailed}</p>}

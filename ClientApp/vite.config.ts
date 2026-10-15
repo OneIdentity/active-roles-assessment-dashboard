@@ -2,7 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/app/',
+  // Relative base so the bundle works when the site is hosted under an IIS sub-application
+  // (e.g. /ActiveRolesDashboard/app/) as well as at the server root.
+  base: './',
   plugins: [react()],
   build: {
     outDir: '../wwwroot/app',
