@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using Microsoft.Extensions.Options;
@@ -601,21 +601,32 @@ public class ArPermissionModelService
     }
 
     private async Task<List<JsonElement>> SearchAsync(
-        string token, string baseDn, string filter, string scope, IEnumerable<string> attributes, CancellationToken ct)
+        string token, string baseDn, string filter, string scope, IEnumerable<string> attributes, CancellationToken ct,
+        [System.Runtime.CompilerServices.CallerMemberName] string queryLabel = "")
     {
         var client = CreateClient(token);
+        var query = QueryLogInfo.From(queryLabel, baseDn, filter, scope);
+        using var logScope = _logger.BeginScope(query.ToScope());
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var pageSize = _config.CurrentValue.EffectivePageSize;
+        _logger.LogInformation(
+            "[q:{QueryId}] Query start {QueryLabel}: target={QueryTarget} domain={QueryDomain} types={ObjectTypes} scope={Scope} pageSize={PageSize} filter={Filter}",
+            query.QueryId, query.Label, query.Target, query.Domain, query.ObjectTypes, query.Scope, pageSize, query.Filter);
         // Mirror the proven-working ActiveRolesService URL shape: escape only '&' in values and let
         // HttpClient percent-encode spaces. DNs keep their literal '=' and ',' (the AR REST API
         // expects a literal DN in the base parameter). Attributes MUST be repeated
         // (attributes=a&attributes=b), never comma-separated.
         var attrQuery = string.Join("&", attributes.Select(a => $"attributes={EscapeAmp(a)}"));
-        var url = $"{BaseUrl}/objects?base={EscapeAmp(baseDn)}&filter={EscapeAmp(filter)}&scope={scope}&pageSize={_config.CurrentValue.EffectivePageSize}&{attrQuery}";
+        var url = $"{BaseUrl}/objects?base={EscapeAmp(baseDn)}&filter={EscapeAmp(filter)}&scope={scope}&pageSize={pageSize}&{attrQuery}";
         var all = new List<JsonElement>();
+        var pageNumber = 0;
 
         while (url != null)
         {
             ct.ThrowIfCancellationRequested();
+            pageNumber++;
             HttpResponseMessage response;
+            var pageStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             // The AR REST endpoint is intermittently flaky and can transiently fail an otherwise
             // valid request. A permanently-empty SID set silently disables a user's entire view, so
@@ -625,21 +636,29 @@ public class ArPermissionModelService
             while (true)
             {
                 attempt++;
+                int? statusCode = null;
                 try
                 {
+                    _logger.LogDebug("[q:{QueryId}] ActiveRoles API request (page {Page}, attempt {Attempt}): {Url}", query.QueryId, pageNumber, attempt, url);
                     response = await client.GetAsync(url, ct);
+                    statusCode = (int)response.StatusCode;
                     response.EnsureSuccessStatusCode();
                     break;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
                 {
+                    var status = statusCode?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none";
                     if (attempt >= maxAttempts)
                     {
-                        _logger.LogWarning(ex, "AR search failed for base '{Base}' filter '{Filter}' url '{Url}' after {Attempts} attempts.", baseDn, filter, url, attempt);
+                        _logger.LogWarning(ex,
+                            "[q:{QueryId}] Query failed {QueryLabel}: page {Page} HTTP {StatusCode} after {Attempts} attempts, {Total} items, {ElapsedMs} ms (target={QueryTarget} domain={QueryDomain} types={ObjectTypes} filter={Filter})",
+                            query.QueryId, query.Label, pageNumber, status, attempt, all.Count, stopwatch.ElapsedMilliseconds, query.Target, query.Domain, query.ObjectTypes, query.Filter);
                         return all;
                     }
 
-                    _logger.LogDebug(ex, "AR search transient failure (attempt {Attempt}/{Max}) for base '{Base}' filter '{Filter}'; retrying.", attempt, maxAttempts, baseDn, filter);
+                    _logger.LogWarning(
+                        "[q:{QueryId}] Transient failure {QueryLabel}: page {Page} HTTP {StatusCode} (attempt {Attempt}/{Max}): {Error}; retrying.",
+                        query.QueryId, query.Label, pageNumber, status, attempt, maxAttempts, ex.Message);
                     await Task.Delay(TimeSpan.FromMilliseconds(250 * attempt), ct);
                 }
             }
@@ -647,17 +666,27 @@ public class ArPermissionModelService
             var body = await response.Content.ReadAsStringAsync(ct);
             using var doc = JsonDocument.Parse(body);
 
+            var pageItemCount = 0;
             if (doc.RootElement.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
                 foreach (var item in items.EnumerateArray())
+                {
                     all.Add(item.Clone());
+                    pageItemCount++;
+                }
+
+            var hasNextPage = doc.RootElement.TryGetProperty("nextPage", out var next) && next.ValueKind == JsonValueKind.String;
+            var pageLevel = hasNextPage || pageNumber > 1 ? LogLevel.Information : LogLevel.Debug;
+            _logger.Log(pageLevel,
+                "[q:{QueryId}] Page {Page} {QueryLabel}: HTTP {StatusCode}, {PageItems} items, {Total} total, more={HasNext}, {PageMs} ms",
+                query.QueryId, pageNumber, query.Label, (int)response.StatusCode, pageItemCount, all.Count, hasNextPage, pageStopwatch.ElapsedMilliseconds);
 
             // Pagination continuation sends ONLY the nextPage parameter.
-            if (doc.RootElement.TryGetProperty("nextPage", out var next) && next.ValueKind == JsonValueKind.String)
-                url = $"{BaseUrl}/objects?nextPage={next.GetString()}";
-            else
-                url = null;
+            url = hasNextPage ? $"{BaseUrl}/objects?nextPage={next.GetString()}" : null;
         }
 
+        _logger.LogInformation(
+            "[q:{QueryId}] Query done {QueryLabel}: {Total} items across {Pages} page(s) in {ElapsedMs} ms (target={QueryTarget} domain={QueryDomain} types={ObjectTypes})",
+            query.QueryId, query.Label, all.Count, pageNumber, stopwatch.ElapsedMilliseconds, query.Target, query.Domain, query.ObjectTypes);
         return all;
     }
 
