@@ -98,6 +98,7 @@ public class SupersetLoaderHostedService : BackgroundService
             return;
         }
 
+        var isInitialBuild = _cache.Current is null;
         _cache.MarkLoading();
         try
         {
@@ -138,6 +139,15 @@ public class SupersetLoaderHostedService : BackgroundService
             // directory facts are re-evaluated. Advancing the epoch invalidates every user's cached
             // admin flag / dashboard role so they are recomputed on their next request.
             _userCache.InvalidateDirectoryFacts();
+
+            // Scheduled/manual rebuilds also discard every user's cached dashboard data so viewers
+            // pick up the new superset on their next request. The initial startup build is skipped:
+            // no per-user data can exist before the first superset is published.
+            if (!isInitialBuild)
+            {
+                _userCache.InvalidateAllUserData();
+                _logger.LogInformation("Per-user dashboard caches invalidated after superset rebuild.");
+            }
 
             // Enrich Entra group membership once, into the already-published shared superset, so it
             // is computed a single time at startup/refresh rather than lazily per user session. This
