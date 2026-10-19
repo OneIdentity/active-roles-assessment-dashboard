@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { getKpiDetail, type KpiDetail, type ViewKpi } from './api';
+import { getKpiDetail, withBase, type KpiDetail, type ViewKpi } from './api';
 import { formatNumber, t } from './strings';
 
 const MAX_ROWS = 500;
 
-const treeHref = (dn: string) => `/GroupTree?Group=${encodeURIComponent(dn)}&returnPage=App`;
+const treeHref = (dn: string) => withBase(`/GroupTree?Group=${encodeURIComponent(dn)}&returnPage=App`);
 
 function TreeIcon() {
   return (
@@ -89,7 +89,7 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
               <div className="panel-content">
                 {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
                 <table className="kpi-detail-table">
-                  {detail.columns.map((c, j) => <th key={c} scope="col">{j === excludedCol ? t.excluded : c}</th>)}
+                  <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col">{j === excludedCol ? t.excluded : c}</th>)}{rowDns && <th scope="col"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
                   <tbody>
                     {rows.map((row, i) => (
                       <tr key={i} className={isExcluded(row) ? 'is-excluded' : undefined}>
