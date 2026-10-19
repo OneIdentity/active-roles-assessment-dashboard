@@ -1,11 +1,11 @@
-<#
+﻿<#
 .SYNOPSIS
 	Publishes the Active Roles Dashboard and deploys it to a target IIS server,
 	preserving machine-specific configuration and keys.
 
 .DESCRIPTION
 	Repeatable deploy for multi-user testing. Steps:
-	  1. dotnet publish (Release, framework-dependent — target needs the
+	  1. MSBuild publish (Release, framework-dependent â€” target needs the
 		 ASP.NET Core 9 Hosting Bundle).
 	  2. Stop the IIS app pool on the target to release locked DLLs.
 	  3. Robocopy the publish output to the target, EXCLUDING:
@@ -67,8 +67,19 @@ if (-not $RemotePath) {
 }
 
 Write-Host "==> Publishing (Release, framework-dependent)..." -ForegroundColor Cyan
-dotnet publish $project -c Release -o $publishDir
-if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed with exit code $LASTEXITCODE." }
+# The project has a COM reference, which the .NET SDK MSBuild (dotnet publish) cannot resolve
+# (MSB4803), so use the Visual Studio (.NET Framework) MSBuild located via vswhere.
+$vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+if (-not (Test-Path $vswhere)) { throw "vswhere.exe not found; Visual Studio with MSBuild is required to publish." }
+$msbuild = & $vswhere -latest -prerelease -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe" | Select-Object -First 1
+if (-not $msbuild) { throw "Visual Studio MSBuild not found." }
+
+# Clear stale Release intermediates/output; the client build regenerates hashed asset names,
+# which otherwise leaves the static web asset compression manifest pointing at missing files.
+Remove-Item -Recurse -Force (Join-Path $repoRoot "obj\Release"), $publishDir -ErrorAction SilentlyContinue
+
+& $msbuild $project /t:Restore,Publish /p:Configuration=Release "/p:PublishDir=$publishDir\" /p:SelfContained=false /v:m /nologo
+if ($LASTEXITCODE -ne 0) { throw "MSBuild publish failed with exit code $LASTEXITCODE." }
 
 Write-Host "==> Stopping app pool '$AppPool' on $Target..." -ForegroundColor Cyan
 try {
