@@ -16,4 +16,7 @@
 	<value>Paramètres enregistrés avec succès.</value>
   </data>
   <data name="Error_ExclusionDuplicatesGlobal" xml:space="preserve"><value>{0} : modèles supprimés car déjà présents dans les exclusions globales ({1}).</value></data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>La taille de page n&apos;a pas été enregistrée : elle doit être un nombre entier compris entre 1 et {0}.</value>
+  </data>
 </root>

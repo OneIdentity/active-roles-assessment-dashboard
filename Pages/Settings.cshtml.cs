@@ -269,6 +269,13 @@ public class SettingsModel : PageModel
     public string Resource { get; set; } = string.Empty;
     [BindProperty]
     public bool IgnoreSslErrors { get; set; }
+    [BindProperty]
+    public int PageSize { get; set; } = ActiveRolesConfig.DefaultPageSize;
+
+    // Read-only upper bound for PageSize (edited only in appsettings.json).
+    public int MaxPageSize => _arConfig.CurrentValue.EffectiveMaxPageSize;
+
+    public string? PageSizeError { get; set; }
 
     // Google Analytics (GA4) usage tracking (admin-only).
     [BindProperty]
@@ -465,6 +472,7 @@ public class SettingsModel : PageModel
         RstsUrl = config.RstsUrl;
         Resource = config.Resource;
         IgnoreSslErrors = config.IgnoreSslErrors;
+        PageSize = config.EffectivePageSize;
 
         // Google Analytics (GA4) usage tracking
         AnalyticsEnabled = config.Analytics.Enabled;
@@ -534,6 +542,13 @@ public class SettingsModel : PageModel
 
         if (DynamicGroupExpensiveRuleThreshold < 1)
             DynamicGroupExpensiveRuleThreshold = 1;
+
+        // REST API page size must be within 1..MaxPageSize; keep the current value when invalid.
+        if (PageSize < 1 || PageSize > MaxPageSize)
+        {
+            PageSizeError = string.Format(_localizer["Error_PageSizeRange"].Value, MaxPageSize);
+            PageSize = _arConfig.CurrentValue.EffectivePageSize;
+        }
 
         // Clamp licensing thresholds to non-negative values.
         LicensedDomainObjects = Math.Max(0, LicensedDomainObjects);
@@ -637,6 +652,8 @@ public class SettingsModel : PageModel
             Message += " " + string.Join(" ", KpiThresholdErrors);
         if (KpiExclusionErrors.Count > 0)
             Message += " " + string.Join(" ", KpiExclusionErrors);
+        if (PageSizeError != null)
+            Message += " " + PageSizeError;
 
         return Page();
     }
@@ -690,6 +707,8 @@ public class SettingsModel : PageModel
                 activeRoles["RstsUrl"] = RstsUrl?.Trim() ?? "";
                 activeRoles["Resource"] = Resource?.Trim() ?? "";
                 activeRoles["IgnoreSslErrors"] = IgnoreSslErrors;
+                activeRoles["PageSize"] = PageSize;
+                activeRoles["MaxPageSize"] ??= MaxPageSize;
 
                 // Google Analytics (GA4) usage tracking. ConsentGiven mirrors the admin's
                 // enable decision here (the toggle is the organizational consent action).

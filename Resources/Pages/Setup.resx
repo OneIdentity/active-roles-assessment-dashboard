@@ -238,4 +238,13 @@
   <data name="LicensedThresholdsHint" xml:space="preserve">
     <value>A value of 0 means the threshold is not configured and will not be shown.</value>
   </data>
+  <data name="Err_PageSizeRange" xml:space="preserve">
+    <value>Page size must be a whole number between 1 and {0}.</value>
+  </data>
+  <data name="PageSize" xml:space="preserve">
+    <value>Page size</value>
+  </data>
+  <data name="PageSizeHint" xml:space="preserve">
+    <value>Number of objects requested per page from the Active Roles REST API (1 to {0}). Default: 500.</value>
+  </data>
 </root>

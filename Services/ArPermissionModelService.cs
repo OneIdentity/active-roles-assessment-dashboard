@@ -609,7 +609,7 @@ public class ArPermissionModelService
         // expects a literal DN in the base parameter). Attributes MUST be repeated
         // (attributes=a&attributes=b), never comma-separated.
         var attrQuery = string.Join("&", attributes.Select(a => $"attributes={EscapeAmp(a)}"));
-        var url = $"{BaseUrl}/objects?base={EscapeAmp(baseDn)}&filter={EscapeAmp(filter)}&scope={scope}&{attrQuery}";
+        var url = $"{BaseUrl}/objects?base={EscapeAmp(baseDn)}&filter={EscapeAmp(filter)}&scope={scope}&pageSize={_config.CurrentValue.EffectivePageSize}&{attrQuery}";
         var all = new List<JsonElement>();
 
         while (url != null)

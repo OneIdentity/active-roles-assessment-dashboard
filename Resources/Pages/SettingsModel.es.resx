@@ -16,4 +16,7 @@
 	<value>Configuración guardada correctamente.</value>
   </data>
   <data name="Error_ExclusionDuplicatesGlobal" xml:space="preserve"><value>{0}: se quitaron patrones que ya están en las exclusiones globales ({1}).</value></data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>El tamaño de página no se guardó: debe ser un número entero entre 1 y {0}.</value>
+  </data>
 </root>

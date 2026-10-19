@@ -16,4 +16,7 @@
 	<value>Einstellungen erfolgreich gespeichert.</value>
   </data>
   <data name="Error_ExclusionDuplicatesGlobal" xml:space="preserve"><value>{0}: Muster entfernt, die bereits in den globalen Ausschlüssen enthalten sind ({1}).</value></data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>Die Seitengröße wurde nicht gespeichert: Sie muss eine ganze Zahl zwischen 1 und {0} sein.</value>
+  </data>
 </root>

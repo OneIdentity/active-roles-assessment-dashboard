@@ -261,4 +261,19 @@
   <data name="Label_GlobalExclusions" xml:space="preserve"><value>Exclusiones globales</value></data>
   <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Patrones de exclusión (uno por línea)</value></data>
   <data name="Card_KpiExclusions" xml:space="preserve"><value>Exclusiones de KPI</value></data>
+  <data name="Hint_PageSize" xml:space="preserve">
+    <value>Número de objetos solicitados por página a la API REST de Active Roles (de 1 a {0}). Se aplica en la siguiente recopilación de datos.</value>
+  </data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>El tamaño de página debe ser un número entero entre 1 y {0}.</value>
+  </data>
+  <data name="Label_MaxPageSize" xml:space="preserve">
+    <value>Tamaño de página máximo</value>
+  </data>
+  <data name="Hint_MaxPageSize" xml:space="preserve">
+    <value>Límite superior del tamaño de página. Solo lectura; solo se puede cambiar en appsettings.json (ActiveRoles:MaxPageSize).</value>
+  </data>
+  <data name="Label_PageSize" xml:space="preserve">
+    <value>Tamaño de página</value>
+  </data>
 </root>

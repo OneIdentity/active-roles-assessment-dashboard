@@ -208,4 +208,13 @@
   <data name="LicensedThresholdsHint" xml:space="preserve">
     <value>Une valeur de 0 signifie que le seuil n'est pas configurÃ© et ne sera pas affichÃ©.</value>
   </data>
+  <data name="Err_PageSizeRange" xml:space="preserve">
+    <value>La taille de page doit être un nombre entier compris entre 1 et {0}.</value>
+  </data>
+  <data name="PageSize" xml:space="preserve">
+    <value>Taille de page</value>
+  </data>
+  <data name="PageSizeHint" xml:space="preserve">
+    <value>Nombre d&apos;objets demandés par page à l&apos;API REST Active Roles (de 1 à {0}). Par défaut : 500.</value>
+  </data>
 </root>

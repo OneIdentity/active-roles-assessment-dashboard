@@ -4519,7 +4519,7 @@ public class ActiveRolesService
         // A raw '&' would be interpreted by the server as a query-string separator, producing a
         // malformed request (HTTP 400). Uri.EscapeDataString percent-encodes '&' (to %26) and any
         // other reserved characters so the value survives transport intact.
-        var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(baseDn)}&filter={Uri.EscapeDataString(filter)}&scope={scope}&{BuildAttributesQuery(attributes)}";
+        var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(baseDn)}&filter={Uri.EscapeDataString(filter)}&scope={scope}&pageSize={_configMonitor.CurrentValue.EffectivePageSize}&{BuildAttributesQuery(attributes)}";
         var allItems = new List<JsonElement>();
         var pageNumber = 0;
 

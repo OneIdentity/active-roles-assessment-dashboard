@@ -1111,6 +1111,18 @@
                     </label>
                     <p class="hint">@Localizer["Hint_RestartRequired"]</p>
                 </div>
+                <div class="form-group">
+                    <label for="PageSize">@Localizer["Label_PageSize"]</label>
+                    <input type="number" id="PageSize" name="PageSize" min="1" max="@Model.MaxPageSize" step="1" required value="@Model.PageSize"
+                           oninvalid="this.setCustomValidity(this.dataset.msg)" oninput="this.setCustomValidity('')"
+                           data-msg="@string.Format(Localizer["Error_PageSizeRange"].Value, Model.MaxPageSize)" />
+                    <p class="hint">@string.Format(Localizer["Hint_PageSize"].Value, Model.MaxPageSize)</p>
+                </div>
+                <div class="form-group">
+                    <label for="MaxPageSize">@Localizer["Label_MaxPageSize"]</label>
+                    <input type="number" id="MaxPageSize" value="@Model.MaxPageSize" readonly disabled />
+                    <p class="hint">@Localizer["Hint_MaxPageSize"]</p>
+                </div>
             </div>
         </div>
 

@@ -40,6 +40,10 @@
         {
             <div class="error-msg">@Model.ErrorMessage</div>
         }
+        @if (Model.PageSizeInvalid)
+        {
+            <div class="error-msg">@string.Format(Localizer["Err_PageSizeRange"].Value, Model.MaxPageSize)</div>
+        }
 
         <form method="post" id="setupForm">
             <!-- Page 1: REST API Configuration -->
@@ -61,6 +65,11 @@
                         <label for="RstsScope">@Localizer["RstsScope"]</label>
                         <input type="text" id="RstsScope" name="RstsScope" value="@Model.RstsScope" placeholder="rsts:sts:primaryproviderid:ad" />
                         <p class="hint">@Localizer["RstsScopeHint"]</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="PageSize">@Localizer["PageSize"]</label>
+                        <input type="number" id="PageSize" name="PageSize" value="@Model.PageSize" min="1" max="@Model.MaxPageSize" step="1" />
+                        <p class="hint">@string.Format(Localizer["PageSizeHint"].Value, Model.MaxPageSize)</p>
                     </div>
                 </div>
                 <div class="wizard-nav">
@@ -242,8 +251,10 @@
         apiUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_ApiUrlRequired"].Value)),
         rstsUrlRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_RstsUrlRequired"].Value)),
         saUsernameRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_SaUsernameRequired"].Value)),
-        saPasswordRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_SaPasswordRequired"].Value))
+        saPasswordRequired: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Localizer["Err_SaPasswordRequired"].Value)),
+        pageSizeRange: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(string.Format(Localizer["Err_PageSizeRange"].Value, Model.MaxPageSize)))
     };
+    var setupMaxPageSize = @Model.MaxPageSize;
     (function () {
         var currentPage = 0;
         var totalPages = 7;
@@ -279,6 +290,9 @@
                 var rstsUrl = document.getElementById('RstsUrl').value.trim();
                 if (!apiUrl) { showError(setupI18n.apiUrlRequired); document.getElementById('ApiBaseUrl').focus(); return false; }
                 if (!rstsUrl) { showError(setupI18n.rstsUrlRequired); document.getElementById('RstsUrl').focus(); return false; }
+                var pageSizeEl = document.getElementById('PageSize');
+                var pageSize = Number(pageSizeEl.value);
+                if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > setupMaxPageSize) { showError(setupI18n.pageSizeRange); pageSizeEl.focus(); return false; }
             }
             if (index === 1) {
                 var saUser = document.getElementById('ServiceAccountUsername').value.trim();
