@@ -966,6 +966,22 @@ public class ActiveRolesConfig
     // which surfaces as a TaskCanceledException. Raise this for large environments.
     public int ApiTimeoutSeconds { get; set; } = 300;
 
+    // Default/upper bounds for the Active Roles REST API search page size.
+    public const int DefaultPageSize = 500;
+    public const int DefaultMaxPageSize = 2000;
+
+    // Number of objects requested per page from the Active Roles REST API (1..MaxPageSize).
+    public int PageSize { get; set; } = DefaultPageSize;
+
+    // Upper bound for PageSize. Read-only in the UI; only editable in appsettings.json.
+    public int MaxPageSize { get; set; } = DefaultMaxPageSize;
+
+    // MaxPageSize falling back to the default when unset/invalid.
+    public int EffectiveMaxPageSize => MaxPageSize > 0 ? MaxPageSize : DefaultMaxPageSize;
+
+    // PageSize clamped to 1..EffectiveMaxPageSize, used when building REST API search requests.
+    public int EffectivePageSize => Math.Clamp(PageSize > 0 ? PageSize : DefaultPageSize, 1, EffectiveMaxPageSize);
+
     // Default UI language / culture code applied before a user selects their own in Settings.
     public string DefaultLanguage { get; set; } = SupportedLanguage.DefaultCode;
 

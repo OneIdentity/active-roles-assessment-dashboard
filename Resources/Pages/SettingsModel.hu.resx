@@ -16,4 +16,7 @@
 	<value>A beállítások sikeresen mentve.</value>
   </data>
   <data name="Error_ExclusionDuplicatesGlobal" xml:space="preserve"><value>{0}: a globális kizárásokban már szereplő minták eltávolítva ({1}).</value></data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>A lapméret nem lett mentve: 1 és {0} közötti egész számnak kell lennie.</value>
+  </data>
 </root>

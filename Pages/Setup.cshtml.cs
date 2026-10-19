@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
@@ -44,6 +44,11 @@ public class SetupModel : PageModel
 
     [BindProperty]
     public string RstsScope { get; set; } = string.Empty;
+
+    [BindProperty]
+    public int PageSize { get; set; } = ActiveRolesConfig.DefaultPageSize;
+
+    public int MaxPageSize => _arConfig.CurrentValue.EffectiveMaxPageSize;
 
     [BindProperty]
     public string ServiceAccountUsername { get; set; } = string.Empty;
@@ -93,6 +98,8 @@ public class SetupModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
+    public bool PageSizeInvalid { get; set; }
+
     public IActionResult OnGet()
     {
         _logger.LogWarning("Setup OnGet called. ApiBaseUrl='{ApiBaseUrl}'", _arConfig.CurrentValue.ApiBaseUrl);
@@ -103,6 +110,8 @@ public class SetupModel : PageModel
         Language = SupportedLanguage.All.Any(l => l.Code == _arConfig.CurrentValue.DefaultLanguage)
             ? _arConfig.CurrentValue.DefaultLanguage
             : SupportedLanguage.DefaultCode;
+
+        PageSize = _arConfig.CurrentValue.EffectivePageSize;
 
         var roleGroups = _arConfig.CurrentValue.RoleGroups;
         RoleGroupsDirectoryType = roleGroups.DirectoryType;
@@ -136,6 +145,11 @@ public class SetupModel : PageModel
         if (string.IsNullOrWhiteSpace(rstsUrl))
         {
             ErrorMessage = "RSTS Token URL is required.";
+            return Page();
+        }
+        if (PageSize < 1 || PageSize > MaxPageSize)
+        {
+            PageSizeInvalid = true;
             return Page();
         }
         if (string.IsNullOrWhiteSpace(saUsername))
@@ -181,6 +195,8 @@ public class SetupModel : PageModel
                 activeRoles["ApiBaseUrl"] = apiUrl;
                 activeRoles["RstsUrl"] = rstsUrl;
                 activeRoles["RstsScope"] = RstsScope?.Trim() ?? "";
+                activeRoles["PageSize"] = PageSize;
+                activeRoles["MaxPageSize"] ??= MaxPageSize;
                 activeRoles["WebInterfaceUrl"] = WebInterfaceUrl?.Trim() ?? "";
 
                 // Custom LDAP filter overrides live under the nested CustomFilters section.

@@ -16,4 +16,7 @@
 	<value>Impostazioni salvate correttamente.</value>
   </data>
   <data name="Error_ExclusionDuplicatesGlobal" xml:space="preserve"><value>{0}: rimossi i modelli già presenti nelle esclusioni globali ({1}).</value></data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>La dimensione pagina non è stata salvata: deve essere un numero intero compreso tra 1 e {0}.</value>
+  </data>
 </root>

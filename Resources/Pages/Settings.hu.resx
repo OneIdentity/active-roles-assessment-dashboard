@@ -117,4 +117,19 @@
   <data name="Label_GlobalExclusions" xml:space="preserve"><value>Globális kizárások</value></data>
   <data name="Col_ExclusionPatterns" xml:space="preserve"><value>Kizárási minták (soronként egy)</value></data>
   <data name="Card_KpiExclusions" xml:space="preserve"><value>KPI-kizárások</value></data>
+  <data name="Hint_PageSize" xml:space="preserve">
+    <value>Az Active Roles REST API-tól oldalanként lekért objektumok száma (1 és {0} között). A következő adatgyűjtéstől érvényes.</value>
+  </data>
+  <data name="Error_PageSizeRange" xml:space="preserve">
+    <value>A lapméretnek 1 és {0} közötti egész számnak kell lennie.</value>
+  </data>
+  <data name="Label_MaxPageSize" xml:space="preserve">
+    <value>Maximális lapméret</value>
+  </data>
+  <data name="Hint_MaxPageSize" xml:space="preserve">
+    <value>A lapméret felső korlátja. Csak olvasható; kizárólag az appsettings.json fájlban (ActiveRoles:MaxPageSize) módosítható.</value>
+  </data>
+  <data name="Label_PageSize" xml:space="preserve">
+    <value>Lapméret</value>
+  </data>
 </root>

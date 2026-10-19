@@ -208,4 +208,13 @@
   <data name="LicensedThresholdsHint" xml:space="preserve">
     <value>Der Wert 0 bedeutet, dass der Schwellenwert nicht konfiguriert ist und nicht angezeigt wird.</value>
   </data>
+  <data name="Err_PageSizeRange" xml:space="preserve">
+    <value>Die Seitengröße muss eine ganze Zahl zwischen 1 und {0} sein.</value>
+  </data>
+  <data name="PageSize" xml:space="preserve">
+    <value>Seitengröße</value>
+  </data>
+  <data name="PageSizeHint" xml:space="preserve">
+    <value>Anzahl der pro Seite von der Active Roles REST API angeforderten Objekte (1 bis {0}). Standard: 500.</value>
+  </data>
 </root>
