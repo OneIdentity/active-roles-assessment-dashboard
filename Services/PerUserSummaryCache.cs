@@ -33,7 +33,20 @@ public sealed class PerUserSummaryCache
     // invalidation across all users without enumerating cache keys.
     private long _directoryFactsEpoch;
 
+    // Monotonic "user data" epoch. Incremented when a scheduled or manual superset rebuild is
+    // published so every user's cached summary/overview projection is treated as absent and is
+    // rebuilt from the new superset on next use (O(1), without enumerating cache keys).
+    private long _userDataEpoch;
+
     public PerUserSummaryCache(IMemoryCache cache) => _cache = cache;
+
+    /// <summary>
+    /// Invalidates every user's cached summary and overview blobs. Called after a scheduled or
+    /// manual superset rebuild (not the initial startup build, when no user data exists yet).
+    /// </summary>
+    public void InvalidateAllUserData() => Interlocked.Increment(ref _userDataEpoch);
+
+    private long UserDataEpoch => Interlocked.Read(ref _userDataEpoch);
 
     /// <summary>
     /// The current directory-facts epoch. Callers that persist the admin flag / role elsewhere
@@ -116,10 +129,11 @@ public sealed class PerUserSummaryCache
 
     private const string ExchangeDeployedKey = "org-exchange-deployed";
 
-    private string? Read(string key) => _cache.TryGetValue(key, out string? value) ? value : null;
+    private string? Read(string key) =>
+        _cache.TryGetValue(key, out (long Epoch, string Json) e) && e.Epoch == UserDataEpoch ? e.Json : null;
 
     private void Write(string key, string json) =>
-        _cache.Set(key, json, new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
+        _cache.Set(key, (UserDataEpoch, json), new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
 
     private static string SummaryKey(string user) => $"pu-summary::{Normalize(user)}";
 

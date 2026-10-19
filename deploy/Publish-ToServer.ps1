@@ -133,6 +133,15 @@ try {
 	Invoke-Command -ComputerName $Target -ScriptBlock {
 		param($pool)
 		Import-Module WebAdministration -ErrorAction SilentlyContinue
+		# Keep the process (and its in-memory caches) alive: no idle shutdown, no periodic recycle,
+		# and preload every application in this pool so it starts without waiting for a request.
+		Set-ItemProperty "IIS:\AppPools\$pool" -Name processModel.idleTimeout -Value ([TimeSpan]::Zero)
+		Set-ItemProperty "IIS:\AppPools\$pool" -Name recycling.periodicRestart.time -Value ([TimeSpan]::Zero)
+		Set-ItemProperty "IIS:\AppPools\$pool" -Name startMode -Value AlwaysRunning
+		Get-WebApplication | Where-Object applicationPool -eq $pool | ForEach-Object {
+			$site = ($_.ItemXPath -split "'")[1]
+			Set-ItemProperty "IIS:\Sites\$site$($_.path)" -Name preloadEnabled -Value $true
+		}
 		Start-WebAppPool -Name $pool
 	} -ArgumentList $AppPool
 } catch {
