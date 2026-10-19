@@ -57,6 +57,7 @@
 .iris-settings .form-group input:disabled, .iris-settings .form-group textarea:disabled, .iris-settings .form-group select:disabled,
 .iris-settings fieldset:disabled input, .iris-settings fieldset:disabled textarea, .iris-settings fieldset:disabled select { background: var(--oi-background-color-secondary); color: var(--oi-content-color-secondary); cursor: not-allowed; }
 .form-group-checkbox label { display: flex; align-items: center; gap: 8px; }
+.form-group-checkbox input[type="checkbox"] { width: 16px; height: 16px; flex: 0 0 auto; margin: 0; padding: 0; accent-color: var(--oi-content-color-brand); }
 
 .kpi-section { margin-bottom: 20px; }
 .kpi-section h3 { font-size: var(--oi-font-size-s); font-weight: 600; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--oi-border-color-muted); }
