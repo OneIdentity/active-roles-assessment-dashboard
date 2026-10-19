@@ -1,4 +1,4 @@
-using System.Diagnostics;
+ï»¿using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -1641,25 +1641,27 @@ public class ActiveRolesService
     /// Executes the search(es) defined on a KpiInfo and returns the raw results.
     /// Resolves tokens in BaseDn, Filter, and Attributes from the current config.
     /// </summary>
-    public async Task<List<JsonElement>> ExecuteKpiSearchAsync(string token, KpiSearchDefinition search)
+    public async Task<List<JsonElement>> ExecuteKpiSearchAsync(string token, KpiSearchDefinition search,
+        [System.Runtime.CompilerServices.CallerMemberName] string queryLabel = "")
     {
         var config = _configMonitor.CurrentValue;
         var baseDn = search.ResolveBaseDn(config);
         var filter = search.ResolveFilter(config);
         var attributes = search.ResolveAttributes(config);
-        return await SearchObjectsAsync(token, baseDn, filter, search.Scope, attributes);
+        return await SearchObjectsAsync(token, baseDn, filter, search.Scope, attributes, queryLabel);
     }
 
     /// <summary>
     /// Executes a KPI search with optional overrides for baseDn and filter (for custom config overrides).
     /// </summary>
-    public async Task<List<JsonElement>> ExecuteKpiSearchAsync(string token, KpiSearchDefinition search, string? baseDnOverride, string? filterOverride)
+    public async Task<List<JsonElement>> ExecuteKpiSearchAsync(string token, KpiSearchDefinition search, string? baseDnOverride, string? filterOverride,
+        [System.Runtime.CompilerServices.CallerMemberName] string queryLabel = "")
     {
         var config = _configMonitor.CurrentValue;
         var baseDn = string.IsNullOrWhiteSpace(baseDnOverride) ? search.ResolveBaseDn(config) : baseDnOverride;
         var filter = string.IsNullOrWhiteSpace(filterOverride) ? search.ResolveFilter(config) : filterOverride;
         var attributes = search.ResolveAttributes(config);
-        return await SearchObjectsAsync(token, baseDn, filter, search.Scope, attributes);
+        return await SearchObjectsAsync(token, baseDn, filter, search.Scope, attributes, queryLabel);
     }
 
     public async Task<ADUserAccountsSummary> GetADUserAccountsCountAsync(string token)
@@ -1695,7 +1697,7 @@ public class ActiveRolesService
             // Request the native 'member' attribute instead of Active Roles' virtual
             // 'edsaMember'/'edsaMemberIndirect'. edsaMemberIndirect is server-computed, is the
             // dominant cost of this query, and fails (HTTP 400) on large directories. We compute
-            // indirect (transitive) membership locally below — once per collection — reproducing
+            // indirect (transitive) membership locally below ï¿½ once per collection ï¿½ reproducing
             // edsaMemberIndirect's semantics (validated against a live AR directory).
             var attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName";
             _logger.LogInformation("GetADGroupsAsync: querying base '{BaseDn}' with filter '{Filter}'", baseDn, filter);
@@ -3055,7 +3057,7 @@ public class ActiveRolesService
                         return GetAttr(item, "displayName") is { Length: > 0 } dn ? dn : GetAttr(item, "name");
                     }
 
-                    // The stored objectSid may also be Base64 — decode and compare
+                    // The stored objectSid may also be Base64 ï¿½ decode and compare
                     try
                     {
                         var itemSidBytes = Convert.FromBase64String(itemSid);
@@ -3747,7 +3749,7 @@ public class ActiveRolesService
     private static bool TryDecodeBase64(string value, out byte[] bytes)
     {
         bytes = [];
-        // SDDL always starts with an owner/DACL token like "O:" or "D:" — never valid SD base64.
+        // SDDL always starts with an owner/DACL token like "O:" or "D:" ï¿½ never valid SD base64.
         if (value.StartsWith("O:", StringComparison.Ordinal) || value.StartsWith("D:", StringComparison.Ordinal))
             return false;
         var buffer = new byte[((value.Length + 3) / 4) * 3];
@@ -4104,7 +4106,7 @@ public class ActiveRolesService
     {
         if (string.IsNullOrEmpty(dn)) return dn;
 
-        // Find the first ",CN=" segment after a "DC=" segment — that indicates
+        // Find the first ",CN=" segment after a "DC=" segment ï¿½ that indicates
         // the start of the Active Roles virtual tree namespace suffix.
         var dcIndex = dn.IndexOf(",DC=", StringComparison.OrdinalIgnoreCase);
         if (dcIndex < 0) return dn;
@@ -4124,7 +4126,7 @@ public class ActiveRolesService
             }
             else if (nextSegment.StartsWith("CN=", StringComparison.OrdinalIgnoreCase))
             {
-                // Non-DC component after DCs — this is the virtual tree suffix
+                // Non-DC component after DCs ï¿½ this is the virtual tree suffix
                 return dn[..nextComma];
             }
             else
@@ -4511,15 +4513,23 @@ public class ActiveRolesService
         return eq >= 0 ? first[(eq + 1)..] : first;
     }
 
-    private async Task<List<JsonElement>> SearchObjectsAsync(string token, string baseDn, string filter, string scope, string attributes)
+    private async Task<List<JsonElement>> SearchObjectsAsync(string token, string baseDn, string filter, string scope, string attributes,
+        [System.Runtime.CompilerServices.CallerMemberName] string queryLabel = "")
     {
         var client = CreateClient(token);
+        var query = QueryLogInfo.From(queryLabel, baseDn, filter, scope);
+        using var logScope = _logger.BeginScope(query.ToScope());
+        var stopwatch = Stopwatch.StartNew();
+        var pageSize = _configMonitor.CurrentValue.EffectivePageSize;
+        _logger.LogInformation(
+            "[q:{QueryId}] Query start {QueryLabel}: target={QueryTarget} domain={QueryDomain} types={ObjectTypes} scope={Scope} pageSize={PageSize} filter={Filter}",
+            query.QueryId, query.Label, query.Target, query.Domain, query.ObjectTypes, query.Scope, pageSize, query.Filter);
         // The filter and base DN are query-string values that can contain reserved characters
         // (most importantly the LDAP AND operator '&' in filters like "(&(objectClass=...)...)").
         // A raw '&' would be interpreted by the server as a query-string separator, producing a
         // malformed request (HTTP 400). Uri.EscapeDataString percent-encodes '&' (to %26) and any
         // other reserved characters so the value survives transport intact.
-        var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(baseDn)}&filter={Uri.EscapeDataString(filter)}&scope={scope}&pageSize={_configMonitor.CurrentValue.EffectivePageSize}&{BuildAttributesQuery(attributes)}";
+        var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(baseDn)}&filter={Uri.EscapeDataString(filter)}&scope={scope}&pageSize={pageSize}&{BuildAttributesQuery(attributes)}";
         var allItems = new List<JsonElement>();
         var pageNumber = 0;
 
@@ -4529,8 +4539,21 @@ public class ActiveRolesService
             // Per-page request/response detail is verbose for large result sets (thousands
             // of pages). Keep it at Debug so it's opt-in; a single summary is emitted at
             // Information after the loop completes.
-            _logger.LogDebug("ActiveRoles API request (page {Page}): {Url}", pageNumber, url);
-            var response = await client.GetAsync(url);
+            _logger.LogDebug("[q:{QueryId}] ActiveRoles API request (page {Page}): {Url}", query.QueryId, pageNumber, url);
+            var pageStopwatch = Stopwatch.StartNew();
+            HttpResponseMessage response;
+            try
+            {
+                response = await client.GetAsync(url);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "[q:{QueryId}] Query failed {QueryLabel}: page {Page} no HTTP response after {Total} items, {ElapsedMs} ms (target={QueryTarget} domain={QueryDomain} types={ObjectTypes} filter={Filter})",
+                    query.QueryId, query.Label, pageNumber, allItems.Count, stopwatch.ElapsedMilliseconds, query.Target, query.Domain, query.ObjectTypes, query.Filter);
+                throw;
+            }
+            var statusCode = (int)response.StatusCode;
             if (!response.IsSuccessStatusCode)
             {
                 // Read the error payload before throwing so the actual server message
@@ -4538,8 +4561,9 @@ public class ActiveRolesService
                 // than a bare status code.
                 var errorBody = await response.Content.ReadAsStringAsync();
                 _logger.LogError(
-                    "ActiveRoles API request failed (page {Page}) with status {Status}. Body: {Body}",
-                    pageNumber, (int)response.StatusCode, errorBody);
+                    "[q:{QueryId}] Query failed {QueryLabel}: page {Page} HTTP {StatusCode} after {Total} items, {ElapsedMs} ms (target={QueryTarget} domain={QueryDomain} types={ObjectTypes} filter={Filter}). Body: {Body}",
+                    query.QueryId, query.Label, pageNumber, statusCode, allItems.Count, stopwatch.ElapsedMilliseconds,
+                    query.Target, query.Domain, query.ObjectTypes, query.Filter, QueryLogInfo.Abbreviate(errorBody, 2000));
             }
             response.EnsureSuccessStatusCode();
 
@@ -4590,9 +4614,12 @@ public class ActiveRolesService
             }
 
             var hasNextPage = doc.RootElement.TryGetProperty("nextPage", out _);
-            _logger.LogDebug(
-                "ActiveRoles API response (page {Page}): {PageItems} items this page, {Total} total so far, hasNextPage={HasNext}",
-                pageNumber, pageItemCount, allItems.Count, hasNextPage);
+            // Per-page progress is Information once a query spans multiple pages (so long-running
+            // collections show progress); a single-page result only gets the Debug line.
+            var pageLevel = hasNextPage || pageNumber > 1 ? LogLevel.Information : LogLevel.Debug;
+            _logger.Log(pageLevel,
+                "[q:{QueryId}] Page {Page} {QueryLabel}: HTTP {StatusCode}, {PageItems} items, {Total} total, more={HasNext}, {PageMs} ms",
+                query.QueryId, pageNumber, query.Label, statusCode, pageItemCount, allItems.Count, hasNextPage, pageStopwatch.ElapsedMilliseconds);
 
             if (doc.RootElement.TryGetProperty("nextPage", out var nextPage) && nextPage.ValueKind == JsonValueKind.String)
             {
@@ -4609,8 +4636,8 @@ public class ActiveRolesService
         // One concise summary at Information level so large collections are visible in the
         // log (page count + total items) without emitting a line per page or per object.
         _logger.LogInformation(
-            "ActiveRoles search complete: {Total} items across {Pages} page(s) (base '{BaseDn}', filter '{Filter}').",
-            allItems.Count, pageNumber, baseDn, filter);
+            "[q:{QueryId}] Query done {QueryLabel}: {Total} items across {Pages} page(s) in {ElapsedMs} ms (target={QueryTarget} domain={QueryDomain} types={ObjectTypes})",
+            query.QueryId, query.Label, allItems.Count, pageNumber, stopwatch.ElapsedMilliseconds, query.Target, query.Domain, query.ObjectTypes);
 
         return allItems;
     }
