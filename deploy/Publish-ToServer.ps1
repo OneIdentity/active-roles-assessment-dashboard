@@ -133,6 +133,18 @@ try {
 	Invoke-Command -ComputerName $Target -ScriptBlock {
 		param($pool)
 		Import-Module WebAdministration -ErrorAction SilentlyContinue
+		# preloadEnabled only takes effect when the IIS Application Initialization feature is
+		# installed; without it the app (and its superset cache) only starts on the first request.
+		if (Get-Command Get-WindowsFeature -ErrorAction SilentlyContinue) {
+			$appInit = Get-WindowsFeature Web-AppInit
+			if ($appInit -and -not $appInit.Installed) {
+				Write-Host "    Installing IIS Application Initialization (Web-AppInit)..." -ForegroundColor Cyan
+				try { Install-WindowsFeature Web-AppInit -ErrorAction Stop | Out-Null }
+				catch { Write-Warning "Could not install Web-AppInit ($($_.Exception.Message)). The app will start on first request instead of at pool start." }
+			}
+		} else {
+			Write-Warning "Cannot verify IIS Application Initialization (Get-WindowsFeature unavailable). Ensure it is installed so preload works."
+		}
 		# Keep the process (and its in-memory caches) alive: no idle shutdown, no periodic recycle,
 		# and preload every application in this pool so it starts without waiting for a request.
 		Set-ItemProperty "IIS:\AppPools\$pool" -Name processModel.idleTimeout -Value ([TimeSpan]::Zero)
