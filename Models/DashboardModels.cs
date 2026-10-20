@@ -3034,8 +3034,26 @@ public class DashboardSummary
                 Error = ScheduledTasks.Error
             },
 
+            _ when ExchangeKpis.TryGetValue(kpiKey, out var ex) => ExchangeDetail(ex),
+
             _ => null
         };
+
+        // Exchange KPIs are collected data-driven into ExchangeKpis (keyed by KpiInfo.Key). Permission
+        // KPIs (Send As, Full Access, Send on Behalf) also carry resolved trustees.
+        static ReportTable ExchangeDetail(GovernanceKpiSummary s)
+        {
+            var items = s.Items;
+            var hasTrustee = items.Any(i => !string.IsNullOrEmpty(i.Trustee));
+            return new ReportTable
+            {
+                Columns = hasTrustee ? ["Name", "Domain", "Trustee", "Distinguished Name"] : ["Name", "Domain", "Distinguished Name"],
+                Rows = items.Select(i => hasTrustee
+                    ? (IReadOnlyList<string>)[i.Name, i.Domain, i.Trustee, i.Dn]
+                    : (IReadOnlyList<string>)[i.Name, i.Domain, i.Dn]).ToList(),
+                Error = s.Error
+            };
+        }
 
         static ReportTable ArNameDnDetail(IEnumerable<(string Name, string Dn)> items, string? error) => new()
         {
