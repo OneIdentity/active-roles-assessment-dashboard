@@ -240,6 +240,8 @@ public class DashboardController : ControllerBase
         public List<string?>? RowGroupTreeDns { get; set; }
         /// <summary>Exclusions are configured for this KPI but could not be applied to its count.</summary>
         public bool ExclusionsNotApplied { get; set; }
+        /// <summary>Configured Active Roles Web Interface base URL (empty when not configured).</summary>
+        public string WebInterfaceUrl { get; set; } = string.Empty;
     }
 
     public sealed class SegmentRequest
@@ -426,7 +428,8 @@ public class DashboardController : ControllerBase
             Rows = table?.Rows ?? new(),
             GroupTreeDn = groupTreeDn,
             RowGroupTreeDns = rowGroupTreeDns is not null && rowGroupTreeDns.Count == (table?.Rows.Count ?? 0) ? rowGroupTreeDns : null,
-            ExclusionsNotApplied = result.NotApplied
+            ExclusionsNotApplied = result.NotApplied,
+            WebInterfaceUrl = _arConfig.CurrentValue.WebInterfaceUrl?.Trim() ?? string.Empty
         });
     }
 

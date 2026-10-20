@@ -199,7 +199,7 @@ body { font-family: var(--oi-font-family-default); background: var(--oi-backgrou
 .panel.panel-static { display: block; }
 .iris-kpi-modal-backdrop { position: fixed; inset: 0; z-index: 2400; display: flex; align-items: center; justify-content: center; padding: var(--oi-spacing-l); background: var(--oi-background-color-blanket); }
 .iris-kpi-modal-backdrop[hidden] { display: none; }
-.iris-kpi-modal { display: flex; flex-direction: column; width: min(820px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: hidden; border-radius: var(--oi-border-radius-l); background: var(--oi-background-color-primary); box-shadow: var(--oi-shadow-high); color: var(--oi-content-color-primary); outline: none; }
+.iris-kpi-modal { display: flex; flex-direction: column; width: min(1280px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: hidden; border-radius: var(--oi-border-radius-l); background: var(--oi-background-color-primary); box-shadow: var(--oi-shadow-high); color: var(--oi-content-color-primary); outline: none; }
 .iris-kpi-modal-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: var(--oi-spacing-m); min-height: 64px; padding: var(--oi-spacing-l); border-bottom: 1px solid var(--oi-border-color-default); }
 .iris-kpi-modal-header h2 { min-width: 0; margin: 0; padding: 0; border: 0; color: var(--oi-content-color-primary); font-size: 16px; font-weight: 600; line-height: 24px; }
 .iris-kpi-modal-actions { display: flex; flex: 0 0 auto; align-items: center; gap: var(--oi-spacing-s); }
