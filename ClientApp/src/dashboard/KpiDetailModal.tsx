@@ -91,6 +91,7 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
             <div className="panel">
               <div className="panel-content">
                 {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
+                <div className="kpi-detail-scroll" tabIndex={0} role="region" aria-label={t.detailTableRegion(kpi.label)}>
                 <table className="kpi-detail-table">
                   <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col" className={colClass(j)}>{j === excludedCol ? t.excluded : c}</th>)}{rowDns && <th scope="col" className="kpi-detail-action"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
                   <tbody>
@@ -110,6 +111,7 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}

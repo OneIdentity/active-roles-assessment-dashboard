@@ -25,6 +25,14 @@
 .kpi-detail-table .kpi-col-compact { white-space: nowrap; width: 1%; }
 .kpi-detail-table .kpi-col-wrap { min-width: 240px; overflow-wrap: anywhere; }
 .kpi-detail-table .kpi-detail-action { white-space: nowrap; width: 1%; }
+.kpi-detail-scroll { overflow-x: auto; max-width: 100%; }
+.kpi-detail-scroll:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
+.kpi-detail-scroll > .kpi-detail-table { border-collapse: separate; border-spacing: 0; }
+.kpi-detail-scroll .kpi-col-wrap { min-width: 280px; }
+.kpi-detail-scroll .kpi-col-identity { position: sticky; left: 0; z-index: 1; background: var(--oi-background-color-primary); box-shadow: 1px 0 0 var(--oi-border-color-muted); }
+.kpi-detail-scroll .kpi-detail-action { position: sticky; right: 0; z-index: 1; background: var(--oi-background-color-primary); box-shadow: -1px 0 0 var(--oi-border-color-muted); }
+.kpi-detail-scroll th.kpi-col-identity, .kpi-detail-scroll th.kpi-detail-action { z-index: 2; }
+@media (max-width: 600px) { .kpi-detail-scroll .kpi-col-identity { max-width: 160px; } }
 .kpi-detail-table th { position: sticky; top: 0; background: var(--oi-background-color-primary); color: var(--oi-content-color-secondary); font-weight: 600; }
 .kpi-detail-meta { margin: 0 0 var(--oi-spacing-m); color: var(--oi-content-color-tertiary); font-size: 13px; }
 
