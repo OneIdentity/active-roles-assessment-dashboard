@@ -6,6 +6,15 @@ import { formatNumber, t } from './strings';
 const MAX_ROWS = 500;
 
 const treeHref = (dn: string) => withBase(`/GroupTree?Group=${encodeURIComponent(dn)}&returnPage=App`);
+const webHref = (baseUrl: string, dn: string) => `${baseUrl.replace(/\/+$/, '')}/redirect.ashx?dn=${encodeURIComponent(dn)}`;
+
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" />
+    </svg>
+  );
+}
 
 function TreeIcon() {
   return (
@@ -57,6 +66,9 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
   const isExcluded = (row: string[]) => excludedCol >= 0 && /^true$/i.test(row[excludedCol] ?? '');
   const columnKinds = useMemo(() => (detail ? classifyColumns(detail.columns, detail.rows) : []), [detail]);
   const colClass = (j: number) => `kpi-col-${columnKinds[j] ?? 'wrap'}`;
+  const dnCol = detail ? detail.columns.indexOf('Distinguished Name') : -1;
+  const webUrl = detail?.webInterfaceUrl?.trim() ?? '';
+  const hasActions = !!rowDns || dnCol >= 0;
 
   return (
     <div className="iris-kpi-modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -93,18 +105,27 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
                 {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
                 <div className="kpi-detail-scroll" tabIndex={0} role="region" aria-label={t.detailTableRegion(kpi.label)}>
                 <table className="kpi-detail-table">
-                  <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col" className={colClass(j)}>{j === excludedCol ? t.excluded : c}</th>)}{rowDns && <th scope="col" className="kpi-detail-action"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
+                  <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col" className={colClass(j)}>{j === excludedCol ? t.excluded : c}</th>)}{hasActions && <th scope="col" className="kpi-detail-action"><span className="visually-hidden">{t.actions}</span></th>}</tr></thead>
                   <tbody>
                     {rows.map((row, i) => (
                       <tr key={i} className={isExcluded(row) ? 'is-excluded' : undefined}>
                         {row.map((cell, j) => <td key={j} className={colClass(j)}>{j === excludedCol ? (isExcluded(row) ? <span className="kpi-excluded-badge" title={t.excludedHint}>{t.excluded}</span> : null) : columnKinds[j] === 'wrap' ? breakableDn(cell) : cell}</td>)}
-                        {rowDns && (
+                        {hasActions && (
                           <td className="kpi-detail-action">
-                            {rowDns[i] && (
+                            {rowDns?.[i] && (
                               <a className="iris-kpi-modal-close" href={treeHref(rowDns[i]!)} title={t.viewNestedMembership} aria-label={`${t.viewNestedMembership}: ${row[0]}`}>
                                 <TreeIcon />
                               </a>
                             )}
+                            {dnCol >= 0 && row[dnCol] && (webUrl ? (
+                              <a className="iris-kpi-modal-close" href={webHref(webUrl, row[dnCol])} target="_blank" rel="noopener noreferrer" title={t.openInWebInterface} aria-label={`${t.openInWebInterface}: ${row[0]}`}>
+                                <ExternalLinkIcon />
+                              </a>
+                            ) : (
+                              <span className="iris-kpi-modal-close is-disabled" role="img" title={t.configureWebInterface} aria-label={t.configureWebInterface}>
+                                <ExternalLinkIcon />
+                              </span>
+                            ))}
                           </td>
                         )}
                       </tr>

@@ -119,6 +119,7 @@ export interface KpiDetail {
   groupTreeDn?: string | null;
   rowGroupTreeDns?: (string | null)[] | null;
   exclusionsNotApplied?: boolean;
+  webInterfaceUrl?: string;
 }
 
 export interface RefreshStatus {

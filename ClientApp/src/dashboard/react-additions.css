@@ -25,6 +25,8 @@
 .kpi-detail-table .kpi-col-compact { white-space: nowrap; width: 1%; }
 .kpi-detail-table .kpi-col-wrap { min-width: 240px; overflow-wrap: anywhere; }
 .kpi-detail-table .kpi-detail-action { white-space: nowrap; width: 1%; }
+.kpi-detail-table .kpi-detail-action .is-disabled { opacity: 0.4; cursor: not-allowed; }
+.kpi-detail-table .kpi-detail-action .is-disabled:hover { background: transparent; }
 .kpi-detail-scroll { overflow-x: auto; max-width: 100%; }
 .kpi-detail-scroll:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
 .kpi-detail-scroll > .kpi-detail-table { border-collapse: separate; border-spacing: 0; }
