@@ -20,7 +20,11 @@
 @media (max-width: 720px) { .licensing-donut { flex-direction: column; } }
 
 .kpi-detail-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.kpi-detail-table th, .kpi-detail-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--oi-border-color-muted); vertical-align: top; overflow-wrap: anywhere; }
+.kpi-detail-table th, .kpi-detail-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--oi-border-color-muted); vertical-align: top; overflow-wrap: break-word; }
+.kpi-detail-table .kpi-col-identity { white-space: nowrap; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+.kpi-detail-table .kpi-col-compact { white-space: nowrap; width: 1%; }
+.kpi-detail-table .kpi-col-wrap { min-width: 240px; overflow-wrap: anywhere; }
+.kpi-detail-table .kpi-detail-action { white-space: nowrap; width: 1%; }
 .kpi-detail-table th { position: sticky; top: 0; background: var(--oi-background-color-primary); color: var(--oi-content-color-secondary); font-weight: 600; }
 .kpi-detail-meta { margin: 0 0 var(--oi-spacing-m); color: var(--oi-content-color-tertiary); font-size: 13px; }
 

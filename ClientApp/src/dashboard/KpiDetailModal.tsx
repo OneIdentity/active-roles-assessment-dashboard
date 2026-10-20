@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getKpiDetail, withBase, type KpiDetail, type ViewKpi } from './api';
+import { breakableDn, classifyColumns } from './kpiDetailColumns';
 import { formatNumber, t } from './strings';
 
 const MAX_ROWS = 500;
@@ -54,6 +55,8 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
   // The server appends an "Excluded" column (True/False) when exclusion patterns match rows.
   const excludedCol = detail ? detail.columns.indexOf('Excluded') : -1;
   const isExcluded = (row: string[]) => excludedCol >= 0 && /^true$/i.test(row[excludedCol] ?? '');
+  const columnKinds = useMemo(() => (detail ? classifyColumns(detail.columns, detail.rows) : []), [detail]);
+  const colClass = (j: number) => `kpi-col-${columnKinds[j] ?? 'wrap'}`;
 
   return (
     <div className="iris-kpi-modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -89,11 +92,11 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
               <div className="panel-content">
                 {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
                 <table className="kpi-detail-table">
-                  <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col">{j === excludedCol ? t.excluded : c}</th>)}{rowDns && <th scope="col"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
+                  <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col" className={colClass(j)}>{j === excludedCol ? t.excluded : c}</th>)}{rowDns && <th scope="col" className="kpi-detail-action"><span className="visually-hidden">{t.viewNestedMembership}</span></th>}</tr></thead>
                   <tbody>
                     {rows.map((row, i) => (
                       <tr key={i} className={isExcluded(row) ? 'is-excluded' : undefined}>
-                        {row.map((cell, j) => <td key={j}>{j === excludedCol ? (isExcluded(row) ? <span className="kpi-excluded-badge" title={t.excludedHint}>{t.excluded}</span> : null) : cell}</td>)}
+                        {row.map((cell, j) => <td key={j} className={colClass(j)}>{j === excludedCol ? (isExcluded(row) ? <span className="kpi-excluded-badge" title={t.excludedHint}>{t.excluded}</span> : null) : columnKinds[j] === 'wrap' ? breakableDn(cell) : cell}</td>)}
                         {rowDns && (
                           <td className="kpi-detail-action">
                             {rowDns[i] && (
