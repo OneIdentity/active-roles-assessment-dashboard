@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getKpiDetail, withBase, type KpiDetail, type ViewKpi } from './api';
 import { breakableDn, classifyColumns } from './kpiDetailColumns';
+import { DetailColumnFilter } from './DetailColumnFilter';
 import { formatNumber, t } from './strings';
 
 const MAX_ROWS = 500;
+
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+const compareText = (a: string, b: string) => collator.compare(a.trim(), b.trim());
 
 const treeHref = (dn: string) => withBase(`/GroupTree?Group=${encodeURIComponent(dn)}&returnPage=App`);
 const webHref = (baseUrl: string, dn: string) => `${baseUrl.replace(/\/+$/, '')}/redirect.ashx?dn=${encodeURIComponent(dn)}`;
@@ -36,11 +40,15 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
   const [detail, setDetail] = useState<KpiDetail | null>(null);
   const [failed, setFailed] = useState(false);
   const dialogRef = useRef<HTMLElement>(null);
+  const [sort, setSort] = useState<{ col: number; dir: 'asc' | 'desc' } | null>(null);
+  const [filters, setFilters] = useState<Record<number, Set<string>>>({});
 
   useEffect(() => {
     let alive = true;
     setDetail(null);
     setFailed(false);
+    setSort(null);
+    setFilters({});
     getKpiDetail(kpi.key).then((d) => alive && setDetail(d)).catch(() => alive && setFailed(true));
     return () => { alive = false; };
   }, [kpi.key]);
@@ -53,8 +61,31 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
     return () => { document.removeEventListener('keydown', onKey); previous?.focus(); };
   }, [onClose]);
 
-  const rows = detail?.rows.slice(0, MAX_ROWS) ?? [];
   const rowDns = detail?.rowGroupTreeDns?.some((d) => d) ? detail.rowGroupTreeDns : null;
+  const columnValues = useMemo(
+    () => detail?.columns.map((_, j) => Array.from(new Set(detail.rows.map((r) => (r[j] ?? '').trim()))).sort(compareText)) ?? [],
+    [detail],
+  );
+  const filtered = useMemo(() => {
+    if (!detail) return [] as { row: string[]; index: number }[];
+    const active = Object.entries(filters).map(([k, v]) => [Number(k), v] as const);
+    const list = detail.rows
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => active.every(([j, set]) => set.has((row[j] ?? '').trim())));
+    if (sort) {
+      const sign = sort.dir === 'asc' ? 1 : -1;
+      list.sort((a, b) => sign * compareText(a.row[sort.col] ?? '', b.row[sort.col] ?? '') || a.index - b.index);
+    }
+    return list;
+  }, [detail, filters, sort]);
+  const visibleRows = filtered.slice(0, MAX_ROWS);
+  const filterActive = Object.keys(filters).length > 0;
+  const toggleSort = (j: number) => setSort((s) => (s?.col === j && s.dir === 'asc' ? { col: j, dir: 'desc' } : { col: j, dir: 'asc' }));
+  const setColumnFilter = (j: number, next: Set<string> | undefined) => setFilters((f) => {
+    const copy = { ...f };
+    if (next) copy[j] = next; else delete copy[j];
+    return copy;
+  });
   // Privileged-group details list members with a Membership column; when any member is indirect,
   // the group itself has a nested tree. Prefer the server-supplied DN, else fall back to the group
   // name (GroupTree resolves names as well as DNs).
@@ -102,12 +133,34 @@ export function KpiDetailModal({ kpi, canExport, onExport, onClose }: Props) {
           {detail && detail.rows.length > 0 && (
             <div className="panel">
               <div className="panel-content">
-                {detail.rows.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, detail.rows.length)}</p>}
+                {filtered.length > MAX_ROWS && <p className="kpi-detail-meta">{t.rowsShown(MAX_ROWS, filtered.length)}</p>}
+                {filterActive && (
+                  <p className="kpi-detail-meta" role="status">
+                    {t.rowsFiltered(filtered.length, detail.rows.length)}{' '}
+                    <button type="button" className="kpi-clear-filters" onClick={() => setFilters({})}>{t.clearFilters}</button>
+                  </p>
+                )}
                 <div className="kpi-detail-scroll" tabIndex={0} role="region" aria-label={t.detailTableRegion(kpi.label)}>
                 <table className="kpi-detail-table">
-                  <thead><tr>{detail.columns.map((c, j) => <th key={c} scope="col" className={colClass(j)}>{j === excludedCol ? t.excluded : c}</th>)}{hasActions && <th scope="col" className="kpi-detail-action"><span className="visually-hidden">{t.actions}</span></th>}</tr></thead>
+                  <thead><tr>{detail.columns.map((c, j) => {
+                                      const label = j === excludedCol ? t.excluded : c;
+                                      const dir = sort?.col === j ? sort.dir : null;
+                                      return (
+                                        <th key={c} scope="col" className={colClass(j)} aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : 'none'}>
+                                          <div className="kpi-th-inner">
+                                            <button type="button" className={`kpi-sort-btn${dir ? ` sort-${dir}` : ''}`} onClick={() => toggleSort(j)} title={dir === 'asc' ? t.sortDescending : t.sortAscending}>
+                                              <span>{label}</span><span className="kpi-sort-indicator" aria-hidden="true">{dir === 'asc' ? '\u25B2' : dir === 'desc' ? '\u25BC' : '\u21C5'}</span>
+                                            </button>
+                                            <DetailColumnFilter column={label} values={columnValues[j] ?? []} selected={filters[j]} onChange={(next) => setColumnFilter(j, next)} />
+                                          </div>
+                                        </th>
+                                      );
+                                    })}{hasActions && <th scope="col" className="kpi-detail-action"><span className="visually-hidden">{t.actions}</span></th>}</tr></thead>
                   <tbody>
-                    {rows.map((row, i) => (
+                    {visibleRows.length === 0 && (
+                      <tr><td colSpan={detail.columns.length + (hasActions ? 1 : 0)} className="empty-row">{t.noFilterMatches}</td></tr>
+                    )}
+                    {visibleRows.map(({ row, index: i }) => (
                       <tr key={i} className={isExcluded(row) ? 'is-excluded' : undefined}>
                         {row.map((cell, j) => <td key={j} className={colClass(j)}>{j === excludedCol ? (isExcluded(row) ? <span className="kpi-excluded-badge" title={t.excludedHint}>{t.excluded}</span> : null) : columnKinds[j] === 'wrap' ? breakableDn(cell) : cell}</td>)}
                         {hasActions && (
