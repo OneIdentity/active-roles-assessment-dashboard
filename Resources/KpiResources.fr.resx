@@ -26,7 +26,11 @@
   <data name="Chart_EntraGroupTypeBreakdown" xml:space="preserve"><value>Groupes par type</value></data>
   <data name="Cat_ADOverview" xml:space="preserve"><value>Vue d'ensemble</value></data>
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Vue d'ensemble</value></data>
-  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuration d'Active Roles</value></data>
+  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuration</value></data>
+  <data name="Cat_ARDelegation" xml:space="preserve"><value>Délégation</value></data>
+  <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Annuaires gérés</value></data>
+  <data name="Cat_ARInfrastructure" xml:space="preserve"><value>Infrastructure</value></data>
+  <data name="Cat_ARAutomation" xml:space="preserve"><value>Automatisation</value></data>
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Gouvernance et risques</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Modèles d'accès vides</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Objets de stratégie sans règles</value></data>
