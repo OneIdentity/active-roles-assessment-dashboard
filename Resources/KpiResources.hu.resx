@@ -79,7 +79,7 @@
   <data name="Chart_EntraGroupTypeBreakdown" xml:space="preserve"><value>Csoportok típus szerint</value></data>
   <data name="Cat_ADOverview" xml:space="preserve"><value>Áttekintés</value></data>
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Áttekintés</value></data>
-  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Active Roles konfiguráció</value></data>
+  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Konfiguráció</value></data>
   <data name="Cat_ARDelegation" xml:space="preserve"><value>Delegálás</value></data>
   <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Felügyelt címtárak</value></data>
   <data name="Cat_ARInfrastructure" xml:space="preserve"><value>Infrastruktúra</value></data>

@@ -26,7 +26,7 @@
   <data name="Chart_EntraGroupTypeBreakdown" xml:space="preserve"><value>Grupos por tipo</value></data>
   <data name="Cat_ADOverview" xml:space="preserve"><value>Resumen</value></data>
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Resumen</value></data>
-  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuración de Active Roles</value></data>
+  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuración</value></data>
   <data name="Cat_ARDelegation" xml:space="preserve"><value>Delegación</value></data>
   <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Directorios administrados</value></data>
   <data name="Cat_ARInfrastructure" xml:space="preserve"><value>Infraestructura</value></data>

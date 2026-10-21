@@ -133,7 +133,7 @@ public class CategoryInfo
     public static readonly CategoryInfo ARConfiguration = new()
     {
         Key = "ARConfiguration",
-        DisplayName = "Active Roles Configuration",
+        DisplayName = "Configuration",
         DashboardKey = "ActiveRoles",
         SortOrder = 0,
         KpiSortOrder = CategorySortOrder.CustomThenAtoZ

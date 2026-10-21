@@ -81,7 +81,7 @@
   <data name="Chart_EntraGroupTypeBreakdown" xml:space="preserve"><value>Groups by Type</value></data>
   <data name="Cat_ADOverview" xml:space="preserve"><value>Overview</value></data>
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Overview</value></data>
-  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Active Roles Configuration</value></data>
+  <data name="Cat_ARConfiguration" xml:space="preserve"><value>Configuration</value></data>
   <data name="Cat_ARDelegation" xml:space="preserve"><value>Delegation</value></data>
   <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Managed Directories</value></data>
   <data name="Cat_ARInfrastructure" xml:space="preserve"><value>Infrastructure</value></data>
