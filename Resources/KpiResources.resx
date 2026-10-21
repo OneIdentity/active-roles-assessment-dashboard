@@ -85,6 +85,7 @@
   <data name="Cat_ARDelegation" xml:space="preserve"><value>Delegation</value></data>
   <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Managed Directories</value></data>
   <data name="Cat_ARInfrastructure" xml:space="preserve"><value>Infrastructure</value></data>
+  <data name="Cat_ARAutomation" xml:space="preserve"><value>Automation</value></data>
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Governance and Risk</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Empty Access Templates</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Policy Objects With No Rules</value></data>

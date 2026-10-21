@@ -30,6 +30,7 @@
   <data name="Cat_ARDelegation" xml:space="preserve"><value>Delega</value></data>
   <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Directory gestite</value></data>
   <data name="Cat_ARInfrastructure" xml:space="preserve"><value>Infrastruttura</value></data>
+  <data name="Cat_ARAutomation" xml:space="preserve"><value>Automazione</value></data>
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Governance e rischi</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Modelli di accesso vuoti</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Oggetti criterio senza regole</value></data>
