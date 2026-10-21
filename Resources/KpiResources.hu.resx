@@ -80,6 +80,7 @@
   <data name="Cat_ADOverview" xml:space="preserve"><value>Áttekintés</value></data>
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Áttekintés</value></data>
   <data name="Cat_ARConfiguration" xml:space="preserve"><value>Active Roles konfiguráció</value></data>
+  <data name="Cat_ARDelegation" xml:space="preserve"><value>Delegálás</value></data>
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Irányítás és kockázat</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Üres hozzáférési sablonok</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Szabály nélküli házirendobjektumok</value></data>

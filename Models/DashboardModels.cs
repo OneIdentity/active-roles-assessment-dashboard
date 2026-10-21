@@ -32,7 +32,8 @@ public class DashboardInfo
         Subtitle = "Active Roles configuration KPIs",
         Url = "/ActiveRoles",
         Image = "images/Active Roles.png",
-        RequiresAdmin = true
+        RequiresAdmin = true,
+        CategoryOrder = CategorySortOrder.AtoZ
     };
 
     public static readonly DashboardInfo ActiveDirectory = new()
@@ -136,6 +137,15 @@ public class CategoryInfo
         DashboardKey = "ActiveRoles",
         SortOrder = 0,
         KpiSortOrder = CategorySortOrder.CustomThenAtoZ
+    };
+
+    public static readonly CategoryInfo ARDelegation = new()
+    {
+        Key = "ARDelegation",
+        DisplayName = "Delegation",
+        DashboardKey = "ActiveRoles",
+        SortOrder = 1,
+        KpiSortOrder = CategorySortOrder.AtoZ
     };
 
     public static readonly CategoryInfo ARGovernance = new()
@@ -312,7 +322,7 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
+    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
 
     private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
 
@@ -1498,19 +1508,19 @@ public class KpiInfo
     public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
     public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARConfiguration", CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion,edsvaDiagnosticLogTurnedOn" }] };
     public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
-    public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARDelegation", CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo DynamicGroups = new() { Key = "DynamicGroups", DisplayName = "Dynamic Groups", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "dynamicgroups", SortOrder = 105, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList,edsvaDGControllingService" }] };
     public static readonly KpiInfo GroupFamilies = new() { Key = "GroupFamilies", DisplayName = "Group Families", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "groupfamilies", SortOrder = 106, HasDrilldown = true };
     public static readonly KpiInfo ManagedUnits = new() { Key = "ManagedUnits", DisplayName = "Managed Units", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "managedunits", SortOrder = 107, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
     public static readonly KpiInfo PolicyObjectLinks = new() { Key = "PolicyObjectLinks", DisplayName = "Policy Object Links", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "polinks", SortOrder = 108, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARConfiguration", CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
+    public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARDelegation", CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
     public static readonly KpiInfo PolicyObjectsNoRules = new() { Key = "PolicyObjectsNoRules", DisplayName = "Policy Objects With No Rules", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "policyobjectsnorules", SortOrder = 116, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
-    public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
-    public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
+    public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARDelegation", CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
+    public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
     public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARConfiguration", CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
-    public static readonly KpiInfo OrphanAccessTemplateLinks = new() { Key = "OrphanAccessTemplateLinks", DisplayName = "Orphaned Access Template Links", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "orphanaccesstemplatelinks", SortOrder = 120, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaAccessTemplateGUID,edsaSecObjectGUID,edsaTrusteeSID" }] };
+    public static readonly KpiInfo OrphanAccessTemplateLinks = new() { Key = "OrphanAccessTemplateLinks", DisplayName = "Orphaned Access Template Links", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "orphanaccesstemplatelinks", SortOrder = 120, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaAccessTemplateGUID,edsaSecObjectGUID,edsaTrusteeSID" }] };
     public static readonly KpiInfo OrphanPolicyObjectLinks = new() { Key = "OrphanPolicyObjectLinks", DisplayName = "Orphaned Policy Object Links", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "orphanpolicyobjectlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName,edsaAPOGUID,edsaSecObjectGUID" }] };
     public static readonly KpiInfo DynamicGroupsBrokenRules = new() { Key = "DynamicGroupsBrokenRules", DisplayName = "Dynamic Groups With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "dynamicgroupsbrokenrules", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList" }] };
     public static readonly KpiInfo ManagedUnitsBrokenRules = new() { Key = "ManagedUnitsBrokenRules", DisplayName = "Managed Units With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "managedunitsbrokenrules", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
@@ -1929,6 +1939,8 @@ public class KpiSettings
     {
         "Overview" => OverviewEnabled,
         "ARConfiguration" => ARConfigurationEnabled,
+        // Delegation KPIs were split out of Active Roles Configuration and share its toggle.
+        "ARDelegation" => ARConfigurationEnabled,
         "ARGovernance" => ARGovernanceEnabled,
         "ADGovernance" => ADGovernanceEnabled,
         "EntraIDGovernance" => EntraIDGovernanceEnabled,
