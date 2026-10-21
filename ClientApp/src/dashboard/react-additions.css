@@ -81,3 +81,18 @@
 .perf-trend-chart svg { display: block; max-height: 220px; }
 .perf-trend-chart-title { margin: 0 0 var(--oi-spacing-s); font-size: .875rem; font-weight: 600; }
 @media (max-width: 720px) { .perf-trend-charts { grid-template-columns: 1fr; } .perf-bars li { grid-template-columns: 1fr 64px; } .perf-bar-track { grid-column: 1 / -1; grid-row: 2; } }
+.kpi-th-inner { display: flex; align-items: flex-start; gap: 4px; }
+.kpi-sort-btn { flex: 1 1 auto; display: inline-flex; align-items: flex-start; gap: 4px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.kpi-sort-btn:hover, .kpi-sort-btn.sort-asc, .kpi-sort-btn.sort-desc { color: var(--oi-content-color-primary); }
+.kpi-sort-indicator { flex: none; font-size: 10px; line-height: 1.8; opacity: .5; }
+.kpi-sort-btn.sort-asc .kpi-sort-indicator, .kpi-sort-btn.sort-desc .kpi-sort-indicator { opacity: 1; }
+.kpi-col-filter { flex: none; }
+.kpi-col-filter-btn { display: inline-flex; padding: 2px; border: 0; border-radius: 4px; background: none; color: var(--oi-content-color-tertiary); cursor: pointer; }
+.kpi-col-filter-btn:hover, .kpi-col-filter-btn.is-active { color: var(--oi-content-color-primary); background: var(--oi-border-color-muted); }
+.kpi-col-filter-menu { position: fixed; z-index: 1100; width: 260px; padding: 8px; border: 1px solid var(--oi-border-color-muted); border-radius: 6px; background: var(--oi-background-color-primary); box-shadow: 0 6px 18px rgba(0,0,0,.18); font-weight: 400; color: var(--oi-content-color-primary); }
+.kpi-col-filter-search { width: 100%; box-sizing: border-box; padding: 4px 6px; margin-bottom: 6px; }
+.kpi-col-filter-actions { display: flex; gap: 8px; margin-bottom: 6px; }
+.kpi-col-filter-actions button, .kpi-clear-filters { padding: 0; border: 0; background: none; color: var(--oi-content-color-link, #0b6bcb); cursor: pointer; font: inherit; text-decoration: underline; }
+.kpi-col-filter-list { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+.kpi-col-filter-list label { display: flex; gap: 6px; align-items: flex-start; padding: 2px 0; cursor: pointer; overflow-wrap: anywhere; }
+
