@@ -148,6 +148,15 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
+    public static readonly CategoryInfo ARManagedDirectories = new()
+    {
+        Key = "ARManagedDirectories",
+        DisplayName = "Managed Directories",
+        DashboardKey = "ActiveRoles",
+        SortOrder = 2,
+        KpiSortOrder = CategorySortOrder.AtoZ
+    };
+
     public static readonly CategoryInfo ARGovernance = new()
     {
         Key = "ARGovernance",
@@ -322,7 +331,7 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
+    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARManagedDirectories, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
 
     private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
 
@@ -1507,7 +1516,7 @@ public class KpiInfo
     // AR Configuration KPIs
     public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
     public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARConfiguration", CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion,edsvaDiagnosticLogTurnedOn" }] };
-    public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
+    public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARManagedDirectories", CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
     public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARDelegation", CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo DynamicGroups = new() { Key = "DynamicGroups", DisplayName = "Dynamic Groups", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "dynamicgroups", SortOrder = 105, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList,edsvaDGControllingService" }] };
@@ -1528,7 +1537,7 @@ public class KpiInfo
     // Inventory of Entra/Azure tenants managed by Active Roles. The Azure configuration base DN
     // is resolved at runtime from configuration (DefaultAzureConfigurationDN), so the search is
     // driven by GetEntraManagedTenantsAsync rather than the generic ExecuteKpiSearchAsync path.
-    public static readonly KpiInfo EntraManagedTenants = new() { Key = "EntraManagedTenants", DisplayName = "AR-Managed Entra Tenants", CategoryKey = "ARConfiguration", CssColor = "indigo", SectionId = "entramanagedtenants", SortOrder = 125, HasDrilldown = true };
+    public static readonly KpiInfo EntraManagedTenants = new() { Key = "EntraManagedTenants", DisplayName = "Managed Entra Tenants", CategoryKey = "ARManagedDirectories", CssColor = "indigo", SectionId = "entramanagedtenants", SortOrder = 125, HasDrilldown = true };
     public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued,edsaIsPredefined,edsaSystemObject" }] };
     public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARConfiguration", CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
     public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
@@ -1941,6 +1950,7 @@ public class KpiSettings
         "ARConfiguration" => ARConfigurationEnabled,
         // Delegation KPIs were split out of Active Roles Configuration and share its toggle.
         "ARDelegation" => ARConfigurationEnabled,
+        "ARManagedDirectories" => ARConfigurationEnabled,
         "ARGovernance" => ARGovernanceEnabled,
         "ADGovernance" => ADGovernanceEnabled,
         "EntraIDGovernance" => EntraIDGovernanceEnabled,

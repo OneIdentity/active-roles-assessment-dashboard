@@ -28,6 +28,7 @@
   <data name="Cat_EntraOverview" xml:space="preserve"><value>Übersicht</value></data>
   <data name="Cat_ARConfiguration" xml:space="preserve"><value>Active Roles-Konfiguration</value></data>
   <data name="Cat_ARDelegation" xml:space="preserve"><value>Delegierung</value></data>
+  <data name="Cat_ARManagedDirectories" xml:space="preserve"><value>Verwaltete Verzeichnisse</value></data>
   <data name="Cat_ARGovernance" xml:space="preserve"><value>Governance und Risiko</value></data>
   <data name="Kpi_EmptyAccessTemplates" xml:space="preserve"><value>Leere Zugriffsvorlagen</value></data>
   <data name="Kpi_PolicyObjectsNoRules" xml:space="preserve"><value>Richtlinienobjekte ohne Regeln</value></data>
