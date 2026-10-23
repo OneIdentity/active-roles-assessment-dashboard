@@ -130,6 +130,8 @@ public class DashboardController : ControllerBase
     public sealed class DashboardPayload
     {
         public string UserName { get; set; } = string.Empty;
+        /// <summary>Role shown under the user name in the avatar tooltip: "ActiveRolesAdmin" or a <see cref="DashboardRole"/> name.</summary>
+        public string UserRole { get; set; } = string.Empty;
         public int AutoRefreshMinutes { get; set; }
         public DashboardCapabilities Capabilities { get; set; } = new();
         public OverviewSection Overview { get; set; } = new();
@@ -272,6 +274,7 @@ public class DashboardController : ControllerBase
         var payload = new DashboardPayload
         {
             UserName = User.Identity?.Name ?? string.Empty,
+            UserRole = access.IsActiveRolesAdmin ? "ActiveRolesAdmin" : access.Role.ToString(),
             AutoRefreshMinutes = userSettings.AutoRefreshMinutes,
             Capabilities = BuildCapabilities(access),
             Overview = BuildOverview(summary, kpiSettings),

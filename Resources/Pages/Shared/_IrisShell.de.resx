@@ -51,4 +51,9 @@
 	<value>Navigationspfad</value>
   </data>
 <data name="Privacy" xml:space="preserve"><value>Datenschutz</value></data>
+<data name="Role_ActiveRolesAdmin" xml:space="preserve"><value>Active Roles-Administrator</value></data>
+<data name="Role_DashboardAdministrator" xml:space="preserve"><value>Dashboard-Administrator</value></data>
+<data name="Role_Auditor" xml:space="preserve"><value>Prüfer</value></data>
+<data name="Role_PowerUser" xml:space="preserve"><value>Hauptbenutzer</value></data>
+<data name="Role_User" xml:space="preserve"><value>Benutzer</value></data>
 </root>

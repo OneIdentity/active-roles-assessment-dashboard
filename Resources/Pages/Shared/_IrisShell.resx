@@ -51,4 +51,9 @@
 	<value>Breadcrumb</value>
   </data>
 <data name="Privacy" xml:space="preserve"><value>Privacy</value></data>
+<data name="Role_ActiveRolesAdmin" xml:space="preserve"><value>Active Roles Admin</value></data>
+<data name="Role_DashboardAdministrator" xml:space="preserve"><value>Dashboard Admin</value></data>
+<data name="Role_Auditor" xml:space="preserve"><value>Auditor</value></data>
+<data name="Role_PowerUser" xml:space="preserve"><value>Power User</value></data>
+<data name="Role_User" xml:space="preserve"><value>User</value></data>
 </root>

@@ -93,3 +93,10 @@ body.iris-shell {
     .iris-title-row h1 { font-size: 26px; line-height: 32px; }
 }
 .iris-shell .sidebar-nav-item[hidden] { display: none; }
+
+/* IRIS Avatar (placeholder type): circular container showing one or two initials. Sizes: sm, md, default, lg. */
+.iris-avatar { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 50%; background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); font-family: var(--oi-font-family-code); font-weight: 500; line-height: 1; overflow: hidden; user-select: none; }
+.iris-avatar-sm { width: 24px; height: 24px; font-size: 10px; }
+.iris-avatar-md { width: 28px; height: 28px; font-size: 12px; }
+.iris-avatar-default { width: 32px; height: 32px; font-size: 14px; }
+.iris-avatar-lg { width: 40px; height: 40px; font-size: 16px; }

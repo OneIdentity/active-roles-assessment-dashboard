@@ -16,6 +16,16 @@ const POLL_MS = 3000;
 
 type Toast = { id: number; kind: 'success' | 'error' | 'info'; text: string };
 
+/** One or two initials for the IRIS placeholder avatar from "DOMAIN\user", a UPN or a display name. */
+export const avatarInitials = (name: string) => {
+  const account = name.split('\\').pop()!.split('@')[0]!;
+  const parts = account.split(/[\s._-]+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase();
+};
+
+/** Avatar tooltip: account name, then the dashboard role in parentheses on a second line. */
+const userTooltip = (name: string, role: string | undefined) => (role ? `${name}\n(${role})` : name);
+
 /** Session key remembering the last dashboard tab, so Razor pages can return to it. */
 const LAST_TAB_KEY = 'ard.lastDashboardTab';
 
@@ -236,6 +246,15 @@ export function DashboardFrame() {
               <nav className="ad-breadcrumb" aria-label={t.breadcrumb}>
                 <span>{t.activeRoles}</span><span aria-hidden="true">/</span><span aria-current="page">{t.dashboard}</span>
               </nav>
+              {payload.userName && (
+                <div className="hdr-right">
+                  <span className="iris-avatar iris-avatar-default" role="img"
+                    aria-label={userTooltip(payload.userName, t.roles[payload.userRole])}
+                    title={userTooltip(payload.userName, t.roles[payload.userRole])}>
+                    {avatarInitials(payload.userName)}
+                  </span>
+                </div>
+              )}
             </header>
 
             <main className="ad-content">

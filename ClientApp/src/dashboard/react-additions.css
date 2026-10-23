@@ -96,3 +96,9 @@
 .kpi-col-filter-list { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
 .kpi-col-filter-list label { display: flex; gap: 6px; align-items: flex-start; padding: 2px 0; cursor: pointer; overflow-wrap: anywhere; }
 
+/* IRIS Avatar (placeholder type): circular container showing one or two initials. Sizes: sm, md, default, lg. */
+.iris-avatar { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 50%; background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); font-family: var(--oi-font-family-code); font-weight: 500; line-height: 1; overflow: hidden; user-select: none; }
+.iris-avatar-sm { width: 24px; height: 24px; font-size: 10px; }
+.iris-avatar-md { width: 28px; height: 28px; font-size: 12px; }
+.iris-avatar-default { width: 32px; height: 32px; font-size: 14px; }
+.iris-avatar-lg { width: 40px; height: 40px; font-size: 16px; }
