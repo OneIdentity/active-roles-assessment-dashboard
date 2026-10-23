@@ -51,4 +51,9 @@
 	<value>Percorso di navigazione</value>
   </data>
 <data name="Privacy" xml:space="preserve"><value>Privacy</value></data>
+<data name="Role_ActiveRolesAdmin" xml:space="preserve"><value>Amministratore di Active Roles</value></data>
+<data name="Role_DashboardAdministrator" xml:space="preserve"><value>Amministratore dashboard</value></data>
+<data name="Role_Auditor" xml:space="preserve"><value>Revisore</value></data>
+<data name="Role_PowerUser" xml:space="preserve"><value>Utente esperto</value></data>
+<data name="Role_User" xml:space="preserve"><value>Utente</value></data>
 </root>

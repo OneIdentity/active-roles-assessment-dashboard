@@ -51,4 +51,9 @@
 	<value>Fil d'Ariane</value>
   </data>
 <data name="Privacy" xml:space="preserve"><value>Confidentialité</value></data>
+<data name="Role_ActiveRolesAdmin" xml:space="preserve"><value>Administrateur Active Roles</value></data>
+<data name="Role_DashboardAdministrator" xml:space="preserve"><value>Administrateur du tableau de bord</value></data>
+<data name="Role_Auditor" xml:space="preserve"><value>Auditeur</value></data>
+<data name="Role_PowerUser" xml:space="preserve"><value>Utilisateur avancé</value></data>
+<data name="Role_User" xml:space="preserve"><value>Utilisateur</value></data>
 </root>

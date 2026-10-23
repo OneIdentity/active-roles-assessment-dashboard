@@ -25,6 +25,7 @@ export interface SegmentFilterView {
 
 export interface DashboardPayload {
   userName: string;
+  userRole: string;
   autoRefreshMinutes: number;
   capabilities: DashboardCapabilities;
   segmentFilter: SegmentFilterView;
