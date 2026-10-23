@@ -41,7 +41,7 @@ body.iris-shell {
 .sidebar-nav-asset-signout { mask-image: url('../images/iris/figma-signout.svg'); -webkit-mask-image: url('../images/iris/figma-signout.svg'); }
 
 /* App bar */
-.iris-app-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 950; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 16px 0 192px; background: var(--oi-background-color-secondary); border-bottom: 1px solid var(--oi-border-color-muted); transition: padding-left var(--oi-motion-duration-default) var(--oi-motion-ease-default); }
+.iris-app-bar { position: fixed; top: 0; left: 176px; right: 0; z-index: 950; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 16px; background: var(--oi-background-color-secondary); border-bottom: 1px solid var(--oi-border-color-muted); transition: left var(--oi-motion-duration-default) var(--oi-motion-ease-default); }
 .iris-sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--oi-border-radius-default); background: transparent; color: var(--oi-content-color-secondary); cursor: pointer; }
 .iris-sidebar-toggle:hover { background: var(--oi-background-color-tertiary); color: var(--oi-content-color-primary); }
 .iris-sidebar-toggle:focus-visible { outline: 2px solid var(--oi-border-color-focus); outline-offset: 2px; }
@@ -60,7 +60,7 @@ body.iris-shell {
 /* Collapsed sidebar */
 .iris-sidebar-collapsed .sidebar { transform: translateX(-100%); }
 .iris-sidebar-collapsed .iris-shell-page { margin-left: 0; padding-left: 8px; }
-.iris-sidebar-collapsed .iris-app-bar { padding-left: 16px; }
+.iris-sidebar-collapsed .iris-app-bar { left: 0; }
 .iris-sidebar-collapsed .iris-sidebar-toggle-pane { width: 4px; }
 
 /* Membership indicator in the app bar */
@@ -88,7 +88,7 @@ body.iris-shell {
     .iris-shell .sidebar-nav-item { flex: 0 0 32px; justify-content: center; width: 32px; padding: 0; }
     .iris-shell .sidebar-nav-item[aria-current="page"]::before { display: none; }
     .iris-shell-page, .iris-sidebar-collapsed .iris-shell-page { margin-left: 0; padding: 0 0 76px; }
-    .iris-app-bar, .iris-sidebar-collapsed .iris-app-bar { padding-left: 16px; }
+    .iris-app-bar, .iris-sidebar-collapsed .iris-app-bar { left: 0; }
     .iris-shell-main { padding: 24px 16px; }
     .iris-title-row h1 { font-size: 26px; line-height: 32px; }
 }
