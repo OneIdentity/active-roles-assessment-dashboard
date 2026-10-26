@@ -1,6 +1,7 @@
 // UI strings for the React dashboard. English is the default; additional cultures
 // (de, es, fr, hu, it) are added alongside and selected from <html lang>.
 const en = {
+  roles: { ActiveRolesAdmin: 'Active Roles Admin', DashboardAdministrator: 'Dashboard Admin', Auditor: 'Auditor', PowerUser: 'Power User', User: 'User' } as Record<string, string>,
   activeRoles: 'Active Roles',
   dashboard: 'Dashboard',
   assessment: 'Assessment',
@@ -128,6 +129,7 @@ const merge = (o: Overrides): Strings => ({
 } as Strings);
 
 const de = merge({
+  roles: { ActiveRolesAdmin: 'Active Roles-Administrator', DashboardAdministrator: 'Dashboard-Administrator', Auditor: 'Prüfer', PowerUser: 'Hauptbenutzer', User: 'Benutzer' },
   dashboard: 'Dashboard', assessment: 'Bewertung', attackExposure: 'Angriffsfläche', snapshots: 'Momentaufnahmen',
   other: 'Sonstiges', settings: 'Einstellungen', helpWith: 'Hilfe zu', privacy: 'Datenschutz', signOut: 'Abmelden', collapseNavigation: 'Navigation einklappen',
   expandNavigation: 'Navigation ausklappen', breadcrumb: 'Navigationspfad', mainNavigation: 'Hauptnavigation',
@@ -159,6 +161,7 @@ const de = merge({
 });
 
 const es = merge({
+  roles: { ActiveRolesAdmin: 'Administrador de Active Roles', DashboardAdministrator: 'Administrador del panel', Auditor: 'Auditor', PowerUser: 'Usuario avanzado', User: 'Usuario' },
   assessment: 'Evaluación', attackExposure: 'Exposición a ataques', snapshots: 'Instantáneas', other: 'Otros',
   settings: 'Configuración', helpWith: 'Ayuda con', privacy: 'Privacidad', signOut: 'Cerrar sesión', collapseNavigation: 'Contraer navegación', expandNavigation: 'Expandir navegación',
   breadcrumb: 'Ruta de navegación', mainNavigation: 'Navegación principal', dashboards: 'Paneles', dashboard: 'Panel',
@@ -189,6 +192,7 @@ const es = merge({
 });
 
 const fr = merge({
+  roles: { ActiveRolesAdmin: 'Administrateur Active Roles', DashboardAdministrator: 'Administrateur du tableau de bord', Auditor: 'Auditeur', PowerUser: 'Utilisateur avancé', User: 'Utilisateur' },
   dashboard: 'Tableau de bord', assessment: 'Évaluation', attackExposure: 'Exposition aux attaques', snapshots: 'Instantanés',
   other: 'Autre', settings: 'Paramètres', helpWith: 'Aide sur', privacy: 'Confidentialité', signOut: 'Se déconnecter', collapseNavigation: 'Réduire la navigation',
   expandNavigation: 'Développer la navigation', breadcrumb: "Fil d'Ariane", mainNavigation: 'Navigation principale',
@@ -218,6 +222,7 @@ const fr = merge({
 });
 
 const hu = merge({
+  roles: { ActiveRolesAdmin: 'Active Roles-rendszergazda', DashboardAdministrator: 'Irányítópult-rendszergazda', Auditor: 'Auditor', PowerUser: 'Kiemelt felhasználó', User: 'Felhasználó' },
   dashboard: 'Irányítópult', assessment: 'Értékelés', attackExposure: 'Támadási kitettség', snapshots: 'Pillanatképek',
   other: 'Egyéb', settings: 'Beállítások', helpWith: 'Súgó ehhez', privacy: 'Adatvédelem', signOut: 'Kijelentkezés', collapseNavigation: 'Navigáció összecsukása',
   expandNavigation: 'Navigáció kibontása', breadcrumb: 'Navigációs útvonal', mainNavigation: 'Fő navigáció', dashboards: 'Irányítópultok',
@@ -246,6 +251,7 @@ const hu = merge({
 });
 
 const it = merge({
+  roles: { ActiveRolesAdmin: 'Amministratore di Active Roles', DashboardAdministrator: 'Amministratore dashboard', Auditor: 'Revisore', PowerUser: 'Utente esperto', User: 'Utente' },
   assessment: 'Valutazione', attackExposure: 'Esposizione agli attacchi', snapshots: 'Snapshot', other: 'Altro',
   settings: 'Impostazioni', helpWith: 'Guida per', privacy: 'Privacy', signOut: 'Esci', collapseNavigation: 'Comprimi navigazione', expandNavigation: 'Espandi navigazione',
   breadcrumb: 'Percorso di navigazione', mainNavigation: 'Navigazione principale', refresh: 'Aggiorna', rebuildCache: 'Ricostruisci cache',
