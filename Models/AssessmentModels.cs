@@ -1062,6 +1062,28 @@ public static class AssessmentRuleLibrary
         },
         new()
         {
+            Id = "AR-UserDelegationLinks",
+            Title = "Access Template Links delegated directly to user accounts",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "UserDelegationLinks",
+            Severity = AssessmentSeverity.Medium,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 10,
+            Recommendation = "Delegating administrative rights directly to individual user accounts bypasses role-based administration and is hard to review. Assign Access Templates to groups and manage membership instead."
+        },
+        new()
+        {
+            Id = "AR-RootDelegationLinks",
+            Title = "Access Template Links scoped at the domain root",
+            CategoryName = "Active Roles Configuration",
+            KpiKey = "RootDelegationLinks",
+            Severity = AssessmentSeverity.High,
+            Types = ActiveRolesGdpr,
+            WarnThreshold = 1, FailThreshold = 5,
+            Recommendation = "Delegations applied at a domain root or the Active Directory root inherit to every object in scope. Narrow these links to the specific OUs or Managed Units that require delegated administration."
+        },
+        new()
+        {
             Id = "AR-DenyAccessTemplates",
             Title = "Access Templates with Deny permissions",
             CategoryName = "Active Roles Configuration",

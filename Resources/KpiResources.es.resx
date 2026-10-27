@@ -202,4 +202,8 @@
   <data name="Kpi_Trusts" xml:space="preserve"><value>Confianzas de dominio</value></data>
   <data name="Chart_GroupHygiene" xml:space="preserve"><value>Higiene de grupos</value></data>
   <data name="Chart_ArPolicyCompliance" xml:space="preserve"><value>Cumplimiento de directivas</value></data>
+  <data name="Chart_ArDelegationHygiene" xml:space="preserve"><value>Higiene de delegación</value></data>
+  <data name="Kpi_BroadDelegationLinks" xml:space="preserve"><value>Delegado a entidades amplias</value></data>
+  <data name="Kpi_UserDelegationLinks" xml:space="preserve"><value>Delegado directamente a usuarios</value></data>
+  <data name="Kpi_RootDelegationLinks" xml:space="preserve"><value>Delegado en la raíz del dominio</value></data>
 </root>

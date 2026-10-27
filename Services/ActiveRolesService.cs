@@ -2830,6 +2830,8 @@ public class ActiveRolesService
             var items = await ExecuteKpiSearchAsync(token, KpiInfo.AccessTemplateLinks.Searches[0]);
             result.TotalCount = items.Count;
             result.Items = new List<AccessTemplateLinkInfo>();
+            var trusteeIsUserCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            var rootScopeCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (var i in items)
             {
                 var link = new AccessTemplateLinkInfo
@@ -2845,6 +2847,12 @@ public class ActiveRolesService
                 if (!string.IsNullOrEmpty(sid))
                 {
                     link.Trustee = await ResolveSidToNameAsync(token, sid);
+                    if (!trusteeIsUserCache.TryGetValue(sid, out var isUser))
+                    {
+                        isUser = await IsUserTrusteeAsync(token, sid);
+                        trusteeIsUserCache[sid] = isUser;
+                    }
+                    link.IsUserTrustee = isUser;
                 }
 
                 // Resolve Directory Object GUID to name
@@ -2852,6 +2860,12 @@ public class ActiveRolesService
                 if (!string.IsNullOrEmpty(secObjGuid))
                 {
                     link.DirectoryObject = await ResolveGuidToNameAsync(token, secObjGuid);
+                    if (!rootScopeCache.TryGetValue(secObjGuid, out var isRoot))
+                    {
+                        isRoot = await IsRootScopeAsync(token, secObjGuid);
+                        rootScopeCache[secObjGuid] = isRoot;
+                    }
+                    link.IsRootScope = isRoot;
                 }
 
                 // Resolve Access Template GUID to name
@@ -3196,6 +3210,40 @@ public class ActiveRolesService
         // parts: "S", revision, authority(decimal), sub1, sub2, ...
         parts[2] = "0x" + authority.ToString("x");
         return string.Join("-", parts);
+    }
+
+    private async Task<bool> IsUserTrusteeAsync(string token, string sid)
+    {
+        try
+        {
+            string sidString;
+            try { sidString = new System.Security.Principal.SecurityIdentifier(Convert.FromBase64String(sid), 0).Value; }
+            catch { sidString = sid; }
+
+            var config = _configMonitor.CurrentValue;
+            var items = await SearchObjectsAsync(token, config.DefaultActiveDirectoryDN, $"(objectSid={sidString})", "sub", "objectClass");
+            if (items.Count == 0) return false;
+            var classes = GetAttrValues(items[0], "objectClass");
+            return classes.Contains("user", StringComparer.OrdinalIgnoreCase)
+                && !classes.Contains("computer", StringComparer.OrdinalIgnoreCase);
+        }
+        catch { return false; }
+    }
+
+    private async Task<bool> IsRootScopeAsync(string token, string guid)
+    {
+        try
+        {
+            var doc = await GetObjectDetailsAsync(token, guid, "distinguishedName,objectClass");
+            if (doc == null) return false;
+            using (doc)
+            {
+                var dn = GetAttr(doc.RootElement, "distinguishedName");
+                if (string.Equals(dn, "CN=Active Directory", StringComparison.OrdinalIgnoreCase)) return true;
+                return GetAttrValues(doc.RootElement, "objectClass").Contains("domainDNS", StringComparer.OrdinalIgnoreCase);
+            }
+        }
+        catch { return false; }
     }
 
     private async Task<string> ResolveGuidToNameAsync(string token, string guid)

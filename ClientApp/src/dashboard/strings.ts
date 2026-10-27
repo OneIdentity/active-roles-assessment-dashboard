@@ -113,6 +113,9 @@ const en = {
     UnconstrainedComputers: 'Computers configured for unconstrained delegation.',
     StaleComputers: 'Enabled computer accounts inactive beyond the configured threshold.',
     NeverLoggedOnComputers: 'Enabled computer accounts that have never logged on.',
+    BroadDelegationLinks: 'Access Template Links delegated to Everyone, Authenticated Users or Domain Users.',
+    UserDelegationLinks: 'Access Template Links delegated directly to user accounts instead of groups.',
+    RootDelegationLinks: 'Access Template Links scoped at a domain root or the Active Directory root.',
   } as Record<string, string>,
 };
 
