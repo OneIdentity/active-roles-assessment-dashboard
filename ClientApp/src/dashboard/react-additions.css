@@ -102,3 +102,12 @@
 .iris-avatar-md { width: 28px; height: 28px; font-size: 12px; }
 .iris-avatar-default { width: 32px; height: 32px; font-size: 14px; }
 .iris-avatar-lg { width: 40px; height: 40px; font-size: 16px; }
+
+/* Category chart header with optional chart-type toggle, and horizontal bar rendering (IRIS tokens). */
+.category-chart-header { display: flex; align-items: center; justify-content: space-between; gap: var(--oi-spacing-s); }
+.chart-bar-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--oi-spacing-s); font-size: .8125rem; color: var(--oi-content-color-primary); }
+.chart-bar-list li { display: grid; grid-template-columns: minmax(0, 40%) 1fr auto; align-items: center; gap: var(--oi-spacing-s); }
+.chart-bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-bar-track { height: 12px; background: var(--oi-background-color-secondary); border-radius: 2px; overflow: hidden; }
+.chart-bar-fill { display: block; height: 100%; border-radius: 2px; }
+.chart-bar-value { font-variant-numeric: tabular-nums; color: var(--oi-content-color-secondary); }

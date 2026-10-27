@@ -255,4 +255,5 @@
   <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Jelszóhigiénia</value></data>
   <data name="Kpi_Trusts" xml:space="preserve"><value>Tartománymegbízhatóságok</value></data>
   <data name="Chart_GroupHygiene" xml:space="preserve"><value>Csoporthigiénia</value></data>
+  <data name="Chart_ArPolicyCompliance" xml:space="preserve"><value>Házirend-megfelelőség</value></data>
 </root>

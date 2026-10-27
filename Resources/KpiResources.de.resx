@@ -201,4 +201,5 @@
   <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Kennworthygiene</value></data>
   <data name="Kpi_Trusts" xml:space="preserve"><value>Domänenvertrauensstellungen</value></data>
   <data name="Chart_GroupHygiene" xml:space="preserve"><value>Gruppenhygiene</value></data>
+  <data name="Chart_ArPolicyCompliance" xml:space="preserve"><value>Richtlinienkonformität</value></data>
 </root>

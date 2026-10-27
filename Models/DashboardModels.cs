@@ -632,6 +632,23 @@ public class ChartInfo
         ]
     };
 
+    // AR Automation category: policy compliance findings derived from existing risk KPIs.
+    public static readonly ChartInfo ArPolicyCompliance = new()
+    {
+        Key = "ArPolicyCompliance",
+        Title = "Policy Compliance",
+        CategoryKey = "ARAutomation",
+        Type = ChartType.Bar,
+        SortOrder = 1,
+        Series =
+        [
+            new() { KpiKey = "PolicyObjectsNoRules", CssColor = "orange" },
+            new() { KpiKey = "UnlinkedPolicyObjects", CssColor = "amber" },
+            new() { KpiKey = "OrphanPolicyObjectLinks", CssColor = "red" },
+            new() { KpiKey = "DynamicGroupsBrokenRules", CssColor = "purple" }
+        ]
+    };
+
     // AD User Accounts category: enabled vs disabled is a true partition of the total,
     // so it renders as a donut (with the standard donut/column toggle).
     public static readonly ChartInfo UserAccountStateBreakdown = new()
@@ -956,6 +973,7 @@ public class ChartInfo
     [
         ComputerOsBreakdown, ComputerAccountStateBreakdown,
         GroupTypeBreakdown, GroupHygiene,
+        ArPolicyCompliance,
         UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions, UserPasswordHygiene,
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
         AdOverviewUsersChart, AdOverviewGroupsChart, AdOverviewComputersChart,
