@@ -197,4 +197,6 @@
   <data name="Kpi_StaleComputers" xml:space="preserve"><value>Equipos obsoletos (inactivos)</value></data>
   <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Equipos que nunca iniciaron sesión</value></data>
   <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Equipos por estado de cuenta</value></data>
+  <data name="Kpi_StalePasswords" xml:space="preserve"><value>Contraseñas obsoletas</value></data>
+  <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Higiene de contraseñas</value></data>
 </root>

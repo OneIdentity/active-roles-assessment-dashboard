@@ -704,6 +704,26 @@ public class ChartInfo
         ]
     };
 
+    // AD User Accounts category: password hygiene indicators can overlap per account
+    // (not a partition), so this is a column-only chart with the toggle disabled.
+    public static readonly ChartInfo UserPasswordHygiene = new()
+    {
+        Key = "UserPasswordHygiene",
+        Title = "Password Hygiene",
+        CategoryKey = "ADUserAccountsCategory",
+        Type = ChartType.Bar,
+        SortOrder = 4,
+        DisableTypeToggle = true,
+        Series =
+        [
+            new() { KpiKey = "StalePasswords", CssColor = "amber" },
+            new() { KpiKey = "PasswordNeverExpires", CssColor = "purple" },
+            new() { KpiKey = "PasswordNotRequired", CssColor = "orange" },
+            new() { KpiKey = "UserReversibleEncryption", CssColor = "red" },
+            new() { KpiKey = "MustChangePassword", CssColor = "blue" }
+        ]
+    };
+
     // Overview: exploded pie charts splitting each total by data source (AD vs Entra ID).
     public static readonly ChartInfo OverviewUsersBySource = new()
     {
@@ -918,7 +938,7 @@ public class ChartInfo
     [
         ComputerOsBreakdown, ComputerAccountStateBreakdown,
         GroupTypeBreakdown,
-        UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions,
+        UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions, UserPasswordHygiene,
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
         AdOverviewUsersChart, AdOverviewGroupsChart, AdOverviewComputersChart,
         EntraOverviewUsersChart, EntraOverviewGroupsChart,
@@ -1076,6 +1096,10 @@ public class ActiveRolesConfig
     // Number of days without an interactive logon after which an enabled account is
     // considered stale (used by the StaleUsers KPI and the HYG-StaleAccounts rule).
     public int StaleAccountThresholdDays { get; set; } = 90;
+
+    // Number of days since the last password change after which an enabled account's
+    // password is considered stale (used by the StalePasswords KPI).
+    public int PasswordAgeThresholdDays { get; set; } = 365;
 
     // Number of membership rules above which a dynamic group is flagged as "expensive"
     // (evaluation cost grows with rule count). Surfaced in the Dynamic Groups drilldown.
@@ -1614,6 +1638,7 @@ public class KpiInfo
     public static readonly KpiInfo DeprovisionedUsers = new() { Key = "DeprovisionedUsers", DisplayName = "Deprovisioned Users", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "deprovisionedusers", SortOrder = 13, HasDrilldown = true };
     public static readonly KpiInfo SpnUserAccounts = new() { Key = "SpnUserAccounts", DisplayName = "Service Accounts (SPN)", CategoryKey = "NHIs", CssColor = "red", SectionId = "spnuseraccounts", SortOrder = 19, HasDrilldown = true, IsRiskKpi = true };
     public static readonly KpiInfo StaleUsers = new() { Key = "StaleUsers", DisplayName = "Stale Accounts (Inactive)", CategoryKey = "ADUserAccountsCategory", CssColor = "amber", SectionId = "staleusers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo StalePasswords = new() { Key = "StalePasswords", DisplayName = "Stale Passwords", CategoryKey = "ADUserAccountsCategory", CssColor = "amber", SectionId = "stalepasswords", SortOrder = 24, HasDrilldown = true, IsRiskKpi = true };
     public static readonly KpiInfo ServiceAccounts = new() { Key = "ServiceAccounts", DisplayName = "Service Accounts", CategoryKey = "NHIs", CssColor = "teal", SectionId = "serviceaccounts", SortOrder = 21, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ServiceAccounts}", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo GmsaServiceAccounts = new() { Key = "GmsaServiceAccounts", DisplayName = "gMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "gmsaserviceaccounts", SortOrder = 22, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:GmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
     public static readonly KpiInfo SmsaServiceAccounts = new() { Key = "SmsaServiceAccounts", DisplayName = "sMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "smsaserviceaccounts", SortOrder = 23, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:SmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
@@ -1718,7 +1743,7 @@ public class KpiInfo
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
-        MustChangePassword, PasswordNotRequired, SmartCardRequired, CannotChangePassword,
+        MustChangePassword, PasswordNotRequired, SmartCardRequired, CannotChangePassword, StalePasswords,
         DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers, ManagedEnabledUsers,
         DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting,
         AdminCount,
@@ -1900,6 +1925,7 @@ public class KpiSettings
     public bool ExpiringUsersEnabled { get; set; } = true;
     public bool PasswordNeverExpiresEnabled { get; set; } = true;
     public bool MustChangePasswordEnabled { get; set; } = true;
+    public bool StalePasswordsEnabled { get; set; } = true;
     public bool PasswordNotRequiredEnabled { get; set; } = true;
     public bool SmartCardRequiredEnabled { get; set; } = true;
     public bool CannotChangePasswordEnabled { get; set; } = true;
@@ -2099,6 +2125,7 @@ public class KpiSettings
             "ExpiringUsers" => ExpiringUsersEnabled,
             "PasswordNeverExpires" => PasswordNeverExpiresEnabled,
             "MustChangePassword" => MustChangePasswordEnabled,
+            "StalePasswords" => StalePasswordsEnabled,
             "PasswordNotRequired" => PasswordNotRequiredEnabled,
             "SmartCardRequired" => SmartCardRequiredEnabled,
             "CannotChangePassword" => CannotChangePasswordEnabled,
@@ -2266,6 +2293,7 @@ public class DashboardSummary
     public int ExcludeFromManagementLinkCount { get; set; }
 
     public ADUserAccountDetailSummary MustChangePassword { get; set; } = new();
+    public ADUserAccountDetailSummary StalePasswords { get; set; } = new();
     public ADUserAccountDetailSummary PasswordNotRequired { get; set; } = new();
     public ADUserAccountDetailSummary SmartCardRequired { get; set; } = new();
     public ADUserAccountDetailSummary CannotChangePassword { get; set; } = new();
@@ -2596,6 +2624,7 @@ public class DashboardSummary
         "ExpiringUsers" => (ExpiringUsers.TotalCount, ExpiringUsers.Error),
         "PasswordNeverExpires" => (PasswordNeverExpires.TotalCount, PasswordNeverExpires.Error),
         "MustChangePassword" => (MustChangePassword.TotalCount, MustChangePassword.Error),
+        "StalePasswords" => (StalePasswords.TotalCount, StalePasswords.Error),
         "PasswordNotRequired" => (PasswordNotRequired.TotalCount, PasswordNotRequired.Error),
         "SmartCardRequired" => (SmartCardRequired.TotalCount, SmartCardRequired.Error),
         "CannotChangePassword" => (CannotChangePassword.TotalCount, CannotChangePassword.Error),
@@ -2893,6 +2922,7 @@ public class DashboardSummary
             "HybridUsers" => UserDetailSynced(HybridUsers),
             "OnPremOnlyUsers" => UserDetail(OnPremOnlyUsers),
             "MustChangePassword" => UserDetail(MustChangePassword),
+            "StalePasswords" => UserDetail(StalePasswords),
             "PasswordNotRequired" => UserDetail(PasswordNotRequired),
             "SmartCardRequired" => UserDetail(SmartCardRequired),
             "CannotChangePassword" => UserDetail(CannotChangePassword),

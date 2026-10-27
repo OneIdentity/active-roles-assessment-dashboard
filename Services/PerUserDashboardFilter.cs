@@ -59,6 +59,7 @@ public sealed class PerUserDashboardFilter
         s.HybridUsers = FilterDetail(superset.HybridUsers, user, model);
         s.OnPremOnlyUsers = FilterDetail(superset.OnPremOnlyUsers, user, model);
         s.MustChangePassword = FilterDetail(superset.MustChangePassword, user, model);
+        s.StalePasswords = FilterDetail(superset.StalePasswords, user, model);
         s.PasswordNotRequired = FilterDetail(superset.PasswordNotRequired, user, model);
         s.SmartCardRequired = FilterDetail(superset.SmartCardRequired, user, model);
         s.CannotChangePassword = FilterDetail(superset.CannotChangePassword, user, model);

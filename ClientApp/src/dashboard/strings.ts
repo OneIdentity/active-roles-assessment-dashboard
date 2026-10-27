@@ -108,6 +108,7 @@ const en = {
     NeverLoggedIn: 'Users with no sign-in activity.',
     ReversibleEncryption: 'Accounts configured for reversible encryption.',
     StaleUsers: 'Accounts inactive beyond the configured threshold.',
+    StalePasswords: 'Enabled accounts whose password has not been changed within the configured threshold.',
     UnconstrainedComputers: 'Computers configured for unconstrained delegation.',
     StaleComputers: 'Enabled computer accounts inactive beyond the configured threshold.',
     NeverLoggedOnComputers: 'Enabled computer accounts that have never logged on.',
