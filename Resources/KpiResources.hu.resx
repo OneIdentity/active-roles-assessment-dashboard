@@ -256,4 +256,8 @@
   <data name="Kpi_Trusts" xml:space="preserve"><value>Tartománymegbízhatóságok</value></data>
   <data name="Chart_GroupHygiene" xml:space="preserve"><value>Csoporthigiénia</value></data>
   <data name="Chart_ArPolicyCompliance" xml:space="preserve"><value>Házirend-megfelelőség</value></data>
+  <data name="Chart_ArDelegationHygiene" xml:space="preserve"><value>Delegálási higiénia</value></data>
+  <data name="Kpi_BroadDelegationLinks" xml:space="preserve"><value>Tág résztvevőknek delegálva</value></data>
+  <data name="Kpi_UserDelegationLinks" xml:space="preserve"><value>Közvetlenül felhasználóknak delegálva</value></data>
+  <data name="Kpi_RootDelegationLinks" xml:space="preserve"><value>Tartománygyökérben delegálva</value></data>
 </root>

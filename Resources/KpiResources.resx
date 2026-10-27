@@ -263,4 +263,8 @@
   <data name="Kpi_Trusts" xml:space="preserve"><value>Domain Trusts</value></data>
   <data name="Chart_GroupHygiene" xml:space="preserve"><value>Group Hygiene</value></data>
   <data name="Chart_ArPolicyCompliance" xml:space="preserve"><value>Policy Compliance</value></data>
+  <data name="Chart_ArDelegationHygiene" xml:space="preserve"><value>Delegation Hygiene</value></data>
+  <data name="Kpi_BroadDelegationLinks" xml:space="preserve"><value>Delegated to Broad Principals</value></data>
+  <data name="Kpi_UserDelegationLinks" xml:space="preserve"><value>Delegated Directly to Users</value></data>
+  <data name="Kpi_RootDelegationLinks" xml:space="preserve"><value>Delegated at Domain Root</value></data>
 </root>

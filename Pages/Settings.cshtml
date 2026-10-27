@@ -258,6 +258,30 @@
                         <input type="hidden" name="KpiSettings.OrphanAccessTemplateLinksEnabled" value="false" />
                     </div>
                     <div class="toggle-row">
+                        <span class="toggle-label">Delegated to Broad Principals</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.BroadDelegationLinksEnabled" value="true" @(Model.KpiSettings.BroadDelegationLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.BroadDelegationLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Delegated Directly to Users</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.UserDelegationLinksEnabled" value="true" @(Model.KpiSettings.UserDelegationLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.UserDelegationLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Delegated at Domain Root</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="KpiSettings.RootDelegationLinksEnabled" value="true" @(Model.KpiSettings.RootDelegationLinksEnabled ? "checked" : "") />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <input type="hidden" name="KpiSettings.RootDelegationLinksEnabled" value="false" />
+                    </div>
+                    <div class="toggle-row">
                         <span class="toggle-label">Orphaned Policy Object Links</span>
                         <label class="toggle-switch">
                             <input type="checkbox" name="KpiSettings.OrphanPolicyObjectLinksEnabled" value="true" @(Model.KpiSettings.OrphanPolicyObjectLinksEnabled ? "checked" : "") />

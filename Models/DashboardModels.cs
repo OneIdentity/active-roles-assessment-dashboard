@@ -632,6 +632,24 @@ public class ChartInfo
         ]
     };
 
+    // AR Delegation category: delegation hygiene findings derived from Access Template Links and Access Templates.
+    public static readonly ChartInfo ArDelegationHygiene = new()
+    {
+        Key = "ArDelegationHygiene",
+        Title = "Delegation Hygiene",
+        CategoryKey = "ARDelegation",
+        Type = ChartType.Doughnut,
+        SortOrder = 1,
+        Series =
+        [
+            new() { KpiKey = "BroadDelegationLinks", CssColor = "red" },
+            new() { KpiKey = "UserDelegationLinks", CssColor = "amber" },
+            new() { KpiKey = "RootDelegationLinks", CssColor = "orange" },
+            new() { KpiKey = "DenyAccessTemplates", CssColor = "purple" },
+            new() { KpiKey = "OrphanAccessTemplateLinks", CssColor = "slate" }
+        ]
+    };
+
     // AR Automation category: policy compliance findings derived from existing risk KPIs.
     public static readonly ChartInfo ArPolicyCompliance = new()
     {
@@ -973,7 +991,7 @@ public class ChartInfo
     [
         ComputerOsBreakdown, ComputerAccountStateBreakdown,
         GroupTypeBreakdown, GroupHygiene,
-        ArPolicyCompliance,
+        ArPolicyCompliance, ArDelegationHygiene,
         UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions, UserPasswordHygiene,
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
         AdOverviewUsersChart, AdOverviewGroupsChart, AdOverviewComputersChart,
@@ -1624,6 +1642,9 @@ public class KpiInfo
     public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
     public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARAutomation", CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
     public static readonly KpiInfo OrphanAccessTemplateLinks = new() { Key = "OrphanAccessTemplateLinks", DisplayName = "Orphaned Access Template Links", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "orphanaccesstemplatelinks", SortOrder = 120, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaAccessTemplateGUID,edsaSecObjectGUID,edsaTrusteeSID" }] };
+    public static readonly KpiInfo BroadDelegationLinks = new() { Key = "BroadDelegationLinks", DisplayName = "Delegated to Broad Principals", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "broaddelegationlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo UserDelegationLinks = new() { Key = "UserDelegationLinks", DisplayName = "Delegated Directly to Users", CategoryKey = "ARDelegation", CssColor = "amber", SectionId = "userdelegationlinks", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo RootDelegationLinks = new() { Key = "RootDelegationLinks", DisplayName = "Delegated at Domain Root", CategoryKey = "ARDelegation", CssColor = "orange", SectionId = "rootdelegationlinks", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true };
     public static readonly KpiInfo OrphanPolicyObjectLinks = new() { Key = "OrphanPolicyObjectLinks", DisplayName = "Orphaned Policy Object Links", CategoryKey = "ARAutomation", CssColor = "red", SectionId = "orphanpolicyobjectlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName,edsaAPOGUID,edsaSecObjectGUID" }] };
     public static readonly KpiInfo DynamicGroupsBrokenRules = new() { Key = "DynamicGroupsBrokenRules", DisplayName = "Dynamic Groups With Broken Rules", CategoryKey = "ARAutomation", CssColor = "red", SectionId = "dynamicgroupsbrokenrules", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList" }] };
     public static readonly KpiInfo ManagedUnitsBrokenRules = new() { Key = "ManagedUnitsBrokenRules", DisplayName = "Managed Units With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "managedunitsbrokenrules", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
@@ -1776,7 +1797,7 @@ public class KpiInfo
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers, EntraHybridUsers, EntraCloudOnlyUsers, EntraManagedUsers,
         EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
-        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules, EntraManagedTenants,
+        ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, BroadDelegationLinks, UserDelegationLinks, RootDelegationLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules, EntraManagedTenants,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
@@ -1929,6 +1950,9 @@ public class KpiSettings
     public bool UnlinkedAccessTemplatesEnabled { get; set; } = true;
     public bool DenyAccessTemplatesEnabled { get; set; } = true;    public bool UnlinkedPolicyObjectsEnabled { get; set; } = true;
     public bool OrphanAccessTemplateLinksEnabled { get; set; } = true;
+    public bool BroadDelegationLinksEnabled { get; set; } = true;
+    public bool UserDelegationLinksEnabled { get; set; } = true;
+    public bool RootDelegationLinksEnabled { get; set; } = true;
     public bool OrphanPolicyObjectLinksEnabled { get; set; } = true;
     public bool DynamicGroupsBrokenRulesEnabled { get; set; } = true;
     public bool ManagedUnitsBrokenRulesEnabled { get; set; } = true;
@@ -2107,6 +2131,9 @@ public class KpiSettings
             "DenyAccessTemplates" => DenyAccessTemplatesEnabled,
             "UnlinkedPolicyObjects" => UnlinkedPolicyObjectsEnabled,
             "OrphanAccessTemplateLinks" => OrphanAccessTemplateLinksEnabled,
+            "BroadDelegationLinks" => BroadDelegationLinksEnabled && AccessTemplateLinksEnabled,
+            "UserDelegationLinks" => UserDelegationLinksEnabled && AccessTemplateLinksEnabled,
+            "RootDelegationLinks" => RootDelegationLinksEnabled && AccessTemplateLinksEnabled,
             "OrphanPolicyObjectLinks" => OrphanPolicyObjectLinksEnabled,
             "DynamicGroupsBrokenRules" => DynamicGroupsBrokenRulesEnabled,
             "ManagedUnitsBrokenRules" => ManagedUnitsBrokenRulesEnabled,
@@ -2719,6 +2746,8 @@ public class DashboardSummary
         // Active Roles configuration hygiene KPIs derived from already-collected summaries.
         "DisabledWorkflows" => (Workflows.Error != null ? 0 : Workflows.Items.Count(w => !w.IsEnabled), Workflows.Error),
         "BroadDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && IsBroadTrustee(l.Trustee)), AccessTemplateLinks.Error),
+        "UserDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && l.IsUserTrustee), AccessTemplateLinks.Error),
+        "RootDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && l.IsRootScope), AccessTemplateLinks.Error),
         // Unsupported / end-of-life operating system KPIs aggregated from the OS-breakdown summaries.
         "UnsupportedServerOs" => GetCombinedResult(WinServer2008R2.TotalCount, WinServer2008R2.Error, WinServer2012R2.TotalCount, WinServer2012R2.Error),
         "UnsupportedClientOs" => (
@@ -2737,6 +2766,14 @@ public class DashboardSummary
     /// (Everyone, Authenticated Users, Domain Users). Delegating administrative Access Templates
     /// to such principals grants powerful rights to the whole population and should be flagged.
     /// </summary>
+    private ReportTable DelegationLinkDetail(Func<AccessTemplateLinkInfo, bool> predicate) => new()
+    {
+        Columns = ["Directory Object", "Access Template", "Trustee", "Distinguished Name"],
+        Rows = AccessTemplateLinks.Items.Where(l => !l.IsPredefined && predicate(l))
+            .Select(l => (IReadOnlyList<string>)[l.DirectoryObject, l.AccessTemplate, l.Trustee, l.Dn]).ToList(),
+        Error = AccessTemplateLinks.Error
+    };
+
     private static bool IsBroadTrustee(string? trustee)
     {
         if (string.IsNullOrWhiteSpace(trustee)) return false;
@@ -3148,6 +3185,9 @@ public class DashboardSummary
                 Rows = OrphanAccessTemplateLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.DirectoryObject, i.AccessTemplate, i.Trustee, i.MissingAttributes, i.Dn]).ToList(),
                 Error = OrphanAccessTemplateLinks.Error
             },
+            "BroadDelegationLinks" => DelegationLinkDetail(l => IsBroadTrustee(l.Trustee)),
+            "UserDelegationLinks" => DelegationLinkDetail(l => l.IsUserTrustee),
+            "RootDelegationLinks" => DelegationLinkDetail(l => l.IsRootScope),
             "OrphanPolicyObjectLinks" => new ReportTable
             {
                 Columns = ["Name", "Missing", "Distinguished Name"],
@@ -3756,6 +3796,12 @@ public class AccessTemplateLinkInfo
     public string Trustee { get; set; } = string.Empty;
     public string DirectoryObject { get; set; } = string.Empty;
     public string AccessTemplate { get; set; } = string.Empty;
+
+    /// <summary>True when the trustee resolves to a user account rather than a group.</summary>
+    public bool IsUserTrustee { get; set; }
+
+    /// <summary>True when the link is scoped at a domain root or the Active Directory root container.</summary>
+    public bool IsRootScope { get; set; }
 
     /// <summary>
     /// True when the link is an Active Roles predefined/system link
