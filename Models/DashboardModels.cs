@@ -638,7 +638,7 @@ public class ChartInfo
         Key = "ArPolicyCompliance",
         Title = "Policy Compliance",
         CategoryKey = "ARAutomation",
-        Type = ChartType.Bar,
+        Type = ChartType.Doughnut,
         SortOrder = 1,
         DisableTypeToggle = true,
         Series =
