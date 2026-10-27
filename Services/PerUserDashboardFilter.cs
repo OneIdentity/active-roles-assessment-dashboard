@@ -88,6 +88,7 @@ public sealed class PerUserDashboardFilter
         s.Sites = FilterGovernance(superset.Sites, user, model);
         s.SiteLinks = FilterGovernance(superset.SiteLinks, user, model);
         s.Subnets = FilterGovernance(superset.Subnets, user, model);
+        s.Trusts = FilterGovernance(superset.Trusts, user, model);
         s.OUs = FilterGovernance(superset.OUs, user, model);
 
         // No-group-owner (own summary type).
