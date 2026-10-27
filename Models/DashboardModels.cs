@@ -578,6 +578,22 @@ public class ChartInfo
         ]
     };
 
+    // Computers category: enabled vs disabled is a true partition of the total.
+    public static readonly ChartInfo ComputerAccountStateBreakdown = new()
+    {
+        Key = "ComputerAccountStateBreakdown",
+        Title = "Computers by Account State",
+        CategoryKey = "ComputersCategory",
+        Type = ChartType.Doughnut,
+        SortOrder = 1,
+        SliceOffset = 0,
+        Series =
+        [
+            new() { KpiKey = "EnabledComputers", CssColor = "green" },
+            new() { KpiKey = "DisabledComputers", CssColor = "red" }
+        ]
+    };
+
     // Groups category: breakdown of AD groups by group type.
     public static readonly ChartInfo GroupTypeBreakdown = new()
     {
@@ -900,7 +916,7 @@ public class ChartInfo
 
     public static readonly IReadOnlyList<ChartInfo> All =
     [
-        ComputerOsBreakdown,
+        ComputerOsBreakdown, ComputerAccountStateBreakdown,
         GroupTypeBreakdown,
         UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions,
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
@@ -1644,6 +1660,10 @@ public class KpiInfo
     public static readonly KpiInfo Win11Pro = new() { Key = "Win11Pro", DisplayName = "Windows 11 Pro", CategoryKey = "ComputersCategory", CssColor = "purple", SectionId = "win11pro", SortOrder = 15, HasDrilldown = true };
     public static readonly KpiInfo ClientsOther = new() { Key = "ClientsOther", DisplayName = "Clients (other)", CategoryKey = "ComputersCategory", CssColor = "slate", SectionId = "clientsother", SortOrder = 16, HasDrilldown = true };
     public static readonly KpiInfo UnconstrainedComputers = new() { Key = "UnconstrainedComputers", DisplayName = "Unconstrained Delegation", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "unconstrainedcomputers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EnabledComputers = new() { Key = "EnabledComputers", DisplayName = "Enabled Computers", CategoryKey = "ComputersCategory", CssColor = "green", SectionId = "enabledcomputers", SortOrder = 18, HasDrilldown = true };
+    public static readonly KpiInfo DisabledComputers = new() { Key = "DisabledComputers", DisplayName = "Disabled Computers", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "disabledcomputers", SortOrder = 19, HasDrilldown = true };
+    public static readonly KpiInfo StaleComputers = new() { Key = "StaleComputers", DisplayName = "Stale Computers (Inactive)", CategoryKey = "ComputersCategory", CssColor = "amber", SectionId = "stalecomputers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo NeverLoggedOnComputers = new() { Key = "NeverLoggedOnComputers", DisplayName = "Never Logged On Computers", CategoryKey = "ComputersCategory", CssColor = "orange", SectionId = "neverloggedoncomputers", SortOrder = 21, HasDrilldown = true, IsRiskKpi = true };
 
     // Licensing KPIs
     public static readonly KpiInfo ManagedObjects = new() { Key = "ManagedObjects", DisplayName = "Managed Objects", CategoryKey = "Licensing", CssColor = "slate", SectionId = "managedobjects", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Object Statistics,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsManagedObjectStatisticsData)", Attributes = "name,edsaStatisticsCountXML" }] };
@@ -1705,6 +1725,7 @@ public class KpiInfo
         Sites, SiteLinks, Subnets, OUs, DomainControllers,
         ComputerClients, ComputerServers, WinServer2008R2, WinServer2012R2, WinServer2016, WinServer2019, WinServer2022, WinServer2025, ServerOther,
         Win7, Win81, Win10_22H2, Win11_22H2, Win11_23H2, Win11Enterprise, Win11Pro, ClientsOther, UnconstrainedComputers,
+        EnabledComputers, DisabledComputers, StaleComputers, NeverLoggedOnComputers,
         ManagedObjects,
         ExchangeServersKpi, ExchangeTotalMailboxes, ExchangeMailboxDatabasesKpi, ExchangeAcceptedDomainsKpi,
         ExchangeMailboxServersKpi, ExchangeDAGsKpi,
@@ -1911,6 +1932,10 @@ public class KpiSettings
     public bool OUsEnabled { get; set; } = true;
     public bool DomainControllersEnabled { get; set; } = true;
     public bool UnconstrainedComputersEnabled { get; set; } = true;
+    public bool EnabledComputersEnabled { get; set; } = true;
+    public bool DisabledComputersEnabled { get; set; } = true;
+    public bool StaleComputersEnabled { get; set; } = true;
+    public bool NeverLoggedOnComputersEnabled { get; set; } = true;
     public bool EntraEnabledUsersEnabled { get; set; } = true;
     public bool EntraDisabledUsersEnabled { get; set; } = true;
     public bool EntraNoManagerUserEnabled { get; set; } = true;
@@ -2099,6 +2124,10 @@ public class KpiSettings
             "OUs" => OUsEnabled,
             "DomainControllers" => DomainControllersEnabled,
             "UnconstrainedComputers" => UnconstrainedComputersEnabled,
+            "EnabledComputers" => EnabledComputersEnabled,
+            "DisabledComputers" => DisabledComputersEnabled,
+            "StaleComputers" => StaleComputersEnabled,
+            "NeverLoggedOnComputers" => NeverLoggedOnComputersEnabled,
             "ExchangeServersKpi" => ExchangeServersKpiEnabled,
             "ExchangeTotalMailboxes" => ExchangeTotalMailboxesEnabled,
             "ExchangeMailboxDatabasesKpi" => ExchangeMailboxDatabasesKpiEnabled,
@@ -2284,6 +2313,9 @@ public class DashboardSummary
     public ComputerBreakdownSummary Win11Pro { get; set; } = new();
     public ComputerBreakdownSummary ClientsOther { get; set; } = new();
     public ComputerBreakdownSummary StaleComputers { get; set; } = new();
+    public ComputerBreakdownSummary EnabledComputers { get; set; } = new();
+    public ComputerBreakdownSummary DisabledComputers { get; set; } = new();
+    public ComputerBreakdownSummary NeverLoggedOnComputers { get; set; } = new();
 
     /// <summary>
     /// Exchange (on-prem) KPI results, keyed by <see cref="KpiInfo.Key"/> (e.g. "ExchangeUserMailboxesKpi").
@@ -2605,6 +2637,9 @@ public class DashboardSummary
         "Win11Pro" => (Win11Pro.TotalCount, Win11Pro.Error),
         "ClientsOther" => (ClientsOther.TotalCount, ClientsOther.Error),
         "StaleComputers" => (StaleComputers.TotalCount, StaleComputers.Error),
+        "EnabledComputers" => (EnabledComputers.TotalCount, EnabledComputers.Error),
+        "DisabledComputers" => (DisabledComputers.TotalCount, DisabledComputers.Error),
+        "NeverLoggedOnComputers" => (NeverLoggedOnComputers.TotalCount, NeverLoggedOnComputers.Error),
         "KrbtgtPasswordAgeDays" => (KrbtgtPasswordAge.Value, KrbtgtPasswordAge.Error),
         "WeakPasswordLength" => (WeakPasswordLength.Value, WeakPasswordLength.Error),
         "PasswordComplexityDisabled" => (PasswordComplexityDisabled.Value, PasswordComplexityDisabled.Error),
@@ -2971,6 +3006,10 @@ public class DashboardSummary
             "Win11Enterprise" => ComputerDetail(Win11Enterprise),
             "Win11Pro" => ComputerDetail(Win11Pro),
             "ClientsOther" => ComputerDetail(ClientsOther),
+            "EnabledComputers" => ComputerDetail(EnabledComputers),
+            "DisabledComputers" => ComputerDetail(DisabledComputers),
+            "StaleComputers" => ComputerDetail(StaleComputers),
+            "NeverLoggedOnComputers" => ComputerDetail(NeverLoggedOnComputers),
 
             // AR Configuration
             "Domains" => new ReportTable

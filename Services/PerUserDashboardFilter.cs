@@ -130,6 +130,9 @@ public sealed class PerUserDashboardFilter
         s.Win11Pro = FilterComputer(superset.Win11Pro, user, model);
         s.ClientsOther = FilterComputer(superset.ClientsOther, user, model);
         s.StaleComputers = FilterComputer(superset.StaleComputers, user, model);
+        s.EnabledComputers = FilterComputer(superset.EnabledComputers, user, model);
+        s.DisabledComputers = FilterComputer(superset.DisabledComputers, user, model);
+        s.NeverLoggedOnComputers = FilterComputer(superset.NeverLoggedOnComputers, user, model);
         s.DomainControllers = FilterDomainControllers(superset.DomainControllers, user, model);
 
         // --- Domain / server infra objects -----------------------------------

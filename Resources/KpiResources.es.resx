@@ -192,4 +192,9 @@
   <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Buzones no administrados</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Buzones huérfanos (deshabilitados)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Retención por litigio deshabilitada</value></data>
+  <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Equipos habilitados</value></data>
+  <data name="Kpi_DisabledComputers" xml:space="preserve"><value>Equipos deshabilitados</value></data>
+  <data name="Kpi_StaleComputers" xml:space="preserve"><value>Equipos obsoletos (inactivos)</value></data>
+  <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Equipos que nunca iniciaron sesión</value></data>
+  <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Equipos por estado de cuenta</value></data>
 </root>

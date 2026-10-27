@@ -109,6 +109,8 @@ const en = {
     ReversibleEncryption: 'Accounts configured for reversible encryption.',
     StaleUsers: 'Accounts inactive beyond the configured threshold.',
     UnconstrainedComputers: 'Computers configured for unconstrained delegation.',
+    StaleComputers: 'Enabled computer accounts inactive beyond the configured threshold.',
+    NeverLoggedOnComputers: 'Enabled computer accounts that have never logged on.',
   } as Record<string, string>,
 };
 

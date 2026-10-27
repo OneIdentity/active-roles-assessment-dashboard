@@ -246,4 +246,9 @@
   <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Nem kezelt postaládák</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Elárvult postáládák (letiltott)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Perlési visszatartás letiltva</value></data>
+  <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Engedélyezett számítógépek</value></data>
+  <data name="Kpi_DisabledComputers" xml:space="preserve"><value>Letiltott számítógépek</value></data>
+  <data name="Kpi_StaleComputers" xml:space="preserve"><value>Elavult számítógépek (inaktív)</value></data>
+  <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Soha be nem jelentkezett számítógépek</value></data>
+  <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Számítógépek fiókállapot szerint</value></data>
 </root>

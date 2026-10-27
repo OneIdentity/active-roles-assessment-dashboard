@@ -192,4 +192,9 @@
   <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Nicht verwaltete Postfächer</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Verwaiste Postfächer (deaktiviert)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Beweissicherungsverfahren deaktiviert</value></data>
+  <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Aktivierte Computer</value></data>
+  <data name="Kpi_DisabledComputers" xml:space="preserve"><value>Deaktivierte Computer</value></data>
+  <data name="Kpi_StaleComputers" xml:space="preserve"><value>Veraltete Computer (inaktiv)</value></data>
+  <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Nie angemeldete Computer</value></data>
+  <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Computer nach Kontostatus</value></data>
 </root>
