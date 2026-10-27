@@ -614,6 +614,24 @@ public class ChartInfo
         ]
     };
 
+    // AD Groups category: group hygiene issues can overlap per group (not a partition),
+    // so this is a column-only chart with the toggle disabled.
+    public static readonly ChartInfo GroupHygiene = new()
+    {
+        Key = "GroupHygiene",
+        Title = "Group Hygiene",
+        CategoryKey = "ADGroupsCategory",
+        Type = ChartType.Bar,
+        SortOrder = 1,
+        DisableTypeToggle = true,
+        Series =
+        [
+            new() { KpiKey = "EmptyGroups", CssColor = "slate" },
+            new() { KpiKey = "NoGroupOwner", CssColor = "amber" },
+            new() { KpiKey = "CircularGroupNesting", CssColor = "red" }
+        ]
+    };
+
     // AD User Accounts category: enabled vs disabled is a true partition of the total,
     // so it renders as a donut (with the standard donut/column toggle).
     public static readonly ChartInfo UserAccountStateBreakdown = new()
@@ -937,7 +955,7 @@ public class ChartInfo
     public static readonly IReadOnlyList<ChartInfo> All =
     [
         ComputerOsBreakdown, ComputerAccountStateBreakdown,
-        GroupTypeBreakdown,
+        GroupTypeBreakdown, GroupHygiene,
         UserAccountStateBreakdown, UserPasswordControlBreakdown, UserDelegationBreakdown, UserHybridStateBreakdown, UserAccountOptions, UserPasswordHygiene,
         OverviewUsersBySource, OverviewGroupsBySource, OverviewComputersBySource,
         AdOverviewUsersChart, AdOverviewGroupsChart, AdOverviewComputersChart,
@@ -1659,6 +1677,7 @@ public class KpiInfo
     public static readonly KpiInfo Subnets = new() { Key = "Subnets", DisplayName = "Subnets", CategoryKey = "Infrastructure", CssColor = "teal", SectionId = "subnets", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=subnet)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
     public static readonly KpiInfo OUs = new() { Key = "OUs", DisplayName = "OUs", CategoryKey = "Infrastructure", CssColor = "orange", SectionId = "ous", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=organizationalUnit)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
     public static readonly KpiInfo DomainControllers = new() { Key = "DomainControllers", DisplayName = "Domain Controllers", CategoryKey = "Infrastructure", CssColor = "purple", SectionId = "domaincontrollers", SortOrder = 4, HasDrilldown = true };
+    public static readonly KpiInfo Trusts = new() { Key = "Trusts", DisplayName = "Domain Trusts", CategoryKey = "Infrastructure", CssColor = "indigo", SectionId = "trusts", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=trustedDomain)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
     public static readonly KpiInfo DomainLocalGroups = new() { Key = "DomainLocalGroups", DisplayName = "Domain Local Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "domainlocalgroups", SortOrder = 1, HasDrilldown = true };
     public static readonly KpiInfo GlobalGroups = new() { Key = "GlobalGroups", DisplayName = "Global Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "globalgroups", SortOrder = 2, HasDrilldown = true };
     public static readonly KpiInfo MailEnabledSecurityGroups = new() { Key = "MailEnabledSecurityGroups", DisplayName = "Mail Enabled Security Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "mailenabledsecuritygroups", SortOrder = 3, HasDrilldown = true };
@@ -1747,7 +1766,7 @@ public class KpiInfo
         DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers, ManagedEnabledUsers,
         DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting,
         AdminCount,
-        Sites, SiteLinks, Subnets, OUs, DomainControllers,
+        Sites, SiteLinks, Subnets, OUs, DomainControllers, Trusts,
         ComputerClients, ComputerServers, WinServer2008R2, WinServer2012R2, WinServer2016, WinServer2019, WinServer2022, WinServer2025, ServerOther,
         Win7, Win81, Win10_22H2, Win11_22H2, Win11_23H2, Win11Enterprise, Win11Pro, ClientsOther, UnconstrainedComputers,
         EnabledComputers, DisabledComputers, StaleComputers, NeverLoggedOnComputers,
@@ -1957,6 +1976,7 @@ public class KpiSettings
     public bool SubnetsEnabled { get; set; } = true;
     public bool OUsEnabled { get; set; } = true;
     public bool DomainControllersEnabled { get; set; } = true;
+    public bool TrustsEnabled { get; set; } = true;
     public bool UnconstrainedComputersEnabled { get; set; } = true;
     public bool EnabledComputersEnabled { get; set; } = true;
     public bool DisabledComputersEnabled { get; set; } = true;
@@ -2150,6 +2170,7 @@ public class KpiSettings
             "Subnets" => SubnetsEnabled,
             "OUs" => OUsEnabled,
             "DomainControllers" => DomainControllersEnabled,
+            "Trusts" => TrustsEnabled,
             "UnconstrainedComputers" => UnconstrainedComputersEnabled,
             "EnabledComputers" => EnabledComputersEnabled,
             "DisabledComputers" => DisabledComputersEnabled,
@@ -2320,6 +2341,7 @@ public class DashboardSummary
     public GovernanceKpiSummary Sites { get; set; } = new();
     public GovernanceKpiSummary SiteLinks { get; set; } = new();
     public GovernanceKpiSummary Subnets { get; set; } = new();
+    public GovernanceKpiSummary Trusts { get; set; } = new();
     public GovernanceKpiSummary OUs { get; set; } = new();
     public DomainControllersSummary DomainControllers { get; set; } = new();
     public ComputerBreakdownSummary ComputerClients { get; set; } = new();
@@ -2645,6 +2667,7 @@ public class DashboardSummary
         "Sites" => (Sites.TotalCount, Sites.Error),
         "SiteLinks" => (SiteLinks.TotalCount, SiteLinks.Error),
         "Subnets" => (Subnets.TotalCount, Subnets.Error),
+        "Trusts" => (Trusts.TotalCount, Trusts.Error),
         "OUs" => (OUs.TotalCount, OUs.Error),
         "DomainControllers" => (DomainControllers.TotalCount, DomainControllers.Error),
         "UnconstrainedComputers" => (UnconstrainedComputers.TotalCount, UnconstrainedComputers.Error),
@@ -2983,6 +3006,7 @@ public class DashboardSummary
             "Sites" => GovDetail(Sites),
             "SiteLinks" => GovDetail(SiteLinks),
             "Subnets" => GovDetail(Subnets),
+            "Trusts" => GovDetail(Trusts),
             "OUs" => GovDetail(OUs),
             "NoGroupOwner" => new ReportTable
             {

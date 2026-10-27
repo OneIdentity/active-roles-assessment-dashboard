@@ -260,4 +260,6 @@
   <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Computers by Account State</value></data>
   <data name="Kpi_StalePasswords" xml:space="preserve"><value>Stale Passwords</value></data>
   <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Password Hygiene</value></data>
+  <data name="Kpi_Trusts" xml:space="preserve"><value>Domain Trusts</value></data>
+  <data name="Chart_GroupHygiene" xml:space="preserve"><value>Group Hygiene</value></data>
 </root>

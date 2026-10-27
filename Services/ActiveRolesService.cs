@@ -1343,6 +1343,12 @@ public class ActiveRolesService
             tasks.Add(("Subnets", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Subnets = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
+        if (settings.IsKpiEnabled("Infrastructure", "Trusts"))
+        {
+            var t = GetInfrastructureKpiAsync(token, KpiInfo.Trusts);
+            tasks.Add(("Trusts", t));
+            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Trusts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
+        }
         if (settings.IsKpiEnabled("Infrastructure", "OUs"))
         {
             var t = GetInfrastructureKpiAsync(token, KpiInfo.OUs);
@@ -1568,6 +1574,7 @@ public class ActiveRolesService
         Stamp(summary.Sites?.Items);
         Stamp(summary.SiteLinks?.Items);
         Stamp(summary.Subnets?.Items);
+        Stamp(summary.Trusts?.Items);
         Stamp(summary.OUs?.Items);
         Stamp(summary.NoGroupOwner?.Items);
 
