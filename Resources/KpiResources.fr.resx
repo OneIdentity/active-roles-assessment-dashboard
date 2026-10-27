@@ -192,4 +192,9 @@
   <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Boîtes aux lettres non gérées</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Boîtes aux lettres orphelines (désactivées)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Conservation pour litige désactivée</value></data>
+  <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Ordinateurs activés</value></data>
+  <data name="Kpi_DisabledComputers" xml:space="preserve"><value>Ordinateurs désactivés</value></data>
+  <data name="Kpi_StaleComputers" xml:space="preserve"><value>Ordinateurs obsolètes (inactifs)</value></data>
+  <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Ordinateurs jamais connectés</value></data>
+  <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Ordinateurs par état du compte</value></data>
 </root>

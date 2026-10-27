@@ -232,7 +232,8 @@ public class ActiveRolesService
         // Stale = enabled computer account whose last logon (lastLogonTimestamp) is older
         // than the inactivity threshold. Domain controllers are excluded. Computers that
         // never authenticated (no lastLogonTimestamp) are ignored here.
-        if (settings.IsKpiEnabled("Infrastructure", "DomainControllers") && summary.Computers.Error == null)
+        if ((settings.IsKpiEnabled("Infrastructure", "DomainControllers") || settings.IsKpiEnabled("ComputersCategory", "StaleComputers"))
+            && summary.Computers.Error == null)
         {
             var staleThresholdDays = _configMonitor.CurrentValue.StaleAccountThresholdDays;
             if (staleThresholdDays <= 0) staleThresholdDays = 90;
@@ -380,6 +381,48 @@ public class ActiveRolesService
                     .ToList();
                 summary.UnconstrainedComputers = new ComputerBreakdownSummary { TotalCount = unconstrained.Count, Items = unconstrained };
             }
+
+            // Derive computer account state (enabled/disabled) and never-logged-on accounts.
+            // Never logged on = enabled, non-DC computer with no lastLogonTimestamp.
+            ComputerBreakdownInfo ToComputerInfo(JsonElement i)
+            {
+                var os = GetAttr(i, "operatingSystem");
+                var osVer = GetAttr(i, "operatingSystemVersion");
+                return new ComputerBreakdownInfo
+                {
+                    Name = GetAttr(i, "name"),
+                    Domain = GetAttr(i, "edsaDomainNetbiosName"),
+                    OperatingSystem = os,
+                    OperatingSystemVersion = osVer,
+                    FriendlyOSName = GetFriendlyOSName(os, osVer),
+                    Dn = GetAttr(i, "distinguishedName")
+                };
+            }
+
+            var enabledComputers = new List<ComputerBreakdownInfo>();
+            var disabledComputers = new List<ComputerBreakdownInfo>();
+            var neverLoggedOnComputers = new List<ComputerBreakdownInfo>();
+            foreach (var i in summary.Computers.Items)
+            {
+                var uac = GetAttr(i, "userAccountControl");
+                if (IsAccountDisabled(uac))
+                {
+                    disabledComputers.Add(ToComputerInfo(i));
+                    continue;
+                }
+                enabledComputers.Add(ToComputerInfo(i));
+                var isDc = int.TryParse(uac, out var v) && (v & 0x2000) != 0;
+                var lastLogon = GetAttr(i, "lastLogonTimestamp");
+                if (!isDc && (string.IsNullOrEmpty(lastLogon) || !long.TryParse(lastLogon, out var ts) || ts <= 0))
+                    neverLoggedOnComputers.Add(ToComputerInfo(i));
+            }
+
+            if (settings.IsKpiEnabled("ComputersCategory", "EnabledComputers"))
+                summary.EnabledComputers = new ComputerBreakdownSummary { TotalCount = enabledComputers.Count, Items = enabledComputers };
+            if (settings.IsKpiEnabled("ComputersCategory", "DisabledComputers"))
+                summary.DisabledComputers = new ComputerBreakdownSummary { TotalCount = disabledComputers.Count, Items = disabledComputers };
+            if (settings.IsKpiEnabled("ComputersCategory", "NeverLoggedOnComputers"))
+                summary.NeverLoggedOnComputers = new ComputerBreakdownSummary { TotalCount = neverLoggedOnComputers.Count, Items = neverLoggedOnComputers };
         }
 
         // Derive NoManagerUser from AD User Accounts data
@@ -1469,6 +1512,9 @@ public class ActiveRolesService
         Stamp(summary.Win11Pro?.Items);
         Stamp(summary.ClientsOther?.Items);
         Stamp(summary.StaleComputers?.Items);
+        Stamp(summary.EnabledComputers?.Items);
+        Stamp(summary.DisabledComputers?.Items);
+        Stamp(summary.NeverLoggedOnComputers?.Items);
         Stamp(summary.DomainControllers?.Items);
 
         // Privileged group members.

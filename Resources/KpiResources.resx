@@ -253,4 +253,9 @@
   <data name="Kpi_ExchangeFullAccessDelegatesKpi" xml:space="preserve"><value>Mailbox Permissions (Full Access)</value></data>
   <data name="Kpi_ExchangeSendOnBehalfKpi" xml:space="preserve"><value>Mailbox Permissions (Send on Behalf)</value></data>
   <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve"><value>Mailbox Permissions (Send As)</value></data>
+  <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Enabled Computers</value></data>
+  <data name="Kpi_DisabledComputers" xml:space="preserve"><value>Disabled Computers</value></data>
+  <data name="Kpi_StaleComputers" xml:space="preserve"><value>Stale Computers (Inactive)</value></data>
+  <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Never Logged On Computers</value></data>
+  <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Computers by Account State</value></data>
 </root>

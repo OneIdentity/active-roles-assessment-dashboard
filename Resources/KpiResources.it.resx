@@ -192,4 +192,9 @@
   <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Cassette postali non gestite</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Cassette postali orfane (disabilitate)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Blocco per controversia legale disabilitato</value></data>
+  <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Computer abilitati</value></data>
+  <data name="Kpi_DisabledComputers" xml:space="preserve"><value>Computer disabilitati</value></data>
+  <data name="Kpi_StaleComputers" xml:space="preserve"><value>Computer obsoleti (inattivi)</value></data>
+  <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Computer mai connessi</value></data>
+  <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Computer per stato account</value></data>
 </root>
