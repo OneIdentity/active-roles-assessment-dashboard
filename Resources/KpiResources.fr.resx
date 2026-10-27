@@ -197,4 +197,6 @@
   <data name="Kpi_StaleComputers" xml:space="preserve"><value>Ordinateurs obsolètes (inactifs)</value></data>
   <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Ordinateurs jamais connectés</value></data>
   <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Ordinateurs par état du compte</value></data>
+  <data name="Kpi_StalePasswords" xml:space="preserve"><value>Mots de passe obsolètes</value></data>
+  <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Hygiène des mots de passe</value></data>
 </root>

@@ -251,4 +251,6 @@
   <data name="Kpi_StaleComputers" xml:space="preserve"><value>Elavult számítógépek (inaktív)</value></data>
   <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Soha be nem jelentkezett számítógépek</value></data>
   <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Számítógépek fiókállapot szerint</value></data>
+  <data name="Kpi_StalePasswords" xml:space="preserve"><value>Elavult jelszavak</value></data>
+  <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Jelszóhigiénia</value></data>
 </root>

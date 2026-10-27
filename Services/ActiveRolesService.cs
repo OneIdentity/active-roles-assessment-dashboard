@@ -151,6 +151,7 @@ public class ActiveRolesService
             || settings.IsKpiEnabled("ADUserAccountsCategory", "DeprovisionedUsers")
             || settings.IsKpiEnabled("NHIs", "SpnUserAccounts")
             || settings.IsKpiEnabled("ADUserAccountsCategory", "StaleUsers")
+            || settings.IsKpiEnabled("ADUserAccountsCategory", "StalePasswords")
             || settings.IsKpiEnabled("ADUserAccountsCategory", "ReversibleEncryption") || settings.IsKpiEnabled("ADGovernance", "ReversibleEncryption")
             || settings.IsKpiEnabled("PrivilegedUsers", "AdminCount");
 
@@ -704,12 +705,10 @@ public class ActiveRolesService
             }
             if (settings.IsKpiEnabled("ADUserAccountsCategory", "PasswordNeverExpires"))
             {
+                // userAccountControl bit 0x10000 = DONT_EXPIRE_PASSWORD.
+                const int dontExpirePasswordFlag = 0x10000;
                 var passwordNeverExpires = summary.ADUserAccounts.Items
-                    .Where(i =>
-                    {
-                        var raw = GetAttr(i, "accountExpires");
-                        return long.TryParse(raw, out var val) && val == 0;
-                    })
+                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & dontExpirePasswordFlag) != 0)
                     .ToList();
                 summary.PasswordNeverExpires = new ADUserAccountDetailSummary
                 {
@@ -738,6 +737,34 @@ public class ActiveRolesService
                         Dn = GetAttr(i, "distinguishedName"),
                         Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl")),
                         Description = GetAttr(i, "description")
+                    }).ToList()
+                };
+            }
+            if (settings.IsKpiEnabled("ADUserAccountsCategory", "StalePasswords"))
+            {
+                // Stale password = enabled account whose pwdLastSet is older than the threshold.
+                // pwdLastSet == 0 (must change at next logon) is reported by MustChangePassword instead.
+                var passwordAgeDays = _configMonitor.CurrentValue.PasswordAgeThresholdDays;
+                if (passwordAgeDays <= 0) passwordAgeDays = 365;
+                var passwordCutoff = DateTime.UtcNow.AddDays(-passwordAgeDays);
+                var stalePasswords = summary.ADUserAccounts.Items
+                    .Where(i =>
+                    {
+                        if (IsAccountDisabled(GetAttr(i, "userAccountControl"))) return false;
+                        if (!long.TryParse(GetAttr(i, "pwdLastSet"), out var val) || val <= 0) return false;
+                        try { return DateTime.FromFileTimeUtc(val) < passwordCutoff; }
+                        catch (ArgumentOutOfRangeException) { return false; }
+                    })
+                    .ToList();
+                summary.StalePasswords = new ADUserAccountDetailSummary
+                {
+                    TotalCount = stalePasswords.Count,
+                    Items = stalePasswords.Select(i => new ADUserAccountDetailInfo
+                    {
+                        Name = GetAttr(i, "name"),
+                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
+                        Dn = GetAttr(i, "distinguishedName"),
+                        Enabled = true
                     }).ToList()
                 };
             }
@@ -1473,6 +1500,7 @@ public class ActiveRolesService
         Stamp(summary.PasswordNeverExpires?.Items);
         Stamp(summary.DeprovisionedUsers?.Items);
         Stamp(summary.MustChangePassword?.Items);
+        Stamp(summary.StalePasswords?.Items);
         Stamp(summary.PasswordNotRequired?.Items);
         Stamp(summary.SmartCardRequired?.Items);
         Stamp(summary.CannotChangePassword?.Items);

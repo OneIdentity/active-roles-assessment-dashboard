@@ -197,4 +197,6 @@
   <data name="Kpi_StaleComputers" xml:space="preserve"><value>Veraltete Computer (inaktiv)</value></data>
   <data name="Kpi_NeverLoggedOnComputers" xml:space="preserve"><value>Nie angemeldete Computer</value></data>
   <data name="Chart_ComputerAccountStateBreakdown" xml:space="preserve"><value>Computer nach Kontostatus</value></data>
+  <data name="Kpi_StalePasswords" xml:space="preserve"><value>Veraltete Kennwörter</value></data>
+  <data name="Chart_UserPasswordHygiene" xml:space="preserve"><value>Kennworthygiene</value></data>
 </root>
