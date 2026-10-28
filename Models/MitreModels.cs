@@ -178,7 +178,8 @@ public static class MitreTechniqueLibrary
             Mappings = new[]
             {
                 new TechniqueKpiMapping { KpiKey = "PasswordNotRequired", Rationale = "Accounts with no password requirement.", MediumThreshold = 1, HighThreshold = 1 },
-                new TechniqueKpiMapping { KpiKey = "PasswordNeverExpires", Rationale = "Stale, non-rotating credentials.", MediumThreshold = 10, HighThreshold = 50 }
+                new TechniqueKpiMapping { KpiKey = "PasswordNeverExpires", Rationale = "Stale, non-rotating credentials.", MediumThreshold = 10, HighThreshold = 50 },
+                new TechniqueKpiMapping { KpiKey = "StalePasswords", Rationale = "Long-unchanged passwords are more likely to be guessed, reused or already exposed.", MediumThreshold = 10, HighThreshold = 50 }
             }
         },
 

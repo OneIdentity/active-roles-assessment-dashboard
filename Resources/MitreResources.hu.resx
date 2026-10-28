@@ -64,6 +64,7 @@
   <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>A DES kriptográfiailag gyenge.</value></data>
   <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Jelszót nem igénylő fiókok.</value></data>
   <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Elavult, nem cserélt hitelesítő adatok.</value></data>
+  <data name="Rat_T1110_StalePasswords" xml:space="preserve"><value>A régóta nem módosított jelszavakat nagyobb eséllyel találják ki, használják újra, vagy már ismertté váltak.</value></data>
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>A tartományi rendszergazdák teljes irányítással rendelkeznek a tartomány felett.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>A vállalati rendszergazdák az egész erdő felett irányítással rendelkeznek.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Védettként/kiemeltként megjelölt fiókok.</value></data>

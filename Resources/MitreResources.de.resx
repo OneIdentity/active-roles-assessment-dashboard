@@ -64,6 +64,7 @@
   <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>DES ist kryptografisch schwach.</value></data>
   <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Konten ohne Kennwortpflicht.</value></data>
   <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Veraltete, nicht rotierende Anmeldeinformationen.</value></data>
+  <data name="Rat_T1110_StalePasswords" xml:space="preserve"><value>Lange nicht geänderte Kennwörter werden eher erraten, wiederverwendet oder sind bereits offengelegt.</value></data>
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Domänen-Admins haben die volle Kontrolle über die Domäne.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Organisations-Admins haben gesamtstrukturweite Kontrolle.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Als geschützt/privilegiert gekennzeichnete Konten.</value></data>

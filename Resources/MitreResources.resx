@@ -64,6 +64,7 @@
   <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>DES is cryptographically weak.</value></data>
   <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Accounts with no password requirement.</value></data>
   <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Stale, non-rotating credentials.</value></data>
+  <data name="Rat_T1110_StalePasswords" xml:space="preserve"><value>Long-unchanged passwords are more likely to be guessed, reused or already exposed.</value></data>
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Domain Admins hold full domain control.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Enterprise Admins hold forest-wide control.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Accounts flagged as protected/privileged.</value></data>

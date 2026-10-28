@@ -126,6 +126,7 @@ Accounts with no password requirement, or non-expiring passwords, weaken resista
 |---------|-----------|-------------|
 | `PasswordNotRequired` | Accounts with no password requirement. | 1 / 1 |
 | `PasswordNeverExpires` | Stale, non-rotating credentials. | 10 / 50 |
+| `StalePasswords` | Long-unchanged passwords are more likely to be guessed, reused or already exposed. | 10 / 50 |
 
 ### Privilege Escalation
 
