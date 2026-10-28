@@ -794,6 +794,17 @@ public static class AssessmentRuleLibrary
             WarnThreshold = 5, FailThreshold = 25,
             Recommendation = "Computer accounts that have not authenticated for an extended period are likely decommissioned or orphaned. Disable and remove stale computer accounts to reduce the attack surface and keep the directory accurate."
         },
+        new()
+        {
+            Id = "CFG-NeverLoggedOnComputers",
+            Title = "Computer accounts that have never logged on",
+            CategoryName = "Secure Configuration",
+            KpiKey = "NeverLoggedOnComputers",
+            Severity = AssessmentSeverity.Low,
+            Types = SecureConfigUnsupportedOs,
+            WarnThreshold = 5, FailThreshold = 25,
+            Recommendation = "Computer accounts that were created but have never authenticated are often pre-staged or abandoned and can be claimed by an attacker. Remove unused pre-staged computer accounts or restrict who can join them to the domain."
+        },
 
         // --- Secure configuration: Kerberos (krbtgt) hygiene -----------------
         new()
@@ -947,6 +958,17 @@ public static class AssessmentRuleLibrary
             Types = ComplianceGdpr,
             WarnThreshold = 5, FailThreshold = 25,
             Recommendation = "Review enabled accounts with no interactive logon in the last {StaleThresholdDays} days. Disable or deprovision unused accounts to reduce the attack surface and align with least-privilege / lifecycle requirements."
+        },
+        new()
+        {
+            Id = "HYG-StalePasswords",
+            Title = "Enabled accounts with stale passwords",
+            CategoryName = "Account Hygiene",
+            KpiKey = "StalePasswords",
+            Severity = AssessmentSeverity.Medium,
+            Types = ComplianceGdpr,
+            WarnThreshold = 10, FailThreshold = 50,
+            Recommendation = "Passwords that have not been changed for an extended period are more likely to have been exposed through reuse, phishing or breaches. Require rotation of long-lived passwords, prioritising privileged accounts, and move service accounts to Group Managed Service Accounts (gMSA)."
         },
 
         // --- Additional account security -------------------------------------

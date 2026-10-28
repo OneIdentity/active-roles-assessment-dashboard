@@ -64,15 +64,21 @@
   <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>A DES kriptográfiailag gyenge.</value></data>
   <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Jelszót nem igénylő fiókok.</value></data>
   <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Elavult, nem cserélt hitelesítő adatok.</value></data>
+  <data name="Rat_T1110_StalePasswords" xml:space="preserve"><value>A régóta nem módosított jelszavakat nagyobb eséllyel találják ki, használják újra, vagy már ismertté váltak.</value></data>
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>A tartományi rendszergazdák teljes irányítással rendelkeznek a tartomány felett.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>A vállalati rendszergazdák az egész erdő felett irányítással rendelkeznek.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Védettként/kiemeltként megjelölt fiókok.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>Az Everyone / Authenticated Users / Domain Users részére delegált Active Roles-jogok minden fiókot elérnek.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>A tartománygyökérben lévő Active Roles-delegálások a tartomány minden objektumára öröklődnek.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Az egyes felhasználóknak közvetlenül delegált jogok megkerülik a szerepköralapú felülvizsgálatot.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>A korlátlan delegálásra megbízható számítógépek nagy értékű ugródeszkák.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Korlátlan delegálásra megbízható felhasználói fiókok.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>A nem használt fiókok kiváló jelöltek a perzisztenciára.</value></data>
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Az engedélyezett, de inaktív fiókok tartós, kevéssé látható hídfőállások.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>A felelős nélküli szolgáltatásfiókok elkerülik a felülvizsgálatot.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Megszüntetett, de még létező fiókok.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Az inaktív számítógépfiókok visszaállíthatók és kevéssé látható hídfőként újrahasználhatók.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Az előre előkészített, soha nem használt számítógépfiókokat egy támadó átveheti.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>A megmaradt megszüntetett fiókok újraaktiválhatók.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Az inaktív, engedélyezett fiókok átvételre/újrafelhasználásra alkalmasak.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Az SPN-nel rendelkező felhasználói fiókok lehetővé teszik a Silver Ticket / jegy-újrafelhasználást.</value></data>

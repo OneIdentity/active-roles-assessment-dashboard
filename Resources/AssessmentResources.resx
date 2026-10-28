@@ -103,6 +103,7 @@
   <data name="RuleTitle_CFG-UnsupportedServerOs" xml:space="preserve"><value>Servers running unsupported operating systems</value></data>
   <data name="RuleTitle_CFG-UnsupportedClientOs" xml:space="preserve"><value>Clients running unsupported operating systems</value></data>
   <data name="RuleTitle_CFG-StaleComputers" xml:space="preserve"><value>Stale (inactive) computer accounts</value></data>
+  <data name="RuleTitle_CFG-NeverLoggedOnComputers" xml:space="preserve"><value>Computer accounts that have never logged on</value></data>
   <data name="RuleTitle_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>krbtgt password age (days)</value></data>
   <data name="RuleTitle_CFG-WeakPasswordLength" xml:space="preserve"><value>Minimum password length below 12 characters</value></data>
   <data name="RuleTitle_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Password complexity disabled</value></data>
@@ -115,6 +116,7 @@
   <data name="RuleTitle_PRIV-Administrators" xml:space="preserve"><value>Built-in Administrators membership size</value></data>
   <data name="RuleTitle_AUTH-SmartCardAdoption" xml:space="preserve"><value>Accounts enforcing smart-card (strong) authentication</value></data>
   <data name="RuleTitle_HYG-StaleAccounts" xml:space="preserve"><value>Stale (inactive) enabled accounts</value></data>
+  <data name="RuleTitle_HYG-StalePasswords" xml:space="preserve"><value>Enabled accounts with stale passwords</value></data>
   <data name="RuleTitle_SEC-CannotChangePassword" xml:space="preserve"><value>Users who cannot change their own password</value></data>
   <data name="RuleTitle_SEC-MustChangePassword" xml:space="preserve"><value>Users flagged to change password at next logon</value></data>
   <data name="RuleTitle_SEC-SensitiveCannotDelegateAdoption" xml:space="preserve"><value>Privileged accounts protected from delegation</value></data>
@@ -177,6 +179,7 @@
   <data name="RuleRec_CFG-UnsupportedServerOs" xml:space="preserve"><value>Windows Server 2008 R2 and 2012 R2 are out of support and no longer receive security updates. Upgrade or decommission these servers, or isolate and place them under an extended-support agreement, to reduce exposure to unpatched vulnerabilities.</value></data>
   <data name="RuleRec_CFG-UnsupportedClientOs" xml:space="preserve"><value>Windows 7, 8.1 and Windows 10 22H2 are out of (or reaching) end of support. Upgrade affected clients to a supported Windows release so they continue to receive security updates, or remove them from the environment.</value></data>
   <data name="RuleRec_CFG-StaleComputers" xml:space="preserve"><value>Computer accounts that have not authenticated for an extended period are likely decommissioned or orphaned. Disable and remove stale computer accounts to reduce the attack surface and keep the directory accurate.</value></data>
+  <data name="RuleRec_CFG-NeverLoggedOnComputers" xml:space="preserve"><value>Computer accounts that were created but have never authenticated are often pre-staged or abandoned and can be claimed by an attacker. Remove unused pre-staged computer accounts or restrict who can join them to the domain.</value></data>
   <data name="RuleRec_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>A rarely rotated krbtgt account password increases exposure to Kerberos Golden Ticket attacks. Rotate the krbtgt password on a regular schedule (twice, with a delay between rotations) so forged tickets cannot remain valid indefinitely.</value></data>
   <data name="RuleRec_CFG-WeakPasswordLength" xml:space="preserve"><value>The default domain minimum password length is below 12 characters. Increase the minimum length (12+ recommended) to strengthen resistance to password-guessing and offline cracking.</value></data>
   <data name="RuleRec_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Password complexity is disabled in the default domain policy. Enable complexity so passwords must include a mix of character types, reducing the risk of weak, easily guessed passwords.</value></data>
@@ -189,6 +192,7 @@
   <data name="RuleRec_PRIV-Administrators" xml:space="preserve"><value>Constrain the built-in Administrators group to essential accounts. Prefer role-based delegation over broad administrative membership.</value></data>
   <data name="RuleRec_AUTH-SmartCardAdoption" xml:space="preserve"><value>Enforce smart-card / phishing-resistant MFA for interactive logon, prioritising administrative and high-privilege accounts. A count of zero indicates strong authentication is not enforced anywhere.</value></data>
   <data name="RuleRec_HYG-StaleAccounts" xml:space="preserve"><value>Review enabled accounts with no interactive logon in the last {StaleThresholdDays} days. Disable or deprovision unused accounts to reduce the attack surface and align with least-privilege / lifecycle requirements.</value></data>
+  <data name="RuleRec_HYG-StalePasswords" xml:space="preserve"><value>Passwords that have not been changed for an extended period are more likely to have been exposed through reuse, phishing or breaches. Require rotation of long-lived passwords, prioritising privileged accounts, and move service accounts to Group Managed Service Accounts (gMSA).</value></data>
   <data name="RuleRec_SEC-CannotChangePassword" xml:space="preserve"><value>Limit the 'user cannot change password' flag to approved service accounts; it prevents rotation of compromised credentials.</value></data>
   <data name="RuleRec_SEC-MustChangePassword" xml:space="preserve"><value>A large backlog of 'must change password at next logon' accounts can indicate stalled onboarding or dormant provisioning; review and follow up.</value></data>
   <data name="RuleRec_SEC-SensitiveCannotDelegateAdoption" xml:space="preserve"><value>Mark administrative and high-value accounts as 'sensitive and cannot be delegated' (or add them to the Protected Users group) so their credentials cannot be forwarded via delegation. A count of zero indicates this protection is not applied anywhere.</value></data>

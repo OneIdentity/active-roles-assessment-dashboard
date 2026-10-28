@@ -178,7 +178,8 @@ public static class MitreTechniqueLibrary
             Mappings = new[]
             {
                 new TechniqueKpiMapping { KpiKey = "PasswordNotRequired", Rationale = "Accounts with no password requirement.", MediumThreshold = 1, HighThreshold = 1 },
-                new TechniqueKpiMapping { KpiKey = "PasswordNeverExpires", Rationale = "Stale, non-rotating credentials.", MediumThreshold = 10, HighThreshold = 50 }
+                new TechniqueKpiMapping { KpiKey = "PasswordNeverExpires", Rationale = "Stale, non-rotating credentials.", MediumThreshold = 10, HighThreshold = 50 },
+                new TechniqueKpiMapping { KpiKey = "StalePasswords", Rationale = "Long-unchanged passwords are more likely to be guessed, reused or already exposed.", MediumThreshold = 10, HighThreshold = 50 }
             }
         },
 
@@ -194,7 +195,10 @@ public static class MitreTechniqueLibrary
             {
                 new TechniqueKpiMapping { KpiKey = "DomainAdmins", Rationale = "Domain Admins hold full domain control.", MediumThreshold = 5, HighThreshold = 15 },
                 new TechniqueKpiMapping { KpiKey = "EnterpriseAdmins", Rationale = "Enterprise Admins hold forest-wide control.", MediumThreshold = 2, HighThreshold = 5 },
-                new TechniqueKpiMapping { KpiKey = "AdminCount", Rationale = "Accounts flagged as protected/privileged.", MediumThreshold = 20, HighThreshold = 75 }
+                new TechniqueKpiMapping { KpiKey = "AdminCount", Rationale = "Accounts flagged as protected/privileged.", MediumThreshold = 20, HighThreshold = 75 },
+                new TechniqueKpiMapping { KpiKey = "BroadDelegationLinks", Rationale = "Active Roles rights delegated to Everyone / Authenticated Users / Domain Users reach every account.", MediumThreshold = 1, HighThreshold = 1 },
+                new TechniqueKpiMapping { KpiKey = "RootDelegationLinks", Rationale = "Active Roles delegations at a domain root inherit to every object in the domain.", MediumThreshold = 1, HighThreshold = 5 },
+                new TechniqueKpiMapping { KpiKey = "UserDelegationLinks", Rationale = "Rights delegated directly to individual users bypass role-based review.", MediumThreshold = 1, HighThreshold = 10 }
             }
         },
 
@@ -226,7 +230,9 @@ public static class MitreTechniqueLibrary
                 new TechniqueKpiMapping { KpiKey = "NeverLoggedIn", Rationale = "Dormant accounts are prime persistence candidates.", MediumThreshold = 5, HighThreshold = 25 },
                 new TechniqueKpiMapping { KpiKey = "StaleUsers", Rationale = "Enabled but inactive accounts are durable, low-visibility footholds.", MediumThreshold = 5, HighThreshold = 25 },
                 new TechniqueKpiMapping { KpiKey = "NoManagerServiceAccount", Rationale = "Unowned service accounts evade review.", MediumThreshold = 1, HighThreshold = 10 },
-                new TechniqueKpiMapping { KpiKey = "DeprovisionedUsers", Rationale = "Deprovisioned-but-present accounts.", MediumThreshold = 1, HighThreshold = 10 }
+                new TechniqueKpiMapping { KpiKey = "DeprovisionedUsers", Rationale = "Deprovisioned-but-present accounts.", MediumThreshold = 1, HighThreshold = 10 },
+                new TechniqueKpiMapping { KpiKey = "StaleComputers", Rationale = "Inactive computer accounts can be reset and reused as low-visibility footholds.", MediumThreshold = 10, HighThreshold = 50 },
+                new TechniqueKpiMapping { KpiKey = "NeverLoggedOnComputers", Rationale = "Pre-staged, never-used computer accounts can be claimed by an attacker.", MediumThreshold = 5, HighThreshold = 25 }
             }
         },
 

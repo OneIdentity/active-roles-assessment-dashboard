@@ -64,15 +64,21 @@
   <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>DES est cryptographiquement faible.</value></data>
   <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Comptes sans mot de passe obligatoire.</value></data>
   <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Identifiants obsolètes non renouvelés.</value></data>
+  <data name="Rat_T1110_StalePasswords" xml:space="preserve"><value>Les mots de passe inchangés depuis longtemps sont plus susceptibles d'être devinés, réutilisés ou déjà exposés.</value></data>
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Les administrateurs du domaine contrôlent entièrement le domaine.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Les administrateurs de l'entreprise contrôlent l'ensemble de la forêt.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Comptes marqués comme protégés/privilégiés.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>Les droits Active Roles délégués à Everyone / Authenticated Users / Domain Users atteignent tous les comptes.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>Les délégations Active Roles à la racine d'un domaine sont héritées par tous les objets du domaine.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Les droits délégués directement à des utilisateurs individuels contournent la revue basée sur les rôles.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>Les ordinateurs approuvés pour la délégation non contrainte sont des points de pivot de grande valeur.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Comptes utilisateur approuvés pour la délégation non contrainte.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Les comptes dormants sont des candidats idéaux pour la persistance.</value></data>
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Les comptes activés mais inactifs sont des points d'appui durables et peu visibles.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Les comptes de service sans responsable échappent aux revues.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Comptes déprovisionnés mais toujours présents.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Les comptes d'ordinateur inactifs peuvent être réinitialisés et réutilisés comme points d'ancrage discrets.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Les comptes d'ordinateur pré-provisionnés et jamais utilisés peuvent être récupérés par un attaquant.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Les comptes déprovisionnés qui subsistent peuvent être réactivés.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Les comptes activés inactifs peuvent être pris en main ou réutilisés.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Les comptes utilisateur dotés de SPN permettent les Silver Tickets / la réutilisation de tickets.</value></data>

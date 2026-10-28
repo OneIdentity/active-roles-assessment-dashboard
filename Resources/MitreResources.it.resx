@@ -64,15 +64,21 @@
   <data name="Rat_T1555_UseDesEncryption" xml:space="preserve"><value>DES è crittograficamente debole.</value></data>
   <data name="Rat_T1110_PasswordNotRequired" xml:space="preserve"><value>Account senza obbligo di password.</value></data>
   <data name="Rat_T1110_PasswordNeverExpires" xml:space="preserve"><value>Credenziali obsolete e mai ruotate.</value></data>
+  <data name="Rat_T1110_StalePasswords" xml:space="preserve"><value>Le password non modificate da molto tempo hanno maggiori probabilità di essere indovinate, riutilizzate o già esposte.</value></data>
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Gli amministratori di dominio hanno il controllo completo del dominio.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Gli amministratori dell'organizzazione hanno il controllo dell'intera foresta.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Account contrassegnati come protetti/privilegiati.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>I diritti Active Roles delegati a Everyone / Authenticated Users / Domain Users raggiungono ogni account.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>Le deleghe Active Roles alla radice di un dominio vengono ereditate da ogni oggetto del dominio.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>I diritti delegati direttamente a singoli utenti aggirano la revisione basata sui ruoli.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>I computer attendibili per la delega non vincolata sono punti di pivot di alto valore.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Account utente attendibili per la delega non vincolata.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Gli account dormienti sono candidati ideali per la persistenza.</value></data>
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Gli account abilitati ma inattivi sono punti d'appoggio duraturi e poco visibili.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Gli account di servizio senza responsabile sfuggono alle revisioni.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Account deprovisionati ma ancora presenti.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Gli account computer inattivi possono essere reimpostati e riutilizzati come punti d'appoggio poco visibili.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Gli account computer pre-provisionati e mai utilizzati possono essere rivendicati da un utente malintenzionato.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Gli account deprovisionati che persistono possono essere riattivati.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Gli account abilitati inattivi sono candidati a presa di controllo/riutilizzo.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Gli account utente con SPN consentono Silver Ticket / riutilizzo dei ticket.</value></data>
