@@ -73,6 +73,8 @@
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Aktivierte, aber inaktive Konten sind dauerhafte, wenig sichtbare Angriffspunkte.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Dienstkonten ohne Besitzer entgehen der Überprüfung.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Deprovisionierte, aber noch vorhandene Konten.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Inaktive Computerkonten können zurückgesetzt und als unauffällige Zugangspunkte wiederverwendet werden.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Vorab bereitgestellte, nie genutzte Computerkonten können von einem Angreifer übernommen werden.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Verbleibende deprovisionierte Konten können reaktiviert werden.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Inaktive aktivierte Konten sind Kandidaten für Übernahme/Wiederverwendung.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>SPN-Benutzerkonten ermöglichen Silver Tickets / Ticket-Wiederverwendung.</value></data>

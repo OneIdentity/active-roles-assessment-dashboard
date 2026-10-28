@@ -73,6 +73,8 @@
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Gli account abilitati ma inattivi sono punti d'appoggio duraturi e poco visibili.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Gli account di servizio senza responsabile sfuggono alle revisioni.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Account deprovisionati ma ancora presenti.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Gli account computer inattivi possono essere reimpostati e riutilizzati come punti d'appoggio poco visibili.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Gli account computer pre-provisionati e mai utilizzati possono essere rivendicati da un utente malintenzionato.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Gli account deprovisionati che persistono possono essere riattivati.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Gli account abilitati inattivi sono candidati a presa di controllo/riutilizzo.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Gli account utente con SPN consentono Silver Ticket / riutilizzo dei ticket.</value></data>

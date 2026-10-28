@@ -73,6 +73,8 @@
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Les comptes activés mais inactifs sont des points d'appui durables et peu visibles.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Les comptes de service sans responsable échappent aux revues.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Comptes déprovisionnés mais toujours présents.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Les comptes d'ordinateur inactifs peuvent être réinitialisés et réutilisés comme points d'ancrage discrets.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Les comptes d'ordinateur pré-provisionnés et jamais utilisés peuvent être récupérés par un attaquant.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Les comptes déprovisionnés qui subsistent peuvent être réactivés.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Les comptes activés inactifs peuvent être pris en main ou réutilisés.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Les comptes utilisateur dotés de SPN permettent les Silver Tickets / la réutilisation de tickets.</value></data>

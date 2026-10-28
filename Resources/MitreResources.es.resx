@@ -73,6 +73,8 @@
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Las cuentas habilitadas pero inactivas son puntos de apoyo duraderos y poco visibles.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Las cuentas de servicio sin responsable eluden la revisión.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Cuentas desaprovisionadas pero aún presentes.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Las cuentas de equipo inactivas pueden restablecerse y reutilizarse como puntos de apoyo poco visibles.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Un atacante puede apropiarse de cuentas de equipo preconfiguradas y nunca utilizadas.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Las cuentas desaprovisionadas que persisten pueden reactivarse.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Las cuentas habilitadas inactivas son candidatas a apropiación/reutilización.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Las cuentas de usuario con SPN permiten Silver Tickets / reutilización de tickets.</value></data>

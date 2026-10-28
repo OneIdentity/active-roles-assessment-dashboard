@@ -226,7 +226,9 @@ public static class MitreTechniqueLibrary
                 new TechniqueKpiMapping { KpiKey = "NeverLoggedIn", Rationale = "Dormant accounts are prime persistence candidates.", MediumThreshold = 5, HighThreshold = 25 },
                 new TechniqueKpiMapping { KpiKey = "StaleUsers", Rationale = "Enabled but inactive accounts are durable, low-visibility footholds.", MediumThreshold = 5, HighThreshold = 25 },
                 new TechniqueKpiMapping { KpiKey = "NoManagerServiceAccount", Rationale = "Unowned service accounts evade review.", MediumThreshold = 1, HighThreshold = 10 },
-                new TechniqueKpiMapping { KpiKey = "DeprovisionedUsers", Rationale = "Deprovisioned-but-present accounts.", MediumThreshold = 1, HighThreshold = 10 }
+                new TechniqueKpiMapping { KpiKey = "DeprovisionedUsers", Rationale = "Deprovisioned-but-present accounts.", MediumThreshold = 1, HighThreshold = 10 },
+                new TechniqueKpiMapping { KpiKey = "StaleComputers", Rationale = "Inactive computer accounts can be reset and reused as low-visibility footholds.", MediumThreshold = 10, HighThreshold = 50 },
+                new TechniqueKpiMapping { KpiKey = "NeverLoggedOnComputers", Rationale = "Pre-staged, never-used computer accounts can be claimed by an attacker.", MediumThreshold = 5, HighThreshold = 25 }
             }
         },
 

@@ -197,6 +197,8 @@ Stale, orphaned, or unmanaged accounts provide durable footholds that evade rout
 | `StaleUsers` | Enabled but inactive accounts are durable, low-visibility footholds. | 5 / 25 |
 | `NoManagerServiceAccount` | Unowned service accounts evade review. | 1 / 10 |
 | `DeprovisionedUsers` | Deprovisioned-but-present accounts. | 1 / 10 |
+| `StaleComputers` | Inactive computer accounts can be reset and reused as low-visibility footholds. | 10 / 50 |
+| `NeverLoggedOnComputers` | Pre-staged, never-used computer accounts can be claimed by an attacker. | 5 / 25 |
 
 **`T1136` — Create Account**
 Deprovisioned/long-inactive accounts can be silently reactivated to establish persistent access.

@@ -73,6 +73,8 @@
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Enabled but inactive accounts are durable, low-visibility footholds.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>Unowned service accounts evade review.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Deprovisioned-but-present accounts.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Inactive computer accounts can be reset and reused as low-visibility footholds.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Pre-staged, never-used computer accounts can be claimed by an attacker.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>Deprovisioned accounts that persist can be reactivated.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Inactive enabled accounts are candidates for takeover/reuse.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>SPN user accounts enable Silver Ticket / ticket reuse.</value></data>

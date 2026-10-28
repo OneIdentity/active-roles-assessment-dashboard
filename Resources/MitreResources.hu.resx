@@ -73,6 +73,8 @@
   <data name="Rat_T1098_StaleUsers" xml:space="preserve"><value>Az engedélyezett, de inaktív fiókok tartós, kevéssé látható hídfőállások.</value></data>
   <data name="Rat_T1098_NoManagerServiceAccount" xml:space="preserve"><value>A felelős nélküli szolgáltatásfiókok elkerülik a felülvizsgálatot.</value></data>
   <data name="Rat_T1098_DeprovisionedUsers" xml:space="preserve"><value>Megszüntetett, de még létező fiókok.</value></data>
+  <data name="Rat_T1098_StaleComputers" xml:space="preserve"><value>Az inaktív számítógépfiókok visszaállíthatók és kevéssé látható hídfőként újrahasználhatók.</value></data>
+  <data name="Rat_T1098_NeverLoggedOnComputers" xml:space="preserve"><value>Az előre előkészített, soha nem használt számítógépfiókokat egy támadó átveheti.</value></data>
   <data name="Rat_T1136_DeprovisionedUsers" xml:space="preserve"><value>A megmaradt megszüntetett fiókok újraaktiválhatók.</value></data>
   <data name="Rat_T1136_StaleUsers" xml:space="preserve"><value>Az inaktív, engedélyezett fiókok átvételre/újrafelhasználásra alkalmasak.</value></data>
   <data name="Rat_T1550.003_SpnUserAccounts" xml:space="preserve"><value>Az SPN-nel rendelkező felhasználói fiókok lehetővé teszik a Silver Ticket / jegy-újrafelhasználást.</value></data>
