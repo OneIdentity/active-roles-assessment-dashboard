@@ -180,6 +180,7 @@ Entra ID group-ownership/review and guest/external-access indicators surfaced th
 | `CFG-UnsupportedServerOs` | Servers running unsupported operating systems | `UnsupportedServerOs` | High | 1 / 5 | SecureConfigUnsupportedOs |
 | `CFG-UnsupportedClientOs` | Clients running unsupported operating systems | `UnsupportedClientOs` | High | 1 / 10 | SecureConfigUnsupportedOs |
 | `CFG-StaleComputers` | Stale (inactive) computer accounts | `StaleComputers` | Medium | 5 / 25 | SecureConfigUnsupportedOs |
+| `CFG-NeverLoggedOnComputers` | Computer accounts that have never logged on | `NeverLoggedOnComputers` | Low | 5 / 25 | SecureConfigUnsupportedOs |
 | `CFG-KrbtgtPasswordAge` | krbtgt password age (days) | `KrbtgtPasswordAgeDays` | High | 180 / 365 | SecureConfigCore |
 | `CFG-WeakPasswordLength` | Minimum password length below 12 characters | `WeakPasswordLength` | High | 1 / 1 | SecureConfigCore |
 | `CFG-PasswordComplexityDisabled` | Password complexity disabled | `PasswordComplexityDisabled` | High | 1 / 1 | SecureConfigCore |

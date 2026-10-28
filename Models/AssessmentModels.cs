@@ -794,6 +794,17 @@ public static class AssessmentRuleLibrary
             WarnThreshold = 5, FailThreshold = 25,
             Recommendation = "Computer accounts that have not authenticated for an extended period are likely decommissioned or orphaned. Disable and remove stale computer accounts to reduce the attack surface and keep the directory accurate."
         },
+        new()
+        {
+            Id = "CFG-NeverLoggedOnComputers",
+            Title = "Computer accounts that have never logged on",
+            CategoryName = "Secure Configuration",
+            KpiKey = "NeverLoggedOnComputers",
+            Severity = AssessmentSeverity.Low,
+            Types = SecureConfigUnsupportedOs,
+            WarnThreshold = 5, FailThreshold = 25,
+            Recommendation = "Computer accounts that were created but have never authenticated are often pre-staged or abandoned and can be claimed by an attacker. Remove unused pre-staged computer accounts or restrict who can join them to the domain."
+        },
 
         // --- Secure configuration: Kerberos (krbtgt) hygiene -----------------
         new()

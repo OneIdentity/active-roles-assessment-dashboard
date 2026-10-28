@@ -103,6 +103,7 @@
   <data name="RuleTitle_CFG-UnsupportedServerOs" xml:space="preserve"><value>Nem támogatott operációs rendszert futtató kiszolgálók</value></data>
   <data name="RuleTitle_CFG-UnsupportedClientOs" xml:space="preserve"><value>Nem támogatott operációs rendszert futtató kliensek</value></data>
   <data name="RuleTitle_CFG-StaleComputers" xml:space="preserve"><value>Elavult (inaktív) számítógépfiókok</value></data>
+  <data name="RuleTitle_CFG-NeverLoggedOnComputers" xml:space="preserve"><value>Soha be nem jelentkezett számítógépfiókok</value></data>
   <data name="RuleTitle_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>krbtgt jelszó kora (napok)</value></data>
   <data name="RuleTitle_CFG-WeakPasswordLength" xml:space="preserve"><value>12 karakter alatti minimális jelszóhossz</value></data>
   <data name="RuleTitle_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Jelszó-összetettség letiltva</value></data>
@@ -178,6 +179,7 @@
   <data name="RuleRec_CFG-UnsupportedServerOs" xml:space="preserve"><value>Windows Server 2008 R2 and 2012 R2 are out of support and no longer receive security updates. Upgrade or decommission these servers, or isolate and place them under an extended-support agreement, to reduce exposure to unpatched vulnerabilities.</value></data>
   <data name="RuleRec_CFG-UnsupportedClientOs" xml:space="preserve"><value>Windows 7, 8.1 and Windows 10 22H2 are out of (or reaching) end of support. Upgrade affected clients to a supported Windows release so they continue to receive security updates, or remove them from the environment.</value></data>
   <data name="RuleRec_CFG-StaleComputers" xml:space="preserve"><value>Computer accounts that have not authenticated for an extended period are likely decommissioned or orphaned. Disable and remove stale computer accounts to reduce the attack surface and keep the directory accurate.</value></data>
+  <data name="RuleRec_CFG-NeverLoggedOnComputers" xml:space="preserve"><value>A létrehozott, de soha nem hitelesített számítógépfiókok gyakran előre előkészítettek vagy elhagyottak, és egy támadó átveheti őket. Távolítsa el a nem használt, előre előkészített számítógépfiókokat, vagy korlátozza, ki csatlakoztathatja őket a tartományhoz.</value></data>
   <data name="RuleRec_CFG-KrbtgtPasswordAge" xml:space="preserve"><value>A rarely rotated krbtgt account password increases exposure to Kerberos Golden Ticket attacks. Rotate the krbtgt password on a regular schedule (twice, with a delay between rotations) so forged tickets cannot remain valid indefinitely.</value></data>
   <data name="RuleRec_CFG-WeakPasswordLength" xml:space="preserve"><value>The default domain minimum password length is below 12 characters. Increase the minimum length (12+ recommended) to strengthen resistance to password-guessing and offline cracking.</value></data>
   <data name="RuleRec_CFG-PasswordComplexityDisabled" xml:space="preserve"><value>Password complexity is disabled in the default domain policy. Enable complexity so passwords must include a mix of character types, reducing the risk of weak, easily guessed passwords.</value></data>
