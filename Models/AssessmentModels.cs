@@ -948,6 +948,17 @@ public static class AssessmentRuleLibrary
             WarnThreshold = 5, FailThreshold = 25,
             Recommendation = "Review enabled accounts with no interactive logon in the last {StaleThresholdDays} days. Disable or deprovision unused accounts to reduce the attack surface and align with least-privilege / lifecycle requirements."
         },
+        new()
+        {
+            Id = "HYG-StalePasswords",
+            Title = "Enabled accounts with stale passwords",
+            CategoryName = "Account Hygiene",
+            KpiKey = "StalePasswords",
+            Severity = AssessmentSeverity.Medium,
+            Types = ComplianceGdpr,
+            WarnThreshold = 10, FailThreshold = 50,
+            Recommendation = "Passwords that have not been changed for an extended period are more likely to have been exposed through reuse, phishing or breaches. Require rotation of long-lived passwords, prioritising privileged accounts, and move service accounts to Group Managed Service Accounts (gMSA)."
+        },
 
         // --- Additional account security -------------------------------------
         new()

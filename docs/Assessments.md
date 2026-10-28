@@ -149,6 +149,7 @@ Thresholds are shown as `warn / fail`. Unless noted, comparison is **AtLeast** (
 | `HYG-NoManagerUser` | User accounts without a manager | `NoManagerUser` | Low | 10 / 50 | AdOnly |
 | `HYG-NoManagerServiceAccount` | Service accounts without a manager | `NoManagerServiceAccount` | Medium | 1 / 10 | ComplianceNoCis |
 | `HYG-StaleAccounts` | Stale (inactive) enabled accounts | `StaleUsers` | High | 5 / 25 | ComplianceGdpr |
+| `HYG-StalePasswords` | Enabled accounts with stale passwords | `StalePasswords` | Medium | 10 / 50 | ComplianceGdpr |
 | `HYG-DeprovisionedUsers` | Deprovisioned accounts still present | `DeprovisionedUsers` | Medium | 10 / 50 | ComplianceNoCisGdpr |
 
 ### Group Governance

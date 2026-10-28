@@ -115,6 +115,7 @@
   <data name="RuleTitle_PRIV-Administrators" xml:space="preserve"><value>Built-in Administrators membership size</value></data>
   <data name="RuleTitle_AUTH-SmartCardAdoption" xml:space="preserve"><value>Accounts enforcing smart-card (strong) authentication</value></data>
   <data name="RuleTitle_HYG-StaleAccounts" xml:space="preserve"><value>Stale (inactive) enabled accounts</value></data>
+  <data name="RuleTitle_HYG-StalePasswords" xml:space="preserve"><value>Enabled accounts with stale passwords</value></data>
   <data name="RuleTitle_SEC-CannotChangePassword" xml:space="preserve"><value>Users who cannot change their own password</value></data>
   <data name="RuleTitle_SEC-MustChangePassword" xml:space="preserve"><value>Users flagged to change password at next logon</value></data>
   <data name="RuleTitle_SEC-SensitiveCannotDelegateAdoption" xml:space="preserve"><value>Privileged accounts protected from delegation</value></data>
@@ -189,6 +190,7 @@
   <data name="RuleRec_PRIV-Administrators" xml:space="preserve"><value>Constrain the built-in Administrators group to essential accounts. Prefer role-based delegation over broad administrative membership.</value></data>
   <data name="RuleRec_AUTH-SmartCardAdoption" xml:space="preserve"><value>Enforce smart-card / phishing-resistant MFA for interactive logon, prioritising administrative and high-privilege accounts. A count of zero indicates strong authentication is not enforced anywhere.</value></data>
   <data name="RuleRec_HYG-StaleAccounts" xml:space="preserve"><value>Review enabled accounts with no interactive logon in the last {StaleThresholdDays} days. Disable or deprovision unused accounts to reduce the attack surface and align with least-privilege / lifecycle requirements.</value></data>
+  <data name="RuleRec_HYG-StalePasswords" xml:space="preserve"><value>Passwords that have not been changed for an extended period are more likely to have been exposed through reuse, phishing or breaches. Require rotation of long-lived passwords, prioritising privileged accounts, and move service accounts to Group Managed Service Accounts (gMSA).</value></data>
   <data name="RuleRec_SEC-CannotChangePassword" xml:space="preserve"><value>Limit the 'user cannot change password' flag to approved service accounts; it prevents rotation of compromised credentials.</value></data>
   <data name="RuleRec_SEC-MustChangePassword" xml:space="preserve"><value>A large backlog of 'must change password at next logon' accounts can indicate stalled onboarding or dormant provisioning; review and follow up.</value></data>
   <data name="RuleRec_SEC-SensitiveCannotDelegateAdoption" xml:space="preserve"><value>Mark administrative and high-value accounts as 'sensitive and cannot be delegated' (or add them to the Protected Users group) so their credentials cannot be forwarded via delegation. A count of zero indicates this protection is not applied anywhere.</value></data>
