@@ -68,6 +68,9 @@
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Domain Admins hold full domain control.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Enterprise Admins hold forest-wide control.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Accounts flagged as protected/privileged.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>Active Roles rights delegated to Everyone / Authenticated Users / Domain Users reach every account.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>Active Roles delegations at a domain root inherit to every object in the domain.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Rights delegated directly to individual users bypass role-based review.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>Computers trusted for unconstrained delegation are high-value pivot points.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>User accounts trusted for unconstrained delegation.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Dormant accounts are prime persistence candidates.</value></data>

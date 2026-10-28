@@ -68,6 +68,9 @@
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Los administradores del dominio tienen control total del dominio.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Los administradores de empresa tienen control en todo el bosque.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Cuentas marcadas como protegidas/privilegiadas.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>Los derechos de Active Roles delegados a Everyone / Authenticated Users / Domain Users alcanzan a todas las cuentas.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>Las delegaciones de Active Roles en la raíz de un dominio se heredan a todos los objetos del dominio.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Los derechos delegados directamente a usuarios individuales eluden la revisión basada en roles.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>Los equipos de confianza para delegación sin restricciones son puntos de pivote de alto valor.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Cuentas de usuario de confianza para delegación sin restricciones.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Las cuentas inactivas son candidatas ideales para la persistencia.</value></data>

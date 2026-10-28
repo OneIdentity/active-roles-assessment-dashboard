@@ -68,6 +68,9 @@
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>A tartományi rendszergazdák teljes irányítással rendelkeznek a tartomány felett.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>A vállalati rendszergazdák az egész erdő felett irányítással rendelkeznek.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Védettként/kiemeltként megjelölt fiókok.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>Az Everyone / Authenticated Users / Domain Users részére delegált Active Roles-jogok minden fiókot elérnek.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>A tartománygyökérben lévő Active Roles-delegálások a tartomány minden objektumára öröklődnek.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Az egyes felhasználóknak közvetlenül delegált jogok megkerülik a szerepköralapú felülvizsgálatot.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>A korlátlan delegálásra megbízható számítógépek nagy értékű ugródeszkák.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Korlátlan delegálásra megbízható felhasználói fiókok.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>A nem használt fiókok kiváló jelöltek a perzisztenciára.</value></data>

@@ -138,6 +138,9 @@ Highly privileged group membership expands the blast radius of any compromised c
 | `DomainAdmins` | Domain Admins hold full domain control. | 5 / 15 |
 | `EnterpriseAdmins` | Enterprise Admins hold forest-wide control. | 2 / 5 |
 | `AdminCount` | Accounts flagged as protected/privileged. | 20 / 75 |
+| `BroadDelegationLinks` | Active Roles rights delegated to Everyone / Authenticated Users / Domain Users reach every account. | 1 / 1 |
+| `RootDelegationLinks` | Active Roles delegations at a domain root inherit to every object in the domain. | 1 / 5 |
+| `UserDelegationLinks` | Rights delegated directly to individual users bypass role-based review. | 1 / 10 |
 
 **`T1484.001` — Domain Policy Modification: Group Policy Modification**
 Membership in powerful legacy operator groups grants directory- or DC-level capabilities.

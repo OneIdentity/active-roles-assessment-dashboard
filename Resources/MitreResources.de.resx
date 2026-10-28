@@ -68,6 +68,9 @@
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Domänen-Admins haben die volle Kontrolle über die Domäne.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Organisations-Admins haben gesamtstrukturweite Kontrolle.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Als geschützt/privilegiert gekennzeichnete Konten.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>An Everyone / Authenticated Users / Domain Users delegierte Active Roles-Rechte erreichen jedes Konto.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>Active Roles-Delegierungen am Domänenstamm werden an jedes Objekt der Domäne vererbt.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Direkt an einzelne Benutzer delegierte Rechte umgehen die rollenbasierte Überprüfung.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>Computer mit uneingeschränkter Delegierung sind wertvolle Angriffspunkte.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Benutzerkonten mit uneingeschränkter Delegierung.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Inaktive Konten sind ideale Kandidaten für Persistenz.</value></data>

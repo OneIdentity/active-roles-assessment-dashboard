@@ -68,6 +68,9 @@
   <data name="Rat_T1078.002_DomainAdmins" xml:space="preserve"><value>Les administrateurs du domaine contrôlent entièrement le domaine.</value></data>
   <data name="Rat_T1078.002_EnterpriseAdmins" xml:space="preserve"><value>Les administrateurs de l'entreprise contrôlent l'ensemble de la forêt.</value></data>
   <data name="Rat_T1078.002_AdminCount" xml:space="preserve"><value>Comptes marqués comme protégés/privilégiés.</value></data>
+  <data name="Rat_T1078.002_BroadDelegationLinks" xml:space="preserve"><value>Les droits Active Roles délégués à Everyone / Authenticated Users / Domain Users atteignent tous les comptes.</value></data>
+  <data name="Rat_T1078.002_RootDelegationLinks" xml:space="preserve"><value>Les délégations Active Roles à la racine d'un domaine sont héritées par tous les objets du domaine.</value></data>
+  <data name="Rat_T1078.002_UserDelegationLinks" xml:space="preserve"><value>Les droits délégués directement à des utilisateurs individuels contournent la revue basée sur les rôles.</value></data>
   <data name="Rat_T1550_UnconstrainedComputers" xml:space="preserve"><value>Les ordinateurs approuvés pour la délégation non contrainte sont des points de pivot de grande valeur.</value></data>
   <data name="Rat_T1550_TrustedForDelegation" xml:space="preserve"><value>Comptes utilisateur approuvés pour la délégation non contrainte.</value></data>
   <data name="Rat_T1098_NeverLoggedIn" xml:space="preserve"><value>Les comptes dormants sont des candidats idéaux pour la persistance.</value></data>

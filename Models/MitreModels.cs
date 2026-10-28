@@ -195,7 +195,10 @@ public static class MitreTechniqueLibrary
             {
                 new TechniqueKpiMapping { KpiKey = "DomainAdmins", Rationale = "Domain Admins hold full domain control.", MediumThreshold = 5, HighThreshold = 15 },
                 new TechniqueKpiMapping { KpiKey = "EnterpriseAdmins", Rationale = "Enterprise Admins hold forest-wide control.", MediumThreshold = 2, HighThreshold = 5 },
-                new TechniqueKpiMapping { KpiKey = "AdminCount", Rationale = "Accounts flagged as protected/privileged.", MediumThreshold = 20, HighThreshold = 75 }
+                new TechniqueKpiMapping { KpiKey = "AdminCount", Rationale = "Accounts flagged as protected/privileged.", MediumThreshold = 20, HighThreshold = 75 },
+                new TechniqueKpiMapping { KpiKey = "BroadDelegationLinks", Rationale = "Active Roles rights delegated to Everyone / Authenticated Users / Domain Users reach every account.", MediumThreshold = 1, HighThreshold = 1 },
+                new TechniqueKpiMapping { KpiKey = "RootDelegationLinks", Rationale = "Active Roles delegations at a domain root inherit to every object in the domain.", MediumThreshold = 1, HighThreshold = 5 },
+                new TechniqueKpiMapping { KpiKey = "UserDelegationLinks", Rationale = "Rights delegated directly to individual users bypass role-based review.", MediumThreshold = 1, HighThreshold = 10 }
             }
         },
 
