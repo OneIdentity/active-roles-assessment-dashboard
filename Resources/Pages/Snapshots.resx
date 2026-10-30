@@ -58,4 +58,10 @@
   <data name="PageTitle" xml:space="preserve">
 	<value>Snapshots</value>
   </data>
+  <data name="Tip_ViewSnapshot" xml:space="preserve"><value>View snapshot</value></data>
+  <data name="SnapshotView" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="SnapshotBadge" xml:space="preserve"><value>Snapshot (read-only)</value></data>
+  <data name="SnapshotViewHint" xml:space="preserve"><value>Captured by {0} — {1} KPIs. Values are as recorded at capture time, not live data.</value></data>
+  <data name="CompareWithLive" xml:space="preserve"><value>Compare with live</value></data>
+  <data name="Col_Value" xml:space="preserve"><value>Value</value></data>
 </root>

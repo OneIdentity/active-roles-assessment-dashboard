@@ -58,4 +58,10 @@
   <data name="PageTitle" xml:space="preserve">
 	<value>Istantanee</value>
   </data>
+  <data name="Tip_ViewSnapshot" xml:space="preserve"><value>Visualizza snapshot</value></data>
+  <data name="SnapshotView" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="SnapshotBadge" xml:space="preserve"><value>Snapshot (sola lettura)</value></data>
+  <data name="SnapshotViewHint" xml:space="preserve"><value>Acquisito da {0} — {1} KPI. I valori sono quelli registrati al momento dell'acquisizione, non dati in tempo reale.</value></data>
+  <data name="CompareWithLive" xml:space="preserve"><value>Confronta con i dati attuali</value></data>
+  <data name="Col_Value" xml:space="preserve"><value>Valore</value></data>
 </root>

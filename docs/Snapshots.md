@@ -143,3 +143,8 @@ Bindable query properties: `FromId`, `ToId` (both `SupportsGet`). A `StatusMessa
 | Data source | `DashboardSummary` KPIs | The same KPIs | The same KPIs |
 
 The Assessments compare feature is modelled directly on this snapshot comparison design (baseline/compare selectors, a reserved `current` live mode, and delta/sentiment rows). Exposure goes one step further and *reuses the saved snapshots themselves* (via `LoadAllOrderedAsync()` and `BuildFromSnapshot(...)`) to derive its compare and trend without adding any exposure-specific storage.
+
+## Viewing a snapshot
+
+Each saved snapshot row has a **View** (eye) button. It opens a read-only view of that snapshot's KPI values, grouped by dashboard and category, labelled **Snapshot (read-only)** so it isn't mistaken for live data. No Active Roles queries are made. Users with the CompareSnapshots right also get a **Compare with live** shortcut.
+
