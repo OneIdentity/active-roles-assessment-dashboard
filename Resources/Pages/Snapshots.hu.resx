@@ -58,4 +58,10 @@
   <data name="PageTitle" xml:space="preserve">
 	<value>Pillanatképek</value>
   </data>
+  <data name="Tip_ViewSnapshot" xml:space="preserve"><value>Pillanatkép megtekintése</value></data>
+  <data name="SnapshotView" xml:space="preserve"><value>Pillanatkép</value></data>
+  <data name="SnapshotBadge" xml:space="preserve"><value>Pillanatkép (csak olvasható)</value></data>
+  <data name="SnapshotViewHint" xml:space="preserve"><value>Rögzítette: {0} — {1} KPI. Az értékek a rögzítés idején érvényesek, nem élő adatok.</value></data>
+  <data name="CompareWithLive" xml:space="preserve"><value>Összehasonlítás az élő adatokkal</value></data>
+  <data name="Col_Value" xml:space="preserve"><value>Érték</value></data>
 </root>

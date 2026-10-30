@@ -97,3 +97,7 @@
 .snap-trend-wrap { position: relative; height: 300px; }
 
 @media (max-width: 900px) { .snap-panels { grid-template-columns: 1fr; } }
+
+.snap-icon-btn.snap-icon-active { background: var(--oi-background-color-secondary); color: var(--oi-content-color-primary); border-color: var(--oi-border-color-focus); }
+.snap-pill-snapshot { margin: 0 8px; vertical-align: middle; background: var(--oi-background-color-secondary); color: var(--oi-content-color-primary); border-style: dashed; }
+.snap-view-card .snap-summary .snap-btn { text-decoration: none; }

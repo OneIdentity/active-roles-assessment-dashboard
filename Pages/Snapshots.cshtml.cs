@@ -21,6 +21,10 @@ public class SnapshotsModel : DashboardPageModel
 
     public List<SnapshotHeader> Snapshots { get; set; } = new();
     public SnapshotComparison? Comparison { get; set; }
+    public Snapshot? ViewedSnapshot { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? ViewId { get; set; }
     public SnapshotTrend Trend { get; set; } = new();
 
     [BindProperty(SupportsGet = true)]
@@ -43,7 +47,10 @@ public class SnapshotsModel : DashboardPageModel
             return Redirect($"{Request.PathBase}/app/");
 
         await LoadSnapshotsAsync();
-        await BuildComparisonIfRequestedAsync();
+        if (!string.IsNullOrWhiteSpace(ViewId))
+            ViewedSnapshot = await _snapshots.LoadAsync(ViewId);
+        else
+            await BuildComparisonIfRequestedAsync();
         Trend = await _snapshots.BuildTrendAsync();
 
         return Page();

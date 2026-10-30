@@ -118,6 +118,9 @@
                             <td>@(h.CreatedBy ?? "—")</td>
                             <td class="snap-num">@h.KpiCount</td>
                             <td class="snap-row-actions">
+                                <a href="@(pathBase)/Snapshots?ViewId=@h.Id" class="snap-icon-btn@(h.Id == Model.ViewedSnapshot?.Header.Id ? " snap-icon-active" : "")" title="@Localizer["Tip_ViewSnapshot"]" aria-label="@Localizer["Tip_ViewSnapshot"]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </a>
                                 @if (Model.CanCompareSnapshots)
                                 {
                                     <a href="@(pathBase)/Snapshots?FromId=@h.Id&ToId=current" class="snap-icon-btn snap-compare-link" title="@Localizer["Tip_CompareToCurrent"]" aria-label="@Localizer["Tip_CompareToCurrent"]">
@@ -143,6 +146,57 @@
             </table>
         }
     </section>
+
+    @if (Model.ViewedSnapshot != null)
+    {
+        var vs = Model.ViewedSnapshot;
+        <section class="snap-card snap-view-card">
+            <h2>
+                @Localizer["SnapshotView"]
+                <span class="snap-pill snap-pill-snapshot">@Localizer["SnapshotBadge"]</span>
+                <span class="snap-cmp-caption">@SnapshotsModel_Label(vs.Header)</span>
+            </h2>
+            <p class="snap-hint">@Localizer["SnapshotViewHint", vs.Header.CreatedBy ?? "—", vs.Header.KpiCount]</p>
+            @if (Model.CanCompareSnapshots)
+            {
+                <div class="snap-summary">
+                    <a class="snap-btn snap-compare-link" href="@(pathBase)/Snapshots?FromId=@vs.Header.Id&ToId=current">@Localizer["CompareWithLive"]</a>
+                </div>
+            }
+            @foreach (var dashboard in vs.Dashboards)
+            {
+                <h3 class="snap-cmp-dashboard">@dashboard.DisplayName</h3>
+                @foreach (var category in dashboard.Categories.Where(c => c.Kpis.Count > 0))
+                {
+                    <h4 class="snap-cmp-category">@category.DisplayName</h4>
+                    <table class="snap-table snap-cmp-table">
+                        <colgroup>
+                            <col class="snap-col-kpi" />
+                            <col class="snap-col-num" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Col_Kpi"]</th>
+                                <th class="snap-num">@Localizer["Col_Value"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var kpi in category.Kpis)
+                            {
+                                <tr>
+                                    <td>
+                                        @kpi.DisplayName
+                                        @if (kpi.IsRiskKpi) { <span class="snap-risk" title="@Localizer["RiskKpi"]">&#9888;</span> }
+                                    </td>
+                                    <td class="snap-num" title="@kpi.Error">@(kpi.Error == null ? kpi.Count.ToString() : "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            }
+        </section>
+    }
 
     @if (Model.Comparison != null)
     {
