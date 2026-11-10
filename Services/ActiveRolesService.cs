@@ -26,8 +26,9 @@ public class ActiveRolesService
     // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
     // plus up to three dashboard role-group checks - shares one full (objectClass=group) enumeration
     // instead of re-running it per check. Also absorbs repeated checks from client polling before the
-    // per-user admin/role caches latch. The superset collector still calls GetADGroupsAsync directly
-    // (uncached) so a manual rebuild always re-enumerates. Keyed by token because the enumeration is
+    // per-user admin/role caches latch. The summary build still calls GetADGroupsAsync directly
+    // (uncached) so a manual rebuild always re-enumerates, then seeds this memo so the privileged
+    // group KPIs in the same build reuse that enumeration. Keyed by token because the enumeration is
     // performed with the caller's read scope.
     private readonly SemaphoreSlim _groupGraphMemoLock = new(1, 1);
     private static readonly TimeSpan GroupGraphMemoTtl = TimeSpan.FromSeconds(60);
@@ -62,18 +63,27 @@ public class ActiveRolesService
 
             var groups = await GetADGroupsAsync(token).ConfigureAwait(false);
             // Only memoize a good result so a transient failure isn't cached for the full TTL.
-            if (groups.Error == null)
-            {
-                _groupGraphMemo = groups;
-                _groupGraphMemoToken = token;
-                _groupGraphMemoAtUtc = now;
-            }
+            StoreGroupGraphMemo(token, groups);
             return groups;
         }
         finally
         {
             _groupGraphMemoLock.Release();
         }
+    }
+
+    /// <summary>
+    /// Memoizes a successfully collected group graph. The timestamp is taken AFTER collection so
+    /// a slow enumeration (which can exceed the TTL on large directories) is not already expired
+    /// when stored.
+    /// </summary>
+    private void StoreGroupGraphMemo(string token, ADGroupsSummary groups)
+    {
+        if (groups.Error != null)
+            return;
+        _groupGraphMemo = groups;
+        _groupGraphMemoToken = token;
+        _groupGraphMemoAtUtc = DateTimeOffset.UtcNow;
     }
 
     private string BaseUrl => _configMonitor.CurrentValue.ApiBaseUrl.TrimEnd('/');
@@ -179,7 +189,12 @@ public class ActiveRolesService
             if (skipOverviewTotals && cachedTotals != null)
                 summary.ADGroups = cachedTotals.ADGroups;
             else if (!skipOverviewTotals)
+            {
                 summary.ADGroups = await GetADGroupsAsync(token);
+                // Seed the membership memo so privileged-group KPIs in this build reuse this
+                // enumeration instead of re-running the full (objectClass=group) search.
+                StoreGroupGraphMemo(token, summary.ADGroups);
+            }
         }
 
         // Fetch Computers first - needed by derived KPIs like DomainControllers
