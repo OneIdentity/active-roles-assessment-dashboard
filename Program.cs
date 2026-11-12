@@ -85,13 +85,20 @@ builder.Services.AddSingleton<ActiveRolesDashboard.Services.RolePermissionProtec
 
 var arConfig = builder.Configuration.GetSection("ActiveRoles").Get<ActiveRolesConfig>()!;
 
-builder.Services.AddHttpClient("RSTS")
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+// IgnoreSslErrors is evaluated per certificate validation from the live configuration so a value
+// written by the setup wizard after startup takes effect without an application restart.
+static HttpClientHandler CreateArHandler(IServiceProvider sp)
+{
+    var monitor = sp.GetRequiredService<Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig>>();
+    return new HttpClientHandler
     {
-        ServerCertificateCustomValidationCallback = arConfig.IgnoreSslErrors
-            ? HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            : null
-    });
+        ServerCertificateCustomValidationCallback = (_, _, _, errors) =>
+            errors == System.Net.Security.SslPolicyErrors.None || monitor.CurrentValue.IgnoreSslErrors
+    };
+}
+
+builder.Services.AddHttpClient("RSTS")
+    .ConfigurePrimaryHttpMessageHandler(CreateArHandler);
 
 builder.Services.AddHttpClient("ActiveRolesApi")
     .ConfigureHttpClient(client =>
@@ -102,12 +109,10 @@ builder.Services.AddHttpClient("ActiveRolesApi")
         var timeoutSeconds = arConfig.ApiTimeoutSeconds > 0 ? arConfig.ApiTimeoutSeconds : 300;
         client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
     })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = arConfig.IgnoreSslErrors
-            ? HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            : null
-    });
+    .ConfigurePrimaryHttpMessageHandler(CreateArHandler);
+
+// Clock abstraction; tests substitute a FakeTimeProvider.
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddSingleton<RstsAuthService>();
 builder.Services.AddSingleton<ActiveRolesService>();
@@ -324,3 +329,6 @@ app.MapFallbackToFile("/app/{**path}", "app/index.html", new StaticFileOptions
 }).RequireAuthorization();
 
 app.Run();
+
+// Exposes the implicit Program class to the test project (WebApplicationFactory<Program>).
+public partial class Program { }
