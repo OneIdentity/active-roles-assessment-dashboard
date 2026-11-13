@@ -1,0 +1,14 @@
+{
+  "description": "Edge cases: missing attributes, unicode and special characters, formula-like values, null and wrongly typed fields.",
+  "searches": [
+    {
+      "filterContains": "objectCategory=person",
+      "items": [
+        { "objectGUID": "44444444-0000-0000-0000-000000000001", "name": "Zoë Ångström", "distinguishedName": "CN=Zoë Ångström,OU=Users,DC=test,DC=local" },
+        { "objectGUID": "44444444-0000-0000-0000-000000000002", "name": "=HYPERLINK(\"http://evil\")", "distinguishedName": "CN=\\=HYPERLINK,OU=Users,DC=test,DC=local", "userAccountControl": 512 },
+        { "objectGUID": "44444444-0000-0000-0000-000000000003", "name": "Comma, Quote \"Q\"", "distinguishedName": "CN=Comma\\, Quote \\\"Q\\\",OU=Users,DC=test,DC=local", "userAccountControl": "512" },
+        { "objectGUID": "44444444-0000-0000-0000-000000000004", "name": null, "distinguishedName": null, "userAccountControl": null }
+      ]
+    }
+  ]
+}
