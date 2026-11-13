@@ -1,4 +1,4 @@
-using ActiveRolesDashboard.Models;
+﻿using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Services.Reporting;
 using ActiveRolesDashboard.Tests.Infrastructure;
@@ -48,7 +48,7 @@ public class AssessmentServiceTests : IDisposable
 
     // --- Rule library -----------------------------------------------------------
 
-    [Fact(Skip = "Known defect: SEC-PasswordNotRequired, SEC-NoKerberosPreauth, SEC-UseDesEncryption, SEC-TrustedForDelegation and SEC-UnconstrainedComputers are each defined twice in AssessmentRuleLibrary. Comparison and localization key on RuleId.")]
+    [Fact]
     public void Rule_ids_are_unique()
     {
         var ids = AssessmentRuleLibrary.All.Select(r => r.Id).ToList();

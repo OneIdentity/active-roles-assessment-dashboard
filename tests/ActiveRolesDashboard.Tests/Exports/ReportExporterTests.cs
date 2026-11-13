@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services.Reporting;
@@ -74,7 +74,7 @@ public class ReportExporterTests
         AssertValid(exporter.Format, exporter.Export(model));
     }
 
-    [Theory(Skip = "Known defect: Word/Excel exporters throw ArgumentException on XML-invalid control characters (e.g. U+0001) in directory data.")]
+    [Theory]
     [MemberData(nameof(Exporters))]
     public void Exports_tolerate_control_characters(IReportExporter exporter)
     {
