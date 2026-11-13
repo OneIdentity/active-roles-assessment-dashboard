@@ -459,7 +459,10 @@ public static class AssessmentRuleLibrary
         AssessmentType.Hipaa, AssessmentType.PciDss, AssessmentType.Nist171, AssessmentType.CyberEssentialsPlus
     };
 
-    // Rules that are meaningful only under the SOX lens (not part of another framework).
+    private static readonly AssessmentType[] CredentialComplianceGdpr =
+        CredentialCompliance.Union(ComplianceGdpr).ToArray();
+
+    // Rules that are meaningful only under the SOX lens
     private static readonly AssessmentType[] SoxOnly = { AssessmentType.Sox };
 
     // Rules that are meaningful only under the TSA lens (not part of another framework).
@@ -540,7 +543,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "PasswordNotRequired",
             Severity = AssessmentSeverity.Critical,
-            Types = CredentialCompliance,
+            Types = CredentialComplianceGdpr,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Clear the PASSWD_NOTREQD flag so all accounts require a password."
         },
@@ -573,7 +576,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "TrustedForDelegation",
             Severity = AssessmentSeverity.High,
-            Types = Compliance,
+            Types = ComplianceGdpr,
             WarnThreshold = 1, FailThreshold = 5,
             Recommendation = "Review unconstrained delegation; prefer constrained or resource-based delegation."
         },
@@ -1215,63 +1218,6 @@ public static class AssessmentRuleLibrary
             Comparison = AssessmentComparison.AtMost,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Only one Active Roles Management History database is present, making it a single point of failure. Add additional history databases and configure replication so change-history data remains available if one database fails."
-        },
-
-        // --- Additional AD security coverage ---------------------------------
-        new()
-        {
-            Id = "SEC-TrustedForDelegation",
-            Title = "Accounts trusted for unconstrained delegation",
-            CategoryName = "Delegation",
-            KpiKey = "TrustedForDelegation",
-            Severity = AssessmentSeverity.Critical,
-            Types = ComplianceGdpr,
-            WarnThreshold = 1, FailThreshold = 1,
-            Recommendation = "Accounts trusted for unconstrained delegation can impersonate any user that authenticates to them, a common lateral-movement path. Replace with constrained delegation or resource-based constrained delegation."
-        },
-        new()
-        {
-            Id = "SEC-NoKerberosPreauth",
-            Title = "Accounts without Kerberos pre-authentication",
-            CategoryName = "Account Security",
-            KpiKey = "NoKerberosPreauth",
-            Severity = AssessmentSeverity.High,
-            Types = Compliance,
-            WarnThreshold = 1, FailThreshold = 1,
-            Recommendation = "Accounts with Kerberos pre-authentication disabled are vulnerable to AS-REP roasting (offline password cracking). Re-enable pre-authentication on these accounts."
-        },
-        new()
-        {
-            Id = "SEC-UseDesEncryption",
-            Title = "Accounts configured to use DES encryption",
-            CategoryName = "Weak Cryptography",
-            KpiKey = "UseDesEncryption",
-            Severity = AssessmentSeverity.High,
-            Types = Compliance,
-            WarnThreshold = 1, FailThreshold = 1,
-            Recommendation = "DES is a broken cipher. Remove the DES-only flag so accounts negotiate AES Kerberos encryption."
-        },
-        new()
-        {
-            Id = "SEC-PasswordNotRequired",
-            Title = "Accounts where a password is not required",
-            CategoryName = "Account Security",
-            KpiKey = "PasswordNotRequired",
-            Severity = AssessmentSeverity.High,
-            Types = ComplianceGdpr,
-            WarnThreshold = 1, FailThreshold = 1,
-            Recommendation = "Accounts flagged PASSWD_NOTREQD can have a blank password. Clear this flag and enforce the domain password policy on these accounts."
-        },
-        new()
-        {
-            Id = "SEC-UnconstrainedComputers",
-            Title = "Computers trusted for unconstrained delegation",
-            CategoryName = "Delegation",
-            KpiKey = "UnconstrainedComputers",
-            Severity = AssessmentSeverity.Critical,
-            Types = Compliance,
-            WarnThreshold = 1, FailThreshold = 1,
-            Recommendation = "Computers with unconstrained delegation cache TGTs of every user that connects, enabling credential theft if the host is compromised. Migrate to constrained or resource-based constrained delegation."
         },
 
         // --- GDPR-specific accountability rules -------------------------------
