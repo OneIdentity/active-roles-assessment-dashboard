@@ -1,4 +1,4 @@
-using ActiveRolesDashboard.Models;
+﻿using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Tests.Infrastructure;
 using Microsoft.Extensions.Options;
@@ -12,7 +12,7 @@ public class RstsAuthServiceTests : IDisposable
     private readonly TestHttpClientFactory _factory = new(TimeSpan.FromSeconds(2));
 
     private RstsAuthService Create(string? rstsUrl = null, string? scope = null) =>
-        new(Options.Create(new ActiveRolesConfig { RstsUrl = rstsUrl ?? _server.RstsUrl, Resource = "urn:test", RstsScope = scope! }), _factory);
+        new(new TestOptionsMonitor<ActiveRolesConfig>(new ActiveRolesConfig { RstsUrl = rstsUrl ?? _server.RstsUrl, Resource = "urn:test", RstsScope = scope! }), _factory);
 
     [Fact]
     public async Task Valid_credentials_return_token()
