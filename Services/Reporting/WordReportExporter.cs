@@ -550,7 +550,7 @@ public class WordReportExporter : IReportExporter
         props.AppendChild(new Color { Val = color });
         props.AppendChild(new FontSize { Val = sizeHalfPt.ToString(CultureInfo.InvariantCulture) });
 
-        return new Run(props, new Text(text ?? string.Empty) { Space = SpaceProcessingModeValues.Preserve });
+        return new Run(props, new Text(XmlText.Sanitize(text)) { Space = SpaceProcessingModeValues.Preserve });
     }
 
     private static Paragraph Para(IEnumerable<Run> runs, JustificationValues? justification = null, int spaceAfter = 120)
