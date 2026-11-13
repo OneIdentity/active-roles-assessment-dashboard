@@ -7,17 +7,19 @@ namespace ActiveRolesDashboard.Services;
 
 public class RstsAuthService
 {
-    private readonly ActiveRolesConfig _config;
+    private readonly IOptionsMonitor<ActiveRolesConfig> _configMonitor;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public RstsAuthService(IOptions<ActiveRolesConfig> config, IHttpClientFactory httpClientFactory)
+    public RstsAuthService(IOptionsMonitor<ActiveRolesConfig> config, IHttpClientFactory httpClientFactory)
     {
-        _config = config.Value;
+        _configMonitor = config;
         _httpClientFactory = httpClientFactory;
     }
 
     public async Task<TokenResult> GetTokenAsync(string username, string password)
     {
+        // Read the live configuration: the setup wizard writes RstsUrl/Resource after startup.
+        var config = _configMonitor.CurrentValue;
         var client = _httpClientFactory.CreateClient("RSTS");
 
         var form = new Dictionary<string, string>
@@ -25,12 +27,12 @@ public class RstsAuthService
             ["grant_type"] = "password",
             ["username"] = username,
             ["password"] = password,
-            ["resource"] = _config.Resource
+            ["resource"] = config.Resource
         };
 
         // Send the provider scope only when configured. Required when the RSTS has more than one
         // authentication provider; otherwise omitted so a single-provider RSTS defaults as before.
-        var scope = _config.RstsScope?.Trim();
+        var scope = config.RstsScope?.Trim();
         if (!string.IsNullOrEmpty(scope))
             form["scope"] = scope;
 
@@ -38,7 +40,7 @@ public class RstsAuthService
 
         try
         {
-            var response = await client.PostAsync(_config.RstsUrl, content);
+            var response = await client.PostAsync(config.RstsUrl, content);
 
             if (!response.IsSuccessStatusCode)
             {
