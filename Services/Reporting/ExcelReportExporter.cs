@@ -391,7 +391,8 @@ public class ExcelReportExporter : IReportExporter
         var result = new List<string>(columns.Count);
         foreach (var raw in columns)
         {
-            var name = string.IsNullOrWhiteSpace(raw) ? "Column" : raw.Trim();
+            var clean = XmlText.Sanitize(raw);
+            var name = string.IsNullOrWhiteSpace(clean) ? "Column" : clean.Trim();
             if (seen.TryGetValue(name, out var count))
             {
                 count++;
@@ -427,7 +428,7 @@ public class ExcelReportExporter : IReportExporter
     private static string MakeSheetName(string category, string kpi, HashSet<string> used)
     {
         static string Clean(string s) => new(
-            (s ?? string.Empty).Where(c => c is not ('\\' or '/' or '?' or '*' or '[' or ']' or ':'))
+            XmlText.Sanitize(s).Where(c => c is not ('\\' or '/' or '?' or '*' or '[' or ']' or ':'))
             .ToArray());
 
         var cat = Clean(category).Trim();
@@ -477,7 +478,7 @@ public class ExcelReportExporter : IReportExporter
     {
         DataType = CellValues.InlineString,
         StyleIndex = styleIndex,
-        InlineString = new InlineString(new Text(text ?? string.Empty))
+        InlineString = new InlineString(new Text(XmlText.Sanitize(text)))
     };
 
     private static Cell NumberCell(int value, uint styleIndex = StyleNumber) => new()
