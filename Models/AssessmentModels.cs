@@ -459,7 +459,10 @@ public static class AssessmentRuleLibrary
         AssessmentType.Hipaa, AssessmentType.PciDss, AssessmentType.Nist171, AssessmentType.CyberEssentialsPlus
     };
 
-    // Rules that are meaningful only under the SOX lens (not part of another framework).
+    private static readonly AssessmentType[] CredentialComplianceGdpr =
+        CredentialCompliance.Union(ComplianceGdpr).ToArray();
+
+    // Rules that are meaningful only under the SOX lens
     private static readonly AssessmentType[] SoxOnly = { AssessmentType.Sox };
 
     // Rules that are meaningful only under the TSA lens (not part of another framework).
@@ -540,7 +543,7 @@ public static class AssessmentRuleLibrary
             CategoryName = "Account Security",
             KpiKey = "PasswordNotRequired",
             Severity = AssessmentSeverity.Critical,
-            Types = ComplianceGdpr,
+            Types = CredentialComplianceGdpr,
             WarnThreshold = 1, FailThreshold = 1,
             Recommendation = "Clear the PASSWD_NOTREQD flag so all accounts require a password."
         },
@@ -572,9 +575,9 @@ public static class AssessmentRuleLibrary
             Title = "Accounts trusted for unconstrained delegation",
             CategoryName = "Account Security",
             KpiKey = "TrustedForDelegation",
-            Severity = AssessmentSeverity.Critical,
+            Severity = AssessmentSeverity.High,
             Types = ComplianceGdpr,
-            WarnThreshold = 1, FailThreshold = 1,
+            WarnThreshold = 1, FailThreshold = 5,
             Recommendation = "Review unconstrained delegation; prefer constrained or resource-based delegation."
         },
         new()
