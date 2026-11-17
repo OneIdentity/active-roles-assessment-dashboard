@@ -132,4 +132,172 @@
   <data name="Label_PageSize" xml:space="preserve">
     <value>Lapméret</value>
   </data>
+  <data name="Label_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Dinamikus csoportok - Költséges szabályok küszöbértéke</value>
+  </data>
+  <data name="Hint_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Az ennél több tagsági szabállyal rendelkező dinamikus csoportok „költségesként” jelennek meg a dinamikus csoportok részletes nézetében. Alapértelmezés: 10.</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Nincs jogosultsága a beállítások megtekintéséhez vagy módosításához.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+    <value>Megtekintheti ezeket a rendszerbeállításokat, de nincs jogosultsága a módosításukhoz.</value>
+  </data>
+  <data name="Card_RestApi" xml:space="preserve">
+    <value>REST API konfiguráció</value>
+  </data>
+  <data name="Label_Resource" xml:space="preserve">
+    <value>Erőforrás</value>
+  </data>
+  <data name="Label_IgnoreSslErrors" xml:space="preserve">
+    <value>SSL-tanúsítványhibák figyelmen kívül hagyása</value>
+  </data>
+  <data name="Card_DefaultFilters" xml:space="preserve">
+    <value>Alapértelmezett szűrők</value>
+  </data>
+  <data name="Card_RoleGroups" xml:space="preserve">
+    <value>Szerepkörcsoportok</value>
+  </data>
+  <data name="Label_DefaultNoGroupOwnerFilter" xml:space="preserve">
+    <value>Tulajdonos nélküli csoportok szűrője</value>
+  </data>
+  <data name="Label_DefaultNoManagerUserFilter" xml:space="preserve">
+    <value>Felettes nélküli felhasználók szűrője</value>
+  </data>
+  <data name="Label_DefaultNoManagerServiceAccountFilter" xml:space="preserve">
+    <value>Felettes nélküli szolgáltatásfiókok szűrője</value>
+  </data>
+  <data name="Label_DefaultUserAccountExpiredFilter" xml:space="preserve">
+    <value>Lejárt felhasználói fiókok szűrője</value>
+  </data>
+  <data name="Label_DefaultUserAccountLockedOutFilter" xml:space="preserve">
+    <value>Zárolt felhasználói fiókok szűrője</value>
+  </data>
+  <data name="Label_DefaultEmptyGroupsFilter" xml:space="preserve">
+    <value>Üres csoportok szűrője</value>
+  </data>
+  <data name="Label_DefaultActiveRolesAdminsFilter" xml:space="preserve">
+    <value>Active Roles rendszergazdák szűrője</value>
+  </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Szerepkörcsoportok - Címtár típusa</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Active Roles rendszergazdák - Csoport neve</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+    <value>Irányítópult-rendszergazdák - Csoport neve</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+    <value>Auditorok - Csoport neve</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+    <value>Kiemelt felhasználók - Csoport neve</value>
+  </data>
+  <data name="Label_DefaultADUserAccountsFilter" xml:space="preserve">
+    <value>AD felhasználói fiókok szűrője</value>
+  </data>
+  <data name="Label_DefaultADGroupsFilter" xml:space="preserve">
+    <value>AD csoportok szűrője</value>
+  </data>
+  <data name="Card_DefaultLanguage" xml:space="preserve">
+    <value>Nyelv</value>
+  </data>
+  <data name="Label_DefaultLanguage" xml:space="preserve">
+    <value>Alapértelmezett nyelv</value>
+  </data>
+  <data name="Hint_DefaultLanguage" xml:space="preserve">
+    <value>Az új felhasználók, illetve a nyelvet nem választott felhasználók számára használt alapértelmezett nyelv.</value>
+  </data>
+  <data name="Label_CustomADUserAccountAttributes" xml:space="preserve">
+    <value>Egyéni AD felhasználóifiók-attribútumok</value>
+  </data>
+  <data name="Hint_CustomADUserAccountAttributes" xml:space="preserve">
+    <value>Az AD felhasználói fiókokhoz lekérendő további attribútumok, soronként egy.</value>
+  </data>
+  <data name="Card_ServiceAccount" xml:space="preserve">
+    <value>Szolgáltatásfiók hitelesítő adatai</value>
+  </data>
+  <data name="Card_Licensing" xml:space="preserve">
+    <value>Licenckorlátok</value>
+  </data>
+  <data name="Card_DataRefresh" xml:space="preserve">
+    <value>Adatfrissítés</value>
+  </data>
+  <data name="Card_PerformanceTests" xml:space="preserve">
+    <value>Teljesítménytesztek</value>
+  </data>
+  <data name="Label_PerfTrendingEnabled" xml:space="preserve">
+    <value>Teljesítménytrendek rögzítése</value>
+  </data>
+  <data name="Hint_PerfTrendingEnabled" xml:space="preserve">
+    <value>Ha engedélyezve van, a szolgáltatásfiók rendszeresen méri a késleltetést a háttérben, így az irányítópultok teljesítménytrendet tudnak megjeleníteni.</value>
+  </data>
+  <data name="Label_PerfTrendingInterval" xml:space="preserve">
+    <value>Mintavételi időköz (perc)</value>
+  </data>
+  <data name="Hint_PerfTrendingInterval" xml:space="preserve">
+    <value>Milyen gyakran futnak a háttérmérések. A túlzott forgalom elkerülése érdekében legalább {0} perc.</value>
+  </data>
+  <data name="Label_PerfTrendingRetention" xml:space="preserve">
+    <value>Megőrzés (óra)</value>
+  </data>
+  <data name="Hint_PerfTrendingRetention" xml:space="preserve">
+    <value>Mennyi ideig maradnak meg a rögzített minták a memóriában, és ez a trenddiagram által megjeleníthető legszélesebb időablak.</value>
+  </data>
+  <data name="Label_DailyRefreshTime" xml:space="preserve">
+    <value>Napi frissítés időpontja</value>
+  </data>
+  <data name="Hint_DailyRefreshTime" xml:space="preserve">
+    <value>Az a helyi időpont (24 órás formátum), amikor a megosztott adatok frissülnek.</value>
+  </data>
+  <data name="Label_LoadOnStartup" xml:space="preserve">
+    <value>Betöltés indításkor</value>
+  </data>
+  <data name="Hint_LoadOnStartup" xml:space="preserve">
+    <value>A megosztott adatok automatikus frissítése az alkalmazás indításakor.</value>
+  </data>
+  <data name="Label_ApiBaseUrl" xml:space="preserve">
+    <value>REST API alap URL</value>
+  </data>
+  <data name="Label_RstsUrl" xml:space="preserve">
+    <value>RSTS token URL</value>
+  </data>
+  <data name="Label_ServiceAccountUsername" xml:space="preserve">
+    <value>Szolgáltatásfiók felhasználóneve</value>
+  </data>
+  <data name="Label_ServiceAccountPassword" xml:space="preserve">
+    <value>Szolgáltatásfiók jelszava</value>
+  </data>
+  <data name="Label_LicensedDomainObjects" xml:space="preserve">
+    <value>Licencelt tartományobjektumok</value>
+  </data>
+  <data name="Label_LicensedPartitionObjects" xml:space="preserve">
+    <value>Licencelt partícióobjektumok</value>
+  </data>
+  <data name="Label_LicensedAzureObjects" xml:space="preserve">
+    <value>Licencelt Azure-objektumok</value>
+  </data>
+  <data name="Label_LicensedSaasObjects" xml:space="preserve">
+    <value>Licencelt SaaS-objektumok</value>
+  </data>
+  <data name="Label_LicensedTotalObjects" xml:space="preserve">
+    <value>Licencelt objektumok összesen</value>
+  </data>
+  <data name="Hint_RestartRequired" xml:space="preserve">
+    <value>A beállítás módosítása csak az alkalmazás újraindítása után lép érvénybe.</value>
+  </data>
+  <data name="Hint_ServiceAccountPassword" xml:space="preserve">
+    <value>Hagyja üresen a meglévő jelszó megtartásához. A módosítás csak újraindítás után lép érvénybe.</value>
+  </data>
+  <data name="Placeholder_PasswordUnchanged" xml:space="preserve">
+    <value>Változatlan</value>
+  </data>
+  <data name="Hint_LicensedTotalObjects" xml:space="preserve">
+    <value>Az összes kategóriára vonatkozó teljes licencjogosultság. A 0 érték azt jelenti, hogy nincs beállítva.</value>
+  </data>
+  <data name="Msg_RestartRequired" xml:space="preserve">
+    <value>Egy vagy több kapcsolati beállítás megváltozott. A módosítások érvénybe lépéséhez indítsa újra az alkalmazást.</value>
+  </data>
 </root>

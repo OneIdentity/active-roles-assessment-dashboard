@@ -39,4 +39,7 @@
   <data name="Mitigation" xml:space="preserve"><value>Enyhítés</value></data>
   <data name="Footer" xml:space="preserve"><value>Active Roles irányítópult &#8212; ATT&amp;CK kitettség generálva: {0} UTC</value></data>
   <data name="PageTitle" xml:space="preserve"><value>ATT&amp;CK kitettség</value></data>
+  <data name="CompareNote" xml:space="preserve">
+    <value>A kitettség nem tárolódik külön; a korábbi kitettséget a mentett &lt;a href="{0}"&gt;pillanatképekből&lt;/a&gt; számítjuk újra. Válasszon egy alapállapotot, amelyet egy másik pillanatképpel vagy az aktuális élő nézettel hasonlíthat össze.</value>
+  </data>
 </root>

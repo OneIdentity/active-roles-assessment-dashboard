@@ -217,4 +217,34 @@
   <data name="PageSizeHint" xml:space="preserve">
     <value>Número de objetos solicitados por página a la API REST de Active Roles (de 1 a {0}). Valor predeterminado: 500.</value>
   </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Tipo de directorio</value>
+  </data>
+  <data name="Hint_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Indica si los grupos de roles/administración se basan en Active Directory o en Entra. Determina el DN base de búsqueda y cómo se construye el filtro de grupos.</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Administradores de Active Roles - Nombre del grupo</value>
+  </data>
+  <data name="Hint_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Los miembros reciben permisos completos de administrador.</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+    <value>Administradores del panel - Nombre del grupo</value>
+  </data>
+  <data name="Hint_DashboardAdminsGroup" xml:space="preserve">
+    <value>Los miembros reciben el rol Administrador del panel (permisos completos).</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+    <value>Auditores - Nombre del grupo</value>
+  </data>
+  <data name="Hint_AuditorsGroup" xml:space="preserve">
+    <value>Los miembros reciben el rol Auditor.</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+    <value>Usuarios avanzados - Nombre del grupo</value>
+  </data>
+  <data name="Hint_PowerUsersGroup" xml:space="preserve">
+    <value>Los miembros reciben el rol Usuario avanzado.</value>
+  </data>
 </root>

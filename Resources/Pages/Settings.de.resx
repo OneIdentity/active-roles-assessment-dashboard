@@ -276,4 +276,28 @@
   <data name="Label_PageSize" xml:space="preserve">
     <value>Seitengröße</value>
   </data>
+  <data name="Label_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Dynamische Gruppen - Schwellenwert für aufwendige Regeln</value>
+  </data>
+  <data name="Hint_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Dynamische Gruppen mit mehr Mitgliedschaftsregeln als diesem Wert werden in der Detailansicht der dynamischen Gruppen als „aufwendig“ markiert. Standardwert: 10.</value>
+  </data>
+  <data name="Card_RoleGroups" xml:space="preserve">
+    <value>Rollengruppen</value>
+  </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Rollengruppen - Verzeichnistyp</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Active Roles-Administratoren - Gruppenname</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+    <value>Dashboard-Administratoren - Gruppenname</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+    <value>Prüfer - Gruppenname</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+    <value>Hauptbenutzer - Gruppenname</value>
+  </data>
 </root>
