@@ -24,6 +24,7 @@ public class PerformanceSamplerHostedService : BackgroundService
     private readonly PerformanceTrendStore _store;
     private readonly IOptionsMonitor<ActiveRolesConfig> _config;
     private readonly ILogger<PerformanceSamplerHostedService> _logger;
+    private readonly TimeProvider _time;
 
     public PerformanceSamplerHostedService(
         DashboardCacheHolder cache,
@@ -32,8 +33,10 @@ public class PerformanceSamplerHostedService : BackgroundService
         DiagnosticsService diagnostics,
         PerformanceTrendStore store,
         IOptionsMonitor<ActiveRolesConfig> config,
-        ILogger<PerformanceSamplerHostedService> logger)
+        ILogger<PerformanceSamplerHostedService> logger,
+        TimeProvider? time = null)
     {
+        _time = time ?? TimeProvider.System;
         _cache = cache;
         _tokenProvider = tokenProvider;
         _targetProvider = targetProvider;
@@ -58,7 +61,7 @@ public class PerformanceSamplerHostedService : BackgroundService
 
             try
             {
-                await Task.Delay(interval, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(interval, _time, stoppingToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -85,9 +88,9 @@ public class PerformanceSamplerHostedService : BackgroundService
         // Poll for the superset for up to one effective interval, at a short cadence, so the first
         // sample lands just after the startup superset load instead of a full interval later.
         var pollDelay = TimeSpan.FromSeconds(5);
-        var deadline = DateTimeOffset.UtcNow.AddMinutes(options.EffectiveIntervalMinutes);
+        var deadline = _time.GetUtcNow().AddMinutes(options.EffectiveIntervalMinutes);
 
-        while (!ct.IsCancellationRequested && DateTimeOffset.UtcNow < deadline)
+        while (!ct.IsCancellationRequested && _time.GetUtcNow() < deadline)
         {
             if (!options.Enabled)
                 return;
@@ -100,7 +103,7 @@ public class PerformanceSamplerHostedService : BackgroundService
 
             try
             {
-                await Task.Delay(pollDelay, ct).ConfigureAwait(false);
+                await Task.Delay(pollDelay, _time, ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
