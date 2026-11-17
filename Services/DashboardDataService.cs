@@ -274,10 +274,9 @@ public sealed class DashboardDataService
     /// </summary>
     public async Task<DashboardSummary> LoadIndexSummaryAsync(HttpContext http, string token, DashboardAccess access, KpiSettings kpiSettings)
     {
-        var cachedJson = GetCachedSummaryJson(http);
-        if (!string.IsNullOrEmpty(cachedJson))
+        var cachedSummary = _userSummaryCache.GetSummaryModel(UserKey(http));
+        if (cachedSummary != null)
         {
-            var cachedSummary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
             if (!ShouldReconcileMembership(cachedSummary))
                 return cachedSummary;
 

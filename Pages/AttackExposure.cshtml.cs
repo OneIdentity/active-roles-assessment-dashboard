@@ -1,4 +1,4 @@
-﻿using ActiveRolesDashboard.Models;
+using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -60,10 +60,10 @@ public class AttackExposureModel : DashboardPageModel
         // show the "loading" banner incorrectly and cause back-navigation to the dashboard to
         // restart membership loading. Only fetch fresh when no cache exists.
         var token = GetAccessToken()!;
-        var cachedJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(cachedJson))
+        var cachedSummary = UserSummaryCache.GetSummaryModel(UserCacheKey);
+        if (cachedSummary != null)
         {
-            Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            Summary = cachedSummary;
             await ReconcileCachedMembershipWithSupersetAsync(token);
         }
         else

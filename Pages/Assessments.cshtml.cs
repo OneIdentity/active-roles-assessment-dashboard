@@ -1,4 +1,4 @@
-﻿using ActiveRolesDashboard.Models;
+using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Services.Reporting;
@@ -69,10 +69,10 @@ public class AssessmentsModel : DashboardPageModel
         // server-side guard would then fire only after the form is submitted). Prefer the
         // cached summary to avoid re-querying Active Roles on every view.
         var token = GetAccessToken()!;
-        var cachedJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(cachedJson))
+        var cachedSummary = UserSummaryCache.GetSummaryModel(UserCacheKey);
+        if (cachedSummary != null)
         {
-            Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            Summary = cachedSummary;
             await ReconcileCachedMembershipWithSupersetAsync(token);
         }
         else
@@ -180,10 +180,10 @@ public class AssessmentsModel : DashboardPageModel
         // is persisted back into this cache (with MembershipLoaded = true). Building a fresh summary
         // here would always report membership as pending, so a membership-dependent assessment could
         // never run even after loading completed. Fall back to a superset projection only when no cache exists.
-        var cachedJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(cachedJson))
+        var cachedSummary = UserSummaryCache.GetSummaryModel(UserCacheKey);
+        if (cachedSummary != null)
         {
-            Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            Summary = cachedSummary;
         }
         else
         {

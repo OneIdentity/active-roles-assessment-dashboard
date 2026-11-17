@@ -43,10 +43,10 @@ public class GroupTreeModel : DashboardPageModel
         // loading here too. Prefer the session-cached (already per-user-scoped) dashboard summary
         // to avoid re-querying Active Roles; otherwise build it via the shared superset projection
         // so the same per-user visibility model as the main dashboard applies here.
-        var cachedJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(cachedJson))
+        var cachedSummary = UserSummaryCache.GetSummaryModel(UserCacheKey);
+        if (cachedSummary != null)
         {
-            Summary = System.Text.Json.JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+            Summary = cachedSummary;
             await ReconcileCachedMembershipWithSupersetAsync(GetAccessToken()!);
         }
         else

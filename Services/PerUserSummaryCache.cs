@@ -1,3 +1,5 @@
+using System.Text.Json;
+using ActiveRolesDashboard.Models;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace ActiveRolesDashboard.Services;
@@ -63,6 +65,28 @@ public sealed class PerUserSummaryCache
 
     /// <summary>Gets the cached full dashboard summary JSON for the user, or null if absent.</summary>
     public string? GetSummary(string user) => Read(SummaryKey(user));
+
+    /// <summary>
+    /// Gets the cached full dashboard summary for the user, or null if absent. An entry that can
+    /// no longer be deserialized is dropped (with the overview) so callers rebuild it from the
+    /// shared superset instead of failing the request.
+    /// </summary>
+    public DashboardSummary? GetSummaryModel(string user)
+    {
+        var json = GetSummary(user);
+        if (string.IsNullOrEmpty(json))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<DashboardSummary>(json) ?? new DashboardSummary();
+        }
+        catch (JsonException)
+        {
+            ClearUserData(user);
+            return null;
+        }
+    }
 
     /// <summary>Stores the full dashboard summary JSON for the user.</summary>
     public void SetSummary(string user, string json) => Write(SummaryKey(user), json);
