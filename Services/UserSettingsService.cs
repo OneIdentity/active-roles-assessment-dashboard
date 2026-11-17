@@ -21,8 +21,15 @@ public class UserSettingsService
         if (!File.Exists(filePath))
             return new UserSettings();
 
-        var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<UserSettings>(json) ?? new UserSettings();
+        try
+        {
+            var json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<UserSettings>(json) ?? new UserSettings();
+        }
+        catch (JsonException)
+        {
+            return new UserSettings();
+        }
     }
 
     public void Save(string username, UserSettings settings)
