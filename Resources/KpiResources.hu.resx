@@ -260,4 +260,22 @@
   <data name="Kpi_BroadDelegationLinks" xml:space="preserve"><value>Tág résztvevőknek delegálva</value></data>
   <data name="Kpi_UserDelegationLinks" xml:space="preserve"><value>Közvetlenül felhasználóknak delegálva</value></data>
   <data name="Kpi_RootDelegationLinks" xml:space="preserve"><value>Tartománygyökérben delegálva</value></data>
+  <data name="SettingsCat_User" xml:space="preserve">
+    <value>Felhasználó</value>
+  </data>
+  <data name="SettingsCat_System" xml:space="preserve">
+    <value>Rendszer</value>
+  </data>
+  <data name="Cat_ExchangePermissions" xml:space="preserve">
+    <value>Engedélyek</value>
+  </data>
+  <data name="Kpi_ExchangeFullAccessDelegatesKpi" xml:space="preserve">
+    <value>Postafiók-engedélyek (Teljes hozzáférés)</value>
+  </data>
+  <data name="Kpi_ExchangeSendOnBehalfKpi" xml:space="preserve">
+    <value>Postafiók-engedélyek (Küldés nevében)</value>
+  </data>
+  <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve">
+    <value>Postafiók-engedélyek (Küldés másként)</value>
+  </data>
 </root>

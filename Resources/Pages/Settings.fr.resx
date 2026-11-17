@@ -275,4 +275,28 @@
   <data name="Label_PageSize" xml:space="preserve">
     <value>Taille de page</value>
   </data>
+  <data name="Label_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Groupes dynamiques - Seuil de règles coûteuses</value>
+  </data>
+  <data name="Hint_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Les groupes dynamiques ayant plus de règles d'appartenance que cette valeur sont signalés comme « coûteux » dans le détail des groupes dynamiques. Valeur par défaut : 10.</value>
+  </data>
+  <data name="Card_RoleGroups" xml:space="preserve">
+    <value>Groupes de rôles</value>
+  </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Groupes de rôles - Type d'annuaire</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Administrateurs Active Roles - Nom du groupe</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+    <value>Administrateurs du tableau de bord - Nom du groupe</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+    <value>Auditeurs - Nom du groupe</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+    <value>Utilisateurs avancés - Nom du groupe</value>
+  </data>
 </root>

@@ -269,4 +269,34 @@
   <data name="Label_PageSize" xml:space="preserve">
     <value>Dimensione pagina</value>
   </data>
+  <data name="Label_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>Gruppi dinamici - Soglia regole onerose</value>
+  </data>
+  <data name="Hint_DynamicGroupExpensiveThreshold" xml:space="preserve">
+    <value>I gruppi dinamici con un numero di regole di appartenenza superiore a questo valore vengono contrassegnati come "onerosi" nel dettaglio dei gruppi dinamici. Valore predefinito: 10.</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Non si dispone dell'autorizzazione per visualizzare o modificare le impostazioni.</value>
+  </data>
+  <data name="SystemSettingsReadOnly" xml:space="preserve">
+    <value>È possibile visualizzare queste impostazioni di sistema, ma non si dispone dell'autorizzazione per modificarle.</value>
+  </data>
+  <data name="Card_RoleGroups" xml:space="preserve">
+    <value>Gruppi di ruoli</value>
+  </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Gruppi di ruoli - Tipo di directory</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Amministratori Active Roles - Nome del gruppo</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+    <value>Amministratori del dashboard - Nome del gruppo</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+    <value>Revisori - Nome del gruppo</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+    <value>Utenti esperti - Nome del gruppo</value>
+  </data>
 </root>

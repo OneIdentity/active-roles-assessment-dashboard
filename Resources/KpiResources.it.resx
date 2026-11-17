@@ -206,4 +206,16 @@
   <data name="Kpi_BroadDelegationLinks" xml:space="preserve"><value>Delegato a entità ampie</value></data>
   <data name="Kpi_UserDelegationLinks" xml:space="preserve"><value>Delegato direttamente agli utenti</value></data>
   <data name="Kpi_RootDelegationLinks" xml:space="preserve"><value>Delegato alla radice del dominio</value></data>
+  <data name="Cat_ExchangePermissions" xml:space="preserve">
+    <value>Autorizzazioni</value>
+  </data>
+  <data name="Kpi_ExchangeFullAccessDelegatesKpi" xml:space="preserve">
+    <value>Autorizzazioni cassetta postale (Accesso completo)</value>
+  </data>
+  <data name="Kpi_ExchangeSendOnBehalfKpi" xml:space="preserve">
+    <value>Autorizzazioni cassetta postale (Invia per conto di)</value>
+  </data>
+  <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve">
+    <value>Autorizzazioni cassetta postale (Invia come)</value>
+  </data>
 </root>

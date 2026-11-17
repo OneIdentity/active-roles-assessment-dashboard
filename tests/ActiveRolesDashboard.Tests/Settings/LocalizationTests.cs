@@ -30,7 +30,7 @@ public class LocalizationTests
 
     private static IEnumerable<string> Cultures => SupportedLanguage.All.Select(l => l.Code).Where(c => c != SupportedLanguage.DefaultCode);
 
-    [Theory(Skip = "Known translation gaps (Settings, Setup, KpiResources Exchange KPIs, AttackExposure hu). ResourceManager falls back to English at runtime. Remove Skip once translations are added.")]
+    [Theory]
     [MemberData(nameof(NeutralResources))]
     public void Every_language_has_every_key(string neutral)
     {

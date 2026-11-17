@@ -217,4 +217,34 @@
   <data name="PageSizeHint" xml:space="preserve">
     <value>Az Active Roles REST API-tól oldalanként lekért objektumok száma (1 és {0} között). Alapértelmezett: 500.</value>
   </data>
+  <data name="Lbl_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Címtár típusa</value>
+  </data>
+  <data name="Hint_RoleGroupsDirectoryType" xml:space="preserve">
+    <value>Meghatározza, hogy a szerepkör-/rendszergazdai csoportok Active Directory vagy Entra alapúak-e. Ez határozza meg a keresés alap DN-jét és a csoportszűrő felépítését.</value>
+  </data>
+  <data name="Lbl_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>Active Roles rendszergazdák - Csoport neve</value>
+  </data>
+  <data name="Hint_ActiveRolesAdminsGroup" xml:space="preserve">
+    <value>A tagok teljes rendszergazdai jogosultságot kapnak.</value>
+  </data>
+  <data name="Lbl_DashboardAdminsGroup" xml:space="preserve">
+    <value>Irányítópult-rendszergazdák - Csoport neve</value>
+  </data>
+  <data name="Hint_DashboardAdminsGroup" xml:space="preserve">
+    <value>A tagok az Irányítópult-rendszergazda szerepkört kapják (teljes jogosultság).</value>
+  </data>
+  <data name="Lbl_AuditorsGroup" xml:space="preserve">
+    <value>Auditorok - Csoport neve</value>
+  </data>
+  <data name="Hint_AuditorsGroup" xml:space="preserve">
+    <value>A tagok az Auditor szerepkört kapják.</value>
+  </data>
+  <data name="Lbl_PowerUsersGroup" xml:space="preserve">
+    <value>Kiemelt felhasználók - Csoport neve</value>
+  </data>
+  <data name="Hint_PowerUsersGroup" xml:space="preserve">
+    <value>A tagok a Kiemelt felhasználó szerepkört kapják.</value>
+  </data>
 </root>
