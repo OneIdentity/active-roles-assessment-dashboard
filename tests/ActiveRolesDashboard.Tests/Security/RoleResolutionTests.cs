@@ -376,5 +376,133 @@ public class RoleResolutionTests : IDisposable
         Assert.Equal(DashboardRole.PowerUser, facts.Role);
     }
 
+    private void FailUserLookup() =>
+        _server.WithSearchError("(objectClass=user)(samAccountName=admin)", 503, priority: 1);
+
+    [Fact]
+    public async Task Fresh_resolution_always_queries_the_directory()
+    {
+        WithUser().WithGroup("Auditors", direct: UserDn);
+        var resolver = CreateResolver();
+        await resolver.ResolveAsync(FakeActiveRolesServer.ValidToken, Username);
+        var queries = RoleGroupQueries();
+
+        await resolver.ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        Assert.True(RoleGroupQueries() > queries);
+    }
+
+    [Fact]
+    public async Task Fresh_resolution_detects_admin_flag_change_with_same_role()
+    {
+        WithUser().WithGroup("Dash Admins", direct: UserDn);
+        var resolver = CreateResolver();
+        var before = await resolver.ResolveAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        // Added to the Active Roles admins group between logins; role stays DashboardAdministrator.
+        WithGroup("AR Admins", direct: UserDn);
+        var fresh = await resolver.ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        Assert.False(before.IsActiveRolesAdmin);
+        Assert.Equal(DashboardRole.DashboardAdministrator, fresh.PreviousRole);
+        Assert.Equal(DashboardRole.DashboardAdministrator, fresh.Facts.Role);
+        Assert.True(fresh.Facts.IsActiveRolesAdmin);
+        Assert.True(fresh.Changed);
+        Assert.True(_cache.GetAdmin(Username));
+    }
+
+    [Fact]
+    public async Task Fresh_resolution_retains_last_known_facts_when_directory_fails()
+    {
+        WithUser().WithGroup("Auditors", direct: UserDn);
+        var resolver = CreateResolver();
+        var known = await resolver.ResolveAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        FailUserLookup();
+        var fresh = await resolver.ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        Assert.False(fresh.Changed);
+        Assert.Equal(DashboardRole.Auditor, fresh.PreviousRole);
+        Assert.Equal(known, fresh.Facts);
+        Assert.Equal(nameof(DashboardRole.Auditor), _cache.GetRole(Username));
+        Assert.False(_cache.GetAdmin(Username));
+    }
+
+    [Fact]
+    public async Task Fresh_resolution_does_not_downgrade_an_admin_during_an_outage()
+    {
+        _cache.SetAdmin(Username, true);
+        _cache.SetRole(Username, nameof(DashboardRole.DashboardAdministrator));
+
+        FailUserLookup();
+        var fresh = await CreateResolver().ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        Assert.True(fresh.Facts.IsActiveRolesAdmin);
+        Assert.Equal(DashboardRole.DashboardAdministrator, fresh.Facts.Role);
+        Assert.False(fresh.Changed);
+    }
+
+    [Fact]
+    public async Task Fresh_resolution_failure_without_cached_facts_propagates()
+    {
+        FailUserLookup();
+
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            CreateResolver().ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username));
+
+        Assert.Null(_cache.GetRole(Username));
+        Assert.Null(_cache.GetAdmin(Username));
+    }
+
+    [Fact]
+    public async Task Fresh_resolution_after_epoch_advance_treats_old_facts_as_absent()
+    {
+        WithUser().WithGroup("Auditors", direct: UserDn);
+        var resolver = CreateResolver();
+        await resolver.ResolveAsync(FakeActiveRolesServer.ValidToken, Username);
+        _cache.InvalidateDirectoryFacts();
+
+        var fresh = await resolver.ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        Assert.Null(fresh.PreviousRole);
+        Assert.True(fresh.Changed);
+        Assert.Equal(_cache.DirectoryFactsEpoch, fresh.Facts.Epoch);
+    }
+
+    [Fact]
+    public async Task Stale_facts_are_not_retained_when_directory_fails_after_epoch_advance()
+    {
+        _cache.SetAdmin(Username, true);
+        _cache.SetRole(Username, nameof(DashboardRole.DashboardAdministrator));
+        _cache.InvalidateDirectoryFacts();
+
+        FailUserLookup();
+
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            CreateResolver().ResolveFreshAsync(FakeActiveRolesServer.ValidToken, Username));
+    }
+
+    [Fact]
+    public async Task Cached_resolution_failure_propagates_and_caches_nothing()
+    {
+        FailUserLookup();
+
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            CreateResolver().ResolveAsync(FakeActiveRolesServer.ValidToken, Username));
+
+        Assert.Null(_cache.GetRole(Username));
+    }
+
+    [Fact]
+    public async Task Resolved_facts_are_stored_per_user()
+    {
+        WithUser().WithGroup("Power Users", direct: UserDn);
+
+        await CreateResolver().ResolveAsync(FakeActiveRolesServer.ValidToken, Username);
+
+        Assert.Equal(nameof(DashboardRole.PowerUser), _cache.GetRole(Username));
+        Assert.Null(_cache.GetRole(@"TEST\someone-else"));
+    }
+
     public void Dispose() => _server.Dispose();
 }
