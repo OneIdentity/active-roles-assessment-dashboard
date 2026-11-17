@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <SpaRoot>ClientApp\</SpaRoot>
-    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**;tests\**</DefaultItemExcludes>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
 
@@ -87,6 +87,7 @@
     <None Include=".github\copilot-instructions.md" />
     <None Include="ClientApp\src\ux\images\figma-privacy.svg" />
     <None Include="ClientApp\src\ux\images\figma-signout.svg" />
+    <None Include="tests\ActiveRolesDashboard.Tests\ActiveRolesDashboard.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

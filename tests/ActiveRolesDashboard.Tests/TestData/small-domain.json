@@ -1,0 +1,29 @@
+{
+  "description": "Small domain: a handful of users, groups and computers covering common KPI cases (disabled, no manager, SPN, privileged).",
+  "searches": [
+    {
+      "filterContains": "objectCategory=person",
+      "pageSize": 2,
+      "items": [
+        { "objectGUID": "11111111-0000-0000-0000-000000000001", "name": "Alice Admin", "distinguishedName": "CN=Alice Admin,OU=Users,DC=test,DC=local", "edsaDomainNetbiosName": "TEST", "userAccountControl": 512, "adminCount": 1, "manager": "", "servicePrincipalName": [] },
+        { "objectGUID": "11111111-0000-0000-0000-000000000002", "name": "Bob User", "distinguishedName": "CN=Bob User,OU=Users,DC=test,DC=local", "edsaDomainNetbiosName": "TEST", "userAccountControl": 512, "manager": "CN=Alice Admin,OU=Users,DC=test,DC=local", "servicePrincipalName": [] },
+        { "objectGUID": "11111111-0000-0000-0000-000000000003", "name": "Carol Disabled", "distinguishedName": "CN=Carol Disabled,OU=Users,DC=test,DC=local", "edsaDomainNetbiosName": "TEST", "userAccountControl": 514, "manager": "", "servicePrincipalName": [] },
+        { "objectGUID": "11111111-0000-0000-0000-000000000004", "name": "svc-sql", "distinguishedName": "CN=svc-sql,OU=Service,DC=test,DC=local", "edsaDomainNetbiosName": "TEST", "userAccountControl": 66048, "manager": "", "servicePrincipalName": [ "MSSQLSvc/sql01.test.local:1433" ] },
+        { "objectGUID": "11111111-0000-0000-0000-000000000005", "name": "krbtgt", "distinguishedName": "CN=krbtgt,CN=Users,DC=test,DC=local", "edsaDomainNetbiosName": "TEST", "userAccountControl": 514, "manager": "", "servicePrincipalName": [ "kadmin/changepw" ] }
+      ]
+    },
+    {
+      "filterContains": "objectClass=group",
+      "items": [
+        { "objectGUID": "22222222-0000-0000-0000-000000000001", "name": "Domain Admins", "distinguishedName": "CN=Domain Admins,CN=Users,DC=test,DC=local", "member": [ "CN=Alice Admin,OU=Users,DC=test,DC=local" ] },
+        { "objectGUID": "22222222-0000-0000-0000-000000000002", "name": "Empty Group", "distinguishedName": "CN=Empty Group,OU=Groups,DC=test,DC=local", "member": [] }
+      ]
+    },
+    {
+      "filterContains": "objectClass=computer",
+      "items": [
+        { "objectGUID": "33333333-0000-0000-0000-000000000001", "name": "SQL01", "distinguishedName": "CN=SQL01,OU=Servers,DC=test,DC=local", "operatingSystem": "Windows Server 2022" }
+      ]
+    }
+  ]
+}
