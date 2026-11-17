@@ -4676,6 +4676,7 @@ public class ActiveRolesService
         var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(baseDn)}&filter={Uri.EscapeDataString(filter)}&scope={scope}&pageSize={pageSize}&{BuildAttributesQuery(attributes)}";
         var allItems = new List<JsonElement>();
         var pageNumber = 0;
+        var seenPageTokens = new HashSet<string>(StringComparer.Ordinal);
 
         while (url != null)
         {
@@ -4767,7 +4768,17 @@ public class ActiveRolesService
 
             if (doc.RootElement.TryGetProperty("nextPage", out var nextPage) && nextPage.ValueKind == JsonValueKind.String)
             {
-                var pageToken = nextPage.GetString();
+                var pageToken = nextPage.GetString() ?? string.Empty;
+                // A server that hands back a token it already issued would otherwise make this
+                // loop re-request the same page forever while accumulating duplicate items.
+                if (!seenPageTokens.Add(pageToken))
+                {
+                    _logger.LogError(
+                        "[q:{QueryId}] Query failed {QueryLabel}: page {Page} repeated nextPage token after {Total} items (target={QueryTarget} domain={QueryDomain} types={ObjectTypes})",
+                        query.QueryId, query.Label, pageNumber, allItems.Count, query.Target, query.Domain, query.ObjectTypes);
+                    throw new InvalidOperationException(
+                        $"Active Roles returned a repeated nextPage token on page {pageNumber}; paging aborted.");
+                }
                 url = $"{BaseUrl}/objects?nextPage={pageToken}";
             }
             else

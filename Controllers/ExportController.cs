@@ -49,12 +49,8 @@ public class ExportController : ControllerBase
 
         DashboardSummary? summary = null;
 
-        var cached = _summaryCache.GetSummary(username);
-        if (!string.IsNullOrEmpty(cached))
-        {
-            summary = JsonSerializer.Deserialize<DashboardSummary>(cached);
-        }
-        else
+        summary = _summaryCache.GetSummaryModel(username);
+        if (summary == null)
         {
             OverviewTotalsCache? cachedTotals = null;
             var totalsJson = _summaryCache.GetOverview(username);

@@ -216,6 +216,24 @@ public class ActiveRolesServiceLoadTests : IDisposable
     }
 
     [Fact]
+    public async Task Repeated_next_page_token_aborts_paging_instead_of_looping()
+    {
+        var loop = new JsonObject { ["items"] = new JsonArray(Users(1).ToArray()), ["nextPage"] = "same-token" };
+        _server.WithSearchRawBody(ComputerFilter, loop.ToJsonString(), priority: 1);
+        _server.Server.Given(WireMock.RequestBuilders.Request.Create().WithPath("/api/objects").UsingGet().WithParam("nextPage", "same-token"))
+            .AtPriority(1)
+            .RespondWith(WireMock.ResponseBuilders.Response.Create().WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json").WithBody(loop.ToJsonString()));
+
+        var task = Create().GetComputersAsync(FakeActiveRolesServer.ValidToken);
+        var finished = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(20)));
+
+        Assert.Same(task, finished);
+        var result = await task;
+        Assert.NotNull(result.Error);
+        Assert.True(SearchRequestCount() <= 3, $"{SearchRequestCount()} requests");
+    }
+    [Fact]
     public async Task Unreachable_api_is_reported_on_component()
     {
         _server.Dispose();

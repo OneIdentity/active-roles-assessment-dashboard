@@ -171,16 +171,32 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Corrupt_cached_summary_is_not_silently_used()
+    public async Task Corrupt_cached_summary_is_discarded_and_rebuilt()
     {
         PublishSuperset(Superset());
         var http = Http();
         UserCache.SetSummary("TEST\\alice", "{not json");
+        UserCache.SetOverview("TEST\\alice", "{not json");
 
-        await Assert.ThrowsAsync<JsonException>(() =>
-            Data.LoadIndexSummaryAsync(http, FakeActiveRolesServer.ValidToken, Admin, new KpiSettings()));
+        var summary = await Data.LoadIndexSummaryAsync(http, FakeActiveRolesServer.ValidToken, Admin, new KpiSettings());
+
+        Assert.Equal(3, summary.ADUserAccounts.TotalCount);
+        var stored = Data.GetCachedSummaryJson(http);
+        Assert.NotNull(stored);
+        Assert.NotNull(JsonSerializer.Deserialize<DashboardSummary>(stored!));
+        Assert.NotEqual("{not json", UserCache.GetOverview("TEST\\alice"));
     }
 
+    [Fact]
+    public void Corrupt_cached_summary_model_read_clears_user_data()
+    {
+        UserCache.SetSummary("TEST\\bob", "[1,2");
+        UserCache.SetOverview("TEST\\bob", "{}");
+
+        Assert.Null(UserCache.GetSummaryModel("TEST\\bob"));
+        Assert.Null(UserCache.GetSummary("TEST\\bob"));
+        Assert.Null(UserCache.GetOverview("TEST\\bob"));
+    }
     // ------------------------------------------------------------------ membership reconciliation
 
     [Fact]

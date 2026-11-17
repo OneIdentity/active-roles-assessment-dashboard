@@ -577,10 +577,8 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     private EntraTotalsSummary? LoadUnfilteredEntraTotals()
     {
-        var summaryJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(summaryJson))
+        var full = UserSummaryCache.GetSummaryModel(UserCacheKey);
         {
-            var full = JsonSerializer.Deserialize<DashboardSummary>(summaryJson);
             if (full?.EntraTotals != null)
                 return full.EntraTotals;
         }
@@ -594,10 +592,8 @@ public abstract class DashboardPageModel : PageModel
     /// </summary>
     private void PersistEntraTotals(EntraTotalsSummary totals)
     {
-        var summaryJson = GetCachedSummaryJson();
-        if (!string.IsNullOrEmpty(summaryJson))
+        var full = UserSummaryCache.GetSummaryModel(UserCacheKey);
         {
-            var full = JsonSerializer.Deserialize<DashboardSummary>(summaryJson);
             if (full != null)
             {
                 full.EntraTotals = totals;
@@ -693,10 +689,10 @@ public abstract class DashboardPageModel : PageModel
 
         if (cached)
         {
-            var cachedJson = GetCachedSummaryJson();
-            if (!string.IsNullOrEmpty(cachedJson))
+            var cachedSummary = UserSummaryCache.GetSummaryModel(UserCacheKey);
+            if (cachedSummary != null)
             {
-                Summary = JsonSerializer.Deserialize<DashboardSummary>(cachedJson) ?? new DashboardSummary();
+                Summary = cachedSummary;
                 ApplyActiveSegmentFilter();
                 return Page();
             }
