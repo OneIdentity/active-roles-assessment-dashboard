@@ -20,6 +20,7 @@ public class SupersetLoaderHostedService : BackgroundService
     private readonly PerUserSummaryCache _userCache;
     private readonly IOptionsMonitor<ActiveRolesConfig> _config;
     private readonly ILogger<SupersetLoaderHostedService> _logger;
+    private readonly TimeProvider _time;
 
     // Signalled to wake the loop for an immediate (manual) refresh.
     private readonly SemaphoreSlim _manualRefresh = new(0);
@@ -31,8 +32,10 @@ public class SupersetLoaderHostedService : BackgroundService
         ArPermissionModelService permissionModelService,
         PerUserSummaryCache userCache,
         IOptionsMonitor<ActiveRolesConfig> config,
-        ILogger<SupersetLoaderHostedService> logger)
+        ILogger<SupersetLoaderHostedService> logger,
+        TimeProvider? time = null)
     {
+        _time = time ?? TimeProvider.System;
         _cache = cache;
         _tokenProvider = tokenProvider;
         _arService = arService;
@@ -73,7 +76,7 @@ public class SupersetLoaderHostedService : BackgroundService
 
             // Wait until either the daily time elapses or a manual refresh is triggered.
             var manualTask = _manualRefresh.WaitAsync(stoppingToken);
-            var delayTask = Task.Delay(delay, stoppingToken);
+            var delayTask = Task.Delay(delay, _time, stoppingToken);
             var completed = await Task.WhenAny(manualTask, delayTask).ConfigureAwait(false);
 
             if (stoppingToken.IsCancellationRequested)
@@ -219,7 +222,7 @@ public class SupersetLoaderHostedService : BackgroundService
             return TimeSpan.FromHours(24);
         }
 
-        var now = DateTime.Now;
+        var now = _time.GetLocalNow().DateTime;
         var next = now.Date.Add(timeOfDay);
         if (next <= now)
             next = next.AddDays(1);
