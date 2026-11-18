@@ -30,6 +30,19 @@ internal static class LegacyDefinitionExporter
             ["PasswordNeverExpires"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x10000)"),
             ["DeprovisionedUsers"] = ("ADUserAccounts", "edsvaDeprovisionStatus == '1'"),
             ["StalePasswords"] = ("ADUserAccounts", "!hasFlag(userAccountControl, 0x2) && daysSince(pwdLastSet) > $passwordAgeDays"),
+            ["NeverLoggedIn"] = ("ADUserAccounts", "lastLogonTimestamp == ''"),
+            ["StaleUsers"] = ("ADUserAccounts", "!hasFlag(userAccountControl, 0x2) && daysSince(lastLogonTimestamp) > $staleDays"),
+            ["AdminCount"] = ("ADUserAccounts", "adminCount == '1'"),
+            ["MustChangePassword"] = ("ADUserAccounts", "pwdLastSet == 0"),
+            ["PasswordNotRequired"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x20)"),
+            ["CannotChangePassword"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x40)"),
+            ["UserReversibleEncryption"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x80)"),
+            ["SmartCardRequired"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x40000)"),
+            ["TrustedForDelegation"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x80000)"),
+            ["SensitiveCannotDelegate"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x100000)"),
+            ["UseDesEncryption"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x200000)"),
+            ["NoKerberosPreauth"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x400000)"),
+            ["SpnUserAccounts"] = ("ADUserAccounts", "!isEmpty(servicePrincipalName)"),
         };
 
     public static IReadOnlyDictionary<string, DefinitionSet> ExportByDashboard()

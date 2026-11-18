@@ -790,9 +790,9 @@
       "id": "NeverLoggedIn",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "lastLogonTimestamp == ''"
       },
       "display": {
         "color": "orange",
@@ -1045,9 +1045,9 @@
       "id": "MustChangePassword",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "pwdLastSet == 0"
       },
       "display": {
         "color": "blue",
@@ -1064,9 +1064,9 @@
       "id": "PasswordNotRequired",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x20)"
       },
       "display": {
         "color": "amber",
@@ -1083,9 +1083,9 @@
       "id": "SmartCardRequired",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x40000)"
       },
       "display": {
         "color": "teal",
@@ -1102,9 +1102,9 @@
       "id": "CannotChangePassword",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x40)"
       },
       "display": {
         "color": "slate",
@@ -1140,9 +1140,9 @@
       "id": "NoKerberosPreauth",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x400000)"
       },
       "display": {
         "color": "pink",
@@ -1159,9 +1159,9 @@
       "id": "UserReversibleEncryption",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x80)"
       },
       "display": {
         "color": "red",
@@ -1178,9 +1178,9 @@
       "id": "SensitiveCannotDelegate",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x100000)"
       },
       "display": {
         "color": "slate",
@@ -1197,9 +1197,9 @@
       "id": "TrustedForDelegation",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x80000)"
       },
       "display": {
         "color": "green",
@@ -1216,9 +1216,9 @@
       "id": "UseDesEncryption",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x200000)"
       },
       "display": {
         "color": "orange",
@@ -1254,9 +1254,9 @@
       "id": "SpnUserAccounts",
       "categoryId": "NHIs",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!isEmpty(servicePrincipalName)"
       },
       "display": {
         "color": "red",
@@ -1274,9 +1274,9 @@
       "id": "StaleUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2) && daysSince(lastLogonTimestamp) > $staleDays"
       },
       "display": {
         "color": "amber",
@@ -1544,9 +1544,9 @@
       "id": "AdminCount",
       "categoryId": "PrivilegedUsers",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "adminCount == '1'"
       },
       "display": {
         "color": "red",

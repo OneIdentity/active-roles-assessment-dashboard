@@ -951,7 +951,7 @@ public class ActiveRolesService
             {
                 // User accounts that expose a servicePrincipalName are Kerberoastable service accounts.
                 var spnUsers = summary.ADUserAccounts.Items
-                    .Where(i => !string.IsNullOrEmpty(GetAttr(i, "servicePrincipalName")))
+                    .Where(i => GetAttrValues(i, "servicePrincipalName").Count > 0)
                     .ToList();
                 summary.SpnUserAccounts = new ADUserAccountDetailSummary
                 {
