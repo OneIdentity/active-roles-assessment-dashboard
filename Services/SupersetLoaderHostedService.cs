@@ -25,6 +25,17 @@ public class SupersetLoaderHostedService : BackgroundService
     // Signalled to wake the loop for an immediate (manual) refresh.
     private readonly SemaphoreSlim _manualRefresh = new(0);
 
+    /// <summary>
+    /// Backoff used while no snapshot has ever been published (e.g. the Active Roles service is
+    /// still starting after a VM resume). The last value repeats until the first build succeeds.
+    /// </summary>
+    internal static readonly TimeSpan[] InitialBuildRetryDelays =
+    [
+        TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(5)
+    ];
+
+    private int _initialBuildFailures;
+
     public SupersetLoaderHostedService(
         DashboardCacheHolder cache,
         ServiceAccountTokenProvider tokenProvider,
@@ -71,8 +82,17 @@ public class SupersetLoaderHostedService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var delay = TimeUntilNextDailyRefresh();
-            _logger.LogInformation("Next scheduled superset refresh in {Delay} (at {Time} local).",
-                delay, _config.CurrentValue.DataRefresh.DailyRefreshTime);
+            var retry = NextInitialBuildRetryDelay();
+            if (retry is { } r && r < delay)
+            {
+                delay = r;
+                _logger.LogWarning("Initial superset build has not succeeded; retrying in {Delay}.", delay);
+            }
+            else
+            {
+                _logger.LogInformation("Next scheduled superset refresh in {Delay} (at {Time} local).",
+                    delay, _config.CurrentValue.DataRefresh.DailyRefreshTime);
+            }
 
             // Wait until either the daily time elapses or a manual refresh is triggered.
             var manualTask = _manualRefresh.WaitAsync(stoppingToken);
@@ -202,7 +222,25 @@ public class SupersetLoaderHostedService : BackgroundService
     }
 
     /// <summary>
-    /// Returns true once the app has the minimum configuration required to collect data. Until the
+    /// Returns the backoff delay for retrying the initial build, or null when no retry is due:
+    /// either a snapshot already exists (scheduled/manual refreshes keep serving it), the app is
+    /// not configured, or the last attempt did not fail.
+    /// </summary>
+    private TimeSpan? NextInitialBuildRetryDelay()
+    {
+        if (_cache.Current is not null || !IsConfigured() || _cache.State != CacheState.Faulted)
+        {
+            _initialBuildFailures = 0;
+            return null;
+        }
+
+        var index = Math.Min(_initialBuildFailures, InitialBuildRetryDelays.Length - 1);
+        _initialBuildFailures++;
+        return InitialBuildRetryDelays[index];
+    }
+
+    /// <summary>
+    /// Returns true once the app has the minimum configuration required to collect data.
     /// setup wizard has written an ApiBaseUrl there is nothing to connect to, so collection is
     /// deferred rather than faulted.
     /// </summary>

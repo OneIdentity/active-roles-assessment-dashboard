@@ -165,6 +165,127 @@ public class CacheLifecycleTests
         Assert.True(userCache.DirectoryFactsEpoch > factsEpoch);
     }
 
+    // ------------------------------------------------------------------ preflight bind
+    // After a VM resume RSTS can issue tokens while the REST API cannot serve directory data yet.
+    // The loader must bind to CN=Active Directory before collecting, and never collect on failure.
+
+    private static string? QueryValue(WireMock.Logging.ILogEntry entry, string key) =>
+        entry.RequestMessage.Query != null && entry.RequestMessage.Query.TryGetValue(key, out var values)
+            ? values.FirstOrDefault()
+            : null;
+
+    private static int CollectionSearchCount(FakeActiveRolesServer server) =>
+        server.Requests.Count(r => r.RequestMessage.Path == "/api/objects"
+            && !string.Equals(QueryValue(r, "scope"), "base", StringComparison.OrdinalIgnoreCase));
+
+    [Theory]
+    [InlineData(503, "not ready", "HTTP 503")]
+    [InlineData(500, "not ready", "HTTP 500")]
+    [InlineData(401, "rejected", "HTTP 401")]
+    [InlineData(403, "rejected", "HTTP 403")]
+    public async Task Failed_preflight_bind_faults_cache_without_collecting(int status, string reason, string statusText)
+    {
+        using var server = new FakeActiveRolesServer().WithHealthyDefaults().WithPreflightBind(status, "{\"message\":\"error\"}", priority: 1);
+        using var app = ConfiguredApp(server);
+        await using var loader = await LoaderRun.StartAsync(app);
+
+        await loader.RefreshAsync();
+
+        Assert.Equal(CacheState.Faulted, loader.Cache.State);
+        Assert.Null(loader.Cache.Current);
+        Assert.Contains(reason, loader.Cache.LastError, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(statusText, loader.Cache.LastError);
+        Assert.Contains("CN=Active Directory", loader.Cache.LastError);
+        Assert.Contains(server.Requests, r => r.RequestMessage.Path == "/RSTS/oauth2/token");
+        Assert.Equal(0, CollectionSearchCount(server));
+    }
+
+    [Theory]
+    [InlineData("{\"items\":[]}")]
+    [InlineData("<html>Service Unavailable</html>")]
+    [InlineData("{}")]
+    public async Task Preflight_bind_with_unexpected_body_faults_cache(string body)
+    {
+        using var server = new FakeActiveRolesServer().WithHealthyDefaults().WithPreflightBind(200, body, priority: 1);
+        using var app = ConfiguredApp(server);
+        await using var loader = await LoaderRun.StartAsync(app);
+
+        await loader.RefreshAsync();
+
+        Assert.Equal(CacheState.Faulted, loader.Cache.State);
+        Assert.Contains("invalid response", loader.Cache.LastError, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(0, CollectionSearchCount(server));
+    }
+
+    [Fact]
+    public async Task Successful_preflight_binds_to_active_directory_root()
+    {
+        using var server = new FakeActiveRolesServer().WithHealthyDefaults();
+        using var app = ConfiguredApp(server);
+        await using var loader = await LoaderRun.StartAsync(app);
+
+        await loader.RefreshAsync();
+
+        Assert.Equal(CacheState.Ready, loader.Cache.State);
+        var bind = Assert.Single(server.Requests, r => r.RequestMessage.Path == "/api/objects"
+            && QueryValue(r, "base") == "CN=Active Directory"
+            && QueryValue(r, "scope") == "base");
+        Assert.Contains("Bearer " + FakeActiveRolesServer.ValidToken, bind.RequestMessage.Headers!["Authorization"]);
+        Assert.True(CollectionSearchCount(server) > 0);
+    }
+
+    [Fact]
+    public async Task Failed_initial_build_is_retried_until_rest_api_recovers()
+    {
+        using var server = new FakeActiveRolesServer().WithHealthyDefaults().WithPreflightBind(503, priority: 1);
+        var app = new DashboardAppFactory(activeRoles: server);
+        using var _ = app;
+        var payload = app.Services.GetRequiredService<ServiceAccountSecretProtector>().Protect(FakeActiveRolesServer.ValidPassword);
+        app.ContentRoot.WriteAppSettings(ConfiguredSettings(server, payload)
+            .Set("ActiveRoles:DataRefresh:LoadOnStartup", true).Set("ActiveRoles:DataRefresh:DailyRefreshTime", "10:00").Build());
+        ((IConfigurationRoot)app.Services.GetRequiredService<IConfiguration>()).Reload();
+
+        await using var loader = await LoaderRun.StartAsync(app, expectStartupRefresh: true);
+        Assert.Equal(CacheState.Faulted, loader.Cache.State);
+        await Settle();
+
+        // Still down at the first retry (30s).
+        app.Clock.Advance(TimeSpan.FromSeconds(30));
+        await loader.WaitForRefreshAsync();
+        Assert.Equal(CacheState.Faulted, loader.Cache.State);
+        await Settle();
+
+        // Backoff grows: nothing happens before the second retry (1 min).
+        app.Clock.Advance(TimeSpan.FromSeconds(59));
+        await AssertNoRefresh(loader);
+
+        // REST API recovers; the next retry builds the cache without a manual refresh.
+        server.WithPreflightBind(priority: 0);
+        app.Clock.Advance(TimeSpan.FromSeconds(1));
+        await loader.WaitForRefreshAsync();
+
+        Assert.Equal(CacheState.Ready, loader.Cache.State);
+        Assert.NotNull(loader.Cache.Current);
+    }
+
+    [Fact]
+    public async Task Failed_refresh_with_existing_snapshot_waits_for_daily_schedule()
+    {
+        using var server = new FakeActiveRolesServer().WithHealthyDefaults();
+        using var app = ConfiguredApp(server, dailyRefreshTime: "10:00");
+        await using var loader = await LoaderRun.StartAsync(app);
+        await loader.RefreshAsync();
+
+        server.WithPreflightBind(503, priority: 0);
+        await loader.RefreshAsync();
+        Assert.True(loader.Cache.LastRefreshFailed);
+        await Settle();
+
+        app.Clock.Advance(TimeSpan.FromMinutes(5));
+        await AssertNoRefresh(loader);
+        Assert.Equal(CacheState.Ready, loader.Cache.State);
+    }
+
     // ------------------------------------------------------------------ daily schedule
     // The factory clock starts at 2026-01-15 09:00 and FakeTimeProvider's local zone is UTC, so
     // the configured daily time is evaluated against 09:00.
