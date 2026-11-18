@@ -15,15 +15,20 @@ public class ActiveRolesService
     private readonly ILogger<ActiveRolesService> _logger;
     private readonly ServiceAccountTokenProvider _serviceTokens;
     private readonly DefinitionParityChecker? _parityChecker;
+    private readonly Definitions.DatasetCollector? _datasetCollector;
 
-    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, DefinitionParityChecker? parityChecker = null)
+    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, DefinitionParityChecker? parityChecker = null, Definitions.DatasetCollector? datasetCollector = null)
     {
         _httpClientFactory = httpClientFactory;
         _configMonitor = configMonitor;
         _logger = logger;
         _serviceTokens = serviceTokens;
         _parityChecker = parityChecker;
+        _datasetCollector = datasetCollector;
     }
+
+    /// <summary>Most recent dataset parity comparison from shadow collection (empty when disabled).</summary>
+    public IReadOnlyList<Definitions.DatasetParityResult> LastDatasetParity { get; private set; } = [];
     // Very short-lived memo of the full AD group graph, used ONLY by the membership-check path
     // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
     // plus up to three dashboard role-group checks - shares one full (objectClass=group) enumeration
@@ -1524,6 +1529,9 @@ public class ActiveRolesService
                 _logger.LogWarning(ex, "Definition parity check failed");
             }
         }
+
+        if (_datasetCollector != null && config.DefinitionDatasetShadowCollection)
+            await ShadowCollectDatasetsAsync(token, summary);
 
         return summary;
     }
@@ -4853,6 +4861,39 @@ public class ActiveRolesService
             query.QueryId, query.Label, allItems.Count, pageNumber, stopwatch.ElapsedMilliseconds, query.Target, query.Domain, query.ObjectTypes);
 
         return allItems;
+    }
+
+    /// <summary>
+    /// Collects definition datasets through the same paged REST search used by the hand-written
+    /// collection methods, so generic and legacy retrieval share paging, logging and scoping.
+    /// </summary>
+    public Task<IReadOnlyDictionary<string, Definitions.DatasetResult>> CollectDatasetsAsync(
+        string token, Definitions.DatasetCollector collector, IEnumerable<string> datasetIds) =>
+        collector.CollectAsync(datasetIds, _configMonitor.CurrentValue,
+            r => SearchObjectsAsync(token, r.Base, r.Filter, r.Scope, string.Join(",", r.Attributes), $"Dataset:{r.DatasetId}"));
+
+    private async Task ShadowCollectDatasetsAsync(string token, DashboardSummary summary)
+    {
+        try
+        {
+            var legacy = Definitions.DatasetParity.LegacyDatasets(summary);
+            if (legacy.Count == 0) return;
+
+            var generic = await CollectDatasetsAsync(token, _datasetCollector!, legacy.Keys);
+            var results = Definitions.DatasetParity.Compare(legacy, generic);
+            foreach (var r in results.Where(r => !r.Matches))
+            {
+                _logger.LogWarning("Dataset parity mismatch for {Dataset}: legacy {Legacy}, definition {Generic}, missing {Missing}, extra {Extra} {Error}",
+                    r.DatasetId, r.Legacy, r.Generic, r.MissingInGeneric, r.ExtraInGeneric, r.Error);
+            }
+
+            _logger.LogInformation("Dataset parity: {Matched}/{Total} definition datasets match", results.Count(r => r.Matches), results.Count);
+            LastDatasetParity = results;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Definition dataset shadow collection failed");
+        }
     }
 
     private static string BuildAttributesQuery(string attributes)
