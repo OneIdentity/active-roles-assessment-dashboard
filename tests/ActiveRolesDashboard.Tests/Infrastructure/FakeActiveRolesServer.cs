@@ -69,6 +69,25 @@ public sealed class FakeActiveRolesServer : IDisposable
         return this;
     }
 
+    /// <summary>
+    /// Preflight bind: the base-scope search on CN=Active Directory. Healthy by default; pass a
+    /// status code and/or raw body to simulate a REST layer whose Active Roles service is not ready.
+    /// </summary>
+    public FakeActiveRolesServer WithPreflightBind(int statusCode = 200, string? body = null, int priority = 5)
+    {
+        body ??= new JsonObject
+        {
+            ["items"] = new JsonArray(new JsonObject { ["name"] = "Active Directory", ["distinguishedName"] = "CN=Active Directory" })
+        }.ToJsonString();
+        _server.Given(Request.Create().WithPath("/api/objects").UsingGet()
+                .WithParam("base", new ExactMatcher(true, "CN=Active Directory"))
+                .WithParam("scope", new ExactMatcher(true, "base")))
+            .AtPriority(priority)
+            .RespondWith(Response.Create().WithStatusCode(statusCode)
+                .WithHeader("Content-Type", "application/json").WithBody(body));
+        return this;
+    }
+
     /// <summary>Default for any unconfigured search: an empty result set.</summary>
     public FakeActiveRolesServer WithEmptySearchDefault()
     {
@@ -148,9 +167,9 @@ public sealed class FakeActiveRolesServer : IDisposable
         return this;
     }
 
-    /// <summary>Standard healthy back end: token endpoint, API root and empty default searches.</summary>
+    /// <summary>Standard healthy back end: token endpoint, API root, preflight bind and empty default searches.</summary>
     public FakeActiveRolesServer WithHealthyDefaults()
-        => WithTokenEndpoint().WithApiRoot().WithEmptySearchDefault();
+        => WithTokenEndpoint().WithApiRoot().WithPreflightBind().WithEmptySearchDefault();
 
     // ------------------------------------------------------------------ helpers
 

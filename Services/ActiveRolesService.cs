@@ -97,12 +97,17 @@ public class ActiveRolesService
         return client;
     }
 
+    /// <summary>The Active Roles virtual root the preflight binds to.</summary>
+    public const string PreflightBindDn = "CN=Active Directory";
+
     /// <summary>
-    /// Lightweight preflight that verifies the Active Roles REST API is reachable before running
-    /// the full (expensive) superset collection. Issues a single short-timeout GET against the API
-    /// root. Any HTTP response (including 401/404) means the service is up and answering; only a
-    /// transport-level failure (connection refused, DNS, TLS, timeout) is treated as unreachable.
-    /// Returns null on success, or a short human-readable reason on failure.
+    /// Preflight that verifies the Active Roles REST API is genuinely serving directory data before
+    /// running the full (expensive) superset collection. Performs a single short-timeout base-scope
+    /// bind to <see cref="PreflightBindDn"/> with the supplied token. Reaching the web server is not
+    /// enough: after a VM resume the REST layer can answer (and RSTS can issue tokens) while the
+    /// Active Roles service behind it is not ready yet. The bind only passes when the API returns a
+    /// 2xx JSON body containing the object. Returns null on success, or a short human-readable
+    /// reason on failure.
     /// </summary>
     public async Task<string?> TestConnectionAsync(string token, CancellationToken ct = default)
     {
@@ -111,10 +116,31 @@ public class ActiveRolesService
         try
         {
             var client = CreateClient(token);
+            var url = $"{BaseUrl}/objects?base={Uri.EscapeDataString(PreflightBindDn)}" +
+                      $"&filter={Uri.EscapeDataString("(objectClass=*)")}&scope=base&{BuildAttributesQuery("name")}";
             using var response = await client
-                .GetAsync(BaseUrl, HttpCompletionOption.ResponseHeadersRead, timeout.Token)
+                .GetAsync(url, HttpCompletionOption.ResponseContentRead, timeout.Token)
                 .ConfigureAwait(false);
-            // Reaching here means the server responded at the HTTP layer -> it is up.
+
+            var status = (int)response.StatusCode;
+            if (status is 401 or 403)
+            {
+                _logger.LogWarning("Active Roles preflight bind to {Dn} was rejected with HTTP {Status}.", PreflightBindDn, status);
+                return $"Active Roles REST API rejected the service-account token (HTTP {status}) when binding to '{PreflightBindDn}' ({BaseUrl}).";
+            }
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Active Roles preflight bind to {Dn} failed with HTTP {Status}.", PreflightBindDn, status);
+                return $"Active Roles REST API is not ready: binding to '{PreflightBindDn}' returned HTTP {status} ({BaseUrl}).";
+            }
+
+            var body = await response.Content.ReadAsStringAsync(timeout.Token).ConfigureAwait(false);
+            if (!BindResponseContainsObject(body))
+            {
+                _logger.LogWarning("Active Roles preflight bind to {Dn} returned an unexpected body.", PreflightBindDn);
+                return $"Active Roles REST API returned an invalid response when binding to '{PreflightBindDn}' ({BaseUrl}).";
+            }
+
             return null;
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
@@ -126,6 +152,22 @@ public class ActiveRolesService
         {
             _logger.LogWarning(ex, "Active Roles connectivity preflight failed against {BaseUrl}.", BaseUrl);
             return $"Active Roles REST API is unreachable ({BaseUrl}): {ex.Message}";
+        }
+    }
+
+    private static bool BindResponseContainsObject(string body)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.ValueKind == JsonValueKind.Object
+                && doc.RootElement.TryGetProperty("items", out var items)
+                && items.ValueKind == JsonValueKind.Array
+                && items.GetArrayLength() > 0;
+        }
+        catch (JsonException)
+        {
+            return false;
         }
     }
 
