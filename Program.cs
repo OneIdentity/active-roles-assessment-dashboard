@@ -126,6 +126,12 @@ builder.Services.AddSingleton<KpiExclusionService>();
 builder.Services.AddSingleton<AssessmentService>();
 builder.Services.AddSingleton<MitreExposureService>();
 
+// KPI/category definitions: embedded files plus App_Data\Definitions overrides, applied at startup.
+builder.Services.AddSingleton(sp => new ActiveRolesDashboard.Models.Definitions.DefinitionStore(
+    Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Definitions"),
+    sp.GetRequiredService<ILogger<ActiveRolesDashboard.Models.Definitions.DefinitionStore>>()));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<ActiveRolesDashboard.Models.Definitions.DefinitionStore>().Registry);
+
 // Shared-superset cache, service-account collection, and per-user AR permission filtering.
 builder.Services.AddSingleton<DashboardCacheHolder>();
 builder.Services.AddSingleton<ServiceAccountTokenProvider>();
@@ -220,6 +226,9 @@ builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptio
 });
 
 var app = builder.Build();
+
+// Load and validate definitions at startup so invalid embedded definitions fail fast.
+app.Services.GetRequiredService<ActiveRolesDashboard.Models.Definitions.DefinitionStore>();
 
 // Wire the static KPI/category localizer so KpiInfo/CategoryInfo display names
 // (which are static readonly and cannot use DI) resolve from resources at read-time.
