@@ -1529,7 +1529,7 @@ public class ActiveRolesService
                 {
                     var required = _kpiCalculator.RequiredDatasetIds(settings);
                     if (required.Count > 0)
-                        summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required));
+                        summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required, summary));
                 }
 
                 _kpiCalculator.Populate(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow));
@@ -4877,9 +4877,11 @@ public class ActiveRolesService
     /// <summary>
     /// Collects definition datasets through the same paged REST search used by the hand-written
     /// collection methods, so generic and legacy retrieval share paging, logging and scoping.
+    /// When <paramref name="summary"/> is supplied, its raw user and computer items provide the
+    /// permission-scope attributes of non-group members in fixed-object datasets.
     /// </summary>
     public Task<IReadOnlyDictionary<string, Models.Definitions.DatasetResult>> CollectDatasetsAsync(
-        string token, Definitions.DatasetCollector collector, IEnumerable<string> datasetIds) =>
+        string token, Definitions.DatasetCollector collector, IEnumerable<string> datasetIds, DashboardSummary? summary = null) =>
         collector.CollectAsync(datasetIds, _configMonitor.CurrentValue, async r =>
         {
             var items = await SearchObjectsAsync(token, r.Base, r.Filter, r.Scope, string.Join(",", r.Attributes), $"Dataset:{r.DatasetId}");
@@ -4892,7 +4894,9 @@ public class ActiveRolesService
             if (groups.Error != null)
                 throw new InvalidOperationException(groups.Error);
             var byDn = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
-            foreach (var g in groups.Items)
+            foreach (var g in groups.Items
+                .Concat(summary?.ADUserAccounts?.Items ?? [])
+                .Concat(summary?.Computers?.Items ?? []))
             {
                 var dn = GetAttr(g, "distinguishedName");
                 if (!string.IsNullOrEmpty(dn)) byDn.TryAdd(dn, g);
@@ -4910,7 +4914,7 @@ public class ActiveRolesService
             var legacy = Definitions.DatasetParity.LegacyDatasets(summary);
             if (legacy.Count == 0) return;
 
-            var generic = await CollectDatasetsAsync(token, _datasetCollector!, legacy.Keys);
+            var generic = await CollectDatasetsAsync(token, _datasetCollector!, legacy.Keys, summary);
             var results = Definitions.DatasetParity.Compare(legacy, generic);
             foreach (var r in results.Where(r => !r.Matches))
             {
