@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ActiveRolesDashboard.Models.Definitions;
 
 /// <summary>
@@ -7,6 +9,7 @@ namespace ActiveRolesDashboard.Models.Definitions;
 public abstract class DefinitionBase
 {
     /// <summary>Unique, stable identifier. Matches the existing KPI/category/chart key.</summary>
+    [JsonRequired, JsonPropertyOrder(-10)]
     public string Id { get; init; } = string.Empty;
 
     /// <summary>Schema version of this definition.</summary>
@@ -31,6 +34,7 @@ public abstract class DefinitionBase
     protected abstract string LocalizationPrefix { get; }
 
     /// <summary>The resource key to resolve for the display name.</summary>
+    [JsonIgnore]
     public string EffectiveLocalizationKey =>
         string.IsNullOrWhiteSpace(LocalizationKey) ? LocalizationPrefix + Id : LocalizationKey;
 }

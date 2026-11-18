@@ -6,6 +6,7 @@ public sealed class CategoryDefinition : DefinitionBase
     protected override string LocalizationPrefix => "Cat_";
 
     /// <summary>Key of the owning dashboard (<see cref="DashboardInfo"/>; dashboards stay in code).</summary>
+    [System.Text.Json.Serialization.JsonRequired, System.Text.Json.Serialization.JsonPropertyOrder(-9)]
     public string DashboardId { get; init; } = string.Empty;
 
     public CategoryKind Kind { get; init; } = CategoryKind.Standard;

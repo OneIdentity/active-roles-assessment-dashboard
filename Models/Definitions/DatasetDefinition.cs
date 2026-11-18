@@ -7,8 +7,10 @@ namespace ActiveRolesDashboard.Models.Definitions;
 /// </summary>
 public sealed class DatasetDefinition
 {
+    [System.Text.Json.Serialization.JsonRequired]
     public string Id { get; init; } = string.Empty;
 
+    [System.Text.Json.Serialization.JsonRequired]
     public DataSource DataSource { get; init; }
 
     public RetrievalDefinition Retrieval { get; init; } = new();

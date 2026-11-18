@@ -1,0 +1,1031 @@
+{
+  "categories": [
+    {
+      "id": "ARConfiguration",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "CustomThenAtoZ",
+      "fallbackText": "Configuration"
+    },
+    {
+      "id": "ARDelegation",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ArDelegationHygiene",
+          "series": [
+            {
+              "kpiId": "BroadDelegationLinks",
+              "color": "red"
+            },
+            {
+              "kpiId": "UserDelegationLinks",
+              "color": "amber"
+            },
+            {
+              "kpiId": "RootDelegationLinks",
+              "color": "orange"
+            },
+            {
+              "kpiId": "DenyAccessTemplates",
+              "color": "purple"
+            },
+            {
+              "kpiId": "OrphanAccessTemplateLinks",
+              "color": "slate"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Delegation Hygiene"
+        }
+      ],
+      "sortOrder": 1,
+      "fallbackText": "Delegation"
+    },
+    {
+      "id": "ARManagedDirectories",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 2,
+      "fallbackText": "Managed Directories"
+    },
+    {
+      "id": "ARInfrastructure",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 3,
+      "fallbackText": "Infrastructure"
+    },
+    {
+      "id": "ARAutomation",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ArPolicyCompliance",
+          "type": "Bar",
+          "series": [
+            {
+              "kpiId": "PolicyObjectsNoRules",
+              "color": "orange"
+            },
+            {
+              "kpiId": "UnlinkedPolicyObjects",
+              "color": "amber"
+            },
+            {
+              "kpiId": "OrphanPolicyObjectLinks",
+              "color": "red"
+            },
+            {
+              "kpiId": "DynamicGroupsBrokenRules",
+              "color": "purple"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Policy Compliance"
+        }
+      ],
+      "sortOrder": 4,
+      "fallbackText": "Automation"
+    },
+    {
+      "id": "ARGovernance",
+      "dashboardId": "ActiveRoles",
+      "kind": "Risk",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": -1,
+      "fallbackText": "Governance and Risk"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ActiveRolesAdmins",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ActiveRolesAdmins}",
+        "objects": [
+          "APP-ACTIVEROLES-ADMINS"
+        ]
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "Servers",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsARService)"
+      },
+      "attributes": [
+        "edsaEdmServiceComputerName",
+        "edsvaPublicProductVersion",
+        "edsvaDiagnosticLogTurnedOn"
+      ]
+    },
+    {
+      "id": "Domains",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Managed Domains,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsDomainCacheConfig)"
+      },
+      "attributes": [
+        "name",
+        "edsvaDomainDNS",
+        "edsaSavedDnsName",
+        "edsaUseOverrideAccount"
+      ]
+    },
+    {
+      "id": "AccessTemplateLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AT Links,CN=Configuration",
+        "filter": "(objectClass=edsACE)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaTrusteeSID",
+        "edsaSecObjectGUID",
+        "edsaAccessTemplateGUID",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "AccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(objectClass=edsAccessTemplate)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsvaParentCanonicalName",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "DynamicGroups",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Configuration",
+        "filter": "(objectClass=edsDynamicGroup)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDGConditionsList",
+        "edsvaDGControllingService"
+      ]
+    },
+    {
+      "id": "ManagedUnits",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Managed Units,CN=Configuration",
+        "filter": "(objectClass=edsManagedUnit)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaMUConditionsList"
+      ]
+    },
+    {
+      "id": "PolicyObjectLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AP Links,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObjectLink)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "PolicyObjects",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Policies,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObject)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAPEListXML",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "VirtualAttributes",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsVirtualAttribute)"
+      },
+      "attributes": [
+        "name",
+        "lDAPDisplayName",
+        "isSingleValued",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "Workflows",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Workflow,CN=Policies,CN=Configuration",
+        "filter": "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectClass",
+        "edsaWorkflowIsDisabled"
+      ]
+    },
+    {
+      "id": "ConfigDatabases",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Configuration Databases,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsReplicationPartner)"
+      },
+      "attributes": [
+        "edsaSQLAlias",
+        "edsaDatabaseName",
+        "edsaDatabaseType",
+        "edsaReplicationSupport",
+        "edsaReplicationRole"
+      ]
+    },
+    {
+      "id": "HistoryDatabases",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Management History Databases,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsMHReplicationPartner)"
+      },
+      "attributes": [
+        "edsaSQLAlias",
+        "edsaDatabaseName",
+        "edsaDatabaseType",
+        "edsaReplicationRole"
+      ]
+    },
+    {
+      "id": "ScheduledTasks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Scheduled Tasks,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsScheduledTask)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaLastRunTime",
+        "edsvaNextRunTime",
+        "edsaDisableSchedule"
+      ]
+    },
+    {
+      "id": "EmptyAccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(objectClass=edsAccessTemplate)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaATEList"
+      ]
+    },
+    {
+      "id": "PolicyObjectsNoRules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Policies,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObject)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAPEListXML"
+      ]
+    },
+    {
+      "id": "UnlinkedAccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectGUID"
+      ]
+    },
+    {
+      "id": "DenyAccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(objectClass=edsAccessTemplate)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectGUID",
+        "edsaATEList"
+      ]
+    },
+    {
+      "id": "UnlinkedPolicyObjects",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Policies,CN=Configuration",
+        "filter": "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectGUID"
+      ]
+    },
+    {
+      "id": "OrphanAccessTemplateLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AT Links,CN=Configuration",
+        "filter": "(objectClass=edsACE)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAccessTemplateGUID",
+        "edsaSecObjectGUID",
+        "edsaTrusteeSID"
+      ]
+    },
+    {
+      "id": "OrphanPolicyObjectLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AP Links,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObjectLink)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAPOGUID",
+        "edsaSecObjectGUID"
+      ]
+    },
+    {
+      "id": "DynamicGroupsBrokenRules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Configuration",
+        "filter": "(objectClass=edsDynamicGroup)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDGConditionsList"
+      ]
+    },
+    {
+      "id": "ManagedUnitsBrokenRules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Managed Units,CN=Configuration",
+        "filter": "(objectClass=edsManagedUnit)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaMUConditionsList"
+      ]
+    },
+    {
+      "id": "ScriptModules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Script Modules,CN=Configuration",
+        "filter": "(objectClass=edsScriptModule)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaScriptLanguage",
+        "edsaScriptType",
+        "edsaSystemObject",
+        "edsaIsPredefined"
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Objects",
+      "id": "ActiveRolesAdmins",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ActiveRolesAdmins",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "aradmins",
+        "tileFallbackText": "AR Admins"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "fallbackText": "Active Roles Admins"
+    },
+    {
+      "kind": "Search",
+      "id": "Servers",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "Servers",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "servers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 1,
+      "fallbackText": "AR Servers"
+    },
+    {
+      "kind": "Search",
+      "id": "Domains",
+      "categoryId": "ARManagedDirectories",
+      "dataSource": "ActiveRoles",
+      "datasetId": "Domains",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "domains"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 2,
+      "fallbackText": "Managed Domains"
+    },
+    {
+      "kind": "Search",
+      "id": "AccessTemplateLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "AccessTemplateLinks",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "atlinks"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 103,
+      "fallbackText": "Access Template Links"
+    },
+    {
+      "kind": "Search",
+      "id": "AccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "AccessTemplates",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "accesstemplates"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 104,
+      "fallbackText": "Access Templates"
+    },
+    {
+      "kind": "Search",
+      "id": "DynamicGroups",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "DynamicGroups",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "dynamicgroups"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 105,
+      "fallbackText": "Dynamic Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "GroupFamilies",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "groupfamilies"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 106,
+      "fallbackText": "Group Families"
+    },
+    {
+      "kind": "Search",
+      "id": "ManagedUnits",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ManagedUnits",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "managedunits"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 107,
+      "fallbackText": "Managed Units"
+    },
+    {
+      "kind": "Search",
+      "id": "PolicyObjectLinks",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "PolicyObjectLinks",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "polinks"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 108,
+      "fallbackText": "Policy Object Links"
+    },
+    {
+      "kind": "Search",
+      "id": "PolicyObjects",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "PolicyObjects",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "policies"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 109,
+      "fallbackText": "Policy Objects"
+    },
+    {
+      "kind": "Search",
+      "id": "VirtualAttributes",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "VirtualAttributes",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "pink",
+        "sectionId": "virtualattrs"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 110,
+      "fallbackText": "Virtual Attributes"
+    },
+    {
+      "kind": "Search",
+      "id": "Workflows",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "Workflows",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "workflows"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 111,
+      "fallbackText": "Workflows"
+    },
+    {
+      "kind": "Search",
+      "id": "ConfigDatabases",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ConfigDatabases",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "configdatabases"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 112,
+      "fallbackText": "Config Databases"
+    },
+    {
+      "kind": "Search",
+      "id": "HistoryDatabases",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "HistoryDatabases",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "historydatabases"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 113,
+      "fallbackText": "History Databases"
+    },
+    {
+      "kind": "Search",
+      "id": "ScheduledTasks",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ScheduledTasks",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "scheduledtasks"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 114,
+      "fallbackText": "Scheduled Tasks"
+    },
+    {
+      "kind": "Search",
+      "id": "EmptyAccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "EmptyAccessTemplates",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "emptyaccesstemplates"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 115,
+      "fallbackText": "Empty Access Templates"
+    },
+    {
+      "kind": "Search",
+      "id": "PolicyObjectsNoRules",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "PolicyObjectsNoRules",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "policyobjectsnorules"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 116,
+      "fallbackText": "Policy Objects With No Rules"
+    },
+    {
+      "kind": "Search",
+      "id": "UnlinkedAccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "UnlinkedAccessTemplates",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "unlinkedaccesstemplates"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 117,
+      "fallbackText": "Unlinked User-Created Access Templates"
+    },
+    {
+      "kind": "Search",
+      "id": "DenyAccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "DenyAccessTemplates",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "denyaccesstemplates"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 118,
+      "fallbackText": "Access Templates With Deny Permissions"
+    },
+    {
+      "kind": "Search",
+      "id": "UnlinkedPolicyObjects",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "UnlinkedPolicyObjects",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "unlinkedpolicyobjects"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 119,
+      "fallbackText": "Unlinked User-Created Policy Objects"
+    },
+    {
+      "kind": "Search",
+      "id": "OrphanAccessTemplateLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "OrphanAccessTemplateLinks",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "orphanaccesstemplatelinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 120,
+      "fallbackText": "Orphaned Access Template Links"
+    },
+    {
+      "kind": "Derived",
+      "id": "BroadDelegationLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "broaddelegationlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 121,
+      "fallbackText": "Delegated to Broad Principals"
+    },
+    {
+      "kind": "Derived",
+      "id": "UserDelegationLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "userdelegationlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 122,
+      "fallbackText": "Delegated Directly to Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "RootDelegationLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "rootdelegationlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 123,
+      "fallbackText": "Delegated at Domain Root"
+    },
+    {
+      "kind": "Search",
+      "id": "OrphanPolicyObjectLinks",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "OrphanPolicyObjectLinks",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "orphanpolicyobjectlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 121,
+      "fallbackText": "Orphaned Policy Object Links"
+    },
+    {
+      "kind": "Search",
+      "id": "DynamicGroupsBrokenRules",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "DynamicGroupsBrokenRules",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "dynamicgroupsbrokenrules"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 122,
+      "fallbackText": "Dynamic Groups With Broken Rules"
+    },
+    {
+      "kind": "Search",
+      "id": "ManagedUnitsBrokenRules",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ManagedUnitsBrokenRules",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "managedunitsbrokenrules"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 123,
+      "fallbackText": "Managed Units With Broken Rules"
+    },
+    {
+      "kind": "Search",
+      "id": "ScriptModules",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ScriptModules",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "scriptmodules"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 124,
+      "fallbackText": "Script Modules"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraManagedTenants",
+      "categoryId": "ARManagedDirectories",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "indigo",
+        "sectionId": "entramanagedtenants"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 125,
+      "fallbackText": "Managed Entra Tenants"
+    }
+  ]
+}

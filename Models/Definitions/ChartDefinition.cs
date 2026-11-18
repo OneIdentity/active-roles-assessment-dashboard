@@ -53,5 +53,8 @@ public sealed class ChartSeriesDefinition
     /// <summary>Resource key overriding the label.</summary>
     public string? LabelKey { get; init; }
 
+    /// <summary>Label used when <see cref="LabelKey"/> is not set or not found.</summary>
+    public string? Label { get; init; }
+
     public string? Color { get; init; }
 }

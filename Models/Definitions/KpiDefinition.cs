@@ -15,8 +15,10 @@ public abstract class KpiDefinition : DefinitionBase
 {
     protected override string LocalizationPrefix => "Kpi_";
 
+    [JsonRequired, JsonPropertyOrder(-9)]
     public string CategoryId { get; init; } = string.Empty;
 
+    [JsonRequired, JsonPropertyOrder(-8)]
     public DataSource DataSource { get; init; }
 
     public KpiDisplay Display { get; init; } = new();
@@ -58,6 +60,9 @@ public sealed class KpiDisplay
 
     /// <summary>Resource key for the short tile label. Defaults to <c>KpiTile_{Id}</c>.</summary>
     public string? TileLabelKey { get; init; }
+
+    /// <summary>Tile label used when the resource key is not found.</summary>
+    public string? TileFallbackText { get; init; }
 }
 
 /// <summary>KPI calculated from a search against the source, optionally shared through a dataset.</summary>

@@ -1,0 +1,537 @@
+{
+  "categories": [
+    {
+      "id": "EntraOverview",
+      "dashboardId": "EntraId",
+      "kind": "Overview",
+      "charts": [
+        {
+          "id": "EntraOverviewUsersChart",
+          "type": "Pie",
+          "sourceSplitKpiId": "EntraOverviewUsers",
+          "sliceOffset": 16,
+          "fallbackText": "Users by Source"
+        },
+        {
+          "id": "EntraOverviewGroupsChart",
+          "type": "Pie",
+          "sourceSplitKpiId": "EntraOverviewGroups",
+          "sliceOffset": 16,
+          "sortOrder": 1,
+          "fallbackText": "Groups by Source"
+        }
+      ],
+      "sortOrder": -1,
+      "fallbackText": "Overview"
+    },
+    {
+      "id": "EntraIDGovernance",
+      "dashboardId": "EntraId",
+      "kind": "Risk",
+      "kpiSortOrder": "AtoZ",
+      "fallbackText": "Governance and Risk"
+    },
+    {
+      "id": "EntraUserAccounts",
+      "dashboardId": "EntraId",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "EntraUserAccountStateBreakdown",
+          "series": [
+            {
+              "kpiId": "EntraEnabledUsers",
+              "color": "green"
+            },
+            {
+              "kpiId": "EntraDisabledUsers",
+              "color": "red"
+            }
+          ],
+          "fallbackText": "Users by Account State"
+        },
+        {
+          "id": "EntraUserOriginBreakdown",
+          "series": [
+            {
+              "kpiId": "EntraInternalUsers",
+              "color": "teal"
+            },
+            {
+              "kpiId": "EntraExternalUsers",
+              "color": "pink"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Users by Origin"
+        },
+        {
+          "id": "EntraUserHybridStateBreakdown",
+          "series": [
+            {
+              "kpiId": "EntraHybridUsers",
+              "color": "teal"
+            },
+            {
+              "kpiId": "EntraCloudOnlyUsers",
+              "color": "blue"
+            }
+          ],
+          "sortOrder": 2,
+          "fallbackText": "Users by Sync State"
+        }
+      ],
+      "sortOrder": 1,
+      "fallbackText": "User Accounts"
+    },
+    {
+      "id": "EntraGroups",
+      "dashboardId": "EntraId",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "EntraGroupTypeBreakdown",
+          "series": [
+            {
+              "kpiId": "EntraDistributionGroups",
+              "color": "blue"
+            },
+            {
+              "kpiId": "EntraDynamicDistributionGroups",
+              "color": "teal"
+            },
+            {
+              "kpiId": "EntraMicrosoft365Groups",
+              "color": "purple"
+            },
+            {
+              "kpiId": "EntraSecurityGroups",
+              "color": "green"
+            }
+          ],
+          "fallbackText": "Groups by Type"
+        }
+      ],
+      "sortOrder": 2,
+      "fallbackText": "Groups"
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Derived",
+      "id": "EntraOverviewUsers",
+      "categoryId": "EntraOverview",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "blue"
+      },
+      "drilldown": {},
+      "fallbackText": "Total Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraOverviewGroups",
+      "categoryId": "EntraOverview",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "green"
+      },
+      "drilldown": {},
+      "sortOrder": 1,
+      "fallbackText": "Total Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraEnabledUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "entraenabledusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "fallbackText": "Enabled Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraDisabledUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "entradisabledusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 1,
+      "fallbackText": "Disabled Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraNoManagerUser",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "entranomanageruser"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 2,
+      "fallbackText": "No Manager (User)"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraGuestUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "entraguestusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 3,
+      "fallbackText": "Guest Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraInternalUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "entrainternalusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 4,
+      "fallbackText": "Internal Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraExternalUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "pink",
+        "sectionId": "entraexternalusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 5,
+      "fallbackText": "External Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraHybridUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "entrahybridusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 6,
+      "fallbackText": "Hybrid Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraCloudOnlyUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "entracloudonlyusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 7,
+      "fallbackText": "Cloud-Only Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraManagedUsers",
+      "categoryId": "EntraUserAccounts",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "entramanagedusers"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 8,
+      "fallbackText": "Managed Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraDistributionGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "entradistributiongroups"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "fallbackText": "Distribution Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraDynamicDistributionGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "entradynamicdistributiongroups"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 1,
+      "fallbackText": "Dynamic Distribution Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraMicrosoft365Groups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "entramicrosoft365groups"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 2,
+      "fallbackText": "Microsoft 365 Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraSecurityGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "entrasecuritygroups"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 3,
+      "fallbackText": "Security Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraEmptyGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "entraemptygroups"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 4,
+      "fallbackText": "Empty Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraNoGroupOwner",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "entranogroupowner"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 5,
+      "fallbackText": "No Group Owner"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraGuestContainingGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "entraguestcontaininggroups"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 6,
+      "fallbackText": "Guest-Containing Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraPublicGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "entrapublicgroups"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 7,
+      "fallbackText": "Public M365 Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraOnPremSyncedGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "entraonpremsyncedgroups"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 8,
+      "fallbackText": "On-Premises Synced Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraSingleOwnerGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "entrasingleownergroups"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 9,
+      "fallbackText": "Single-Owner Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraLargeGroups",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "entralargegroups"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 10,
+      "fallbackText": "Large Groups"
+    }
+  ]
+}
