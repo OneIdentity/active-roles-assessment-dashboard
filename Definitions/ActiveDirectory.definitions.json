@@ -1411,9 +1411,9 @@
       "id": "DistributionGroups",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && groupType >= 0"
       },
       "display": {
         "color": "blue",
@@ -1429,9 +1429,9 @@
       "id": "DomainLocalGroups",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && hasFlag(groupType, 0x4)"
       },
       "display": {
         "color": "blue",
@@ -1448,9 +1448,9 @@
       "id": "GlobalGroups",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && hasFlag(groupType, 0x2)"
       },
       "display": {
         "color": "blue",
@@ -1467,9 +1467,9 @@
       "id": "MailEnabledSecurityGroups",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && groupType < 0 && !isEmpty(mail)"
       },
       "display": {
         "color": "blue",
@@ -1486,9 +1486,9 @@
       "id": "SecurityGroups",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && groupType < 0"
       },
       "display": {
         "color": "blue",
@@ -1505,9 +1505,9 @@
       "id": "UniversalGroups",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && hasFlag(groupType, 0x8)"
       },
       "display": {
         "color": "blue",

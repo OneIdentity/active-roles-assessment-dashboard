@@ -43,7 +43,15 @@ internal static class LegacyDefinitionExporter
             ["UseDesEncryption"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x200000)"),
             ["NoKerberosPreauth"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x400000)"),
             ["SpnUserAccounts"] = ("ADUserAccounts", "!isEmpty(servicePrincipalName)"),
+            ["DistributionGroups"] = ("ADGroups", NotGroupFamily + " && groupType >= 0"),
+            ["SecurityGroups"] = ("ADGroups", NotGroupFamily + " && groupType < 0"),
+            ["DomainLocalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x4)"),
+            ["GlobalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x2)"),
+            ["UniversalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x8)"),
+            ["MailEnabledSecurityGroups"] = ("ADGroups", NotGroupFamily + " && groupType < 0 && !isEmpty(mail)"),
         };
+
+    private const string NotGroupFamily = "edsvaGFIsGroupFamily != 'TRUE'";
 
     public static IReadOnlyDictionary<string, DefinitionSet> ExportByDashboard()
     {
