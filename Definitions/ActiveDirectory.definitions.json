@@ -852,10 +852,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "AccountOperators",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "orange",
         "sectionId": "accountoperators"
@@ -871,10 +868,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "Administrators",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "red",
         "sectionId": "administrators"
@@ -891,10 +885,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "BackupOperators",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "amber",
         "sectionId": "backupoperators"
@@ -911,10 +902,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "DomainAdmins",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "pink",
         "sectionId": "domainadmins"
@@ -931,10 +919,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "ServerOperators",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "purple",
         "sectionId": "serveroperators"
@@ -951,10 +936,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "EnterpriseAdmins",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "red",
         "sectionId": "enterpriseadmins"
@@ -971,10 +953,7 @@
       "categoryId": "PrivilegedGroups",
       "dataSource": "ActiveDirectory",
       "datasetId": "SchemaAdmins",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "pink",
         "sectionId": "schemaadmins"

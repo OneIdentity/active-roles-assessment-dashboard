@@ -164,7 +164,9 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId, Evaluation = legacy
+                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId,
+                // Fixed-object KPIs count the expanded (direct and indirect) members of the group.
+                Evaluation = new EvaluationDefinition()
             }
             : new SearchKpi
             {

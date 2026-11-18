@@ -446,10 +446,7 @@
       "categoryId": "ARInfrastructure",
       "dataSource": "ActiveRoles",
       "datasetId": "ActiveRolesAdmins",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "red",
         "sectionId": "aradmins",
