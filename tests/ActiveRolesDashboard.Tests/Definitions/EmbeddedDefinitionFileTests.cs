@@ -63,6 +63,24 @@ public class EmbeddedDefinitionFileTests
         Assert.All(kpis.OfType<ObjectKpi>(), k => Assert.Contains(k.DatasetId, datasetIds));
     }
 
+    [Fact]
+    public void Every_static_kpi_is_listed_and_records_its_data_source()
+    {
+        var declared = typeof(Models.KpiInfo)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(Models.KpiInfo))
+            .Select(f => ((Models.KpiInfo)f.GetValue(null)!).Key)
+            .ToList();
+
+        Assert.Equal(declared.Order(), Models.KpiInfo.All.Select(k => k.Key).Order());
+
+        // DataSource is recorded on every initializer: the file text must name it once per KPI.
+        var source = File.ReadAllText(Path.Combine(FindRepoRoot(), "Models", "DashboardModels.cs"));
+        var missing = declared.Where(key => !System.Text.RegularExpressions.Regex.IsMatch(
+            source, $@"Key = ""{key}"",[^\r\n]*DataSource = Definitions\.DataSource\.\w+")).ToList();
+        Assert.Empty(missing);
+    }
+
     private static Dictionary<string, DefinitionSet> LoadEmbedded()
     {
         var result = new Dictionary<string, DefinitionSet>(StringComparer.OrdinalIgnoreCase);

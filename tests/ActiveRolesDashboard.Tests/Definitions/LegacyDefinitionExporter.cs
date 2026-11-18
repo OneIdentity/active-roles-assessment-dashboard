@@ -98,7 +98,7 @@ internal static class LegacyDefinitionExporter
     private static KpiDefinition ToKpi(KpiInfo k, string dashboard, out List<DatasetDefinition> datasets)
     {
         datasets = [];
-        var source = InferDataSource(k, dashboard);
+        var source = k.DataSource;
         var display = new KpiDisplay
         {
             Color = k.CssColor,
@@ -151,21 +151,6 @@ internal static class LegacyDefinitionExporter
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
                 Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId, Evaluation = legacy
             };
-    }
-
-    /// <summary>Data source is implicit today; infer it from the key prefix, then the owning dashboard.</summary>
-    private static DataSource InferDataSource(KpiInfo k, string dashboard)
-    {
-        if (k.Key.StartsWith("Entra", StringComparison.Ordinal)) return DataSource.EntraId;
-        if (k.Key.StartsWith("Exchange", StringComparison.Ordinal) || k.Key == "MainTotalMailboxes") return DataSource.Exchange;
-        return dashboard switch
-        {
-            "ActiveRoles" => DataSource.ActiveRoles,
-            "EntraId" => DataSource.EntraId,
-            "Exchange" => DataSource.Exchange,
-            "Licensing" => DataSource.Licensing,
-            _ => DataSource.ActiveDirectory
-        };
     }
 
     private static string Literal(object instance, string field) =>

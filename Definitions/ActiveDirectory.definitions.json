@@ -1158,6 +1158,101 @@
     },
     {
       "kind": "Derived",
+      "id": "NoKerberosPreauth",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "pink",
+        "sectionId": "nokerberospreauth"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 2,
+      "fallbackText": "Do Not Require Kerberos Preauthentication"
+    },
+    {
+      "kind": "Derived",
+      "id": "UserReversibleEncryption",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "userreversibleencryption"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 8,
+      "fallbackText": "Reversible Encryption"
+    },
+    {
+      "kind": "Derived",
+      "id": "SensitiveCannotDelegate",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "sensitivecannotdelegate"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 9,
+      "fallbackText": "Sensitive - Cannot Be Delegated"
+    },
+    {
+      "kind": "Derived",
+      "id": "TrustedForDelegation",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "trustedfordelegation"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 11,
+      "fallbackText": "Trusted for Delegation"
+    },
+    {
+      "kind": "Derived",
+      "id": "UseDesEncryption",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "evaluation": {
+        "type": "Function",
+        "function": "Legacy"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "usedesencryption"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "sortOrder": 12,
+      "fallbackText": "Use DES Encryption"
+    },
+    {
+      "kind": "Derived",
       "id": "DeprovisionedUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
