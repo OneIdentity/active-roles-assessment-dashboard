@@ -253,6 +253,30 @@ public class DrillDownGroupTreeAndViewTests : IDisposable
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Dashboard_view_permitted_dashboard_returns_its_categories()
+    {
+        using var client = await SignedIn(App(DashboardPermission.ViewActiveDirectoryDashboard));
+
+        var json = await GetJson(client, "/api/dashboard/view/ActiveDirectory");
+
+        Assert.Equal("ActiveDirectory", json.GetProperty("key").GetString());
+        Assert.Equal(DashboardInfo.All.Single(d => d.Key == "ActiveDirectory").Title, json.GetProperty("title").GetString());
+        Assert.NotEqual(0, json.GetProperty("categories").GetArrayLength());
+    }
+
+    [Theory]
+    [InlineData("ActiveRoles", DashboardPermission.ViewActiveDirectoryDashboard)]
+    [InlineData("ActiveDirectory", DashboardPermission.ViewActiveRolesDashboard)]
+    public async Task Dashboard_view_without_permission_is_not_found(string key, DashboardPermission otherPermission)
+    {
+        using var client = await SignedIn(App(otherPermission));
+
+        var response = await client.GetAsync($"/api/dashboard/view/{key}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     public void Dispose()
     {
         _app?.Dispose();
