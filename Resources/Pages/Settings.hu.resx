@@ -300,4 +300,37 @@
   <data name="Msg_RestartRequired" xml:space="preserve">
     <value>Egy vagy több kapcsolati beállítás megváltozott. A módosítások érvénybe lépéséhez indítsa újra az alkalmazást.</value>
   </data>
+  <data name="Card_Definitions" xml:space="preserve">
+    <value>Irányítópult-definíciók</value>
+  </data>
+  <data name="Hint_Definitions" xml:space="preserve">
+    <value>A KPI-, kategória- és diagramdefiníciók be vannak építve az alkalmazásba. Az App_Data\Definitions mappában lévő *.definitions.json fájlok felülírják őket, és indításkor töltődnek be.</value>
+  </data>
+  <data name="Definitions_OverridesActive" xml:space="preserve">
+    <value>Egyéni definíciós fájlok vannak használatban.</value>
+  </data>
+  <data name="Definitions_EmbeddedActive" xml:space="preserve">
+    <value>A beépített definíciók vannak használatban.</value>
+  </data>
+  <data name="Definitions_LoadedErrors" xml:space="preserve">
+    <value>Ezeket a definíciós fájlokat indításkor elutasította a rendszer, ezért a beépített definíciók vannak használatban:</value>
+  </data>
+  <data name="Definitions_NoPending" xml:space="preserve">
+    <value>Nincs alkalmazásra váró definícióváltozás.</value>
+  </data>
+  <data name="Definitions_PendingErrors" xml:space="preserve">
+    <value>A definíciós fájlok megváltoztak, de csak a következő hibák javítása után alkalmazhatók:</value>
+  </data>
+  <data name="Definitions_Pending" xml:space="preserve">
+    <value>A definíciós fájlok megváltoztak. Az alkalmazásukhoz indítsa újra az alkalmazást.</value>
+  </data>
+  <data name="Definitions_ConfirmRestart" xml:space="preserve">
+    <value>Újraindítja most az alkalmazást? A felhasználók kapcsolata rövid időre megszakad.</value>
+  </data>
+  <data name="Button_ApplyDefinitions" xml:space="preserve">
+    <value>Alkalmazás és újraindítás</value>
+  </data>
+  <data name="Definitions_Restarting" xml:space="preserve">
+    <value>Az alkalmazás újraindul. Néhány pillanat múlva töltse újra ezt az oldalt.</value>
+  </data>
 </root>

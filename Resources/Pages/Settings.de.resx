@@ -300,4 +300,37 @@
   <data name="Lbl_PowerUsersGroup" xml:space="preserve">
     <value>Hauptbenutzer - Gruppenname</value>
   </data>
+  <data name="Card_Definitions" xml:space="preserve">
+    <value>Dashboard-Definitionen</value>
+  </data>
+  <data name="Hint_Definitions" xml:space="preserve">
+    <value>KPI-, Kategorie- und Diagrammdefinitionen sind in die Anwendung eingebettet. Dateien namens *.definitions.json in App_Data\Definitions überschreiben sie und werden beim Start geladen.</value>
+  </data>
+  <data name="Definitions_OverridesActive" xml:space="preserve">
+    <value>Benutzerdefinierte Definitionsdateien werden verwendet.</value>
+  </data>
+  <data name="Definitions_EmbeddedActive" xml:space="preserve">
+    <value>Die integrierten Definitionen werden verwendet.</value>
+  </data>
+  <data name="Definitions_LoadedErrors" xml:space="preserve">
+    <value>Diese Definitionsdateien wurden beim Start abgelehnt, daher werden die integrierten Definitionen verwendet:</value>
+  </data>
+  <data name="Definitions_NoPending" xml:space="preserve">
+    <value>Es stehen keine Definitionsänderungen zur Anwendung aus.</value>
+  </data>
+  <data name="Definitions_PendingErrors" xml:space="preserve">
+    <value>Die Definitionsdateien wurden geändert und können erst angewendet werden, wenn diese Probleme behoben sind:</value>
+  </data>
+  <data name="Definitions_Pending" xml:space="preserve">
+    <value>Die Definitionsdateien wurden geändert. Starten Sie die Anwendung neu, um sie anzuwenden.</value>
+  </data>
+  <data name="Definitions_ConfirmRestart" xml:space="preserve">
+    <value>Anwendung jetzt neu starten? Benutzer verlieren kurzzeitig die Verbindung.</value>
+  </data>
+  <data name="Button_ApplyDefinitions" xml:space="preserve">
+    <value>Anwenden und neu starten</value>
+  </data>
+  <data name="Definitions_Restarting" xml:space="preserve">
+    <value>Die Anwendung wird neu gestartet. Laden Sie diese Seite in wenigen Augenblicken neu.</value>
+  </data>
 </root>

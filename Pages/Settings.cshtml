@@ -1295,6 +1295,52 @@
             }
         </div>
     </form>
+    @if (Model.Definitions is { } defs)
+    {
+        <form method="post" asp-page-handler="ApplyDefinitions">
+            <div class="settings-card">
+                <div class="section-header collapsed" onclick="toggleSection(this)">
+                    <h2>@Localizer["Card_Definitions"]</h2>
+                    <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                </div>
+                <div class="section-body collapsed">
+                    <p class="hint">@Localizer["Hint_Definitions"]</p>
+                    <p>@(defs.OverridesApplied ? Localizer["Definitions_OverridesActive"] : Localizer["Definitions_EmbeddedActive"])</p>
+                    @if (defs.LoadedErrors.Count > 0)
+                    {
+                        <div class="msg msg-warn">
+                            @Localizer["Definitions_LoadedErrors"]
+                            <ul>@foreach (var e in defs.LoadedErrors) { <li>@e</li> }</ul>
+                        </div>
+                    }
+                    @if (defs.Files.Count > 0)
+                    {
+                        <ul>@foreach (var f in defs.Files) { <li><code>@f</code></li> }</ul>
+                    }
+                    @if (Model.DefinitionsRestarting)
+                    {
+                        <div class="msg">@Localizer["Definitions_Restarting"]</div>
+                    }
+                    else if (!defs.HasPendingChanges)
+                    {
+                        <p>@Localizer["Definitions_NoPending"]</p>
+                    }
+                    else if (defs.PendingErrors.Count > 0)
+                    {
+                        <div class="msg msg-warn">
+                            @Localizer["Definitions_PendingErrors"]
+                            <ul>@foreach (var e in defs.PendingErrors) { <li>@e</li> }</ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="msg msg-warn">@Localizer["Definitions_Pending"]</div>
+                        <button type="submit" class="btn-save" data-confirm="@Localizer["Definitions_ConfirmRestart"]" onclick="return confirm(this.dataset.confirm);">@Localizer["Button_ApplyDefinitions"]</button>
+                    }
+                </div>
+            </div>
+        </form>
+    }
     </main>
 </div>
 <div class="loading-overlay" id="loadingOverlay">

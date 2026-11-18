@@ -15,6 +15,7 @@ public sealed class DefinitionStore
     private const string FileSuffix = ".definitions.json";
 
     private readonly string? _overrideDirectory;
+    private readonly IReadOnlyList<DefinitionSet> _embedded;
 
     public DefinitionStore(string? overrideDirectory, ILogger<DefinitionStore>? logger = null)
         : this(LoadEmbedded(typeof(DefinitionStore).Assembly), overrideDirectory, logger)
@@ -24,6 +25,7 @@ public sealed class DefinitionStore
     public DefinitionStore(IReadOnlyList<DefinitionSet> embedded, string? overrideDirectory, ILogger<DefinitionStore>? logger = null)
     {
         _overrideDirectory = overrideDirectory;
+        _embedded = embedded;
 
         var baseSet = new DefinitionSet
         {
@@ -75,6 +77,16 @@ public sealed class DefinitionStore
 
     /// <summary>True when override files were added, changed or removed since startup.</summary>
     public bool HasPendingChanges => ComputeFingerprint(_overrideDirectory) != LoadedFingerprint;
+
+    /// <summary>File names of the override files currently on disk.</summary>
+    public IReadOnlyList<string> CurrentOverrideFiles => OverrideFiles(_overrideDirectory).Select(f => Path.GetFileName(f)!).ToList();
+
+    /// <summary>
+    /// Validates the override files currently on disk without applying them. An empty result means a
+    /// restart will load them; otherwise the restart would fall back to the embedded definitions.
+    /// </summary>
+    public IReadOnlyList<string> ValidateCurrentOverrides() =>
+        new DefinitionStore(_embedded, _overrideDirectory).OverrideErrors;
 
     public static IReadOnlyList<DefinitionSet> LoadEmbedded(Assembly assembly)
     {

@@ -79,6 +79,30 @@ public sealed class DefinitionStoreTests : IDisposable
     }
 
     [Fact]
+    public void Pending_overrides_are_listed_and_validated_without_being_applied()
+    {
+        var store = new DefinitionStore(Embedded(), _dir);
+        File.WriteAllText(Path.Combine(_dir, "bad.definitions.json"),
+            """{ "kpis": [ { "kind": "Composite", "id": "NewKpi", "categoryId": "NoSuchCategory", "dataSource": "ActiveRoles", "sources": ["Missing"] } ] }""");
+
+        Assert.True(store.HasPendingChanges);
+        Assert.Equal(["bad.definitions.json"], store.CurrentOverrideFiles);
+        Assert.Contains(store.ValidateCurrentOverrides(), e => e.Contains("NoSuchCategory"));
+        Assert.False(store.Registry.Kpis.ContainsKey("NewKpi"));
+        Assert.Empty(store.OverrideErrors);
+    }
+
+    [Fact]
+    public void Valid_pending_overrides_report_no_errors()
+    {
+        var store = new DefinitionStore(Embedded(), _dir);
+        File.WriteAllText(Path.Combine(_dir, "empty.definitions.json"), "{}");
+
+        Assert.True(store.HasPendingChanges);
+        Assert.Empty(store.ValidateCurrentOverrides());
+    }
+
+    [Fact]
     public void Invalid_embedded_definitions_throw()
     {
         var bad = new DefinitionSet { Kpis = [new CompositeKpi { Id = "X", CategoryId = "Missing" }] };
