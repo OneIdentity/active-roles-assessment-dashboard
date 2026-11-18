@@ -831,9 +831,9 @@
       "id": "ReversibleEncryption",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x80)"
       },
       "display": {
         "color": "red",
@@ -990,9 +990,9 @@
       "id": "EnabledUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2)"
       },
       "display": {
         "color": "green",
@@ -1009,9 +1009,9 @@
       "id": "DisabledUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x2)"
       },
       "display": {
         "color": "red",
@@ -1028,9 +1028,9 @@
       "id": "ExpiringUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "daysUntil(accountExpires) > 0"
       },
       "display": {
         "color": "orange",
@@ -1047,9 +1047,9 @@
       "id": "PasswordNeverExpires",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x10000)"
       },
       "display": {
         "color": "purple",
@@ -1141,9 +1141,9 @@
       "id": "StalePasswords",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2) && daysSince(pwdLastSet) > $passwordAgeDays"
       },
       "display": {
         "color": "amber",
@@ -1256,9 +1256,9 @@
       "id": "DeprovisionedUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaDeprovisionStatus == '1'"
       },
       "display": {
         "color": "pink",
@@ -1375,9 +1375,9 @@
       "id": "HybridUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!isEmpty(`msDS-ExternalDirectoryObjectId`)"
       },
       "display": {
         "color": "teal",
@@ -1394,9 +1394,9 @@
       "id": "OnPremOnlyUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "isEmpty(`msDS-ExternalDirectoryObjectId`)"
       },
       "display": {
         "color": "slate",

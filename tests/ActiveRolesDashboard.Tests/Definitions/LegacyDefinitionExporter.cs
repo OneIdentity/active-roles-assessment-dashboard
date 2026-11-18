@@ -14,6 +14,24 @@ internal static class LegacyDefinitionExporter
 {
     public const string LegacyFunction = "Legacy";
 
+    /// <summary>
+    /// KPIs migrated from hand-written logic to expressions: KPI id -> (source dataset, filter).
+    /// The legacy code still produces the displayed value; the parity checker compares both.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, (string Dataset, string Filter)> Migrated =
+        new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["EnabledUsers"] = ("ADUserAccounts", "!hasFlag(userAccountControl, 0x2)"),
+            ["DisabledUsers"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x2)"),
+            ["HybridUsers"] = ("ADUserAccounts", "!isEmpty(`msDS-ExternalDirectoryObjectId`)"),
+            ["OnPremOnlyUsers"] = ("ADUserAccounts", "isEmpty(`msDS-ExternalDirectoryObjectId`)"),
+            ["ExpiringUsers"] = ("ADUserAccounts", "daysUntil(accountExpires) > 0"),
+            ["ReversibleEncryption"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x80)"),
+            ["PasswordNeverExpires"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x10000)"),
+            ["DeprovisionedUsers"] = ("ADUserAccounts", "edsvaDeprovisionStatus == '1'"),
+            ["StalePasswords"] = ("ADUserAccounts", "!hasFlag(userAccountControl, 0x2) && daysSince(pwdLastSet) > $passwordAgeDays"),
+        };
+
     public static IReadOnlyDictionary<string, DefinitionSet> ExportByDashboard()
     {
         var categoryDashboard = CategoryInfo.All.ToDictionary(c => c.Key, c => c.DashboardKey, StringComparer.OrdinalIgnoreCase);
@@ -109,11 +127,14 @@ internal static class LegacyDefinitionExporter
 
         if (k.Searches.Count == 0)
         {
+            var migrated = Migrated.TryGetValue(k.Key, out var m);
             return new DerivedKpi
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, Evaluation = legacy
+                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown },
+                SourceDatasetId = migrated ? m.Dataset : null,
+                Evaluation = migrated ? new EvaluationDefinition { Filter = m.Filter } : legacy
             };
         }
 

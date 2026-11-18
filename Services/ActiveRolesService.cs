@@ -14,13 +14,15 @@ public class ActiveRolesService
     private readonly IOptionsMonitor<ActiveRolesConfig> _configMonitor;
     private readonly ILogger<ActiveRolesService> _logger;
     private readonly ServiceAccountTokenProvider _serviceTokens;
+    private readonly DefinitionParityChecker? _parityChecker;
 
-    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens)
+    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, DefinitionParityChecker? parityChecker = null)
     {
         _httpClientFactory = httpClientFactory;
         _configMonitor = configMonitor;
         _logger = logger;
         _serviceTokens = serviceTokens;
+        _parityChecker = parityChecker;
     }
     // Very short-lived memo of the full AD group graph, used ONLY by the membership-check path
     // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
@@ -1508,6 +1510,20 @@ public class ActiveRolesService
         // from raw JsonElement sources that carry edsvaATLinksEffective/objectClass (requested
         // centrally in BuildAttributesQuery); we build a global DN->scope map and copy it across.
         StampObjectScopes(summary);
+
+        // Shadow-check KPIs migrated to definition expressions against the legacy values. Never
+        // affects the summary; failures are logged only.
+        if (_parityChecker != null)
+        {
+            try
+            {
+                _parityChecker.Check(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Definition parity check failed");
+            }
+        }
 
         return summary;
     }
