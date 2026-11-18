@@ -59,21 +59,67 @@ public sealed class DatasetCollectorTests : IDisposable
     }
 
     [Fact]
-    public void Object_reads_and_unresolved_filters_are_not_collected_generically()
+    public void Object_reads_resolve_to_member_expanding_requests()
     {
         var objects = new DatasetDefinition
         {
             Id = "O",
-            Retrieval = new RetrievalDefinition { Target = RetrievalTarget.Objects, Base = "{DefaultADDN}", Objects = ["x"] }
+            Retrieval = new RetrievalDefinition { Target = RetrievalTarget.Objects, Base = "{DefaultADDN}", Objects = ["Domain Admins", "x(y)"] }
         };
+
+        var request = DatasetRequestResolver.Resolve(objects, Config());
+
+        Assert.NotNull(request);
+        Assert.True(request.ExpandMembers);
+        Assert.Equal("(|(name=Domain Admins)(name=x\\28y\\29))", request.Filter);
+        Assert.Equal(["distinguishedName", "edsaDomainNetbiosName", "member"], request.Attributes);
+    }
+
+    [Fact]
+    public void Embedded_fixed_object_datasets_resolve()
+    {
+        var config = Config();
+        config.RoleGroups.ActiveRolesAdmins = "AR Admins";
+        var registry = Registry();
+
+        var admins = DatasetRequestResolver.Resolve(registry.Datasets["DomainAdmins"], config);
+        var arAdmins = DatasetRequestResolver.Resolve(registry.Datasets["ActiveRolesAdmins"], config);
+
+        Assert.Equal("(&(objectClass=group)(name=Domain Admins))", admins!.Filter);
+        Assert.True(admins.ExpandMembers);
+        Assert.Equal("(&(objectClass=group)(name=AR Admins))", arAdmins!.Filter);
+        Assert.Equal("CN=Active Directory", arAdmins.Base);
+    }
+
+    [Fact]
+    public void Unresolved_filters_and_unconfigured_role_groups_are_not_collected()
+    {
         var unknown = new DatasetDefinition
         {
             Id = "U",
             Retrieval = new RetrievalDefinition { Base = "{DefaultADDN}", Filter = "{ConfigFilter:DoesNotExist}" }
         };
 
-        Assert.Null(DatasetRequestResolver.Resolve(objects, Config()));
         Assert.Null(DatasetRequestResolver.Resolve(unknown, Config()));
+        Assert.Null(DatasetRequestResolver.Resolve(Registry().Datasets["ActiveRolesAdmins"], Config()));
+    }
+
+    [Fact]
+    public void Membership_expander_lists_direct_then_new_indirect_members()
+    {
+        var group = JsonDocument.Parse("{\"distinguishedName\":\"CN=G,DC=x\",\"edsaDomainNetbiosName\":\"X\",\"member\":[\"CN=A,DC=x\",\"CN=Sub,DC=x\"]}").RootElement;
+        var raw = JsonDocument.Parse("{\"objectClass\":\"user\"}").RootElement;
+
+        var items = MembershipExpander.Expand([group],
+            _ => ["CN=A,DC=x", "CN=B\\, Jr,DC=x"],
+            dn => dn == "CN=A,DC=x" ? raw : null);
+
+        Assert.Equal(3, items.Count);
+        Assert.Equal("Direct", items[0].GetProperty("membershipType").GetString());
+        Assert.Equal("user", items[0].GetProperty("objectClass").GetString());
+        Assert.Equal("Indirect", items[2].GetProperty("membershipType").GetString());
+        Assert.Equal("B, Jr", items[2].GetProperty("name").GetString());
+        Assert.Equal("X", items[2].GetProperty("domain").GetString());
     }
 
     [Fact]

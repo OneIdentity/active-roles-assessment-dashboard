@@ -4,7 +4,11 @@ using ActiveRolesDashboard.Models.Definitions;
 namespace ActiveRolesDashboard.Services.Definitions;
 
 /// <summary>Concrete REST search for one dataset, with all definition tokens resolved.</summary>
-public sealed record DatasetRequest(string DatasetId, string Base, string Filter, string Scope, IReadOnlyList<string> Attributes);
+/// <remarks>
+/// When <paramref name="ExpandMembers"/> is true the search locates fixed group objects and the
+/// dataset items are their (direct and indirect) members.
+/// </remarks>
+public sealed record DatasetRequest(string DatasetId, string Base, string Filter, string Scope, IReadOnlyList<string> Attributes, bool ExpandMembers = false);
 
 /// <summary>
 /// Turns a <see cref="DatasetDefinition"/> into a concrete <see cref="DatasetRequest"/> by resolving
@@ -19,16 +23,19 @@ public static class DatasetRequestResolver
 
     /// <summary>
     /// Resolves the request for <paramref name="dataset"/>. Returns null when the dataset cannot be
-    /// collected generically yet (object reads, or tokens that do not resolve).
+    /// collected generically (tokens that do not resolve, or an unconfigured role group).
     /// </summary>
     public static DatasetRequest? Resolve(DatasetDefinition dataset, ActiveRolesConfig config, IEnumerable<KpiDefinition>? consumers = null)
     {
         var retrieval = dataset.Retrieval;
-        if (retrieval.Method != RetrievalMethod.Rest || retrieval.Target != RetrievalTarget.Search)
+        if (retrieval.Method != RetrievalMethod.Rest)
             return null;
 
+        var expand = retrieval.Target == RetrievalTarget.Objects;
         var baseDn = ResolveBase(retrieval.Base, config);
-        var filter = ResolveFilter(retrieval.Filter, config);
+        var filter = expand && string.IsNullOrWhiteSpace(retrieval.Filter)
+            ? ObjectsFilter(retrieval.Objects)
+            : ResolveFilter(retrieval.Filter, config, ref baseDn);
         if (string.IsNullOrWhiteSpace(baseDn) || string.IsNullOrWhiteSpace(filter) || filter.StartsWith('{'))
             return null;
 
@@ -56,7 +63,15 @@ public static class DatasetRequestResolver
         foreach (var kpi in consumers ?? [])
             foreach (var a in kpi.Attributes) Add(a);
 
-        return new DatasetRequest(dataset.Id, baseDn, filter, string.IsNullOrWhiteSpace(retrieval.Scope) ? "sub" : retrieval.Scope, attributes);
+        if (expand)
+        {
+            // Needed to expand the located groups into their members.
+            Add("distinguishedName");
+            Add("edsaDomainNetbiosName");
+            Add("member");
+        }
+
+        return new DatasetRequest(dataset.Id, baseDn, filter, string.IsNullOrWhiteSpace(retrieval.Scope) ? "sub" : retrieval.Scope, attributes, expand);
     }
 
     /// <summary>KPIs whose values are read from <paramref name="datasetId"/>.</summary>
@@ -77,13 +92,65 @@ public static class DatasetRequestResolver
         _ => value
     };
 
-    private static string? ResolveFilter(string? value, ActiveRolesConfig config)
+    private static string? ResolveFilter(string? value, ActiveRolesConfig config, ref string? baseDn)
     {
         if (value is null || !value.StartsWith(ConfigFilterPrefix, StringComparison.Ordinal) || !value.EndsWith('}'))
             return value;
 
         var name = value[ConfigFilterPrefix.Length..^1];
-        var property = typeof(DefaultFiltersConfig).GetProperty(name);
-        return property?.GetValue(config.DefaultFilters) as string ?? value;
+        if (typeof(DefaultFiltersConfig).GetProperty(name)?.GetValue(config.DefaultFilters) is string filter)
+            return filter;
+
+        // Role groups (e.g. ActiveRolesAdmins) are configured by name; build the same filter and
+        // base as the legacy role group search.
+        if (typeof(RoleGroupsConfig).GetProperty(name)?.GetValue(config.RoleGroups) is string groupName)
+        {
+            if (string.IsNullOrWhiteSpace(groupName)) return null;
+            var escaped = EscapeLdapValue(groupName.Trim());
+            if (config.RoleGroups.DirectoryType == RoleGroupDirectoryType.Entra)
+            {
+                baseDn = config.DefaultAzureConfigurationDN;
+                return $"(&(|(objectClass=edsAzureSecurityGroup)(objectClass=edsAzureO365Group))(name={escaped}))";
+            }
+
+            baseDn = config.DefaultActiveDirectoryDN;
+            return $"(&(objectClass=group)(name={escaped}))";
+        }
+
+        return value;
+    }
+
+    private static string? ObjectsFilter(IReadOnlyList<string> objects)
+    {
+        var terms = objects.Where(o => !string.IsNullOrWhiteSpace(o))
+            .Select(o => o.Contains('=')
+                ? $"(distinguishedName={EscapeLdapValue(o.Trim())})"
+                : $"(name={EscapeLdapValue(o.Trim())})")
+            .ToList();
+        return terms.Count switch
+        {
+            0 => null,
+            1 => terms[0],
+            _ => $"(|{string.Concat(terms)})"
+        };
+    }
+
+    private static string EscapeLdapValue(string value)
+    {
+        var sb = new System.Text.StringBuilder(value.Length);
+        foreach (var c in value)
+        {
+            sb.Append(c switch
+            {
+                '\\' => "\\5c",
+                '*' => "\\2a",
+                '(' => "\\28",
+                ')' => "\\29",
+                '\0' => "\\00",
+                _ => c.ToString()
+            });
+        }
+
+        return sb.ToString();
     }
 }

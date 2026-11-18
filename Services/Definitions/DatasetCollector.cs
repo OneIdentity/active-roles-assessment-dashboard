@@ -4,12 +4,6 @@ using ActiveRolesDashboard.Models.Definitions;
 
 namespace ActiveRolesDashboard.Services.Definitions;
 
-/// <summary>Items retrieved for one dataset, or the error that prevented retrieval.</summary>
-public sealed record DatasetResult(IReadOnlyList<JsonElement> Items, string? Error)
-{
-    public static DatasetResult Failed(string error) => new([], error);
-}
-
 /// <summary>
 /// Retrieves datasets described by the definitions through the Active Roles REST search.
 /// Each dataset is fetched once and shared by every KPI that reads it.

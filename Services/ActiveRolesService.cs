@@ -16,8 +16,9 @@ public class ActiveRolesService
     private readonly ServiceAccountTokenProvider _serviceTokens;
     private readonly DefinitionParityChecker? _parityChecker;
     private readonly Definitions.DatasetCollector? _datasetCollector;
+    private readonly Definitions.DefinitionKpiCalculator? _kpiCalculator;
 
-    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, DefinitionParityChecker? parityChecker = null, Definitions.DatasetCollector? datasetCollector = null)
+    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, DefinitionParityChecker? parityChecker = null, Definitions.DatasetCollector? datasetCollector = null, Definitions.DefinitionKpiCalculator? kpiCalculator = null)
     {
         _httpClientFactory = httpClientFactory;
         _configMonitor = configMonitor;
@@ -25,6 +26,7 @@ public class ActiveRolesService
         _serviceTokens = serviceTokens;
         _parityChecker = parityChecker;
         _datasetCollector = datasetCollector;
+        _kpiCalculator = kpiCalculator;
     }
 
     /// <summary>Most recent dataset parity comparison from shadow collection (empty when disabled).</summary>
@@ -1516,17 +1518,26 @@ public class ActiveRolesService
         // centrally in BuildAttributesQuery); we build a global DN->scope map and copy it across.
         StampObjectScopes(summary);
 
-        // Shadow-check KPIs migrated to definition expressions against the legacy values. Never
-        // affects the summary; failures are logged only.
-        if (_parityChecker != null)
+        // Collect the datasets read by expression KPIs that the hand-written code does not already
+        // provide, then evaluate definition-driven KPIs into summary.KpiResults and compare them
+        // with the legacy values. Never affects the displayed values; failures are logged only.
+        if (_kpiCalculator != null)
         {
             try
             {
-                _parityChecker.Check(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow));
+                if (_datasetCollector != null)
+                {
+                    var required = _kpiCalculator.RequiredDatasetIds(settings);
+                    if (required.Count > 0)
+                        summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required));
+                }
+
+                _kpiCalculator.Populate(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow));
+                _parityChecker?.Check(summary);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Definition parity check failed");
+                _logger.LogWarning(ex, "Definition KPI evaluation failed");
             }
         }
 
@@ -4867,10 +4878,30 @@ public class ActiveRolesService
     /// Collects definition datasets through the same paged REST search used by the hand-written
     /// collection methods, so generic and legacy retrieval share paging, logging and scoping.
     /// </summary>
-    public Task<IReadOnlyDictionary<string, Definitions.DatasetResult>> CollectDatasetsAsync(
+    public Task<IReadOnlyDictionary<string, Models.Definitions.DatasetResult>> CollectDatasetsAsync(
         string token, Definitions.DatasetCollector collector, IEnumerable<string> datasetIds) =>
-        collector.CollectAsync(datasetIds, _configMonitor.CurrentValue,
-            r => SearchObjectsAsync(token, r.Base, r.Filter, r.Scope, string.Join(",", r.Attributes), $"Dataset:{r.DatasetId}"));
+        collector.CollectAsync(datasetIds, _configMonitor.CurrentValue, async r =>
+        {
+            var items = await SearchObjectsAsync(token, r.Base, r.Filter, r.Scope, string.Join(",", r.Attributes), $"Dataset:{r.DatasetId}");
+            if (!r.ExpandMembers)
+                return items;
+
+            // Fixed-object datasets: expand the located groups into direct and indirect members,
+            // matching the legacy privileged group collection.
+            var groups = await GetADGroupsForMembershipAsync(token);
+            if (groups.Error != null)
+                throw new InvalidOperationException(groups.Error);
+            var byDn = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
+            foreach (var g in groups.Items)
+            {
+                var dn = GetAttr(g, "distinguishedName");
+                if (!string.IsNullOrEmpty(dn)) byDn.TryAdd(dn, g);
+            }
+
+            return Definitions.MembershipExpander.Expand(items,
+                dn => groups.IndirectByDn.TryGetValue(dn, out var m) ? m : null,
+                dn => byDn.TryGetValue(dn, out var raw) ? raw : null);
+        });
 
     private async Task ShadowCollectDatasetsAsync(string token, DashboardSummary summary)
     {

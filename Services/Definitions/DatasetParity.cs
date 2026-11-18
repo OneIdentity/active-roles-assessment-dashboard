@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
+using ActiveRolesDashboard.Models.Definitions;
 
 namespace ActiveRolesDashboard.Services.Definitions;
 

@@ -2293,6 +2293,8 @@ public class DashboardSummary
     {
         var clone = (DashboardSummary)MemberwiseClone();
         clone.ADGroups = ADGroups.WithoutMemberPayload();
+        clone.KpiResults = KpiResults;
+        clone.CollectedDatasets = CollectedDatasets;
 
         // ExchangeKpis is populated by concurrent task continuations during collection. Take a
         // snapshot under the same lock used for those writes so the serialized copy is a stable,
@@ -2321,6 +2323,51 @@ public class DashboardSummary
     public const string EntraMembershipPendingWarning =
         "Entra group membership is still loading. Group-membership KPIs (Empty Groups, No Group Owner, " +
         "Guest-Containing Groups, Single-Owner Groups, Large Groups) may be inaccurate until loading completes.";
+
+    /// <summary>
+    /// Definition datasets keyed by dataset id. Search datasets that are still collected by the
+    /// hand-written code are exposed as views over the typed summaries, so segment and per-user
+    /// filtering applied to those summaries is reflected here. Datasets collected generically are
+    /// added through <see cref="CollectedDatasets"/>. Not serialized: the items are already persisted
+    /// through the typed summaries.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyDictionary<string, Definitions.DatasetResult> Datasets
+    {
+        get
+        {
+            var map = new Dictionary<string, Definitions.DatasetResult>(CollectedDatasets, StringComparer.OrdinalIgnoreCase);
+            map["ADUserAccounts"] = new(ADUserAccounts.Items, ADUserAccounts.Error);
+            map["ADGroups"] = new(ADGroups.Items, ADGroups.Error);
+            map["Computers"] = new(Computers.Items, Computers.Error);
+            return map;
+        }
+    }
+
+    /// <summary>
+    /// Datasets collected generically from the definitions, keyed by dataset id. Serialized so the
+    /// cached superset can be re-filtered and re-evaluated per viewer.
+    /// </summary>
+    public Dictionary<string, Definitions.DatasetResult> CollectedDatasets
+    {
+        get => _collectedDatasets;
+        set => _collectedDatasets = new(value ?? [], StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, Definitions.DatasetResult> _collectedDatasets = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Values of definition-driven KPIs, keyed by KPI id. Populated by the definition evaluator for
+    /// KPIs whose evaluation is an expression; legacy KPIs remain available through
+    /// <see cref="GetKpiResult"/>.
+    /// </summary>
+    public Dictionary<string, Definitions.KpiResult> KpiResults
+    {
+        get => _kpiResults;
+        set => _kpiResults = new(value ?? [], StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, Definitions.KpiResult> _kpiResults = new(StringComparer.OrdinalIgnoreCase);
 
     public ADUserAccountsSummary ADUserAccounts { get; set; } = new();
     public DomainSummary Domains { get; set; } = new();
@@ -2614,6 +2661,10 @@ public class DashboardSummary
 
         AdVisible = effectiveDomains.Count > 0;
         EntraVisible = EntraTotals.Tenants.Count > 0;
+
+        // Definition KPI values were computed over the unfiltered datasets; drop them so they are
+        // recomputed from the filtered datasets rather than read stale.
+        KpiResults.Clear();
     }
 
     /// <summary>Returns the count and error for any KPI by key, enabling generic tile rendering.</summary>

@@ -136,6 +136,7 @@ builder.Services.AddSingleton(sp => new ActiveRolesDashboard.Models.Definitions.
 builder.Services.AddSingleton<ActiveRolesDashboard.Models.Definitions.Evaluation.KpiEvaluator>();
 builder.Services.AddSingleton<DefinitionParityChecker>();
 builder.Services.AddSingleton<ActiveRolesDashboard.Services.Definitions.DatasetCollector>();
+builder.Services.AddSingleton<ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator>();
 
 // Shared-superset cache, service-account collection, and per-user AR permission filtering.
 builder.Services.AddSingleton<DashboardCacheHolder>();

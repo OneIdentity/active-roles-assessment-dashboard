@@ -52,10 +52,14 @@ public sealed class DefinitionParityTests : IDisposable
             new ServiceAccountSecretProtector(new EphemeralDataProtectionProvider()),
             config,
             NullLogger<ServiceAccountTokenProvider>.Instance);
-        var checker = new DefinitionParityChecker(Registry(), new KpiEvaluator(new KpiFunctionRegistry()), NullLogger<DefinitionParityChecker>.Instance);
-        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker);
+        var checker = new DefinitionParityChecker(NullLogger<DefinitionParityChecker>.Instance);
+        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(Registry(), new KpiEvaluator(new KpiFunctionRegistry()));
+        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker, kpiCalculator: calculator);
 
-        await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
+        var summary = await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
+
+        Assert.Equal(LegacyDefinitionExporter.Migrated.Keys.Order(StringComparer.OrdinalIgnoreCase),
+            summary.KpiResults.Keys.Order(StringComparer.OrdinalIgnoreCase));
 
         var results = checker.LastResults;
         Assert.True(LegacyDefinitionExporter.Migrated.Count == results.Count,

@@ -304,4 +304,41 @@ public class PermissionFilteringTests
     {
         Assert.False(StandardModel().GrantsLicensingVisibility(Viewer(ViewerSid)));
     }
+
+    [Fact]
+    public void Definition_datasets_are_filtered_and_kpi_results_recomputed_per_viewer()
+    {
+        var registry = new ActiveRolesDashboard.Models.Definitions.DefinitionRegistry(new ActiveRolesDashboard.Models.Definitions.DefinitionSet
+        {
+            Categories = [new ActiveRolesDashboard.Models.Definitions.CategoryDefinition { Id = "Cat", DashboardId = "Main" }],
+            Kpis =
+            [
+                new ActiveRolesDashboard.Models.Definitions.DerivedKpi
+                {
+                    Id = "AllExtra", CategoryId = "Cat", SourceDatasetId = "Extra",
+                    Evaluation = new ActiveRolesDashboard.Models.Definitions.EvaluationDefinition()
+                },
+                new ActiveRolesDashboard.Models.Definitions.DerivedKpi
+                {
+                    Id = "AllUsers", CategoryId = "Cat", SourceDatasetId = "ADUserAccounts",
+                    Evaluation = new ActiveRolesDashboard.Models.Definitions.EvaluationDefinition()
+                }
+            ]
+        });
+        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(registry,
+            new ActiveRolesDashboard.Models.Definitions.Evaluation.KpiEvaluator(new ActiveRolesDashboard.Models.Definitions.Evaluation.KpiFunctionRegistry()));
+        var superset = Superset();
+        superset.CollectedDatasets["Extra"] = new([Raw("visible-user", "user", UsersLink), Raw("hidden", "user", OtherTrusteeLink)], null);
+        calculator.Populate(superset, new KpiSettings(), new() { Now = DateTimeOffset.UtcNow });
+        Assert.Equal(2, superset.KpiResults["AllExtra"].Value);
+
+        var s = new PerUserDashboardFilter(calculator).Filter(superset, Viewer(ViewerSid), StandardModel());
+
+        Assert.Single(s.CollectedDatasets["Extra"].Items);
+        Assert.Equal(1, s.KpiResults["AllExtra"].Value);
+        Assert.Equal(s.ADUserAccounts.Items.Count, s.KpiResults["AllUsers"].Value);
+
+        var zeroed = new PerUserDashboardFilter(calculator).Filter(superset, Viewer("S-1-5-21-1-5555"), StandardModel());
+        Assert.Equal(0, zeroed.KpiResults["AllUsers"].Value);
+    }
 }

@@ -13,7 +13,9 @@ namespace ActiveRolesDashboard.Services;
 /// The superset is never mutated: each filtered summary/list is a new instance. Scalar
 /// security-health signals are scoped by domain visibility (the set of domains the viewer can see).
 /// </summary>
-public sealed class PerUserDashboardFilter
+public sealed class PerUserDashboardFilter(
+    Definitions.DefinitionKpiCalculator? kpiCalculator = null,
+    Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig>? config = null)
 {
     /// <summary>
     /// Returns a new <see cref="DashboardSummary"/> containing only the objects visible to
@@ -30,7 +32,7 @@ public sealed class PerUserDashboardFilter
         // would produce an all-zero summary. Skip the walk entirely and return that zeroed
         // projection directly - the result is identical but effectively instant.
         if (!model.HasAnyDelegation(user))
-            return Zeroed();
+            return WithKpiResults(Zeroed(), superset);
 
         var s = new DashboardSummary();
 
@@ -163,7 +165,29 @@ public sealed class PerUserDashboardFilter
             s.ExchangeKpis[kvp.Key] = FilterGovernance(kvp.Value, user, model);
         }
 
-        return s;
+        // --- Definition datasets and KPI results -----------------------------
+        foreach (var (id, dataset) in superset.CollectedDatasets)
+        {
+            s.CollectedDatasets[id] = dataset.Error != null
+                ? dataset
+                : new Models.Definitions.DatasetResult(PermissionScope.VisibleItems(dataset.Items, user, model), null);
+        }
+
+        return WithKpiResults(s, superset);
+    }
+
+    /// <summary>
+    /// Re-evaluates the superset's definition KPIs over the viewer's visible datasets so the values
+    /// match the filtered typed counts. Only KPIs already evaluated for the superset (enabled ones)
+    /// are recomputed.
+    /// </summary>
+    private DashboardSummary WithKpiResults(DashboardSummary filtered, DashboardSummary superset)
+    {
+        if (kpiCalculator == null || superset.KpiResults.Count == 0) return filtered;
+
+        var context = DefinitionParityChecker.CreateContext(config?.CurrentValue ?? new ActiveRolesConfig(), DateTimeOffset.UtcNow);
+        kpiCalculator.Populate(filtered, kpi => superset.KpiResults.ContainsKey(kpi.Id), context);
+        return filtered;
     }
 
     /// <summary>
