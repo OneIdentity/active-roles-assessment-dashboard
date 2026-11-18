@@ -8,25 +8,36 @@ namespace ActiveRolesDashboard.Models.Definitions;
 /// </summary>
 public static class DefinitionCatalog
 {
-    private static readonly IReadOnlyList<KpiInfo> LegacyKpis = KpiInfo.All;
-    private static readonly IReadOnlyList<CategoryInfo> LegacyCategories = CategoryInfo.All;
-    private static readonly IReadOnlyList<ChartInfo> LegacyCharts = ChartInfo.All;
+    public static IReadOnlyList<KpiInfo> LegacyKpis { get; } = KpiInfo.All;
+    public static IReadOnlyList<CategoryInfo> LegacyCategories { get; } = CategoryInfo.All;
+    public static IReadOnlyList<ChartInfo> LegacyCharts { get; } = ChartInfo.All;
 
     public static void Apply(DefinitionRegistry registry)
     {
         var legacyKpis = LegacyKpis.ToDictionary(k => k.Key, StringComparer.OrdinalIgnoreCase);
 
-        CategoryInfo.Replace(registry.Set.Categories.Where(c => c.Enabled).Select(ToCategory).ToList());
+        CategoryInfo.Replace(InLegacyOrder(
+            registry.Set.Categories.Where(c => c.Enabled).Select(ToCategory), c => c.Key, LegacyCategories.Select(c => c.Key)));
 
-        ChartInfo.All = registry.Set.Categories
+        ChartInfo.All = InLegacyOrder(registry.Set.Categories
             .Where(c => c.Enabled)
-            .SelectMany(c => c.Charts.Where(ch => ch.Enabled).Select(ch => ToChart(ch, c.Id)))
-            .ToList();
+            .SelectMany(c => c.Charts.Where(ch => ch.Enabled).Select(ch => ToChart(ch, c.Id))), c => c.Key, LegacyCharts.Select(c => c.Key));
 
-        KpiInfo.All = registry.Set.Kpis
+        KpiInfo.All = InLegacyOrder(registry.Set.Kpis
             .Where(k => k.Enabled)
-            .Select(k => ToKpi(k, legacyKpis.GetValueOrDefault(k.Id)))
-            .ToList();
+            .Select(k => ToKpi(k, legacyKpis.GetValueOrDefault(k.Id))), k => k.Key, LegacyKpis.Select(k => k.Key));
+    }
+
+    /// <summary>
+    /// Embedded files merge in file-name order; keep items that existed in the compiled-in lists
+    /// in their original order (consumers iterate these lists directly) and append new items.
+    /// </summary>
+    private static List<T> InLegacyOrder<T>(IEnumerable<T> items, Func<T, string> key, IEnumerable<string> legacyKeys)
+    {
+        var index = legacyKeys.Select((k, i) => (k, i))
+            .DistinctBy(x => x.k, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.k, x => x.i, StringComparer.OrdinalIgnoreCase);
+        return items.OrderBy(i => index.GetValueOrDefault(key(i), int.MaxValue)).ToList();
     }
 
     /// <summary>Restores the compiled-in lists (used by tests).</summary>

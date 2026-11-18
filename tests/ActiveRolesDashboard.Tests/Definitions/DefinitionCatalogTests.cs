@@ -10,9 +10,9 @@ public sealed class DefinitionCatalogTests
     [Fact]
     public void Embedded_definitions_project_to_the_compiled_in_lists()
     {
-        var legacyKpis = KpiInfo.All.ToList();
-        var legacyCategories = CategoryInfo.All.ToList();
-        var legacyCharts = ChartInfo.All.ToList();
+        var legacyKpis = DefinitionCatalog.LegacyKpis.ToList();
+        var legacyCategories = DefinitionCatalog.LegacyCategories.ToList();
+        var legacyCharts = DefinitionCatalog.LegacyCharts.ToList();
         var registry = new DefinitionStore(DefinitionStore.LoadEmbedded(typeof(DefinitionStore).Assembly), null).Registry;
 
         try
