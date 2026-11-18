@@ -5,6 +5,8 @@ using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using WireMock.RequestBuilders;
+using WireMock.ResponseBuilders;
 
 namespace ActiveRolesDashboard.Tests.Security;
 
@@ -175,6 +177,116 @@ public class DrillDownEndpointMappingTests : IDisposable
         var json = await GetJson(client, "/api/DrillDown/children/33333333-0000-0000-0000-000000000099");
 
         Assert.Equal("No data", json.GetProperty("error").GetString());
+    }
+
+    [Fact]
+    public async Task Children_of_known_object_are_passed_through()
+    {
+        const string guid = "33333333-0000-0000-0000-000000000001";
+        _server.Server.Given(Request.Create().WithPath($"/api/children/{guid}").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(200).WithHeader("Content-Type", "application/json")
+                .WithBody("""{"items":[{"name":"Child A"},{"name":"Child B"}]}"""));
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, $"/api/DrillDown/children/{guid}");
+
+        var names = json.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("name").GetString()).ToList();
+        Assert.Equal(["Child A", "Child B"], names);
+    }
+
+    [Fact]
+    public async Task Dynamic_groups_count_rules_flag_expensive_groups_and_group_by_service()
+    {
+        var expensiveRules = string.Concat(Enumerable.Repeat("[rule]", 11));
+        _server.WithSearch("objectClass=edsDynamicGroup", [
+            Obj(("name", "DG Cheap"), ("edsaDGConditionsList", "[a][b]"), ("edsvaDGControllingService", "ARS01")),
+            Obj(("name", "DG Expensive"), ("edsaDGConditionsList", expensiveRules), ("edsvaDGControllingService", "ARS01")),
+            Obj(("name", "DG Unassigned"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/dynamicgroups");
+
+        Assert.Equal(3, json.GetProperty("totalCount").GetInt32());
+        var cheap = ItemNamed(json, "name", "DG Cheap");
+        Assert.Equal(2, cheap.GetProperty("ruleCount").GetInt32());
+        Assert.False(cheap.GetProperty("isExpensive").GetBoolean());
+        var expensive = ItemNamed(json, "name", "DG Expensive");
+        Assert.Equal(11, expensive.GetProperty("ruleCount").GetInt32());
+        Assert.True(expensive.GetProperty("isExpensive").GetBoolean());
+        Assert.Equal(0, ItemNamed(json, "name", "DG Unassigned").GetProperty("ruleCount").GetInt32());
+
+        var distribution = json.GetProperty("serviceDistribution");
+        Assert.Equal(2, distribution.GetProperty("ARS01").GetInt32());
+        Assert.Equal(1, distribution.GetProperty("(unassigned)").GetInt32());
+    }
+
+    [Fact]
+    public async Task Managed_units_map_dn_and_rule_count()
+    {
+        _server.WithSearch("objectClass=edsManagedUnit", [
+            Obj(("name", "MU Sales"), ("distinguishedName", "CN=MU Sales,CN=Managed Units,CN=Configuration"), ("edsaMUConditionsList", "[x][y][z]")),
+            Obj(("name", "MU Empty"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/managedunits");
+
+        Assert.Equal(2, json.GetProperty("totalCount").GetInt32());
+        var sales = ItemNamed(json, "name", "MU Sales");
+        Assert.Equal("CN=MU Sales,CN=Managed Units,CN=Configuration", sales.GetProperty("dn").GetString());
+        Assert.Equal(3, sales.GetProperty("ruleCount").GetInt32());
+        Assert.Equal(0, ItemNamed(json, "name", "MU Empty").GetProperty("ruleCount").GetInt32());
+    }
+
+    [Fact]
+    public async Task Policies_count_ape_rules_and_require_both_flags_to_be_built_in()
+    {
+        _server.WithSearch("objectClass=edsPolicyObject", [
+            Obj(("name", "Built-in Policy"), ("edsaIsPredefined", "TRUE"), ("edsaSystemObject", "TRUE"),
+                ("edsaAPEListXML", "<APEList><APE/><APE/></APEList>")),
+            Obj(("name", "Predefined Only"), ("edsaIsPredefined", "TRUE"), ("edsaSystemObject", "FALSE")),
+            Obj(("name", "Malformed XML"), ("edsaAPEListXML", "<APEList><APE>"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/policies");
+
+        Assert.Equal(3, json.GetProperty("totalCount").GetInt32());
+        var builtIn = ItemNamed(json, "name", "Built-in Policy");
+        Assert.True(builtIn.GetProperty("isBuiltIn").GetBoolean());
+        Assert.Equal(2, builtIn.GetProperty("ruleCount").GetInt32());
+        Assert.False(ItemNamed(json, "name", "Predefined Only").GetProperty("isBuiltIn").GetBoolean());
+        Assert.Equal(0, ItemNamed(json, "name", "Malformed XML").GetProperty("ruleCount").GetInt32());
+    }
+
+    [Fact]
+    public async Task Script_modules_map_type_system_flag_and_language_breakdown()
+    {
+        _server.WithSearch("objectClass=edsScriptModule", [
+            Obj(("name", "Policy Script"), ("edsaScriptLanguage", "PowerShell"), ("edsaScriptType", "0"),
+                ("edsaSystemObject", "TRUE"), ("edsaIsPredefined", "TRUE")),
+            Obj(("name", "Task Script"), ("edsaScriptLanguage", "PowerShell"), ("edsaScriptType", "1")),
+            Obj(("name", "Library Script"), ("edsaScriptLanguage", "VBScript"), ("edsaScriptType", "2")),
+            Obj(("name", "Odd Script"), ("edsaScriptType", "7"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/scriptmodules");
+
+        Assert.Equal(4, json.GetProperty("totalCount").GetInt32());
+        var policy = ItemNamed(json, "name", "Policy Script");
+        Assert.Equal("PolicyScript", policy.GetProperty("type").GetString());
+        Assert.True(policy.GetProperty("isSystem").GetBoolean());
+        Assert.Equal("ScheduledTaskScript", ItemNamed(json, "name", "Task Script").GetProperty("type").GetString());
+        Assert.False(ItemNamed(json, "name", "Task Script").GetProperty("isSystem").GetBoolean());
+        Assert.Equal("LibraryScript", ItemNamed(json, "name", "Library Script").GetProperty("type").GetString());
+        Assert.Equal("7", ItemNamed(json, "name", "Odd Script").GetProperty("type").GetString());
+
+        var breakdown = json.GetProperty("languageBreakdown");
+        Assert.Equal(2, breakdown.GetProperty("PowerShell").GetInt32());
+        Assert.Equal(1, breakdown.GetProperty("VBScript").GetInt32());
+        Assert.Equal(1, breakdown.GetProperty("Unknown").GetInt32());
     }
 
     public void Dispose()
