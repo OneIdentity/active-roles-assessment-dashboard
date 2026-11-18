@@ -49,6 +49,21 @@ public sealed class KpiEvaluatorTests
     public void Filter_counts(string? filter, long expected) => Assert.Equal(expected, Run(filter));
 
     [Fact]
+    public void Date_functions_accept_numeric_filetimes()
+    {
+        var items = Parse($$"""
+            [
+              { "pwdLastSet": {{Now.AddDays(-400).ToFileTime()}}, "accountExpires": {{Now.AddDays(10).ToFileTime()}} },
+              { "pwdLastSet": 0, "accountExpires": 9223372036854775807 }
+            ]
+            """);
+        var evaluator = new KpiEvaluator(new KpiFunctionRegistry());
+
+        Assert.Equal(1, evaluator.Evaluate(new EvaluationDefinition { Filter = "daysSince(pwdLastSet) > 365" }, items, Context));
+        Assert.Equal(1, evaluator.Evaluate(new EvaluationDefinition { Filter = "daysUntil(accountExpires) > 0" }, items, Context));
+    }
+
+    [Fact]
     public void Aggregates()
     {
         Assert.Equal(1, Run(null, AggregateFunction.DistinctCount, "msDS-SiteName")); // HQ and hq are the same value

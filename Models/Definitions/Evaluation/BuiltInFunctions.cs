@@ -87,6 +87,16 @@ internal static class BuiltInFunctions
     /// <summary>Accepts AD FILETIME integers, ISO 8601 and LDAP generalized time; FILETIME 0 / max mean "never".</summary>
     internal static DateTimeOffset? ParseDate(object? value)
     {
+        // FILETIME attributes arrive as JSON numbers from the REST API; their text form uses
+        // exponent notation, so convert the number directly instead of re-parsing it.
+        if (value is IReadOnlyList<string> { Count: 1 } single) value = single[0];
+        if (value is double number)
+        {
+            if (number <= 0 || number >= long.MaxValue) return null;
+            try { return DateTimeOffset.FromFileTime((long)number).ToUniversalTime(); }
+            catch (ArgumentOutOfRangeException) { return null; }
+        }
+
         var text = ExprValue.Text(value);
         if (text.Length == 0) return null;
 
