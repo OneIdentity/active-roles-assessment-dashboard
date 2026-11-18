@@ -289,6 +289,136 @@ public class DrillDownEndpointMappingTests : IDisposable
         Assert.Equal(1, breakdown.GetProperty("Unknown").GetInt32());
     }
 
+    // ---------------------------------------------------------------- analysis endpoints
+
+    private static List<string?> Names(JsonElement summary) =>
+        summary.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("name").GetString()).OrderBy(n => n).ToList();
+
+    [Fact]
+    public async Task Policy_objects_without_rules_exclude_policies_with_ape_entries()
+    {
+        _server.WithSearch("objectClass=edsPolicyObject", [
+            Obj(("name", "With Rules"), ("edsaAPEListXML", "<APEList><APE/></APEList>")),
+            Obj(("name", "Empty List"), ("edsaAPEListXML", "<APEList/>")),
+            Obj(("name", "No Attribute"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/policyobjectsnorules");
+
+        Assert.Equal(2, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal(["Empty List", "No Attribute"], Names(json));
+    }
+
+    [Fact]
+    public async Task Unlinked_access_templates_ignore_braces_and_case_when_matching_links()
+    {
+        _server.WithSearch("edsaIsPredefined=FALSE", [
+            Obj(("name", "Linked"), ("objectGUID", "AAAAAAAA-0000-0000-0000-000000000001")),
+            Obj(("name", "Unlinked"), ("objectGUID", "aaaaaaaa-0000-0000-0000-000000000002"))
+        ], priority: 30);
+        _server.WithSearch("objectClass=edsACE", [
+            Obj(("edsaAccessTemplateGUID", "{aaaaaaaa-0000-0000-0000-000000000001}"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/unlinkedaccesstemplates");
+
+        Assert.Equal(1, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal(["Unlinked"], Names(json));
+    }
+
+    [Fact]
+    public async Task Deny_access_templates_detect_deny_and_object_deny_aces()
+    {
+        _server.WithSearch("objectClass=edsAccessTemplate", [
+            Obj(("name", "Allow Only"), ("edsaATEList", new JsonArray("[A;;RP;;;][OA;;WP;;;]"))),
+            Obj(("name", "Deny"), ("edsaATEList", new JsonArray("[A;;RP;;;]", "[D;;WP;;;]"))),
+            Obj(("name", "Object Deny"), ("edsaATEList", new JsonArray("[od;;RP;;;]"))),
+            Obj(("name", "No ACEs"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/denyaccesstemplates");
+
+        Assert.Equal(2, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal(["Deny", "Object Deny"], Names(json));
+    }
+
+    [Fact]
+    public async Task Unlinked_policy_objects_exclude_policies_referenced_by_links()
+    {
+        _server.WithSearch("objectClass=edsPolicyObject)(!(name=Built-in", [
+            Obj(("name", "Linked"), ("objectGuid", "bbbbbbbb-0000-0000-0000-000000000001")),
+            Obj(("name", "Unlinked"), ("objectGuid", "bbbbbbbb-0000-0000-0000-000000000002"))
+        ], priority: 30);
+        _server.WithSearch("objectClass=edsPolicyObjectLink", [
+            Obj(("edsaAPOGUID", "{BBBBBBBB-0000-0000-0000-000000000001}"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/unlinkedpolicyobjects");
+
+        Assert.Equal(1, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal(["Unlinked"], Names(json));
+    }
+
+    [Fact]
+    public async Task Orphan_access_template_links_list_missing_reference_attributes()
+    {
+        _server.WithSearch("objectClass=edsACE", [
+            Obj(("name", "Complete"), ("edsaAccessTemplateGUID", "g1"), ("edsaSecObjectGUID", "g2"), ("edsaTrusteeSID", "S-1-5-21-1")),
+            Obj(("name", "No Trustee"), ("edsaAccessTemplateGUID", "g1"), ("edsaSecObjectGUID", "g2")),
+            Obj(("name", "Bare"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/orphanaccesstemplatelinks");
+
+        Assert.Equal(2, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal("edsaTrusteeSID", ItemNamed(json, "name", "No Trustee").GetProperty("missingAttributes").GetString());
+        Assert.Equal("edsaAccessTemplateGUID, edsaSecObjectGUID, edsaTrusteeSID",
+            ItemNamed(json, "name", "Bare").GetProperty("missingAttributes").GetString());
+    }
+
+    [Fact]
+    public async Task Orphan_policy_object_links_list_missing_reference_attributes()
+    {
+        _server.WithSearch("objectClass=edsPolicyObjectLink", [
+            Obj(("name", "Complete"), ("edsaAPOGUID", "g1"), ("edsaSecObjectGUID", "g2")),
+            Obj(("name", "No Target"), ("edsaAPOGUID", "g1"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, "/api/DrillDown/orphanpolicyobjectlinks");
+
+        Assert.Equal(1, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal("edsaSecObjectGUID", ItemNamed(json, "name", "No Target").GetProperty("missingAttributes").GetString());
+    }
+
+    private const string ExistingGuid = "cccccccc-0000-0000-0000-000000000001";
+    private const string MissingGuid = "cccccccc-0000-0000-0000-000000000099";
+
+    [Theory]
+    [InlineData("dynamicgroupsbrokenrules", "objectClass=edsDynamicGroup", "edsaDGConditionsList")]
+    [InlineData("managedunitsbrokenrules", "objectClass=edsManagedUnit", "edsaMUConditionsList")]
+    public async Task Broken_rules_flag_only_objects_referencing_unresolvable_guids(string route, string filter, string conditionsAttribute)
+    {
+        _server.WithObject(ExistingGuid, Obj(("name", "Resolves")));
+        _server.WithSearch(filter, [
+            Obj(("name", "Healthy"), (conditionsAttribute, $"[memberOf={{{ExistingGuid}}}]")),
+            Obj(("name", "Broken"), (conditionsAttribute, $"[memberOf={ExistingGuid}][memberOf={{{MissingGuid}}}]")),
+            Obj(("name", "No GUIDs"), (conditionsAttribute, "[department=IT]")),
+            Obj(("name", "No Conditions"))
+        ]);
+        using var client = await SignedIn();
+
+        var json = await GetJson(client, $"/api/DrillDown/{route}");
+
+        Assert.Equal(1, json.GetProperty("totalCount").GetInt32());
+        Assert.Equal(["Broken"], Names(json));
+    }
+
     public void Dispose()
     {
         _app?.Dispose();
