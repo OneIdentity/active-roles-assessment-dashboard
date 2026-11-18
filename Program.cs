@@ -227,8 +227,10 @@ builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptio
 
 var app = builder.Build();
 
-// Load and validate definitions at startup so invalid embedded definitions fail fast.
-app.Services.GetRequiredService<ActiveRolesDashboard.Models.Definitions.DefinitionStore>();
+// Load and validate definitions at startup so invalid embedded definitions fail fast, then
+// project them onto the runtime KPI/category/chart lists.
+ActiveRolesDashboard.Models.Definitions.DefinitionCatalog.Apply(
+    app.Services.GetRequiredService<ActiveRolesDashboard.Models.Definitions.DefinitionStore>().Registry);
 
 // Wire the static KPI/category localizer so KpiInfo/CategoryInfo display names
 // (which are static readonly and cannot use DI) resolve from resources at read-time.

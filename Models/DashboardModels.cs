@@ -349,9 +349,16 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARManagedDirectories, ARInfrastructure, ARAutomation, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
+    /// <summary>Effective categories. Replaced at startup from the loaded definitions (see <see cref="Definitions.DefinitionCatalog"/>).</summary>
+    public static IReadOnlyList<CategoryInfo> All { get; private set; } = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARManagedDirectories, ARInfrastructure, ARAutomation, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
 
-    private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
+    private static Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
+
+    internal static void Replace(IReadOnlyList<CategoryInfo> categories)
+    {
+        All = categories;
+        ByKey = categories.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
+    }
 
     /// <summary>Resolves a category by its key, or null when unknown.</summary>
     public static CategoryInfo? FromKey(string key) => ByKey.TryGetValue(key, out var category) ? category : null;
@@ -987,7 +994,8 @@ public class ChartInfo
         SourceSplitKpiKey = "ExchangeTotalMailboxes"
     };
 
-    public static readonly IReadOnlyList<ChartInfo> All =
+    /// <summary>Effective charts. Replaced at startup from the loaded definitions.</summary>
+    public static IReadOnlyList<ChartInfo> All { get; internal set; } =
     [
         ComputerOsBreakdown, ComputerAccountStateBreakdown,
         GroupTypeBreakdown, GroupHygiene,
@@ -1794,7 +1802,8 @@ public class KpiInfo
     // DACL-parsing collector (GetExchangeSendAsKpiAsync), which the generic Exchange loop skips.
     public static readonly KpiInfo ExchangeSendAsKpi = new() { Key = "ExchangeSendAsKpi", DisplayName = "Mailbox Permissions (Send As)", TileLabel = "Send As", CategoryKey = "ExchangePermissions", DataSource = Definitions.DataSource.Exchange, CssColor = "purple", SectionId = "exchangesendas", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [] };
 
-    public static readonly IReadOnlyList<KpiInfo> All =
+    /// <summary>Effective KPIs. Replaced at startup from the loaded definitions.</summary>
+    public static IReadOnlyList<KpiInfo> All { get; internal set; } =
     [
         ADUserAccounts, ADGroups, Computers, MainTotalMailboxes,
         AdOverviewUsers, AdOverviewGroups, AdOverviewComputers,
