@@ -131,6 +131,9 @@ builder.Services.AddSingleton(sp => new ActiveRolesDashboard.Models.Definitions.
     Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Definitions"),
     sp.GetRequiredService<ILogger<ActiveRolesDashboard.Models.Definitions.DefinitionStore>>()));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<ActiveRolesDashboard.Models.Definitions.DefinitionStore>().Registry);
+builder.Services.AddSingleton(sp => new ActiveRolesDashboard.Models.Definitions.Evaluation.KpiFunctionRegistry(
+    sp.GetServices<ActiveRolesDashboard.Models.Definitions.Evaluation.IKpiFunction>()));
+builder.Services.AddSingleton<ActiveRolesDashboard.Models.Definitions.Evaluation.KpiEvaluator>();
 
 // Shared-superset cache, service-account collection, and per-user AR permission filtering.
 builder.Services.AddSingleton<DashboardCacheHolder>();

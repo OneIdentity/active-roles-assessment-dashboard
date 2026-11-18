@@ -3,8 +3,9 @@ namespace ActiveRolesDashboard.Models.Definitions;
 /// <summary>Checks ids, required fields and cross references of a merged definition set.</summary>
 public static class DefinitionValidator
 {
-    public static IReadOnlyList<string> Validate(DefinitionSet set)
+    public static IReadOnlyList<string> Validate(DefinitionSet set, Evaluation.KpiFunctionRegistry? functions = null)
     {
+        functions ??= new Evaluation.KpiFunctionRegistry();
         var errors = new List<string>();
 
         Duplicates(set.Categories.Select(c => c.Id), "category", errors);
@@ -39,11 +40,14 @@ public static class DefinitionValidator
             {
                 case SearchKpi s:
                     ValidateDataset(s.DatasetId, s.Retrieval, name, datasets, errors);
+                    ValidateEvaluation(s.Evaluation, name, functions, errors);
                     break;
                 case ObjectKpi o:
                     ValidateDataset(o.DatasetId, o.Retrieval, name, datasets, errors);
+                    ValidateEvaluation(o.Evaluation, name, functions, errors);
                     break;
                 case DerivedKpi dk:
+                    ValidateEvaluation(dk.Evaluation, name, functions, errors);
                     var hasDataset = !string.IsNullOrWhiteSpace(dk.SourceDatasetId);
                     var hasKpi = !string.IsNullOrWhiteSpace(dk.SourceKpiId);
                     if (hasDataset && hasKpi) errors.Add($"{name} sets both sourceDatasetId and sourceKpiId.");
@@ -71,9 +75,28 @@ public static class DefinitionValidator
             errors.Add($"{name} references unknown dataset '{datasetId}'.");
     }
 
+    private static void ValidateEvaluation(EvaluationDefinition e, string name, Evaluation.KpiFunctionRegistry functions, List<string> errors)
+    {
+        if (e.Type == EvaluationType.Function)
+        {
+            if (string.IsNullOrWhiteSpace(e.Function)) errors.Add($"{name} evaluation has no function.");
+            else if (!functions.IsRegistered(e.Function)) errors.Add($"{name} uses unregistered function '{e.Function}'.");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(e.Filter))
+        {
+            try { Evaluation.ExpressionParser.Parse(e.Filter); }
+            catch (Evaluation.ExpressionException ex) { errors.Add($"{name} filter is invalid: {ex.Message}"); }
+        }
+
+        if (e.Aggregate != AggregateFunction.Count && string.IsNullOrWhiteSpace(e.AggregateAttribute))
+            errors.Add($"{name} aggregate {e.Aggregate} requires aggregateAttribute.");
+    }
+
     private static void ValidateRetrieval(RetrievalDefinition r, string name, List<string> errors)
     {
-        if (string.IsNullOrWhiteSpace(r.Endpoint)) errors.Add($"{name} retrieval has no endpoint.");
+        if (string.IsNullOrWhiteSpace(r.Endpoint))
         if (r.Target == RetrievalTarget.Objects && r.Objects.Count == 0) errors.Add($"{name} retrieval targets objects but lists none.");
         if (r.Scope is not ("base" or "one" or "sub")) errors.Add($"{name} retrieval scope '{r.Scope}' is invalid.");
     }
