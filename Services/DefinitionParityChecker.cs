@@ -19,13 +19,15 @@ public sealed class DefinitionParityChecker(ILogger<DefinitionParityChecker> log
         get { lock (_gate) return _last; }
     }
 
-    public static EvaluationContext CreateContext(ActiveRolesConfig config, DateTimeOffset now) => new()
+    public static EvaluationContext CreateContext(ActiveRolesConfig config, DateTimeOffset now, IEnumerable<string>? excludeLinkDns = null) => new()
     {
         Now = now,
         Parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
         {
             ["staleDays"] = (double)(config.StaleAccountThresholdDays > 0 ? config.StaleAccountThresholdDays : 90),
             ["passwordAgeDays"] = (double)(config.PasswordAgeThresholdDays > 0 ? config.PasswordAgeThresholdDays : 365),
+            // Effective "Exclude from Managed Scope" policy link DNs; objects carrying one are unmanaged.
+            ["excludeLinkDns"] = (IReadOnlyList<string>)(excludeLinkDns?.ToList() ?? []),
         }
     };
 

@@ -30,7 +30,7 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
                 _ => (null, null)
             };
             if (datasetId is null || evaluation is null) continue;
-            if (evaluation.Type != EvaluationType.Expression) continue;
+            if (IsLegacy(evaluation)) continue;
             if (!kpi.Enabled || !include(kpi)) continue;
             if (!datasets.TryGetValue(datasetId, out var dataset)) continue;
 
@@ -64,9 +64,9 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             .Where(k => k.Enabled && settings.IsKpiEnabled(k.CategoryId, k.Id))
             .Select(k => k switch
             {
-                DerivedKpi d when d.Evaluation?.Type == EvaluationType.Expression => d.SourceDatasetId,
-                SearchKpi s when s.Evaluation?.Type == EvaluationType.Expression => s.DatasetId,
-                ObjectKpi o when o.Evaluation?.Type == EvaluationType.Expression => o.DatasetId,
+                DerivedKpi d when !IsLegacy(d.Evaluation) => d.SourceDatasetId,
+                SearchKpi s when !IsLegacy(s.Evaluation) => s.DatasetId,
+                ObjectKpi o when !IsLegacy(o.Evaluation) => o.DatasetId,
                 _ => null
             })
             .OfType<string>()
@@ -74,4 +74,9 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
+
+    private static bool IsLegacy(EvaluationDefinition? evaluation) =>
+        evaluation is null
+        || (evaluation.Type == EvaluationType.Function
+            && (string.IsNullOrEmpty(evaluation.Function) || string.Equals(evaluation.Function, KpiFunctionRegistry.Legacy, StringComparison.OrdinalIgnoreCase)));
 }

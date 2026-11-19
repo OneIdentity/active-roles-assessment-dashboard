@@ -1345,9 +1345,9 @@
       "id": "ManagedEnabledUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2) && !containsAny(edsvaAPOLinksEffective, $excludeLinkDns)"
       },
       "display": {
         "color": "green",
@@ -1477,9 +1477,10 @@
       "id": "CircularGroupNesting",
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
         "type": "Function",
-        "function": "Legacy"
+        "function": "circularNesting"
       },
       "display": {
         "color": "red",

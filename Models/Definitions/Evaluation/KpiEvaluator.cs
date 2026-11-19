@@ -22,9 +22,12 @@ public sealed class KpiFunctionRegistry
 
     public KpiFunctionRegistry(IEnumerable<IKpiFunction>? functions = null)
     {
-        foreach (var f in functions ?? [])
+        foreach (var f in BuiltIn.Concat(functions ?? []))
             _functions[f.Name] = f;
     }
+
+    /// <summary>Transform functions shipped with the application and always available to definitions.</summary>
+    private static readonly IKpiFunction[] BuiltIn = [new CircularGroupNestingFunction()];
 
     public bool IsRegistered(string name) => name == Legacy || _functions.ContainsKey(name);
 

@@ -599,6 +599,7 @@ public class ActiveRolesService
             ? await GetExcludeFromManagedScopeLinkDnsAsync(token)
             : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         summary.ExcludeFromManagementLinkCount = excludeLinkDns.Count;
+        summary.ExcludeFromManagementLinkDns = excludeLinkDns.ToList();
 
         // Make the exclude-link set available to the Entra projections so managed status can be computed.
         if (summary.EntraTotals != null)
@@ -1521,7 +1522,7 @@ public class ActiveRolesService
                         summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required, summary));
                 }
 
-                _kpiCalculator.Populate(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow));
+                _kpiCalculator.Populate(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
                 _parityChecker?.Check(summary);
             }
             catch (Exception ex)

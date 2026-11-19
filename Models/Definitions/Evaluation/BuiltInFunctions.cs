@@ -71,6 +71,11 @@ internal static class BuiltInFunctions
         ["startsWith"] = (2, 2, (a, _) => ExprValue.Text(a[0]).StartsWith(ExprValue.Text(a[1]), StringComparison.OrdinalIgnoreCase)),
         ["endsWith"] = (2, 2, (a, _) => ExprValue.Text(a[0]).EndsWith(ExprValue.Text(a[1]), StringComparison.OrdinalIgnoreCase)),
         ["anyStartsWith"] = (2, 2, (a, _) => ExprValue.List(a[0]).Any(v => v.StartsWith(ExprValue.Text(a[1]), StringComparison.OrdinalIgnoreCase))),
+        ["containsAny"] = (2, 2, (a, _) =>
+        {
+            var candidates = ExprValue.List(a[1]).Select(v => v.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return ExprValue.List(a[0]).Any(v => !string.IsNullOrWhiteSpace(v) && candidates.Contains(v.Trim()));
+        }),
         ["in"] = (2, 32, (a, _) => a.Skip(1).Any(x => string.Equals(ExprValue.Text(a[0]), ExprValue.Text(x), StringComparison.OrdinalIgnoreCase))),
         ["hasFlag"] = (2, 2, (a, _) => ExprValue.Number(a[0]) is { } v && ExprValue.Number(a[1]) is { } f && ((long)v & (long)f) == (long)f && (long)f != 0),
         ["daysSince"] = (1, 1, (a, c) => ParseDate(a[0]) is { } d ? (c.Now - d).TotalDays : null),

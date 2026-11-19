@@ -50,6 +50,7 @@ internal static class LegacyDefinitionExporter
             ["AdOverviewGroups"] = ("ADGroups", ""),
             ["AdOverviewComputers"] = ("Computers", ""),
             ["DomainControllers"] = ("Computers", "hasFlag(userAccountControl, 0x2000)"),
+            ["ManagedEnabledUsers"] = ("ADUserAccounts", "!hasFlag(userAccountControl, 0x2) && !containsAny(edsvaAPOLinksEffective, $excludeLinkDns)"),
             ["DistributionGroups"] = ("ADGroups", NotGroupFamily + " && groupType >= 0"),
             ["SecurityGroups"] = ("ADGroups", NotGroupFamily + " && groupType < 0"),
             ["DomainLocalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x4)"),
@@ -90,6 +91,15 @@ internal static class LegacyDefinitionExporter
         "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts",
         "Sites", "SiteLinks", "Subnets", "OUs", "Trusts", "Computers",
     };
+
+    /// <summary>
+    /// KPIs migrated to a registered transform function: KPI id -> (source dataset, function name).
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, (string Dataset, string Function)> MigratedFunctions =
+        new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["CircularGroupNesting"] = ("ADGroups", "circularNesting"),
+        };
 
     private const string IsServer = "contains(operatingSystem, 'server')";
     private const string EnabledNonDc = "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000)";
@@ -190,6 +200,18 @@ internal static class LegacyDefinitionExporter
         var legacy = new EvaluationDefinition { Type = EvaluationType.Function, Function = LegacyFunction };
 
         var migrated = Migrated.TryGetValue(k.Key, out var m);
+        if (MigratedFunctions.TryGetValue(k.Key, out var f))
+        {
+            return new DerivedKpi
+            {
+                Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
+                DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
+                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown },
+                SourceDatasetId = f.Dataset,
+                Evaluation = new EvaluationDefinition { Type = EvaluationType.Function, Function = f.Function }
+            };
+        }
+
         if (k.Searches.Count == 0 || migrated)
         {
             return new DerivedKpi

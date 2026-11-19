@@ -2424,6 +2424,9 @@ public class DashboardSummary
     /// <summary>Number of effective (non-blocking) "Exclude from Managed Scope" policy links resolved. Zero means nothing is excluded from management.</summary>
     public int ExcludeFromManagementLinkCount { get; set; }
 
+    /// <summary>The effective "Exclude from Managed Scope" policy link DNs used to decide managed status.</summary>
+    public List<string> ExcludeFromManagementLinkDns { get; set; } = [];
+
     public ADUserAccountDetailSummary MustChangePassword { get; set; } = new();
     public ADUserAccountDetailSummary StalePasswords { get; set; } = new();
     public ADUserAccountDetailSummary PasswordNotRequired { get; set; } = new();
