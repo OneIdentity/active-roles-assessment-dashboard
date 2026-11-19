@@ -122,10 +122,7 @@
       "categoryId": "Overview",
       "dataSource": "ActiveDirectory",
       "datasetId": "Computers",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal"
       },

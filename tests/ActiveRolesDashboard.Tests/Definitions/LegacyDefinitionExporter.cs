@@ -46,6 +46,10 @@ internal static class LegacyDefinitionExporter
             // These two declare their own search, but legacy derives them from the user dataset.
             ["NoManagerUser"] = ("ADUserAccounts", "isEmpty(manager)"),
             ["ExpiredUsers"] = ("ADUserAccounts", "exists(daysUntil(accountExpires)) && daysUntil(accountExpires) <= 0"),
+            ["AdOverviewUsers"] = ("ADUserAccounts", ""),
+            ["AdOverviewGroups"] = ("ADGroups", ""),
+            ["AdOverviewComputers"] = ("Computers", ""),
+            ["DomainControllers"] = ("Computers", "hasFlag(userAccountControl, 0x2000)"),
             ["DistributionGroups"] = ("ADGroups", NotGroupFamily + " && groupType >= 0"),
             ["SecurityGroups"] = ("ADGroups", NotGroupFamily + " && groupType < 0"),
             ["DomainLocalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x4)"),
@@ -84,7 +88,7 @@ internal static class LegacyDefinitionExporter
     {
         "NoGroupOwner", "NoManagerServiceAccount", "UserAccountLockedOut", "EmptyGroups",
         "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts",
-        "Sites", "SiteLinks", "Subnets", "OUs", "Trusts",
+        "Sites", "SiteLinks", "Subnets", "OUs", "Trusts", "Computers",
     };
 
     private const string IsServer = "contains(operatingSystem, 'server')";

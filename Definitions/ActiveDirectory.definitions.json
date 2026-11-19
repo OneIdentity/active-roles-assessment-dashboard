@@ -614,9 +614,9 @@
       "id": "AdOverviewUsers",
       "categoryId": "ADOverview",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "blue"
@@ -629,9 +629,9 @@
       "id": "AdOverviewGroups",
       "categoryId": "ADOverview",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "green"
@@ -645,9 +645,9 @@
       "id": "AdOverviewComputers",
       "categoryId": "ADOverview",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "teal"
@@ -1582,9 +1582,9 @@
       "id": "DomainControllers",
       "categoryId": "Infrastructure",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x2000)"
       },
       "display": {
         "color": "purple",
