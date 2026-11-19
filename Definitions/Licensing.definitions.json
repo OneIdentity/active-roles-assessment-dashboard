@@ -22,14 +22,14 @@
   ],
   "kpis": [
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "ManagedObjects",
       "categoryId": "Licensing",
       "dataSource": "Licensing",
-      "datasetId": "ManagedObjects",
+      "sourceDatasetId": "ManagedObjects",
       "evaluation": {
         "type": "Function",
-        "function": "Legacy"
+        "function": "managedObjectStatistics"
       },
       "display": {
         "color": "slate",

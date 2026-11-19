@@ -50,7 +50,45 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             }
         }
 
+        PopulateComposites(summary, results, include);
         summary.KpiResults = results;
+    }
+
+    /// <summary>
+    /// Combines the results of other KPIs. A composite is only produced once every source has a
+    /// definition result; failed sources are skipped unless all of them failed. Sources still
+    /// computed by legacy code contribute the legacy value until they are migrated.
+    /// </summary>
+    private void PopulateComposites(DashboardSummary summary, Dictionary<string, KpiResult> results, Func<KpiDefinition, bool> include)
+    {
+        var pending = registry.Set.Kpis.OfType<CompositeKpi>()
+            .Where(k => k.Enabled && include(k) && k.Sources.Count > 0)
+            .ToList();
+
+        var available = new Dictionary<string, KpiResult>(results, StringComparer.OrdinalIgnoreCase);
+        foreach (var source in pending.SelectMany(k => k.Sources).Distinct(StringComparer.OrdinalIgnoreCase).Where(IsLegacyKpi))
+        {
+            var (count, error) = summary.GetKpiResult(source);
+            available.TryAdd(source, error is null ? new KpiResult(count, null) : KpiResult.Failed(error));
+        }
+
+        bool progressed;
+        do
+        {
+            progressed = false;
+            foreach (var kpi in pending.ToList())
+            {
+                if (!kpi.Sources.All(available.ContainsKey)) continue;
+
+                var sources = kpi.Sources.Select(s => available[s]).ToList();
+                var succeeded = sources.Where(r => r.Error is null).ToList();
+                results[kpi.Id] = available[kpi.Id] = succeeded.Count == 0
+                    ? KpiResult.Failed(sources[0].Error!)
+                    : new KpiResult(KpiEvaluator.Combine(kpi.Aggregate, succeeded.Select(r => r.Value)), null);
+                pending.Remove(kpi);
+                progressed = true;
+            }
+        } while (progressed && pending.Count > 0);
     }
 
     /// <summary>
@@ -74,6 +112,15 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
+
+    private bool IsLegacyKpi(string id) =>
+        registry.Kpis.TryGetValue(id, out var kpi) && IsLegacy(kpi switch
+        {
+            DerivedKpi d => d.Evaluation,
+            SearchKpi s => s.Evaluation,
+            ObjectKpi o => o.Evaluation,
+            _ => new EvaluationDefinition { Type = EvaluationType.Expression }
+        });
 
     private static bool IsLegacy(EvaluationDefinition? evaluation) =>
         evaluation is null

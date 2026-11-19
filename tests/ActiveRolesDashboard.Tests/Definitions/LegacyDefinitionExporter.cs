@@ -99,6 +99,19 @@ internal static class LegacyDefinitionExporter
         new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
         {
             ["CircularGroupNesting"] = ("ADGroups", "circularNesting"),
+            ["ManagedObjects"] = ("ManagedObjects", "managedObjectStatistics"),
+        };
+
+    /// <summary>
+    /// KPIs combining the results of other KPIs: KPI id -> (source KPIs, aggregate). A KPI that
+    /// also declares a search keeps exporting its dataset, which other KPIs read.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, (string[] Sources, CompositeAggregate Aggregate)> MigratedComposites =
+        new Dictionary<string, (string[], CompositeAggregate)>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ADUserAccounts"] = (["AdOverviewUsers", "EntraOverviewUsers"], CompositeAggregate.Sum),
+            ["ADGroups"] = (["AdOverviewGroups", "EntraOverviewGroups"], CompositeAggregate.Sum),
+            ["MainTotalMailboxes"] = (["ExchangeTotalMailboxes"], CompositeAggregate.First),
         };
 
     private const string IsServer = "contains(operatingSystem, 'server')";
@@ -200,8 +213,23 @@ internal static class LegacyDefinitionExporter
         var legacy = new EvaluationDefinition { Type = EvaluationType.Function, Function = LegacyFunction };
 
         var migrated = Migrated.TryGetValue(k.Key, out var m);
+        if (MigratedComposites.TryGetValue(k.Key, out var c))
+        {
+            if (k.Searches.Count > 0) datasets.Add(ToDataset(k.Searches.Single(), k.Key, source));
+            return new CompositeKpi
+            {
+                Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
+                DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
+                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown },
+                Sources = c.Sources,
+                Aggregate = c.Aggregate
+            };
+        }
+
         if (MigratedFunctions.TryGetValue(k.Key, out var f))
         {
+            if (k.Searches.Count > 0 && string.Equals(k.Searches.Single().SharedSearchKey ?? k.Key, f.Dataset, StringComparison.OrdinalIgnoreCase))
+                datasets.Add(ToDataset(k.Searches.Single(), f.Dataset, source));
             return new DerivedKpi
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
@@ -228,22 +256,7 @@ internal static class LegacyDefinitionExporter
         var search = k.Searches.Single();
         var datasetId = search.SharedSearchKey ?? k.Key;
         var isObject = !string.IsNullOrEmpty(search.GroupName);
-        datasets.Add(new DatasetDefinition
-        {
-            Id = datasetId,
-            DataSource = source,
-            Retrieval = new RetrievalDefinition
-            {
-                Target = isObject ? RetrievalTarget.Objects : RetrievalTarget.Search,
-                Base = search.BaseDn,
-                Filter = search.Filter,
-                Scope = search.Scope,
-                Objects = isObject ? [search.GroupName!] : []
-            },
-            Attributes = search.Attributes.StartsWith('{')
-                ? [search.Attributes]
-                : search.Attributes.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-        });
+        datasets.Add(ToDataset(search, datasetId, source));
 
         return isObject
             ? new ObjectKpi
@@ -261,6 +274,27 @@ internal static class LegacyDefinitionExporter
                 Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId,
                 Evaluation = MigratedSearches.Contains(k.Key) ? new EvaluationDefinition() : legacy
             };
+    }
+
+    private static DatasetDefinition ToDataset(KpiSearchDefinition search, string datasetId, DataSource source)
+    {
+        var isObject = !string.IsNullOrEmpty(search.GroupName);
+        return new DatasetDefinition
+        {
+            Id = search.SharedSearchKey ?? datasetId,
+            DataSource = source,
+            Retrieval = new RetrievalDefinition
+            {
+                Target = isObject ? RetrievalTarget.Objects : RetrievalTarget.Search,
+                Base = search.BaseDn,
+                Filter = search.Filter,
+                Scope = search.Scope,
+                Objects = isObject ? [search.GroupName!] : []
+            },
+            Attributes = search.Attributes.StartsWith('{')
+                ? [search.Attributes]
+                : search.Attributes.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+        };
     }
 
     private static string Literal(object instance, string field) =>

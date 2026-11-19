@@ -49,6 +49,13 @@ public sealed class DefinitionParityTests : IDisposable
             Assert.Equal(dataset, kpi.SourceDatasetId);
             Assert.Equal(function, kpi.Evaluation.Function);
         }
+
+        foreach (var (id, (sources, aggregate)) in LegacyDefinitionExporter.MigratedComposites)
+        {
+            var kpi = Assert.IsType<CompositeKpi>(registry.Kpis[id]);
+            Assert.Equal(sources, kpi.Sources);
+            Assert.Equal(aggregate, kpi.Aggregate);
+        }
     }
 
     [Theory]
@@ -75,7 +82,7 @@ public sealed class DefinitionParityTests : IDisposable
 
         var summary = await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
 
-        var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).Concat(LegacyDefinitionExporter.MigratedFunctions.Keys).ToList();
+        var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).Concat(LegacyDefinitionExporter.MigratedFunctions.Keys).Concat(LegacyDefinitionExporter.MigratedComposites.Keys).ToList();
         Assert.All(expected, id => Assert.True(summary.KpiResults.ContainsKey(id), $"{id} was not evaluated"));
 
         var results = checker.LastResults;

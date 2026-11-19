@@ -84,15 +84,14 @@
   ],
   "kpis": [
     {
-      "kind": "Search",
+      "kind": "Composite",
       "id": "ADUserAccounts",
       "categoryId": "Overview",
       "dataSource": "ActiveDirectory",
-      "datasetId": "ADUserAccounts",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "sources": [
+        "AdOverviewUsers",
+        "EntraOverviewUsers"
+      ],
       "display": {
         "color": "blue"
       },
@@ -100,15 +99,14 @@
       "fallbackText": "Total Users"
     },
     {
-      "kind": "Search",
+      "kind": "Composite",
       "id": "ADGroups",
       "categoryId": "Overview",
       "dataSource": "ActiveDirectory",
-      "datasetId": "ADGroups",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "sources": [
+        "AdOverviewGroups",
+        "EntraOverviewGroups"
+      ],
       "display": {
         "color": "green"
       },
@@ -131,14 +129,14 @@
       "fallbackText": "Total Computers"
     },
     {
-      "kind": "Derived",
+      "kind": "Composite",
       "id": "MainTotalMailboxes",
       "categoryId": "Overview",
       "dataSource": "Exchange",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "sources": [
+        "ExchangeTotalMailboxes"
+      ],
+      "aggregate": "First",
       "display": {
         "color": "purple"
       },
