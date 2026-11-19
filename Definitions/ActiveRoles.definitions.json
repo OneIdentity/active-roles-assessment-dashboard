@@ -369,6 +369,24 @@
       ]
     },
     {
+      "id": "DelegationLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AT Links,CN=Configuration"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "trustee",
+        "directoryObject",
+        "accessTemplate",
+        "isUserTrustee",
+        "isRootScope",
+        "isPredefined"
+      ],
+      "keyAttribute": "distinguishedName"
+    },
+    {
       "id": "OrphanPolicyObjectLinks",
       "dataSource": "ActiveRoles",
       "retrieval": {
@@ -692,8 +710,7 @@
       "dataSource": "ActiveRoles",
       "datasetId": "EmptyAccessTemplates",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "isEmpty(edsaATEList)"
       },
       "display": {
         "color": "amber",
@@ -713,8 +730,7 @@
       "dataSource": "ActiveRoles",
       "datasetId": "PolicyObjectsNoRules",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "xmlCount(edsaAPEListXML, 'APE') == 0"
       },
       "display": {
         "color": "orange",
@@ -735,7 +751,13 @@
       "datasetId": "UnlinkedAccessTemplates",
       "evaluation": {
         "type": "Function",
-        "function": "Legacy"
+        "function": "unreferencedItems",
+        "args": {
+          "referenceDataset": "AccessTemplateLinks",
+          "referenceAttribute": "edsaAccessTemplateGUID",
+          "keyAttribute": "objectGUID",
+          "match": "guid"
+        }
       },
       "display": {
         "color": "amber",
@@ -755,8 +777,7 @@
       "dataSource": "ActiveRoles",
       "datasetId": "DenyAccessTemplates",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "aceHasDeny(edsaATEList)"
       },
       "display": {
         "color": "red",
@@ -777,7 +798,13 @@
       "datasetId": "UnlinkedPolicyObjects",
       "evaluation": {
         "type": "Function",
-        "function": "Legacy"
+        "function": "unreferencedItems",
+        "args": {
+          "referenceDataset": "OrphanPolicyObjectLinks",
+          "referenceAttribute": "edsaAPOGUID",
+          "keyAttribute": "objectGUID",
+          "match": "guid"
+        }
       },
       "display": {
         "color": "orange",
@@ -797,8 +824,7 @@
       "dataSource": "ActiveRoles",
       "datasetId": "OrphanAccessTemplateLinks",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "isBlank(edsaAccessTemplateGUID) || isBlank(edsaSecObjectGUID) || isBlank(edsaTrusteeSID)"
       },
       "display": {
         "color": "red",
@@ -816,9 +842,9 @@
       "id": "BroadDelegationLinks",
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!isPredefined && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"
       },
       "display": {
         "color": "red",
@@ -836,9 +862,9 @@
       "id": "UserDelegationLinks",
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!isPredefined && isUserTrustee"
       },
       "display": {
         "color": "amber",
@@ -856,9 +882,9 @@
       "id": "RootDelegationLinks",
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!isPredefined && isRootScope"
       },
       "display": {
         "color": "orange",
@@ -878,8 +904,7 @@
       "dataSource": "ActiveRoles",
       "datasetId": "OrphanPolicyObjectLinks",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "isBlank(edsaAPOGUID) || isBlank(edsaSecObjectGUID)"
       },
       "display": {
         "color": "red",

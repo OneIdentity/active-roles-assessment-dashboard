@@ -18,6 +18,7 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
     public void Populate(DashboardSummary summary, Func<KpiDefinition, bool> include, EvaluationContext context)
     {
         var datasets = summary.Datasets;
+        context = context.WithDatasets(datasets);
         var results = new Dictionary<string, KpiResult>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var kpi in registry.Set.Kpis)
@@ -98,20 +99,31 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
     public IReadOnlyList<string> RequiredDatasetIds(KpiSettings settings)
     {
         var legacy = new DashboardSummary().Datasets.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return registry.Set.Kpis
+        var evaluations = registry.Set.Kpis
             .Where(k => k.Enabled && settings.IsKpiEnabled(k.CategoryId, k.Id))
             .Select(k => k switch
             {
-                DerivedKpi d when !IsLegacy(d.Evaluation) => d.SourceDatasetId,
-                SearchKpi s when !IsLegacy(s.Evaluation) => s.DatasetId,
-                ObjectKpi o when !IsLegacy(o.Evaluation) => o.DatasetId,
-                _ => null
+                DerivedKpi d when !IsLegacy(d.Evaluation) => (Dataset: d.SourceDatasetId, d.Evaluation),
+                SearchKpi s when !IsLegacy(s.Evaluation) => (Dataset: s.DatasetId, s.Evaluation),
+                ObjectKpi o when !IsLegacy(o.Evaluation) => (Dataset: o.DatasetId, o.Evaluation),
+                _ => (Dataset: (string?)null, Evaluation: (EvaluationDefinition?)null)
             })
-            .OfType<string>()
+            .Where(e => e.Dataset is not null)
+            .ToList();
+
+        return evaluations.Select(e => e.Dataset!)
+            .Concat(evaluations.Select(e => ReferencedDataset(e.Evaluation!)).OfType<string>())
             .Where(id => !legacy.Contains(id))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
+
+    private static string? ReferencedDataset(EvaluationDefinition evaluation) =>
+        evaluation.Type == EvaluationType.Function
+        && evaluation.Args.TryGetValue(UnreferencedItemsFunction.ReferenceDatasetArg, out var v)
+        && v.ValueKind == System.Text.Json.JsonValueKind.String
+            ? v.GetString()
+            : null;
 
     private bool IsLegacyKpi(string id) =>
         registry.Kpis.TryGetValue(id, out var kpi) && IsLegacy(kpi switch

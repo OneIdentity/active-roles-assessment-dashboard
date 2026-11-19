@@ -11,6 +11,17 @@ public sealed class EvaluationContext
 
     /// <summary>Results of KPIs already evaluated in this pass (used by derived/composite KPIs).</summary>
     public IReadOnlyDictionary<string, long> KpiResults { get; init; } = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Every dataset available in this pass (used by functions that compare datasets).</summary>
+    public IReadOnlyDictionary<string, DatasetResult> Datasets { get; init; } = new Dictionary<string, DatasetResult>(StringComparer.OrdinalIgnoreCase);
+
+    public EvaluationContext WithDatasets(IReadOnlyDictionary<string, DatasetResult> datasets) => new()
+    {
+        Now = Now,
+        Parameters = Parameters,
+        KpiResults = KpiResults,
+        Datasets = datasets
+    };
 }
 
 /// <summary>Evaluates parsed expressions against a single dataset item.</summary>

@@ -81,7 +81,36 @@ internal static class BuiltInFunctions
         ["daysSince"] = (1, 1, (a, c) => ParseDate(a[0]) is { } d ? (c.Now - d).TotalDays : null),
         ["daysUntil"] = (1, 1, (a, c) => ParseDate(a[0]) is { } d ? (d - c.Now).TotalDays : null),
         ["coalesce"] = (1, 16, (a, _) => a.FirstOrDefault(ExprValue.Truthy)),
+        ["isBlank"] = (1, 1, (a, _) => ExprValue.List(a[0]).All(string.IsNullOrWhiteSpace)),
+        ["aceHasDeny"] = (1, 1, (a, _) => ExprValue.List(a[0]).Any(AceListHasDeny)),
+        ["xmlCount"] = (2, 2, (a, _) => (double)XmlElementCount(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
     };
+
+    /// <summary>True when an Active Roles ACE list (<c>[type;...]</c> entries) contains a Deny (D/OD) entry.</summary>
+    private static bool AceListHasDeny(string aceList)
+    {
+        var start = -1;
+        for (var i = 0; i < aceList.Length; i++)
+        {
+            if (aceList[i] == '[') start = i + 1;
+            else if (aceList[i] == ']' && start >= 0)
+            {
+                var type = aceList[start..i].Split(';')[0].Trim();
+                if (type.Equals("D", StringComparison.OrdinalIgnoreCase) || type.Equals("OD", StringComparison.OrdinalIgnoreCase))
+                    return true;
+                start = -1;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>Number of elements with the given name in an XML attribute value; 0 when empty or malformed.</summary>
+    private static int XmlElementCount(string xml, string element)
+    {
+        if (string.IsNullOrWhiteSpace(xml)) return 0;
+        try { return System.Xml.Linq.XDocument.Parse(xml).Descendants(element).Count(); }
+        catch (System.Xml.XmlException) { return 0; }
+    }
 
     public static bool IsKnown(string name, int argCount) =>
         Functions.TryGetValue(name, out var f) && argCount >= f.Min && argCount <= f.Max;

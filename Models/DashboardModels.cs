@@ -2340,6 +2340,7 @@ public class DashboardSummary
             map["ADUserAccounts"] = new(ADUserAccounts.Items, ADUserAccounts.Error);
             map["ADGroups"] = new(ADGroups.Items, ADGroups.Error);
             map["Computers"] = new(Computers.Items, Computers.Error);
+            map[AccessTemplateLinkSummary.DatasetId] = new(AccessTemplateLinks.ToDatasetItems(), AccessTemplateLinks.Error);
             if (EntraTotals is not null)
                 map[EntraTotalsSummary.DatasetId] = new(EntraTotals.ToDatasetItems(), EntraTotals.Error);
             return map;
@@ -3859,9 +3860,26 @@ public class PrivilegedGroupMemberInfo : IPermissionScoped
 
 public class AccessTemplateLinkSummary
 {
+    /// <summary>Definition dataset id of the resolved links (trustee and scope already resolved).</summary>
+    public const string DatasetId = "DelegationLinks";
+
     public int TotalCount { get; set; }
     public List<AccessTemplateLinkInfo> Items { get; set; } = new();
     public string? Error { get; set; }
+
+    /// <summary>Projects the resolved links into definition dataset items.</summary>
+    public IReadOnlyList<JsonElement> ToDatasetItems() =>
+        Items.Select(l => JsonSerializer.SerializeToElement(new
+        {
+            name = l.Name,
+            distinguishedName = l.Dn,
+            trustee = l.Trustee,
+            directoryObject = l.DirectoryObject,
+            accessTemplate = l.AccessTemplate,
+            isUserTrustee = l.IsUserTrustee,
+            isRootScope = l.IsRootScope,
+            isPredefined = l.IsPredefined
+        })).ToList();
 }
 
 public class AccessTemplateLinkInfo

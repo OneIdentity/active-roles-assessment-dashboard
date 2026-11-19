@@ -42,6 +42,21 @@ public sealed class DefinitionParityTests : IDisposable
             Assert.Null(kpi.Evaluation.Filter);
         }
 
+        foreach (var (id, filter) in LegacyDefinitionExporter.MigratedSearchFilters)
+        {
+            var kpi = Assert.IsType<SearchKpi>(registry.Kpis[id]);
+            Assert.Equal(EvaluationType.Expression, kpi.Evaluation.Type);
+            Assert.Equal(filter, kpi.Evaluation.Filter);
+        }
+
+        foreach (var (id, (function, args)) in LegacyDefinitionExporter.MigratedSearchFunctions)
+        {
+            var kpi = Assert.IsType<SearchKpi>(registry.Kpis[id]);
+            Assert.Equal(EvaluationType.Function, kpi.Evaluation.Type);
+            Assert.Equal(function, kpi.Evaluation.Function);
+            Assert.All(args, a => Assert.Equal(a.Value, kpi.Evaluation.Args[a.Key].GetString()));
+        }
+
         foreach (var (id, (dataset, function)) in LegacyDefinitionExporter.MigratedFunctions)
         {
             var kpi = Assert.IsType<DerivedKpi>(registry.Kpis[id]);
@@ -82,7 +97,7 @@ public sealed class DefinitionParityTests : IDisposable
 
         var summary = await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
 
-        var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).Concat(LegacyDefinitionExporter.MigratedFunctions.Keys).Concat(LegacyDefinitionExporter.MigratedComposites.Keys).ToList();
+        var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).Concat(LegacyDefinitionExporter.MigratedFunctions.Keys).Concat(LegacyDefinitionExporter.MigratedComposites.Keys).Concat(LegacyDefinitionExporter.MigratedSearchFilters.Keys).Concat(LegacyDefinitionExporter.MigratedSearchFunctions.Keys).ToList();
         Assert.All(expected, id => Assert.True(summary.KpiResults.ContainsKey(id), $"{id} was not evaluated"));
 
         var results = checker.LastResults;

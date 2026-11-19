@@ -102,6 +102,9 @@ internal static class LegacyDefinitionExporter
             ["EntraLargeGroups"] = (Entra, EntraGroup + " && count(member) >= $entraLargeGroupThreshold"),
             ["GroupFamilies"] = ("ADGroups", "edsvaGFIsGroupFamily == 'TRUE'"),
             ["DynamicGroups"] = ("ADGroups", "edsaIsDynamicGroup == 'TRUE'"),
+            ["BroadDelegationLinks"] = (DelegationLinks, "!isPredefined && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"),
+            ["UserDelegationLinks"] = (DelegationLinks, "!isPredefined && isUserTrustee"),
+            ["RootDelegationLinks"] = (DelegationLinks, "!isPredefined && isRootScope"),
         };
 
     /// <summary>
@@ -122,6 +125,37 @@ internal static class LegacyDefinitionExporter
         "Servers", "Domains", "AccessTemplateLinks", "AccessTemplates", "ManagedUnits", "PolicyObjectLinks", "PolicyObjects",
         "VirtualAttributes", "Workflows", "ConfigDatabases", "HistoryDatabases", "ScheduledTasks", "ScriptModules",
     };
+
+    /// <summary>
+    /// Search KPIs whose value is the number of their own search results matching a filter.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> MigratedSearchFilters =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["EmptyAccessTemplates"] = "isEmpty(edsaATEList)",
+            ["PolicyObjectsNoRules"] = "xmlCount(edsaAPEListXML, 'APE') == 0",
+            ["DenyAccessTemplates"] = "aceHasDeny(edsaATEList)",
+            ["OrphanAccessTemplateLinks"] = "isBlank(edsaAccessTemplateGUID) || isBlank(edsaSecObjectGUID) || isBlank(edsaTrusteeSID)",
+            ["OrphanPolicyObjectLinks"] = "isBlank(edsaAPOGUID) || isBlank(edsaSecObjectGUID)",
+        };
+
+    /// <summary>
+    /// Search KPIs evaluated by a registered function over their own search: KPI id -> (function, args).
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, (string Function, Dictionary<string, string> Args)> MigratedSearchFunctions =
+        new Dictionary<string, (string, Dictionary<string, string>)>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["UnlinkedAccessTemplates"] = ("unreferencedItems", new()
+            {
+                ["referenceDataset"] = "AccessTemplateLinks", ["referenceAttribute"] = "edsaAccessTemplateGUID",
+                ["keyAttribute"] = "objectGUID", ["match"] = "guid"
+            }),
+            ["UnlinkedPolicyObjects"] = ("unreferencedItems", new()
+            {
+                ["referenceDataset"] = "OrphanPolicyObjectLinks", ["referenceAttribute"] = "edsaAPOGUID",
+                ["keyAttribute"] = "objectGUID", ["match"] = "guid"
+            }),
+        };
 
     /// <summary>
     /// KPIs migrated to a registered transform function: KPI id -> (source dataset, function name).
@@ -158,6 +192,21 @@ internal static class LegacyDefinitionExporter
     private const string EntraEnabled = "!in(edsaAzureUserAccountEnabled, 'false', '0')";
     private const string EntraSynced = "in(edsvaOnPremisesSyncEnabled, 'true', '1')";
     private const string EntraExternal = "contains(edsaAzureUserPrincipalName, '#EXT#')";
+
+    private const string DelegationLinks = AccessTemplateLinkSummary.DatasetId;
+
+    /// <summary>
+    /// Access template links with trustee type and scope resolved by the typed Active Roles code,
+    /// exposed through <see cref="DashboardSummary.Datasets"/>.
+    /// </summary>
+    private static DatasetDefinition DelegationLinksDataset() => new()
+    {
+        Id = DelegationLinks,
+        DataSource = DataSource.ActiveRoles,
+        Retrieval = new RetrievalDefinition { Base = "CN=AT Links,CN=Configuration" },
+        Attributes = ["name", "distinguishedName", "trustee", "directoryObject", "accessTemplate", "isUserTrustee", "isRootScope", "isPredefined"],
+        KeyAttribute = "distinguishedName"
+    };
 
     /// <summary>
     /// The Entra object dataset is collected by the typed Entra code and exposed through
@@ -299,6 +348,7 @@ internal static class LegacyDefinitionExporter
         if (k.Searches.Count == 0 || migrated)
         {
             if (migrated && m.Dataset == Entra) datasets.Add(EntraObjectsDataset());
+            if (migrated && m.Dataset == DelegationLinks) datasets.Add(DelegationLinksDataset());
             return new DerivedKpi
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
@@ -329,7 +379,14 @@ internal static class LegacyDefinitionExporter
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
                 Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId,
-                Evaluation = MigratedSearches.Contains(k.Key) ? new EvaluationDefinition() : legacy
+                Evaluation = MigratedSearches.Contains(k.Key) ? new EvaluationDefinition()
+                    : MigratedSearchFilters.TryGetValue(k.Key, out var filter) ? new EvaluationDefinition { Filter = filter }
+                    : MigratedSearchFunctions.TryGetValue(k.Key, out var fn) ? new EvaluationDefinition
+                    {
+                        Type = EvaluationType.Function, Function = fn.Function,
+                        Args = fn.Args.ToDictionary(a => a.Key, a => System.Text.Json.JsonSerializer.SerializeToElement(a.Value))
+                    }
+                    : legacy
             };
     }
 
