@@ -43,6 +43,9 @@ internal static class LegacyDefinitionExporter
             ["UseDesEncryption"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x200000)"),
             ["NoKerberosPreauth"] = ("ADUserAccounts", "hasFlag(userAccountControl, 0x400000)"),
             ["SpnUserAccounts"] = ("ADUserAccounts", "!isEmpty(servicePrincipalName)"),
+            // These two declare their own search, but legacy derives them from the user dataset.
+            ["NoManagerUser"] = ("ADUserAccounts", "isEmpty(manager)"),
+            ["ExpiredUsers"] = ("ADUserAccounts", "exists(daysUntil(accountExpires)) && daysUntil(accountExpires) <= 0"),
             ["DistributionGroups"] = ("ADGroups", NotGroupFamily + " && groupType >= 0"),
             ["SecurityGroups"] = ("ADGroups", NotGroupFamily + " && groupType < 0"),
             ["DomainLocalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x4)"),
@@ -182,9 +185,9 @@ internal static class LegacyDefinitionExporter
         };
         var legacy = new EvaluationDefinition { Type = EvaluationType.Function, Function = LegacyFunction };
 
-        if (k.Searches.Count == 0)
+        var migrated = Migrated.TryGetValue(k.Key, out var m);
+        if (k.Searches.Count == 0 || migrated)
         {
-            var migrated = Migrated.TryGetValue(k.Key, out var m);
             return new DerivedKpi
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,

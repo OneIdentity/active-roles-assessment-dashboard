@@ -351,18 +351,6 @@
       ]
     },
     {
-      "id": "NoManagerUser",
-      "dataSource": "ActiveDirectory",
-      "retrieval": {
-        "base": "{DefaultADDN}",
-        "filter": "{ConfigFilter:NoManagerUser}"
-      },
-      "attributes": [
-        "name",
-        "distinguishedName"
-      ]
-    },
-    {
       "id": "NoManagerServiceAccount",
       "dataSource": "ActiveDirectory",
       "retrieval": {
@@ -397,18 +385,6 @@
         "name",
         "distinguishedName",
         "edsaDomainNetbiosName"
-      ]
-    },
-    {
-      "id": "ExpiredUsers",
-      "dataSource": "ActiveDirectory",
-      "retrieval": {
-        "base": "{DefaultADDN}",
-        "filter": "{ConfigFilter:UserAccountExpired}"
-      },
-      "attributes": [
-        "name",
-        "distinguishedName"
       ]
     },
     {
@@ -699,14 +675,13 @@
       "fallbackText": "No Group Owner"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "NoManagerUser",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
-      "datasetId": "NoManagerUser",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "isEmpty(manager)"
       },
       "display": {
         "color": "purple",
@@ -794,14 +769,13 @@
       "fallbackText": "Never Logged In"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "ExpiredUsers",
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
-      "datasetId": "ExpiredUsers",
+      "sourceDatasetId": "ADUserAccounts",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "exists(daysUntil(accountExpires)) && daysUntil(accountExpires) <= 0"
       },
       "display": {
         "color": "red",
