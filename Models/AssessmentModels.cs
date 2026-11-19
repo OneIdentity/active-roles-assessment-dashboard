@@ -265,7 +265,7 @@ public static class AssessmentTypeInfo
             "assessment.",
         AssessmentType.Exchange =>
             "This assessment evaluates on-premises Exchange identity, mailbox and messaging-hygiene indicators " +
-            "surfaced through Active Roles, focusing on mailbox governance (unmanaged mailboxes without a manager, " +
+            "surfaced through Active Roles, focusing on mailbox governance (mailboxes without a manager, " +
             "orphaned mailboxes on disabled accounts, mailboxes with litigation hold disabled), distribution/mail-" +
             "enabled group governance (groups without an owner, empty distribution groups), and mailbox delegation " +
             "(Full Access, Send As, Send on Behalf). It reads Exchange recipient and directory attributes only and " +

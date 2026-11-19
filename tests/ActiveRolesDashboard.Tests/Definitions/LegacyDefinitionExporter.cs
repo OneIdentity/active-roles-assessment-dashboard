@@ -90,6 +90,12 @@ internal static class LegacyDefinitionExporter
         "NoGroupOwner", "NoManagerServiceAccount", "UserAccountLockedOut", "EmptyGroups",
         "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts",
         "Sites", "SiteLinks", "Subnets", "OUs", "Trusts", "Computers",
+        "ExchangeServersKpi", "ExchangeTotalMailboxes", "ExchangeMailboxDatabasesKpi", "ExchangeAcceptedDomainsKpi",
+        "ExchangeMailboxServersKpi", "ExchangeDAGsKpi", "ExchangeUserMailboxesKpi", "ExchangeSharedMailboxesKpi",
+        "ExchangeRoomMailboxesKpi", "ExchangeEquipmentMailboxesKpi", "ExchangeMailUsersKpi", "ExchangeMailContactsKpi",
+        "ExchangeDistributionGroupsKpi", "ExchangeMailEnabledSecurityGroupsKpi", "ExchangeDynamicDistributionGroupsKpi",
+        "ExchangeGroupsNoOwnerKpi", "ExchangeEmptyDistributionGroupsKpi", "ExchangeMailboxNoManagerKpi",
+        "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi",
     };
 
     /// <summary>

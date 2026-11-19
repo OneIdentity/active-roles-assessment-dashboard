@@ -372,10 +372,7 @@
       "categoryId": "ExchangeOverview",
       "dataSource": "Exchange",
       "datasetId": "ExchangeServersKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "exchangeservers",
@@ -393,10 +390,7 @@
       "categoryId": "ExchangeOverview",
       "dataSource": "Exchange",
       "datasetId": "ExchangeTotalMailboxes",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "green",
         "sectionId": "exchangetotalmailboxes",
@@ -413,10 +407,7 @@
       "categoryId": "ExchangeOverview",
       "dataSource": "Exchange",
       "datasetId": "ExchangeMailboxDatabasesKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "exchangemailboxdatabases",
@@ -435,10 +426,7 @@
       "categoryId": "ExchangeOverview",
       "dataSource": "Exchange",
       "datasetId": "ExchangeAcceptedDomainsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "orange",
         "sectionId": "exchangeaccepteddomains"
@@ -456,10 +444,7 @@
       "categoryId": "ExchangeInfrastructure",
       "dataSource": "Exchange",
       "datasetId": "ExchangeMailboxServersKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "exchangemailboxservers"
@@ -476,10 +461,7 @@
       "categoryId": "ExchangeInfrastructure",
       "dataSource": "Exchange",
       "datasetId": "ExchangeDAGsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "purple",
         "sectionId": "exchangedags",
@@ -498,10 +480,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeUserMailboxesKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "exchangeusermailboxes"
@@ -518,10 +497,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeSharedMailboxesKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "green",
         "sectionId": "exchangesharedmailboxes"
@@ -539,10 +515,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeRoomMailboxesKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "exchangeroommailboxes"
@@ -560,10 +533,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeEquipmentMailboxesKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "amber",
         "sectionId": "exchangeequipmentmailboxes"
@@ -581,10 +551,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeMailUsersKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "purple",
         "sectionId": "exchangemailusers"
@@ -602,10 +569,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeMailContactsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "pink",
         "sectionId": "exchangemailcontacts"
@@ -623,10 +587,7 @@
       "categoryId": "ExchangeGroups",
       "dataSource": "Exchange",
       "datasetId": "ExchangeDistributionGroupsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "exchangedistributiongroups"
@@ -643,10 +604,7 @@
       "categoryId": "ExchangeGroups",
       "dataSource": "Exchange",
       "datasetId": "ExchangeMailEnabledSecurityGroupsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "green",
         "sectionId": "exchangemailenabledsecuritygroups"
@@ -664,10 +622,7 @@
       "categoryId": "ExchangeGroups",
       "dataSource": "Exchange",
       "datasetId": "ExchangeDynamicDistributionGroupsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "exchangedynamicdistributiongroups"
@@ -685,10 +640,7 @@
       "categoryId": "ExchangeGroups",
       "dataSource": "Exchange",
       "datasetId": "ExchangeGroupsNoOwnerKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "amber",
         "sectionId": "exchangegroupsnoowner"
@@ -707,10 +659,7 @@
       "categoryId": "ExchangeGroups",
       "dataSource": "Exchange",
       "datasetId": "ExchangeEmptyDistributionGroupsKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "slate",
         "sectionId": "exchangeemptydistributiongroups"
@@ -729,10 +678,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeMailboxNoManagerKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "purple",
         "sectionId": "exchangemailboxnomanager"
@@ -743,7 +689,7 @@
         "enabled": true
       },
       "sortOrder": 6,
-      "fallbackText": "Unmanaged Mailboxes"
+      "fallbackText": "Mailboxes Without Manager"
     },
     {
       "kind": "Search",
@@ -751,10 +697,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeOrphanedMailboxesKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "red",
         "sectionId": "exchangeorphanedmailboxes"
@@ -773,10 +716,7 @@
       "categoryId": "ExchangeMailboxes",
       "dataSource": "Exchange",
       "datasetId": "ExchangeLitigationHoldDisabledKpi",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "orange",
         "sectionId": "exchangelitigationholddisabled"
