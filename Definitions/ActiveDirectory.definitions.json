@@ -1680,9 +1680,9 @@
       "id": "ComputerClients",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server')"
       },
       "display": {
         "color": "blue",
@@ -1698,9 +1698,9 @@
       "id": "ComputerServers",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && !hasFlag(userAccountControl, 0x2000)"
       },
       "display": {
         "color": "green",
@@ -1717,9 +1717,9 @@
       "id": "WinServer2008R2",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.1')"
       },
       "display": {
         "color": "red",
@@ -1736,9 +1736,9 @@
       "id": "WinServer2012R2",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.3')"
       },
       "display": {
         "color": "red",
@@ -1755,9 +1755,9 @@
       "id": "WinServer2016",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (14393)')"
       },
       "display": {
         "color": "orange",
@@ -1774,9 +1774,9 @@
       "id": "WinServer2019",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (17763)')"
       },
       "display": {
         "color": "amber",
@@ -1793,9 +1793,9 @@
       "id": "WinServer2022",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (20348)')"
       },
       "display": {
         "color": "teal",
@@ -1812,9 +1812,9 @@
       "id": "WinServer2025",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (26100)')"
       },
       "display": {
         "color": "green",
@@ -1831,9 +1831,9 @@
       "id": "ServerOther",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "contains(operatingSystem, 'server') && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (14393)', '10.0 (17763)', '10.0 (20348)', '10.0 (26100)')"
       },
       "display": {
         "color": "slate",
@@ -1850,9 +1850,9 @@
       "id": "Win7",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.1')"
       },
       "display": {
         "color": "red",
@@ -1869,9 +1869,9 @@
       "id": "Win81",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.3')"
       },
       "display": {
         "color": "red",
@@ -1888,9 +1888,9 @@
       "id": "Win10_22H2",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (19045)')"
       },
       "display": {
         "color": "orange",
@@ -1907,9 +1907,9 @@
       "id": "Win11_22H2",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (22621)')"
       },
       "display": {
         "color": "blue",
@@ -1926,9 +1926,9 @@
       "id": "Win11_23H2",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (22631)')"
       },
       "display": {
         "color": "teal",
@@ -1945,9 +1945,9 @@
       "id": "Win11Enterprise",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (26200)')"
       },
       "display": {
         "color": "indigo",
@@ -1964,9 +1964,9 @@
       "id": "Win11Pro",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (26100)')"
       },
       "display": {
         "color": "purple",
@@ -1983,9 +1983,9 @@
       "id": "ClientsOther",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!contains(operatingSystem, 'server') && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (19045)', '10.0 (22621)', '10.0 (22631)', '10.0 (26200)', '10.0 (26100)')"
       },
       "display": {
         "color": "slate",
@@ -2002,9 +2002,9 @@
       "id": "UnconstrainedComputers",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x80000)"
       },
       "display": {
         "color": "red",
@@ -2022,9 +2022,9 @@
       "id": "EnabledComputers",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2)"
       },
       "display": {
         "color": "green",
@@ -2041,9 +2041,9 @@
       "id": "DisabledComputers",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "hasFlag(userAccountControl, 0x2)"
       },
       "display": {
         "color": "red",
@@ -2060,9 +2060,9 @@
       "id": "StaleComputers",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000) && daysSince(lastLogonTimestamp) > $staleDays"
       },
       "display": {
         "color": "amber",
@@ -2080,9 +2080,9 @@
       "id": "NeverLoggedOnComputers",
       "categoryId": "ComputersCategory",
       "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000) && !exists(daysSince(lastLogonTimestamp))"
       },
       "display": {
         "color": "orange",

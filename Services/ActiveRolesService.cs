@@ -308,10 +308,8 @@ public class ActiveRolesService
 
             bool IsComputerStale(string raw)
             {
-                if (string.IsNullOrEmpty(raw) || !long.TryParse(raw, out var val) || val <= 0)
-                    return false;
-                try { return DateTime.FromFileTimeUtc(val) < staleCutoff; }
-                catch (ArgumentOutOfRangeException) { return false; }
+                var lastLogon = ParseArTime(raw);
+                return lastLogon.HasValue && lastLogon.Value < staleCutoff;
             }
 
             var staleComputers = summary.Computers.Items
@@ -480,7 +478,7 @@ public class ActiveRolesService
                 enabledComputers.Add(ToComputerInfo(i));
                 var isDc = int.TryParse(uac, out var v) && (v & 0x2000) != 0;
                 var lastLogon = GetAttr(i, "lastLogonTimestamp");
-                if (!isDc && (string.IsNullOrEmpty(lastLogon) || !long.TryParse(lastLogon, out var ts) || ts <= 0))
+                if (!isDc && !ParseArTime(lastLogon).HasValue)
                     neverLoggedOnComputers.Add(ToComputerInfo(i));
             }
 
@@ -541,18 +539,9 @@ public class ActiveRolesService
 
             bool IsStale(string raw, out DateTime lastLogon)
             {
-                lastLogon = default;
-                if (string.IsNullOrEmpty(raw) || !long.TryParse(raw, out var val) || val <= 0)
-                    return false;
-                try
-                {
-                    lastLogon = DateTime.FromFileTimeUtc(val);
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    return false;
-                }
-                return lastLogon < staleCutoff;
+                var parsed = ParseArTime(raw);
+                lastLogon = parsed ?? default;
+                return parsed.HasValue && lastLogon < staleCutoff;
             }
 
             var staleUsers = summary.ADUserAccounts.Items
@@ -1916,7 +1905,7 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
             var filter = "(objectClass=computer)";
-            var attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,msDS-isGC";
+            var attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,msDS-isGC,lastLogonTimestamp";
             var items = await SearchObjectsAsync(token, baseDn, filter, "sub", attributes);
             result.Items = items;
             // Exclude domain controllers (SERVER_TRUST_ACCOUNT = 0x2000)

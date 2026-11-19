@@ -49,7 +49,32 @@ internal static class LegacyDefinitionExporter
             ["GlobalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x2)"),
             ["UniversalGroups"] = ("ADGroups", NotGroupFamily + " && hasFlag(groupType, 0x8)"),
             ["MailEnabledSecurityGroups"] = ("ADGroups", NotGroupFamily + " && groupType < 0 && !isEmpty(mail)"),
+            ["EnabledComputers"] = ("Computers", "!hasFlag(userAccountControl, 0x2)"),
+            ["DisabledComputers"] = ("Computers", "hasFlag(userAccountControl, 0x2)"),
+            ["UnconstrainedComputers"] = ("Computers", "hasFlag(userAccountControl, 0x80000)"),
+            ["StaleComputers"] = ("Computers", EnabledNonDc + " && daysSince(lastLogonTimestamp) > $staleDays"),
+            ["NeverLoggedOnComputers"] = ("Computers", EnabledNonDc + " && !exists(daysSince(lastLogonTimestamp))"),
+            ["ComputerClients"] = ("Computers", "!" + IsServer),
+            ["ComputerServers"] = ("Computers", IsServer + " && !hasFlag(userAccountControl, 0x2000)"),
+            ["WinServer2008R2"] = ("Computers", IsServer + " && in(operatingSystemVersion, '6.1')"),
+            ["WinServer2012R2"] = ("Computers", IsServer + " && in(operatingSystemVersion, '6.3')"),
+            ["WinServer2016"] = ("Computers", IsServer + " && in(operatingSystemVersion, '10.0 (14393)')"),
+            ["WinServer2019"] = ("Computers", IsServer + " && in(operatingSystemVersion, '10.0 (17763)')"),
+            ["WinServer2022"] = ("Computers", IsServer + " && in(operatingSystemVersion, '10.0 (20348)')"),
+            ["WinServer2025"] = ("Computers", IsServer + " && in(operatingSystemVersion, '10.0 (26100)')"),
+            ["ServerOther"] = ("Computers", IsServer + " && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (14393)', '10.0 (17763)', '10.0 (20348)', '10.0 (26100)')"),
+            ["Win7"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '6.1')"),
+            ["Win81"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '6.3')"),
+            ["Win10_22H2"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (19045)')"),
+            ["Win11_22H2"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (22621)')"),
+            ["Win11_23H2"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (22631)')"),
+            ["Win11Enterprise"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (26200)')"),
+            ["Win11Pro"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (26100)')"),
+            ["ClientsOther"] = ("Computers", "!" + IsServer + " && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (19045)', '10.0 (22621)', '10.0 (22631)', '10.0 (26200)', '10.0 (26100)')"),
         };
+
+    private const string IsServer = "contains(operatingSystem, 'server')";
+    private const string EnabledNonDc = "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000)";
 
     private const string NotGroupFamily = "edsvaGFIsGroupFamily != 'TRUE'";
 
