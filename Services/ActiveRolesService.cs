@@ -1422,6 +1422,9 @@ public class ActiveRolesService
             // KPIs with no Searches are not simple LDAP counts (e.g. Send As, which is resolved from
             // each mailbox's security descriptor by a dedicated collector below). Skip them here.
             if (exKpi.Searches.Count == 0) continue;
+            // Send on Behalf declares its search for the definition dataset, but its drilldown
+            // (resolved delegate names) comes from the dedicated collector below.
+            if (exKpi == KpiInfo.ExchangeSendOnBehalfKpi) continue;
 
             var key = exKpi.Key;
             var t = GetInfrastructureKpiAsync(token, exKpi);

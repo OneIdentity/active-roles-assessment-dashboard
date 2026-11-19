@@ -95,7 +95,7 @@ internal static class LegacyDefinitionExporter
         "ExchangeRoomMailboxesKpi", "ExchangeEquipmentMailboxesKpi", "ExchangeMailUsersKpi", "ExchangeMailContactsKpi",
         "ExchangeDistributionGroupsKpi", "ExchangeMailEnabledSecurityGroupsKpi", "ExchangeDynamicDistributionGroupsKpi",
         "ExchangeGroupsNoOwnerKpi", "ExchangeEmptyDistributionGroupsKpi", "ExchangeMailboxNoManagerKpi",
-        "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi",
+        "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi", "ExchangeSendOnBehalfKpi",
     };
 
     /// <summary>

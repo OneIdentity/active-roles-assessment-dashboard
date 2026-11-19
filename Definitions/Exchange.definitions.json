@@ -363,6 +363,20 @@
         "edsaDomainNetbiosName",
         "edsva-MsExch-LitigationHoldEnabled"
       ]
+    },
+    {
+      "id": "ExchangeSendOnBehalfKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*)(publicDelegates=*))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "publicDelegates"
+      ]
     }
   ],
   "kpis": [
@@ -750,14 +764,12 @@
       "fallbackText": "Mailbox Permissions (Full Access)"
     },
     {
-      "kind": "Derived",
+      "kind": "Search",
       "id": "ExchangeSendOnBehalfKpi",
       "categoryId": "ExchangePermissions",
       "dataSource": "Exchange",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "datasetId": "ExchangeSendOnBehalfKpi",
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "exchangesendonbehalf",
