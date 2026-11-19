@@ -365,6 +365,20 @@
       ]
     },
     {
+      "id": "ExchangeFullAccessMailboxes",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultNamingContext}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "domain",
+        "trustee"
+      ],
+      "keyAttribute": "distinguishedName"
+    },
+    {
       "id": "ExchangeSendOnBehalfKpi",
       "dataSource": "Exchange",
       "retrieval": {
@@ -377,6 +391,20 @@
         "edsaDomainNetbiosName",
         "publicDelegates"
       ]
+    },
+    {
+      "id": "ExchangeSendAsMailboxes",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultNamingContext}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "domain",
+        "trustee"
+      ],
+      "keyAttribute": "distinguishedName"
     }
   ],
   "kpis": [
@@ -748,9 +776,9 @@
       "id": "ExchangeFullAccessDelegatesKpi",
       "categoryId": "ExchangePermissions",
       "dataSource": "Exchange",
+      "sourceDatasetId": "ExchangeFullAccessMailboxes",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "blue",
@@ -787,9 +815,9 @@
       "id": "ExchangeSendAsKpi",
       "categoryId": "ExchangePermissions",
       "dataSource": "Exchange",
+      "sourceDatasetId": "ExchangeSendAsMailboxes",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "purple",

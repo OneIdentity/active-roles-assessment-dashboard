@@ -105,6 +105,11 @@ internal static class LegacyDefinitionExporter
             ["BroadDelegationLinks"] = (DelegationLinks, "!isPredefined && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"),
             ["UserDelegationLinks"] = (DelegationLinks, "!isPredefined && isUserTrustee"),
             ["RootDelegationLinks"] = (DelegationLinks, "!isPredefined && isRootScope"),
+            ["DynamicGroupsBrokenRules"] = (ResolvedDatasets.DynamicGroupsBrokenRules, ""),
+            ["ManagedUnitsBrokenRules"] = (ResolvedDatasets.ManagedUnitsBrokenRules, ""),
+            ["EntraManagedTenants"] = (ResolvedDatasets.EntraManagedTenants, ""),
+            ["ExchangeSendAsKpi"] = (ResolvedDatasets.ExchangeSendAs, ""),
+            ["ExchangeFullAccessDelegatesKpi"] = (ResolvedDatasets.ExchangeFullAccess, ""),
         };
 
     /// <summary>
@@ -194,6 +199,27 @@ internal static class LegacyDefinitionExporter
     private const string EntraExternal = "contains(edsaAzureUserPrincipalName, '#EXT#')";
 
     private const string DelegationLinks = AccessTemplateLinkSummary.DatasetId;
+
+    /// <summary>
+    /// Datasets resolved by dedicated collectors (GUID checks, tenant counts, mailbox DACLs) and
+    /// exposed through <see cref="DashboardSummary.Datasets"/>.
+    /// </summary>
+    private static DatasetDefinition? ResolvedDatasetDefinition(string id, DataSource source) => id switch
+    {
+        ResolvedDatasets.DynamicGroupsBrokenRules or ResolvedDatasets.ManagedUnitsBrokenRules => Resolved(id, source, "{DefaultNamingContext}", ["name", "distinguishedName"]),
+        ResolvedDatasets.EntraManagedTenants => Resolved(id, source, "{DefaultAzureConfigurationDN}", ["name", "distinguishedName", "objectCount"]),
+        ResolvedDatasets.ExchangeSendAs or ResolvedDatasets.ExchangeFullAccess => Resolved(id, source, "{DefaultNamingContext}", ["name", "distinguishedName", "domain", "trustee"]),
+        _ => null
+    };
+
+    private static DatasetDefinition Resolved(string id, DataSource source, string baseDn, List<string> attributes) => new()
+    {
+        Id = id,
+        DataSource = source,
+        Retrieval = new RetrievalDefinition { Base = baseDn },
+        Attributes = attributes,
+        KeyAttribute = "distinguishedName"
+    };
 
     /// <summary>
     /// Access template links with trustee type and scope resolved by the typed Active Roles code,
@@ -349,6 +375,7 @@ internal static class LegacyDefinitionExporter
         {
             if (migrated && m.Dataset == Entra) datasets.Add(EntraObjectsDataset());
             if (migrated && m.Dataset == DelegationLinks) datasets.Add(DelegationLinksDataset());
+            if (migrated && ResolvedDatasetDefinition(m.Dataset, source) is { } resolved) datasets.Add(resolved);
             return new DerivedKpi
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,

@@ -401,30 +401,28 @@
       ]
     },
     {
-      "id": "DynamicGroupsBrokenRules",
+      "id": "DynamicGroupsWithBrokenRules",
       "dataSource": "ActiveRoles",
       "retrieval": {
-        "base": "CN=Configuration",
-        "filter": "(objectClass=edsDynamicGroup)"
+        "base": "{DefaultNamingContext}"
       },
       "attributes": [
         "name",
-        "distinguishedName",
-        "edsaDGConditionsList"
-      ]
+        "distinguishedName"
+      ],
+      "keyAttribute": "distinguishedName"
     },
     {
-      "id": "ManagedUnitsBrokenRules",
+      "id": "ManagedUnitsWithBrokenRules",
       "dataSource": "ActiveRoles",
       "retrieval": {
-        "base": "CN=Managed Units,CN=Configuration",
-        "filter": "(objectClass=edsManagedUnit)"
+        "base": "{DefaultNamingContext}"
       },
       "attributes": [
         "name",
-        "distinguishedName",
-        "edsaMUConditionsList"
-      ]
+        "distinguishedName"
+      ],
+      "keyAttribute": "distinguishedName"
     },
     {
       "id": "ScriptModules",
@@ -441,6 +439,19 @@
         "edsaSystemObject",
         "edsaIsPredefined"
       ]
+    },
+    {
+      "id": "EntraTenants",
+      "dataSource": "EntraId",
+      "retrieval": {
+        "base": "{DefaultAzureConfigurationDN}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectCount"
+      ],
+      "keyAttribute": "distinguishedName"
     }
   ],
   "kpis": [
@@ -918,14 +929,13 @@
       "fallbackText": "Orphaned Policy Object Links"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "DynamicGroupsBrokenRules",
       "categoryId": "ARAutomation",
       "dataSource": "ActiveRoles",
-      "datasetId": "DynamicGroupsBrokenRules",
+      "sourceDatasetId": "DynamicGroupsWithBrokenRules",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "red",
@@ -939,14 +949,13 @@
       "fallbackText": "Dynamic Groups With Broken Rules"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "ManagedUnitsBrokenRules",
       "categoryId": "ARConfiguration",
       "dataSource": "ActiveRoles",
-      "datasetId": "ManagedUnitsBrokenRules",
+      "sourceDatasetId": "ManagedUnitsWithBrokenRules",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "red",
@@ -981,9 +990,9 @@
       "id": "EntraManagedTenants",
       "categoryId": "ARManagedDirectories",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraTenants",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": ""
       },
       "display": {
         "color": "indigo",

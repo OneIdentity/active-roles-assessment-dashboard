@@ -2341,6 +2341,11 @@ public class DashboardSummary
             map["ADGroups"] = new(ADGroups.Items, ADGroups.Error);
             map["Computers"] = new(Computers.Items, Computers.Error);
             map[AccessTemplateLinkSummary.DatasetId] = new(AccessTemplateLinks.ToDatasetItems(), AccessTemplateLinks.Error);
+            map[ResolvedDatasets.DynamicGroupsBrokenRules] = new(ResolvedDatasets.Project(DynamicGroupsBrokenRules.Items, i => new { name = i.Name, distinguishedName = i.Dn }), DynamicGroupsBrokenRules.Error);
+            map[ResolvedDatasets.ManagedUnitsBrokenRules] = new(ResolvedDatasets.Project(ManagedUnitsBrokenRules.Items, i => new { name = i.Name, distinguishedName = i.Dn }), ManagedUnitsBrokenRules.Error);
+            map[ResolvedDatasets.EntraManagedTenants] = new(ResolvedDatasets.Project(EntraManagedTenants.Items, i => new { name = i.Name, distinguishedName = i.Dn, objectCount = i.ObjectCount }), EntraManagedTenants.Error);
+            map[ResolvedDatasets.ExchangeSendAs] = ResolvedDatasets.Mailboxes(ExchangeKpis.GetValueOrDefault("ExchangeSendAsKpi"));
+            map[ResolvedDatasets.ExchangeFullAccess] = ResolvedDatasets.Mailboxes(ExchangeKpis.GetValueOrDefault("ExchangeFullAccessDelegatesKpi"));
             if (EntraTotals is not null)
                 map[EntraTotalsSummary.DatasetId] = new(EntraTotals.ToDatasetItems(), EntraTotals.Error);
             return map;
@@ -3856,6 +3861,27 @@ public class PrivilegedGroupMemberInfo : IPermissionScoped
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Definition datasets whose items are resolved by dedicated collectors (GUID existence checks,
+/// per-tenant counts, mailbox security descriptors) and exposed from the typed summaries.
+/// </summary>
+public static class ResolvedDatasets
+{
+    public const string DynamicGroupsBrokenRules = "DynamicGroupsWithBrokenRules";
+    public const string ManagedUnitsBrokenRules = "ManagedUnitsWithBrokenRules";
+    public const string EntraManagedTenants = "EntraTenants";
+    public const string ExchangeSendAs = "ExchangeSendAsMailboxes";
+    public const string ExchangeFullAccess = "ExchangeFullAccessMailboxes";
+
+    public static IReadOnlyList<JsonElement> Project<T>(IEnumerable<T> items, Func<T, object> shape) =>
+        items.Select(i => JsonSerializer.SerializeToElement(shape(i))).ToList();
+
+    public static Definitions.DatasetResult Mailboxes(GovernanceKpiSummary? summary) =>
+        summary is null
+            ? new([], null)
+            : new(Project(summary.Items, i => new { name = i.Name, distinguishedName = i.Dn, domain = i.Domain, trustee = i.Trustee }), summary.Error);
 }
 
 public class AccessTemplateLinkSummary
