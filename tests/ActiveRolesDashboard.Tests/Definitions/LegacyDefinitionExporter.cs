@@ -79,6 +79,27 @@ internal static class LegacyDefinitionExporter
             ["Win11Enterprise"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (26200)')"),
             ["Win11Pro"] = ("Computers", "!" + IsServer + " && in(operatingSystemVersion, '10.0 (26100)')"),
             ["ClientsOther"] = ("Computers", "!" + IsServer + " && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (19045)', '10.0 (22621)', '10.0 (22631)', '10.0 (26200)', '10.0 (26100)')"),
+            ["EntraOverviewUsers"] = (Entra, EntraUser),
+            ["EntraOverviewGroups"] = (Entra, EntraGroup),
+            ["EntraEnabledUsers"] = (Entra, EntraUser + " && " + EntraEnabled),
+            ["EntraDisabledUsers"] = (Entra, EntraUser + " && !" + EntraEnabled),
+            ["EntraNoManagerUser"] = (Entra, EntraUser + " && isEmpty(manager)"),
+            ["EntraGuestUsers"] = (Entra, "entraObjectType == 'GuestUser'"),
+            ["EntraInternalUsers"] = (Entra, EntraAnyUser + " && !" + EntraExternal),
+            ["EntraExternalUsers"] = (Entra, EntraAnyUser + " && " + EntraExternal),
+            ["EntraHybridUsers"] = (Entra, EntraUser + " && " + EntraSynced),
+            ["EntraCloudOnlyUsers"] = (Entra, EntraUser + " && !" + EntraSynced),
+            ["EntraManagedUsers"] = (Entra, EntraUser + " && " + EntraEnabled + " && !containsAny(edsvaAPOLinksEffective, $excludeLinkDns)"),
+            ["EntraDistributionGroups"] = (Entra, "entraObjectType == 'DistributionGroup'"),
+            ["EntraDynamicDistributionGroups"] = (Entra, "entraObjectType == 'DynamicDistributionGroup'"),
+            ["EntraMicrosoft365Groups"] = (Entra, "entraObjectType == 'Microsoft365Group'"),
+            ["EntraSecurityGroups"] = (Entra, "entraObjectType == 'SecurityGroup'"),
+            ["EntraEmptyGroups"] = (Entra, EntraGroup + " && isEmpty(member)"),
+            ["EntraNoGroupOwner"] = (Entra, EntraGroup + " && isEmpty(edsaAzureGroupManagedBy)"),
+            ["EntraPublicGroups"] = (Entra, "entraObjectType == 'Microsoft365Group' && visibility == 'Public'"),
+            ["EntraOnPremSyncedGroups"] = (Entra, EntraGroup + " && " + EntraSynced),
+            ["EntraSingleOwnerGroups"] = (Entra, EntraGroup + " && count(edsaAzureGroupManagedBy) == 1"),
+            ["EntraLargeGroups"] = (Entra, EntraGroup + " && count(member) >= $entraLargeGroupThreshold"),
         };
 
     /// <summary>
@@ -106,6 +127,7 @@ internal static class LegacyDefinitionExporter
         {
             ["CircularGroupNesting"] = ("ADGroups", "circularNesting"),
             ["ManagedObjects"] = ("ManagedObjects", "managedObjectStatistics"),
+            ["EntraGuestContainingGroups"] = (Entra, "guestContainingGroups"),
         };
 
     /// <summary>
@@ -124,6 +146,29 @@ internal static class LegacyDefinitionExporter
     private const string EnabledNonDc = "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000)";
 
     private const string NotGroupFamily = "edsvaGFIsGroupFamily != 'TRUE'";
+
+    private const string Entra = EntraTotalsSummary.DatasetId;
+    private const string EntraUser = "entraObjectType == 'User'";
+    private const string EntraAnyUser = "in(entraObjectType, 'User', 'GuestUser')";
+    private const string EntraGroup = "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup')";
+    private const string EntraEnabled = "!in(edsaAzureUserAccountEnabled, 'false', '0')";
+    private const string EntraSynced = "in(edsvaOnPremisesSyncEnabled, 'true', '1')";
+    private const string EntraExternal = "contains(edsaAzureUserPrincipalName, '#EXT#')";
+
+    /// <summary>
+    /// The Entra object dataset is collected by the typed Entra code and exposed through
+    /// <see cref="DashboardSummary.Datasets"/>; it is declared so definitions can reference it.
+    /// </summary>
+    private static DatasetDefinition EntraObjectsDataset() => new()
+    {
+        Id = Entra,
+        DataSource = DataSource.EntraId,
+        Retrieval = new RetrievalDefinition { Base = "{DefaultAzureConfigurationDN}" },
+        Attributes = ["name", "distinguishedName", "edsaAzureUserAccountEnabled", "manager", "edsaAzureUserPrincipalName",
+            "edsvaOnPremisesSyncEnabled", "edsvaAPOLinksEffective", "visibility", "member", "edsaAzureGroupManagedBy"],
+        SegmentAttribute = EntraTotalsSummary.DatasetTenantAttribute,
+        KeyAttribute = "distinguishedName"
+    };
 
     public static IReadOnlyDictionary<string, DefinitionSet> ExportByDashboard()
     {
@@ -234,6 +279,7 @@ internal static class LegacyDefinitionExporter
 
         if (MigratedFunctions.TryGetValue(k.Key, out var f))
         {
+            if (f.Dataset == Entra) datasets.Add(EntraObjectsDataset());
             if (k.Searches.Count > 0 && string.Equals(k.Searches.Single().SharedSearchKey ?? k.Key, f.Dataset, StringComparison.OrdinalIgnoreCase))
                 datasets.Add(ToDataset(k.Searches.Single(), f.Dataset, source));
             return new DerivedKpi
@@ -248,6 +294,7 @@ internal static class LegacyDefinitionExporter
 
         if (k.Searches.Count == 0 || migrated)
         {
+            if (migrated && m.Dataset == Entra) datasets.Add(EntraObjectsDataset());
             return new DerivedKpi
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,

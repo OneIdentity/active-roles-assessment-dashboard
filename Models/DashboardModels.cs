@@ -2340,6 +2340,8 @@ public class DashboardSummary
             map["ADUserAccounts"] = new(ADUserAccounts.Items, ADUserAccounts.Error);
             map["ADGroups"] = new(ADGroups.Items, ADGroups.Error);
             map["Computers"] = new(Computers.Items, Computers.Error);
+            if (EntraTotals is not null)
+                map[EntraTotalsSummary.DatasetId] = new(EntraTotals.ToDatasetItems(), EntraTotals.Error);
             return map;
         }
     }
@@ -4498,6 +4500,46 @@ public class EntraTotalsSummary
     /// batched loading from this offset instead of restarting from the full group count.
     /// </summary>
     public int MembershipLoadedCount { get; set; }
+
+    /// <summary>Definition dataset id exposing <see cref="Items"/> to generic KPI definitions.</summary>
+    public const string DatasetId = "EntraObjects";
+
+    /// <summary>Attribute added to each dataset item carrying its <see cref="EntraObjectType"/> name.</summary>
+    public const string DatasetObjectTypeAttribute = "entraObjectType";
+
+    /// <summary>Attribute added to each dataset item carrying its source tenant.</summary>
+    public const string DatasetTenantAttribute = "entraTenant";
+
+    /// <summary>
+    /// Projects <see cref="Items"/> into definition dataset items: the raw attributes plus the
+    /// object type and tenant, which are not part of the raw Active Roles data.
+    /// </summary>
+    public IReadOnlyList<JsonElement> ToDatasetItems()
+    {
+        var list = new List<JsonElement>(Items.Count);
+        foreach (var item in Items)
+        {
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                writer.WriteStartObject();
+                if (item.Raw.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var p in item.Raw.EnumerateObject())
+                    {
+                        if (p.Name is DatasetObjectTypeAttribute or DatasetTenantAttribute) continue;
+                        p.WriteTo(writer);
+                    }
+                }
+                writer.WriteString(DatasetObjectTypeAttribute, item.ObjectType.ToString());
+                writer.WriteString(DatasetTenantAttribute, item.Tenant);
+                writer.WriteEndObject();
+            }
+            using var doc = JsonDocument.Parse(stream.ToArray());
+            list.Add(doc.RootElement.Clone());
+        }
+        return list;
+    }
 
     public int CountFor(EntraObjectType type) =>
         ByObjectType.FirstOrDefault(c => c.ObjectType == type)?.TotalCount ?? 0;

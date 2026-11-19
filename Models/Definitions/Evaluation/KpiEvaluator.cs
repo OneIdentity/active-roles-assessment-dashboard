@@ -27,7 +27,7 @@ public sealed class KpiFunctionRegistry
     }
 
     /// <summary>Transform functions shipped with the application and always available to definitions.</summary>
-    private static readonly IKpiFunction[] BuiltIn = [new CircularGroupNestingFunction(), new ManagedObjectStatisticsFunction()];
+    private static readonly IKpiFunction[] BuiltIn = [new CircularGroupNestingFunction(), new ManagedObjectStatisticsFunction(), new GuestContainingGroupsFunction()];
 
     public bool IsRegistered(string name) => name == Legacy || _functions.ContainsKey(name);
 

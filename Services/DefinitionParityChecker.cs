@@ -26,6 +26,7 @@ public sealed class DefinitionParityChecker(ILogger<DefinitionParityChecker> log
         {
             ["staleDays"] = (double)(config.StaleAccountThresholdDays > 0 ? config.StaleAccountThresholdDays : 90),
             ["passwordAgeDays"] = (double)(config.PasswordAgeThresholdDays > 0 ? config.PasswordAgeThresholdDays : 365),
+            ["entraLargeGroupThreshold"] = (double)Math.Max(1, config.Entra.LargeGroupMemberThreshold),
             // Effective "Exclude from Managed Scope" policy link DNs; objects carrying one are unmanaged.
             ["excludeLinkDns"] = (IReadOnlyList<string>)(excludeLinkDns?.ToList() ?? []),
         }

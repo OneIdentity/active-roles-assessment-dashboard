@@ -116,15 +116,38 @@
       "fallbackText": "Groups"
     }
   ],
+  "datasets": [
+    {
+      "id": "EntraObjects",
+      "dataSource": "EntraId",
+      "retrieval": {
+        "base": "{DefaultAzureConfigurationDN}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAzureUserAccountEnabled",
+        "manager",
+        "edsaAzureUserPrincipalName",
+        "edsvaOnPremisesSyncEnabled",
+        "edsvaAPOLinksEffective",
+        "visibility",
+        "member",
+        "edsaAzureGroupManagedBy"
+      ],
+      "segmentAttribute": "entraTenant",
+      "keyAttribute": "distinguishedName"
+    }
+  ],
   "kpis": [
     {
       "kind": "Derived",
       "id": "EntraOverviewUsers",
       "categoryId": "EntraOverview",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User'"
       },
       "display": {
         "color": "blue"
@@ -137,9 +160,9 @@
       "id": "EntraOverviewGroups",
       "categoryId": "EntraOverview",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup')"
       },
       "display": {
         "color": "green"
@@ -153,9 +176,9 @@
       "id": "EntraEnabledUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User' && !in(edsaAzureUserAccountEnabled, 'false', '0')"
       },
       "display": {
         "color": "green",
@@ -171,9 +194,9 @@
       "id": "EntraDisabledUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User' && !!in(edsaAzureUserAccountEnabled, 'false', '0')"
       },
       "display": {
         "color": "red",
@@ -190,9 +213,9 @@
       "id": "EntraNoManagerUser",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User' && isEmpty(manager)"
       },
       "display": {
         "color": "purple",
@@ -210,9 +233,9 @@
       "id": "EntraGuestUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'GuestUser'"
       },
       "display": {
         "color": "orange",
@@ -229,9 +252,9 @@
       "id": "EntraInternalUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'User', 'GuestUser') && !contains(edsaAzureUserPrincipalName, '#EXT#')"
       },
       "display": {
         "color": "teal",
@@ -248,9 +271,9 @@
       "id": "EntraExternalUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'User', 'GuestUser') && contains(edsaAzureUserPrincipalName, '#EXT#')"
       },
       "display": {
         "color": "pink",
@@ -267,9 +290,9 @@
       "id": "EntraHybridUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User' && in(edsvaOnPremisesSyncEnabled, 'true', '1')"
       },
       "display": {
         "color": "teal",
@@ -286,9 +309,9 @@
       "id": "EntraCloudOnlyUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User' && !in(edsvaOnPremisesSyncEnabled, 'true', '1')"
       },
       "display": {
         "color": "blue",
@@ -305,9 +328,9 @@
       "id": "EntraManagedUsers",
       "categoryId": "EntraUserAccounts",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'User' && !in(edsaAzureUserAccountEnabled, 'false', '0') && !containsAny(edsvaAPOLinksEffective, $excludeLinkDns)"
       },
       "display": {
         "color": "green",
@@ -324,9 +347,9 @@
       "id": "EntraDistributionGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'DistributionGroup'"
       },
       "display": {
         "color": "blue",
@@ -342,9 +365,9 @@
       "id": "EntraDynamicDistributionGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'DynamicDistributionGroup'"
       },
       "display": {
         "color": "teal",
@@ -361,9 +384,9 @@
       "id": "EntraMicrosoft365Groups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'Microsoft365Group'"
       },
       "display": {
         "color": "purple",
@@ -380,9 +403,9 @@
       "id": "EntraSecurityGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'SecurityGroup'"
       },
       "display": {
         "color": "green",
@@ -399,9 +422,9 @@
       "id": "EntraEmptyGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && isEmpty(member)"
       },
       "display": {
         "color": "slate",
@@ -419,9 +442,9 @@
       "id": "EntraNoGroupOwner",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && isEmpty(edsaAzureGroupManagedBy)"
       },
       "display": {
         "color": "amber",
@@ -439,9 +462,10 @@
       "id": "EntraGuestContainingGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
         "type": "Function",
-        "function": "Legacy"
+        "function": "guestContainingGroups"
       },
       "display": {
         "color": "orange",
@@ -459,9 +483,9 @@
       "id": "EntraPublicGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "entraObjectType == 'Microsoft365Group' && visibility == 'Public'"
       },
       "display": {
         "color": "orange",
@@ -479,9 +503,9 @@
       "id": "EntraOnPremSyncedGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && in(edsvaOnPremisesSyncEnabled, 'true', '1')"
       },
       "display": {
         "color": "teal",
@@ -498,9 +522,9 @@
       "id": "EntraSingleOwnerGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && count(edsaAzureGroupManagedBy) == 1"
       },
       "display": {
         "color": "amber",
@@ -518,9 +542,9 @@
       "id": "EntraLargeGroups",
       "categoryId": "EntraGroups",
       "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && count(member) >= $entraLargeGroupThreshold"
       },
       "display": {
         "color": "slate",
