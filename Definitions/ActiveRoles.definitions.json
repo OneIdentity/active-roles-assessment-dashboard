@@ -175,20 +175,6 @@
       ]
     },
     {
-      "id": "DynamicGroups",
-      "dataSource": "ActiveRoles",
-      "retrieval": {
-        "base": "CN=Configuration",
-        "filter": "(objectClass=edsDynamicGroup)"
-      },
-      "attributes": [
-        "name",
-        "distinguishedName",
-        "edsaDGConditionsList",
-        "edsvaDGControllingService"
-      ]
-    },
-    {
       "id": "ManagedUnits",
       "dataSource": "ActiveRoles",
       "retrieval": {
@@ -463,10 +449,7 @@
       "categoryId": "ARInfrastructure",
       "dataSource": "ActiveRoles",
       "datasetId": "Servers",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "green",
         "sectionId": "servers"
@@ -483,10 +466,7 @@
       "categoryId": "ARManagedDirectories",
       "dataSource": "ActiveRoles",
       "datasetId": "Domains",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "domains"
@@ -503,10 +483,7 @@
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
       "datasetId": "AccessTemplateLinks",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "orange",
         "sectionId": "atlinks"
@@ -523,10 +500,7 @@
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
       "datasetId": "AccessTemplates",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "red",
         "sectionId": "accesstemplates"
@@ -538,14 +512,13 @@
       "fallbackText": "Access Templates"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "DynamicGroups",
       "categoryId": "ARAutomation",
       "dataSource": "ActiveRoles",
-      "datasetId": "DynamicGroups",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsaIsDynamicGroup == 'TRUE'"
       },
       "display": {
         "color": "purple",
@@ -562,9 +535,9 @@
       "id": "GroupFamilies",
       "categoryId": "ARConfiguration",
       "dataSource": "ActiveRoles",
+      "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
+        "filter": "edsvaGFIsGroupFamily == 'TRUE'"
       },
       "display": {
         "color": "purple",
@@ -582,10 +555,7 @@
       "categoryId": "ARConfiguration",
       "dataSource": "ActiveRoles",
       "datasetId": "ManagedUnits",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "managedunits"
@@ -602,10 +572,7 @@
       "categoryId": "ARAutomation",
       "dataSource": "ActiveRoles",
       "datasetId": "PolicyObjectLinks",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "amber",
         "sectionId": "polinks"
@@ -622,10 +589,7 @@
       "categoryId": "ARAutomation",
       "dataSource": "ActiveRoles",
       "datasetId": "PolicyObjects",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "slate",
         "sectionId": "policies"
@@ -642,10 +606,7 @@
       "categoryId": "ARConfiguration",
       "dataSource": "ActiveRoles",
       "datasetId": "VirtualAttributes",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "pink",
         "sectionId": "virtualattrs"
@@ -662,10 +623,7 @@
       "categoryId": "ARAutomation",
       "dataSource": "ActiveRoles",
       "datasetId": "Workflows",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "amber",
         "sectionId": "workflows"
@@ -682,10 +640,7 @@
       "categoryId": "ARInfrastructure",
       "dataSource": "ActiveRoles",
       "datasetId": "ConfigDatabases",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "configdatabases"
@@ -702,10 +657,7 @@
       "categoryId": "ARInfrastructure",
       "dataSource": "ActiveRoles",
       "datasetId": "HistoryDatabases",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "historydatabases"
@@ -722,10 +674,7 @@
       "categoryId": "ARConfiguration",
       "dataSource": "ActiveRoles",
       "datasetId": "ScheduledTasks",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "scheduledtasks"
@@ -991,10 +940,7 @@
       "categoryId": "ARConfiguration",
       "dataSource": "ActiveRoles",
       "datasetId": "ScriptModules",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "scriptmodules"

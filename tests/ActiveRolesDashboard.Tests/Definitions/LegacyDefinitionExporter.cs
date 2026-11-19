@@ -100,6 +100,8 @@ internal static class LegacyDefinitionExporter
             ["EntraOnPremSyncedGroups"] = (Entra, EntraGroup + " && " + EntraSynced),
             ["EntraSingleOwnerGroups"] = (Entra, EntraGroup + " && count(edsaAzureGroupManagedBy) == 1"),
             ["EntraLargeGroups"] = (Entra, EntraGroup + " && count(member) >= $entraLargeGroupThreshold"),
+            ["GroupFamilies"] = ("ADGroups", "edsvaGFIsGroupFamily == 'TRUE'"),
+            ["DynamicGroups"] = ("ADGroups", "edsaIsDynamicGroup == 'TRUE'"),
         };
 
     /// <summary>
@@ -117,6 +119,8 @@ internal static class LegacyDefinitionExporter
         "ExchangeDistributionGroupsKpi", "ExchangeMailEnabledSecurityGroupsKpi", "ExchangeDynamicDistributionGroupsKpi",
         "ExchangeGroupsNoOwnerKpi", "ExchangeEmptyDistributionGroupsKpi", "ExchangeMailboxNoManagerKpi",
         "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi", "ExchangeSendOnBehalfKpi",
+        "Servers", "Domains", "AccessTemplateLinks", "AccessTemplates", "ManagedUnits", "PolicyObjectLinks", "PolicyObjects",
+        "VirtualAttributes", "Workflows", "ConfigDatabases", "HistoryDatabases", "ScheduledTasks", "ScriptModules",
     };
 
     /// <summary>
