@@ -210,10 +210,10 @@ public sealed class DatasetCollectorTests : IDisposable
 
         foreach (var g in mailboxes)
         {
-            var gets = _server.Requests.Where(r => r.RequestMessage.Path.EndsWith($"/api/objects/{g}", StringComparison.OrdinalIgnoreCase)).ToList();
-            Assert.True(gets.Count == 1, string.Join(" | ", gets.Select(r => r.RequestMessage.Url)));
-            var get = Assert.Single(gets);
-            var requested = get.RequestMessage.Query!["attributes"];
+            var get = Assert.Single(factory.SentRequests, r =>
+                r.Method == HttpMethod.Get &&
+                r.Uri.AbsolutePath.EndsWith($"/api/objects/{g}", StringComparison.OrdinalIgnoreCase));
+            var requested = System.Web.HttpUtility.ParseQueryString(get.Uri.Query).GetValues("attributes") ?? [];
             Assert.Contains("nTSecurityDescriptor", requested);
             Assert.Contains("msExchMailboxSecurityDescriptor", requested);
         }
