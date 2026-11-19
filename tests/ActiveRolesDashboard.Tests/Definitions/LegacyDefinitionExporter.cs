@@ -73,6 +73,17 @@ internal static class LegacyDefinitionExporter
             ["ClientsOther"] = ("Computers", "!" + IsServer + " && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (19045)', '10.0 (22621)', '10.0 (22631)', '10.0 (26200)', '10.0 (26100)')"),
         };
 
+    /// <summary>
+    /// Search KPIs whose value is the number of items returned by their own search. Their
+    /// evaluation is a plain count expression over the KPI's dataset.
+    /// </summary>
+    public static readonly IReadOnlySet<string> MigratedSearches = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "NoGroupOwner", "NoManagerServiceAccount", "UserAccountLockedOut", "EmptyGroups",
+        "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts",
+        "Sites", "SiteLinks", "Subnets", "OUs", "Trusts",
+    };
+
     private const string IsServer = "contains(operatingSystem, 'server')";
     private const string EnabledNonDc = "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000)";
 
@@ -218,7 +229,8 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId, Evaluation = legacy
+                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId,
+                Evaluation = MigratedSearches.Contains(k.Key) ? new EvaluationDefinition() : legacy
             };
     }
 

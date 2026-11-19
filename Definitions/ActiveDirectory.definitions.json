@@ -686,10 +686,7 @@
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
       "datasetId": "NoGroupOwner",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "amber",
         "sectionId": "nogroupowner"
@@ -728,10 +725,7 @@
       "categoryId": "NHIs",
       "dataSource": "ActiveDirectory",
       "datasetId": "NoManagerServiceAccount",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "nomanagersa"
@@ -749,10 +743,7 @@
       "categoryId": "ADUserAccountsCategory",
       "dataSource": "ActiveDirectory",
       "datasetId": "UserAccountLockedOut",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "pink",
         "sectionId": "accountlockedout"
@@ -770,10 +761,7 @@
       "categoryId": "ADGroupsCategory",
       "dataSource": "ActiveDirectory",
       "datasetId": "EmptyGroups",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "slate",
         "sectionId": "emptygroups"
@@ -1295,10 +1283,7 @@
       "categoryId": "NHIs",
       "dataSource": "ActiveDirectory",
       "datasetId": "ServiceAccounts",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "serviceaccounts"
@@ -1315,10 +1300,7 @@
       "categoryId": "NHIs",
       "dataSource": "ActiveDirectory",
       "datasetId": "GmsaServiceAccounts",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "purple",
         "sectionId": "gmsaserviceaccounts"
@@ -1335,10 +1317,7 @@
       "categoryId": "NHIs",
       "dataSource": "ActiveDirectory",
       "datasetId": "SmsaServiceAccounts",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "purple",
         "sectionId": "smsaserviceaccounts"
@@ -1563,10 +1542,7 @@
       "categoryId": "Infrastructure",
       "dataSource": "ActiveDirectory",
       "datasetId": "Sites",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "blue",
         "sectionId": "sites"
@@ -1582,10 +1558,7 @@
       "categoryId": "Infrastructure",
       "dataSource": "ActiveDirectory",
       "datasetId": "SiteLinks",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "green",
         "sectionId": "sitelinks"
@@ -1602,10 +1575,7 @@
       "categoryId": "Infrastructure",
       "dataSource": "ActiveDirectory",
       "datasetId": "Subnets",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "teal",
         "sectionId": "subnets"
@@ -1622,10 +1592,7 @@
       "categoryId": "Infrastructure",
       "dataSource": "ActiveDirectory",
       "datasetId": "OUs",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "orange",
         "sectionId": "ous"
@@ -1661,10 +1628,7 @@
       "categoryId": "Infrastructure",
       "dataSource": "ActiveDirectory",
       "datasetId": "Trusts",
-      "evaluation": {
-        "type": "Function",
-        "function": "Legacy"
-      },
+      "evaluation": {},
       "display": {
         "color": "indigo",
         "sectionId": "trusts"

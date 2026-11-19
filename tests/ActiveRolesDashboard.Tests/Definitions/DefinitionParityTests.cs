@@ -34,6 +34,13 @@ public sealed class DefinitionParityTests : IDisposable
             Assert.Equal(dataset, kpi.SourceDatasetId);
             Assert.Equal(filter, kpi.Evaluation.Filter);
         }
+
+        foreach (var id in LegacyDefinitionExporter.MigratedSearches)
+        {
+            var kpi = Assert.IsType<SearchKpi>(registry.Kpis[id]);
+            Assert.Equal(EvaluationType.Expression, kpi.Evaluation.Type);
+            Assert.Null(kpi.Evaluation.Filter);
+        }
     }
 
     [Theory]
@@ -53,17 +60,19 @@ public sealed class DefinitionParityTests : IDisposable
             config,
             NullLogger<ServiceAccountTokenProvider>.Instance);
         var checker = new DefinitionParityChecker(NullLogger<DefinitionParityChecker>.Instance);
-        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(Registry(), new KpiEvaluator(new KpiFunctionRegistry()));
-        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker, kpiCalculator: calculator);
+        var registry = Registry();
+        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(registry, new KpiEvaluator(new KpiFunctionRegistry()));
+        var collector = new ActiveRolesDashboard.Services.Definitions.DatasetCollector(registry, NullLogger<ActiveRolesDashboard.Services.Definitions.DatasetCollector>.Instance);
+        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker, kpiCalculator: calculator, datasetCollector: collector);
 
         var summary = await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
 
-        Assert.Equal(LegacyDefinitionExporter.Migrated.Keys.Order(StringComparer.OrdinalIgnoreCase),
-            summary.KpiResults.Keys.Order(StringComparer.OrdinalIgnoreCase));
+        var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).ToList();
+        Assert.All(expected, id => Assert.True(summary.KpiResults.ContainsKey(id), $"{id} was not evaluated"));
 
         var results = checker.LastResults;
-        Assert.True(LegacyDefinitionExporter.Migrated.Count == results.Count,
-            "Checked: " + string.Join(", ", results.Select(r => r.KpiId)));
+        var checkedIds = results.Select(r => r.KpiId).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Assert.All(expected, id => Assert.True(checkedIds.Contains(id), $"{id} was not parity-checked"));
         Assert.All(results, r => Assert.True(r.Matches, $"{r.KpiId}: legacy {r.Legacy}, definition {r.Definition} {r.Error}"));
     }
 }
