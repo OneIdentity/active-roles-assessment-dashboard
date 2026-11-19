@@ -12,12 +12,14 @@ public sealed class DatasetCollector(DefinitionRegistry registry, ILogger<Datase
 {
     /// <summary>
     /// Collects <paramref name="datasetIds"/> using <paramref name="search"/> to run each request.
-    /// Datasets that cannot be collected generically are omitted from the result.
+    /// Datasets that cannot be collected generically are omitted from the result, as are datasets
+    /// declaring enrichments when no <paramref name="lookup"/> is supplied.
     /// </summary>
     public async Task<IReadOnlyDictionary<string, DatasetResult>> CollectAsync(
         IEnumerable<string> datasetIds,
         ActiveRolesConfig config,
-        Func<DatasetRequest, Task<List<JsonElement>>> search)
+        Func<DatasetRequest, Task<List<JsonElement>>> search,
+        IDirectoryLookup? lookup = null)
     {
         var requests = new List<DatasetRequest>();
         foreach (var id in datasetIds.Distinct(StringComparer.OrdinalIgnoreCase))
@@ -25,6 +27,12 @@ public sealed class DatasetCollector(DefinitionRegistry registry, ILogger<Datase
             if (!registry.Datasets.TryGetValue(id, out var dataset))
             {
                 logger.LogWarning("Dataset {Dataset} is not defined", id);
+                continue;
+            }
+
+            if (dataset.Enrichments.Count > 0 && lookup is null)
+            {
+                logger.LogDebug("Dataset {Dataset} needs directory lookups but none were supplied", id);
                 continue;
             }
 
@@ -42,7 +50,10 @@ public sealed class DatasetCollector(DefinitionRegistry registry, ILogger<Datase
         {
             try
             {
-                return (r.DatasetId, Result: new DatasetResult(await search(r), null));
+                var items = await search(r);
+                if (lookup is not null && registry.Datasets[r.DatasetId].Enrichments.Count > 0)
+                    items = await DatasetEnricher.EnrichAsync(registry.Datasets[r.DatasetId], items, lookup);
+                return (r.DatasetId, Result: new DatasetResult(items, null));
             }
             catch (Exception ex)
             {

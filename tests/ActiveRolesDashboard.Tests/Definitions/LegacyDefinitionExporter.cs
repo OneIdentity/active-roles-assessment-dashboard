@@ -1,6 +1,7 @@
 using System.Reflection;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Definitions;
+using ActiveRolesDashboard.Services.Definitions;
 
 namespace ActiveRolesDashboard.Tests.Definitions;
 
@@ -102,14 +103,14 @@ internal static class LegacyDefinitionExporter
             ["EntraLargeGroups"] = (Entra, EntraGroup + " && count(member) >= $entraLargeGroupThreshold"),
             ["GroupFamilies"] = ("ADGroups", "edsvaGFIsGroupFamily == 'TRUE'"),
             ["DynamicGroups"] = ("ADGroups", "edsaIsDynamicGroup == 'TRUE'"),
-            ["BroadDelegationLinks"] = (DelegationLinks, "!isPredefined && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"),
-            ["UserDelegationLinks"] = (DelegationLinks, "!isPredefined && isUserTrustee"),
-            ["RootDelegationLinks"] = (DelegationLinks, "!isPredefined && isRootScope"),
-            ["DynamicGroupsBrokenRules"] = (ResolvedDatasets.DynamicGroupsBrokenRules, ""),
-            ["ManagedUnitsBrokenRules"] = (ResolvedDatasets.ManagedUnitsBrokenRules, ""),
-            ["EntraManagedTenants"] = (ResolvedDatasets.EntraManagedTenants, ""),
-            ["ExchangeSendAsKpi"] = (ResolvedDatasets.ExchangeSendAs, ""),
-            ["ExchangeFullAccessDelegatesKpi"] = (ResolvedDatasets.ExchangeFullAccess, ""),
+            ["BroadDelegationLinks"] = (DelegationLinks, NotPredefined + " && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"),
+            ["UserDelegationLinks"] = (DelegationLinks, NotPredefined + " && trusteeIsUser"),
+            ["RootDelegationLinks"] = (DelegationLinks, NotPredefined + " && isRootScope"),
+            ["DynamicGroupsBrokenRules"] = (DynamicGroupsBrokenRulesId, "count(unresolvedGuids) > 0"),
+            ["ManagedUnitsBrokenRules"] = (ManagedUnitsBrokenRulesId, "count(unresolvedGuids) > 0"),
+            ["EntraManagedTenants"] = (EntraTenantsId, ""),
+            ["ExchangeSendAsKpi"] = (ExchangeSendAsId, "count(trustees) > 0"),
+            ["ExchangeFullAccessDelegatesKpi"] = (ExchangeFullAccessId, "count(trustees) > 0"),
         };
 
     /// <summary>
@@ -198,41 +199,46 @@ internal static class LegacyDefinitionExporter
     private const string EntraSynced = "in(edsvaOnPremisesSyncEnabled, 'true', '1')";
     private const string EntraExternal = "contains(edsaAzureUserPrincipalName, '#EXT#')";
 
-    private const string DelegationLinks = AccessTemplateLinkSummary.DatasetId;
+    private const string DelegationLinks = "DelegationLinks";
+    private const string DynamicGroupsBrokenRulesId = "DynamicGroupsWithBrokenRules";
+    private const string ManagedUnitsBrokenRulesId = "ManagedUnitsWithBrokenRules";
+    private const string EntraTenantsId = "EntraTenants";
+    private const string ExchangeSendAsId = "ExchangeSendAsMailboxes";
+    private const string ExchangeFullAccessId = "ExchangeFullAccessMailboxes";
+    private const string NotPredefined = "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE')";
+    private const string MailboxFilter = "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))";
 
     /// <summary>
-    /// Datasets resolved by dedicated collectors (GUID checks, tenant counts, mailbox DACLs) and
-    /// exposed through <see cref="DashboardSummary.Datasets"/>.
+    /// Datasets whose items need directory lookups (GUID checks, tenant counts, trustee and scope
+    /// resolution, mailbox DACLs) declared as enrichments of a searched dataset.
     /// </summary>
     private static DatasetDefinition? ResolvedDatasetDefinition(string id, DataSource source) => id switch
     {
-        ResolvedDatasets.DynamicGroupsBrokenRules or ResolvedDatasets.ManagedUnitsBrokenRules => Resolved(id, source, "{DefaultNamingContext}", ["name", "distinguishedName"]),
-        ResolvedDatasets.EntraManagedTenants => Resolved(id, source, "{DefaultAzureConfigurationDN}", ["name", "distinguishedName", "objectCount"]),
-        ResolvedDatasets.ExchangeSendAs or ResolvedDatasets.ExchangeFullAccess => Resolved(id, source, "{DefaultNamingContext}", ["name", "distinguishedName", "domain", "trustee"]),
+        DynamicGroupsBrokenRulesId => Enriched(id, source, KpiInfo.DynamicGroupsBrokenRules.Searches[0], Enrich(EnrichmentNames.UnresolvedGuids, "edsaDGConditionsList")),
+        ManagedUnitsBrokenRulesId => Enriched(id, source, KpiInfo.ManagedUnitsBrokenRules.Searches[0], Enrich(EnrichmentNames.UnresolvedGuids, "edsaMUConditionsList")),
+        EntraTenantsId => Enriched(id, source,
+            new KpiSearchDefinition { BaseDn = DatasetRequestResolver.DefaultAzureConfigDnToken, Filter = "(objectClass=edsAzureTenantcontainer)", Scope = "one", Attributes = "name,distinguishedName" },
+            new EnrichmentDefinition { Name = EnrichmentNames.DescendantCount }),
+        ExchangeSendAsId or ExchangeFullAccessId => Enriched(id, source,
+            new KpiSearchDefinition { BaseDn = DatasetRequestResolver.DefaultAdDnToken, Filter = MailboxFilter, Attributes = "name,distinguishedName,edsaDomainNetbiosName,objectGUID,objectSid" },
+            new EnrichmentDefinition { Name = EnrichmentNames.MailboxPermissions, Args = new Dictionary<string, string> { ["right"] = id == ExchangeSendAsId ? "SendAs" : "FullAccess" } }),
+        DelegationLinks => Enriched(id, source, KpiInfo.AccessTemplateLinks.Searches[0],
+            Enrich(EnrichmentNames.Trustee, "edsaTrusteeSID"), Enrich(EnrichmentNames.RootScope, "edsaSecObjectGUID")),
         _ => null
     };
 
-    private static DatasetDefinition Resolved(string id, DataSource source, string baseDn, List<string> attributes) => new()
-    {
-        Id = id,
-        DataSource = source,
-        Retrieval = new RetrievalDefinition { Base = baseDn },
-        Attributes = attributes,
-        KeyAttribute = "distinguishedName"
-    };
+    private static EnrichmentDefinition Enrich(string name, string attribute) =>
+        new() { Name = name, Args = new Dictionary<string, string> { ["attribute"] = attribute } };
 
-    /// <summary>
-    /// Access template links with trustee type and scope resolved by the typed Active Roles code,
-    /// exposed through <see cref="DashboardSummary.Datasets"/>.
-    /// </summary>
-    private static DatasetDefinition DelegationLinksDataset() => new()
+    private static DatasetDefinition Enriched(string id, DataSource source, KpiSearchDefinition search, params EnrichmentDefinition[] enrichments)
     {
-        Id = DelegationLinks,
-        DataSource = DataSource.ActiveRoles,
-        Retrieval = new RetrievalDefinition { Base = "CN=AT Links,CN=Configuration" },
-        Attributes = ["name", "distinguishedName", "trustee", "directoryObject", "accessTemplate", "isUserTrustee", "isRootScope", "isPredefined"],
-        KeyAttribute = "distinguishedName"
-    };
+        var d = ToDataset(search, id, source);
+        return new DatasetDefinition
+        {
+            Id = id, DataSource = source, Retrieval = d.Retrieval, Attributes = d.Attributes,
+            KeyAttribute = "distinguishedName", Enrichments = enrichments
+        };
+    }
 
     /// <summary>
     /// The Entra object dataset is collected by the typed Entra code and exposed through
@@ -374,7 +380,6 @@ internal static class LegacyDefinitionExporter
         if (k.Searches.Count == 0 || migrated)
         {
             if (migrated && m.Dataset == Entra) datasets.Add(EntraObjectsDataset());
-            if (migrated && m.Dataset == DelegationLinks) datasets.Add(DelegationLinksDataset());
             if (migrated && ResolvedDatasetDefinition(m.Dataset, source) is { } resolved) datasets.Add(resolved);
             return new DerivedKpi
             {

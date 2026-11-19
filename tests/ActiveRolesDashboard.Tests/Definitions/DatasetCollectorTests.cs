@@ -171,6 +171,63 @@ public sealed class DatasetCollectorTests : IDisposable
         Assert.False(legacy.ContainsKey("SchemaAdmins"));
     }
 
+    [Fact]
+    public async Task Exchange_datasets_share_one_descriptor_fetch_per_mailbox()
+    {
+        const string sendAsSid = "S-1-5-21-1-2-3-1001";
+        const string fullAccessSid = "S-1-5-21-1-2-3-1002";
+        var mailboxes = new[] { "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222" };
+        _server.WithSearch("homeMDB", mailboxes.Select((g, i) => (System.Text.Json.Nodes.JsonNode)new System.Text.Json.Nodes.JsonObject
+        {
+            ["name"] = $"mbx{i}", ["distinguishedName"] = $"CN=mbx{i},DC=x", ["objectGUID"] = g
+        }).ToList());
+        foreach (var g in mailboxes)
+        {
+            _server.WithObject(g, new System.Text.Json.Nodes.JsonObject
+            {
+                ["nTSecurityDescriptor"] = $"D:(OA;;CR;ab721a54-1e2f-11d0-9819-00aa0040529b;;{sendAsSid})",
+                ["msExchMailboxSecurityDescriptor"] = $"D:(A;;0x1;;;{fullAccessSid})"
+            });
+        }
+
+        var config = new TestOptionsMonitor<ActiveRolesConfig>(new ActiveRolesConfig
+        {
+            ApiBaseUrl = _server.ApiBaseUrl,
+            RstsUrl = _server.RstsUrl,
+            DefaultDNs = new DefaultDnsConfig { ActiveDirectory = "CN=Active Directory", ARConfiguration = "CN=Configuration" },
+        });
+        var factory = new TestHttpClientFactory(TimeSpan.FromSeconds(10));
+        var tokens = new ServiceAccountTokenProvider(
+            new RstsAuthService(config, factory),
+            new ServiceAccountSecretProtector(new EphemeralDataProtectionProvider()),
+            config,
+            NullLogger<ServiceAccountTokenProvider>.Instance);
+        var collector = new DatasetCollector(Registry(), NullLogger<DatasetCollector>.Instance);
+        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, datasetCollector: collector);
+
+        var results = await service.CollectDatasetsAsync(FakeActiveRolesServer.ValidToken, collector,
+            ["ExchangeSendAsMailboxes", "ExchangeFullAccessMailboxes"]);
+
+        foreach (var g in mailboxes)
+        {
+            var gets = _server.Requests.Where(r => r.RequestMessage.Path.EndsWith($"/api/objects/{g}", StringComparison.OrdinalIgnoreCase)).ToList();
+            Assert.True(gets.Count == 1, string.Join(" | ", gets.Select(r => r.RequestMessage.Url)));
+            var get = Assert.Single(gets);
+            var requested = get.RequestMessage.Query!["attributes"];
+            Assert.Contains("nTSecurityDescriptor", requested);
+            Assert.Contains("msExchMailboxSecurityDescriptor", requested);
+        }
+
+        static IEnumerable<string?> Trustees(DatasetResult r) =>
+            r.Items.SelectMany(i => i.GetProperty("trustees").EnumerateArray().Select(t => t.GetString()));
+        Assert.Null(results["ExchangeSendAsMailboxes"].Error);
+        Assert.Equal(2, results["ExchangeSendAsMailboxes"].Items.Count);
+        Assert.All(Trustees(results["ExchangeSendAsMailboxes"]), t => Assert.DoesNotContain(fullAccessSid, t));
+        Assert.Equal(2, Trustees(results["ExchangeSendAsMailboxes"]).Count());
+        Assert.All(Trustees(results["ExchangeFullAccessMailboxes"]), t => Assert.DoesNotContain(sendAsSid, t));
+        Assert.Equal(2, Trustees(results["ExchangeFullAccessMailboxes"]).Count());
+    }
+
     [Theory]
     [InlineData("small-domain")]
     public async Task Shadow_collection_matches_legacy_datasets(string dataSet)

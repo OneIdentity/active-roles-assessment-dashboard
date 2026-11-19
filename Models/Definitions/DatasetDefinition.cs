@@ -22,6 +22,45 @@ public sealed class DatasetDefinition
 
     /// <summary>Attribute uniquely identifying each item (defaults to objectGUID).</summary>
     public string KeyAttribute { get; init; } = "objectGUID";
+
+    /// <summary>
+    /// Directory lookups applied to each item after retrieval, in order. Each adds attributes that
+    /// expressions can read. Names must be one of <see cref="EnrichmentNames.All"/>.
+    /// </summary>
+    public IReadOnlyList<EnrichmentDefinition> Enrichments { get; init; } = [];
+}
+
+/// <summary>A named, compiled-in lookup applied to dataset items, with string arguments.</summary>
+public sealed class EnrichmentDefinition
+{
+    [System.Text.Json.Serialization.JsonRequired]
+    public string Name { get; init; } = string.Empty;
+
+    public IReadOnlyDictionary<string, string> Args { get; init; } = new Dictionary<string, string>();
+}
+
+/// <summary>The fixed set of enrichments; definitions cannot run arbitrary lookups.</summary>
+public static class EnrichmentNames
+{
+    /// <summary>Adds <c>unresolvedGuids</c>: GUIDs in an attribute that no longer resolve. Args: <c>attribute</c>.</summary>
+    public const string UnresolvedGuids = "unresolvedGuids";
+
+    /// <summary>Adds <c>trustee</c> and <c>trusteeIsUser</c> from a SID attribute. Args: <c>attribute</c>.</summary>
+    public const string Trustee = "trustee";
+
+    /// <summary>Adds <c>isRootScope</c> for the object a GUID attribute points at. Args: <c>attribute</c>.</summary>
+    public const string RootScope = "rootScope";
+
+    /// <summary>Adds <c>objectCount</c>: objects beneath the item, excluding itself.</summary>
+    public const string DescendantCount = "descendantCount";
+
+    /// <summary>Adds <c>trustees</c>: explicit non-system grantees of a mailbox right. Args: <c>right</c> (SendAs or FullAccess).</summary>
+    public const string MailboxPermissions = "mailboxPermissions";
+
+    public static readonly IReadOnlySet<string> All = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        UnresolvedGuids, Trustee, RootScope, DescendantCount, MailboxPermissions
+    };
 }
 
 /// <summary>How data is fetched from the source.</summary>

@@ -368,15 +368,25 @@
       "id": "ExchangeFullAccessMailboxes",
       "dataSource": "Exchange",
       "retrieval": {
-        "base": "{DefaultNamingContext}"
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))"
       },
       "attributes": [
         "name",
         "distinguishedName",
-        "domain",
-        "trustee"
+        "edsaDomainNetbiosName",
+        "objectGUID",
+        "objectSid"
       ],
-      "keyAttribute": "distinguishedName"
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "mailboxPermissions",
+          "args": {
+            "right": "FullAccess"
+          }
+        }
+      ]
     },
     {
       "id": "ExchangeSendOnBehalfKpi",
@@ -396,15 +406,25 @@
       "id": "ExchangeSendAsMailboxes",
       "dataSource": "Exchange",
       "retrieval": {
-        "base": "{DefaultNamingContext}"
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))"
       },
       "attributes": [
         "name",
         "distinguishedName",
-        "domain",
-        "trustee"
+        "edsaDomainNetbiosName",
+        "objectGUID",
+        "objectSid"
       ],
-      "keyAttribute": "distinguishedName"
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "mailboxPermissions",
+          "args": {
+            "right": "SendAs"
+          }
+        }
+      ]
     }
   ],
   "kpis": [
@@ -778,7 +798,7 @@
       "dataSource": "Exchange",
       "sourceDatasetId": "ExchangeFullAccessMailboxes",
       "evaluation": {
-        "filter": ""
+        "filter": "count(trustees) > 0"
       },
       "display": {
         "color": "blue",
@@ -817,7 +837,7 @@
       "dataSource": "Exchange",
       "sourceDatasetId": "ExchangeSendAsMailboxes",
       "evaluation": {
-        "filter": ""
+        "filter": "count(trustees) > 0"
       },
       "display": {
         "color": "purple",

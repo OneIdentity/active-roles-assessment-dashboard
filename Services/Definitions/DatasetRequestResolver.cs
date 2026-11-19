@@ -18,6 +18,7 @@ public static class DatasetRequestResolver
 {
     public const string DefaultAdDnToken = "{DefaultADDN}";
     public const string DefaultArConfigDnToken = "{DefaultARConfigDN}";
+    public const string DefaultAzureConfigDnToken = "{DefaultAzureConfigurationDN}";
     public const string ConfigFilterPrefix = "{ConfigFilter:";
     public const string UserAttributesToken = "{ConfigAttributes:ADUserAccounts}";
 
@@ -89,6 +90,7 @@ public static class DatasetRequestResolver
         null => null,
         DefaultAdDnToken => config.DefaultActiveDirectoryDN,
         DefaultArConfigDnToken => config.DefaultARConfigurationDN,
+        DefaultAzureConfigDnToken => config.DefaultAzureConfigurationDN,
         _ => value
     };
 

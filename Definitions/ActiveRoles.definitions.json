@@ -372,19 +372,33 @@
       "id": "DelegationLinks",
       "dataSource": "ActiveRoles",
       "retrieval": {
-        "base": "CN=AT Links,CN=Configuration"
+        "base": "CN=AT Links,CN=Configuration",
+        "filter": "(objectClass=edsACE)"
       },
       "attributes": [
         "name",
         "distinguishedName",
-        "trustee",
-        "directoryObject",
-        "accessTemplate",
-        "isUserTrustee",
-        "isRootScope",
-        "isPredefined"
+        "edsaTrusteeSID",
+        "edsaSecObjectGUID",
+        "edsaAccessTemplateGUID",
+        "edsaIsPredefined",
+        "edsaSystemObject"
       ],
-      "keyAttribute": "distinguishedName"
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "trustee",
+          "args": {
+            "attribute": "edsaTrusteeSID"
+          }
+        },
+        {
+          "name": "rootScope",
+          "args": {
+            "attribute": "edsaSecObjectGUID"
+          }
+        }
+      ]
     },
     {
       "id": "OrphanPolicyObjectLinks",
@@ -404,25 +418,45 @@
       "id": "DynamicGroupsWithBrokenRules",
       "dataSource": "ActiveRoles",
       "retrieval": {
-        "base": "{DefaultNamingContext}"
+        "base": "CN=Configuration",
+        "filter": "(objectClass=edsDynamicGroup)"
       },
       "attributes": [
         "name",
-        "distinguishedName"
+        "distinguishedName",
+        "edsaDGConditionsList"
       ],
-      "keyAttribute": "distinguishedName"
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "unresolvedGuids",
+          "args": {
+            "attribute": "edsaDGConditionsList"
+          }
+        }
+      ]
     },
     {
       "id": "ManagedUnitsWithBrokenRules",
       "dataSource": "ActiveRoles",
       "retrieval": {
-        "base": "{DefaultNamingContext}"
+        "base": "CN=Managed Units,CN=Configuration",
+        "filter": "(objectClass=edsManagedUnit)"
       },
       "attributes": [
         "name",
-        "distinguishedName"
+        "distinguishedName",
+        "edsaMUConditionsList"
       ],
-      "keyAttribute": "distinguishedName"
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "unresolvedGuids",
+          "args": {
+            "attribute": "edsaMUConditionsList"
+          }
+        }
+      ]
     },
     {
       "id": "ScriptModules",
@@ -444,14 +478,20 @@
       "id": "EntraTenants",
       "dataSource": "EntraId",
       "retrieval": {
-        "base": "{DefaultAzureConfigurationDN}"
+        "base": "{DefaultAzureConfigurationDN}",
+        "filter": "(objectClass=edsAzureTenantcontainer)",
+        "scope": "one"
       },
       "attributes": [
         "name",
-        "distinguishedName",
-        "objectCount"
+        "distinguishedName"
       ],
-      "keyAttribute": "distinguishedName"
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "descendantCount"
+        }
+      ]
     }
   ],
   "kpis": [
@@ -855,7 +895,7 @@
       "dataSource": "ActiveRoles",
       "sourceDatasetId": "DelegationLinks",
       "evaluation": {
-        "filter": "!isPredefined && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"
+        "filter": "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE') && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"
       },
       "display": {
         "color": "red",
@@ -875,7 +915,7 @@
       "dataSource": "ActiveRoles",
       "sourceDatasetId": "DelegationLinks",
       "evaluation": {
-        "filter": "!isPredefined && isUserTrustee"
+        "filter": "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE') && trusteeIsUser"
       },
       "display": {
         "color": "amber",
@@ -895,7 +935,7 @@
       "dataSource": "ActiveRoles",
       "sourceDatasetId": "DelegationLinks",
       "evaluation": {
-        "filter": "!isPredefined && isRootScope"
+        "filter": "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE') && isRootScope"
       },
       "display": {
         "color": "orange",
@@ -935,7 +975,7 @@
       "dataSource": "ActiveRoles",
       "sourceDatasetId": "DynamicGroupsWithBrokenRules",
       "evaluation": {
-        "filter": ""
+        "filter": "count(unresolvedGuids) > 0"
       },
       "display": {
         "color": "red",
@@ -955,7 +995,7 @@
       "dataSource": "ActiveRoles",
       "sourceDatasetId": "ManagedUnitsWithBrokenRules",
       "evaluation": {
-        "filter": ""
+        "filter": "count(unresolvedGuids) > 0"
       },
       "display": {
         "color": "red",

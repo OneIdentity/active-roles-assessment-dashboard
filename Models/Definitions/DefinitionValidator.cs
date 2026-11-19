@@ -27,6 +27,8 @@ public static class DefinitionValidator
         {
             if (string.IsNullOrWhiteSpace(d.Id)) errors.Add("A dataset has no id.");
             ValidateRetrieval(d.Retrieval, $"dataset '{d.Id}'", errors);
+            foreach (var e in d.Enrichments.Where(e => !EnrichmentNames.All.Contains(e.Name)))
+                errors.Add($"Dataset '{d.Id}' uses unknown enrichment '{e.Name}'.");
         }
 
         foreach (var k in set.Kpis)

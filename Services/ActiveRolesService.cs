@@ -4898,7 +4898,47 @@ public class ActiveRolesService
             return Definitions.MembershipExpander.Expand(items,
                 dn => groups.IndirectByDn.TryGetValue(dn, out var m) ? m : null,
                 dn => byDn.TryGetValue(dn, out var raw) ? raw : null);
-        });
+        }, new DirectoryLookup(this, token));
+
+    /// <summary>Directory lookups for dataset enrichments, reusing the legacy collectors' helpers.</summary>
+    private sealed class DirectoryLookup(ActiveRolesService service, string token) : Definitions.IDirectoryLookup
+    {
+        public Task<bool> GuidExistsAsync(string guid) => service.GuidExistsAsync(token, guid);
+        public Task<string> ResolveSidAsync(string sid) => service.ResolveSidToNameAsync(token, sid);
+        public Task<bool> IsUserSidAsync(string sid) => service.IsUserTrusteeAsync(token, sid);
+        public Task<bool> IsRootScopeAsync(string guid) => service.IsRootScopeAsync(token, guid);
+
+        public async Task<int> CountDescendantsAsync(string dn)
+        {
+            var children = await service.SearchObjectsAsync(token, dn, "(objectClass=*)", "sub", "name,distinguishedName");
+            return children.Count(i => !string.Equals(GetAttr(i, "distinguishedName"), dn, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // One GET per mailbox returns both descriptors; the Send As and Full Access datasets share it.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<Task<MailboxDescriptors?>>> _mailboxes = new(StringComparer.OrdinalIgnoreCase);
+
+        public async Task<IReadOnlyList<string>?> MailboxGranteesAsync(string objectGuid, string? ownerSid, string right)
+        {
+            // Lazy ensures concurrent callers (both datasets run in parallel) share a single GET.
+            var descriptors = await _mailboxes.GetOrAdd(objectGuid, g => new Lazy<Task<MailboxDescriptors?>>(() => LoadMailboxAsync(g))).Value;
+            if (string.Equals(right, "FullAccess", StringComparison.OrdinalIgnoreCase))
+                return descriptors?.Mailbox is { } mailbox ? service.GetExplicitNonSystemFullAccessSids(mailbox, ownerSid) : null;
+            return descriptors?.Object is { } obj ? service.GetExplicitNonSystemSendAsSids(obj, ownerSid) : null;
+        }
+
+        private async Task<MailboxDescriptors?> LoadMailboxAsync(string objectGuid)
+        {
+            using var doc = await service.GetObjectDetailsAsync(token, objectGuid, "nTSecurityDescriptor,msExchMailboxSecurityDescriptor");
+            if (doc == null) return null;
+            return new MailboxDescriptors(
+                service.TryBuildSecurityDescriptor(doc.RootElement, "nTSecurityDescriptor"),
+                service.TryBuildSecurityDescriptor(doc.RootElement, "msExchMailboxSecurityDescriptor"));
+        }
+
+        private sealed record MailboxDescriptors(
+            System.Security.AccessControl.RawSecurityDescriptor? Object,
+            System.Security.AccessControl.RawSecurityDescriptor? Mailbox);
+    }
 
     private async Task ShadowCollectDatasetsAsync(string token, DashboardSummary summary)
     {
