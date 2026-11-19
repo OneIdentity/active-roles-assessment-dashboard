@@ -2667,13 +2667,26 @@ public class DashboardSummary
         AdVisible = effectiveDomains.Count > 0;
         EntraVisible = EntraTotals.Tenants.Count > 0;
 
-        // Definition KPI values were computed over the unfiltered datasets; drop them so they are
-        // recomputed from the filtered datasets rather than read stale.
-        KpiResults.Clear();
+        // Definition KPI values were computed over the unfiltered datasets. Mark them stale so a
+        // missed re-evaluation shows up as an error instead of a wrong (unfiltered) value.
+        foreach (var id in KpiResults.Keys.ToList())
+            KpiResults[id] = Definitions.KpiResult.Failed(StaleKpiResultError);
     }
 
-    /// <summary>Returns the count and error for any KPI by key, enabling generic tile rendering.</summary>
-    public (int Count, string? Error) GetKpiResult(string kpiKey) => kpiKey switch
+    public const string StaleKpiResultError = "Definition result was not re-evaluated after the segment filter was applied";
+
+    /// <summary>
+    /// Returns the count and error for any KPI by key, enabling generic tile rendering. Values come
+    /// from the definition evaluation (<see cref="KpiResults"/>); the hand-written calculation is only
+    /// used when the KPI was not evaluated from a definition at all.
+    /// </summary>
+    public (int Count, string? Error) GetKpiResult(string kpiKey) =>
+        KpiResults.TryGetValue(kpiKey, out var result)
+            ? ((int)result.Value, result.Error)
+            : GetLegacyKpiResult(kpiKey);
+
+    /// <summary>KPI value computed by the hand-written typed summaries (used for parity checks).</summary>
+    public (int Count, string? Error) GetLegacyKpiResult(string kpiKey) => kpiKey switch
     {
         "ADUserAccounts" => GetCombinedResult(ADUserAccounts.TotalCount, ADUserAccounts.Error, EntraTotals.CountFor(EntraObjectType.User), EntraTotals.Error),
         "ADGroups" => GetCombinedResult(ADGroups.TotalCount, ADGroups.Error, EntraGroupsTotal, EntraTotals.Error),

@@ -139,7 +139,7 @@ public sealed class DatasetCollectorTests : IDisposable
         Assert.Single(results["ADUserAccounts"].Items);
         Assert.Null(results["ADUserAccounts"].Error);
         Assert.Contains("boom", results["ADGroups"].Error);
-        Assert.False(results.ContainsKey("Missing"));
+        Assert.Equal("Dataset 'Missing' is not defined", results["Missing"].Error);
     }
 
     [Fact]

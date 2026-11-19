@@ -38,7 +38,7 @@ public sealed class DefinitionParityChecker(ILogger<DefinitionParityChecker> log
 
         foreach (var (kpiId, generic) in summary.KpiResults)
         {
-            var (legacy, error) = summary.GetKpiResult(kpiId);
+            var (legacy, error) = summary.GetLegacyKpiResult(kpiId);
             if (error is not null) continue;
 
             var result = new KpiParityResult(kpiId, legacy, generic.Error is null ? generic.Value : null, generic.Error);

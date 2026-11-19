@@ -108,7 +108,7 @@ public sealed class SummaryDictionaryTests
     }
 
     [Fact]
-    public void Kpi_results_survive_session_serialization_and_are_cleared_by_segment_filters()
+    public void Kpi_results_survive_session_serialization_and_are_marked_stale_by_segment_filters()
     {
         var summary = new DashboardSummary();
         summary.KpiResults["Disabled"] = new KpiResult(3, null);
@@ -117,7 +117,8 @@ public sealed class SummaryDictionaryTests
         Assert.Equal(3, copy.KpiResults["disabled"].Value);
 
         copy.ApplySegmentFilter(new SegmentFilterState());
-        Assert.Empty(copy.KpiResults);
+        Assert.Equal(DashboardSummary.StaleKpiResultError, copy.KpiResults["Disabled"].Error);
+        Assert.Equal(DashboardSummary.StaleKpiResultError, copy.GetKpiResult("Disabled").Error);
     }
 
     [Fact]

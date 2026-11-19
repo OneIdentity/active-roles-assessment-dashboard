@@ -48,6 +48,7 @@ public sealed class DashboardDataService
     private readonly PerUserSummaryCache _userSummaryCache;
     private readonly RoleService _roleService;
     private readonly DirectoryFactsResolver _directoryFacts;
+    private readonly Definitions.DefinitionKpiCalculator? _kpiCalculator;
 
     public DashboardDataService(
         ActiveRolesService arService,
@@ -59,7 +60,8 @@ public sealed class DashboardDataService
         ArPermissionModelService permissionModelService,
         PerUserSummaryCache userSummaryCache,
         RoleService roleService,
-        DirectoryFactsResolver directoryFacts)
+        DirectoryFactsResolver directoryFacts,
+        Definitions.DefinitionKpiCalculator? kpiCalculator = null)
     {
         _arService = arService;
         _userSettingsService = userSettingsService;
@@ -71,6 +73,7 @@ public sealed class DashboardDataService
         _userSummaryCache = userSummaryCache;
         _roleService = roleService;
         _directoryFacts = directoryFacts;
+        _kpiCalculator = kpiCalculator;
     }
 
     private static string UserKey(HttpContext http) => http.User.Identity?.Name ?? string.Empty;
@@ -310,6 +313,7 @@ public sealed class DashboardDataService
         };
 
         summary.ApplySegmentFilter(filter);
+        _kpiCalculator?.Reevaluate(summary, DefinitionParityChecker.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
         return view;
     }
 

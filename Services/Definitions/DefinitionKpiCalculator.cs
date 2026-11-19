@@ -33,7 +33,11 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             if (datasetId is null || evaluation is null) continue;
             if (IsLegacy(evaluation)) continue;
             if (!kpi.Enabled || !include(kpi)) continue;
-            if (!datasets.TryGetValue(datasetId, out var dataset)) continue;
+            if (!datasets.TryGetValue(datasetId, out var dataset))
+            {
+                results[kpi.Id] = KpiResult.Failed($"Dataset '{datasetId}' was not collected");
+                continue;
+            }
 
             if (dataset.Error is not null)
             {
@@ -45,9 +49,9 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             {
                 results[kpi.Id] = new KpiResult(evaluator.Evaluate(evaluation, dataset.Items, context) ?? 0, null);
             }
-            catch (ExpressionException ex)
+            catch (Exception ex)
             {
-                results[kpi.Id] = KpiResult.Failed(ex.Message);
+                results[kpi.Id] = KpiResult.Failed($"Definition evaluation failed: {ex.Message}");
             }
         }
 
@@ -69,7 +73,7 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
         var available = new Dictionary<string, KpiResult>(results, StringComparer.OrdinalIgnoreCase);
         foreach (var source in pending.SelectMany(k => k.Sources).Distinct(StringComparer.OrdinalIgnoreCase).Where(IsLegacyKpi))
         {
-            var (count, error) = summary.GetKpiResult(source);
+            var (count, error) = summary.GetLegacyKpiResult(source);
             available.TryAdd(source, error is null ? new KpiResult(count, null) : KpiResult.Failed(error));
         }
 
@@ -90,6 +94,20 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
                 progressed = true;
             }
         } while (progressed && pending.Count > 0);
+
+        foreach (var kpi in pending)
+        {
+            var missing = kpi.Sources.Where(s => !available.ContainsKey(s));
+            results[kpi.Id] = KpiResult.Failed($"Source KPIs not evaluated: {string.Join(", ", missing)}");
+        }
+    }
+
+    /// <summary>Re-evaluates the KPIs already present in <see cref="DashboardSummary.KpiResults"/> (e.g. after a segment filter).</summary>
+    public void Reevaluate(DashboardSummary summary, EvaluationContext context)
+    {
+        if (summary.KpiResults.Count == 0) return;
+        var ids = summary.KpiResults.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Populate(summary, kpi => ids.Contains(kpi.Id), context);
     }
 
     /// <summary>

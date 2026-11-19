@@ -1511,9 +1511,9 @@ public class ActiveRolesService
         // centrally in BuildAttributesQuery); we build a global DN->scope map and copy it across.
         StampObjectScopes(summary);
 
-        // Collect the datasets read by expression KPIs that the hand-written code does not already
-        // provide, then evaluate definition-driven KPIs into summary.KpiResults and compare them
-        // with the legacy values. Never affects the displayed values; failures are logged only.
+        // Collect the datasets read by definition KPIs that the hand-written code does not already
+        // provide, then evaluate definition-driven KPIs into summary.KpiResults (the displayed values)
+        // and compare them with the legacy values.
         if (_kpiCalculator != null)
         {
             try
@@ -1521,8 +1521,16 @@ public class ActiveRolesService
                 if (_datasetCollector != null)
                 {
                     var required = _kpiCalculator.RequiredDatasetIds(settings);
-                    if (required.Count > 0)
-                        summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required, summary));
+                    try
+                    {
+                        if (required.Count > 0)
+                            summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required, summary));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Definition dataset collection failed");
+                        summary.CollectedDatasets = required.ToDictionary(id => id, _ => Models.Definitions.DatasetResult.Failed($"Dataset collection failed: {ex.Message}"));
+                    }
                 }
 
                 _kpiCalculator.Populate(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
@@ -1530,7 +1538,7 @@ public class ActiveRolesService
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Definition KPI evaluation failed");
+                _logger.LogError(ex, "Definition KPI evaluation failed");
             }
         }
 

@@ -94,6 +94,19 @@ public static class DatasetRequestResolver
         _ => value
     };
 
+    /// <summary>
+    /// True when the dataset searches for a configured role group (e.g. ActiveRolesAdmins) whose
+    /// name is blank; such a group has no members rather than being an error.
+    /// </summary>
+    public static bool IsUnconfiguredRoleGroup(DatasetDefinition dataset, ActiveRolesConfig config)
+    {
+        var value = dataset.Retrieval.Filter;
+        if (value is null || !value.StartsWith(ConfigFilterPrefix, StringComparison.Ordinal) || !value.EndsWith('}'))
+            return false;
+        var property = typeof(RoleGroupsConfig).GetProperty(value[ConfigFilterPrefix.Length..^1]);
+        return property?.PropertyType == typeof(string) && string.IsNullOrWhiteSpace(property.GetValue(config.RoleGroups) as string);
+    }
+
     private static string? ResolveFilter(string? value, ActiveRolesConfig config, ref string? baseDn)
     {
         if (value is null || !value.StartsWith(ConfigFilterPrefix, StringComparison.Ordinal) || !value.EndsWith('}'))
