@@ -289,7 +289,7 @@ public class DashboardController : ControllerBase
             Tiles = BuildTiles(summary, access),
             GeneratedAtUtc = DateTime.UtcNow
         };
-        payload.Tabs.Add(new DashboardTab { Key = OverviewKey, Title = CategoryInfo.Overview.DisplayName });
+        payload.Tabs.Add(new DashboardTab { Key = OverviewKey, Title = CategoryInfo.Get("Overview").DisplayName });
         payload.Tabs.AddRange(payload.Tiles.Select(t => new DashboardTab { Key = t.Key, Title = t.Title }));
 
         return Ok(payload);
@@ -318,8 +318,8 @@ public class DashboardController : ControllerBase
         string sourceSplitKey;
         if (isOverview)
         {
-            categories = [CategoryInfo.Overview, CategoryInfo.ADGovernance];
-            title = CategoryInfo.Overview.DisplayName;
+            categories = [CategoryInfo.Get("Overview"), CategoryInfo.Get("ADGovernance")];
+            title = CategoryInfo.Get("Overview").DisplayName;
             sourceSplitKey = "ADUserAccounts";
         }
         else
@@ -378,8 +378,8 @@ public class DashboardController : ControllerBase
         }
 
         if (!isOverview && view.Key.Equals(DashboardInfo.Licensing.Key, StringComparison.OrdinalIgnoreCase)
-            && kpiSettings.IsCategoryEnabled(CategoryInfo.Licensing.Key)
-            && kpiSettings.IsKpiEnabled(CategoryInfo.Licensing.Key, "ManagedObjects"))
+            && kpiSettings.IsCategoryEnabled(CategoryInfo.Get("Licensing").Key)
+            && kpiSettings.IsKpiEnabled(CategoryInfo.Get("Licensing").Key, "ManagedObjects"))
         {
             view.Licensing = BuildLicensing(summary);
         }
@@ -671,7 +671,7 @@ public class DashboardController : ControllerBase
 
     private OverviewSection BuildOverview(DashboardSummary summary, KpiSettings settings)
     {
-        var category = CategoryInfo.Overview;
+        var category = CategoryInfo.Get("Overview");
         var section = new OverviewSection
         {
             Enabled = settings.OverviewEnabled,

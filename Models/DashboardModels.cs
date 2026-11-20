@@ -363,6 +363,9 @@ public class CategoryInfo
     /// <summary>Resolves a category by its key, or null when unknown.</summary>
     public static CategoryInfo? FromKey(string key) => ByKey.TryGetValue(key, out var category) ? category : null;
 
+    /// <summary>Resolves a category by key from the effective (definition-backed) list; unknown keys yield a key-only placeholder.</summary>
+    public static CategoryInfo Get(string key) => FromKey(key) ?? new CategoryInfo { Key = key, DisplayName = key };
+
     public static IReadOnlyList<CategoryInfo> ForDashboard(DashboardInfo dashboard)
     {
         var categories = All.Where(c => c.DashboardKey == dashboard.Key);
