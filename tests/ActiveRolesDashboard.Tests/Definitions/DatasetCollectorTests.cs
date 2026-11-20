@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Definitions;
 using ActiveRolesDashboard.Services;
@@ -154,21 +154,6 @@ public sealed class DatasetCollectorTests : IDisposable
         Assert.False(result.Matches);
         Assert.Equal(1, result.MissingInGeneric);
         Assert.Equal(1, result.ExtraInGeneric);
-    }
-
-    [Fact]
-    public void Legacy_datasets_include_privileged_group_members()
-    {
-        var summary = new DashboardSummary();
-        summary.DomainAdmins.Items.Add(new PrivilegedGroupMemberInfo { Dn = "CN=a", MembershipType = "Direct" });
-        summary.SchemaAdmins.Error = "failed";
-        summary.SchemaAdmins.Items.Add(new PrivilegedGroupMemberInfo { Dn = "CN=b" });
-
-        var legacy = DatasetParity.LegacyDatasets(summary);
-
-        var item = Assert.Single(legacy["DomainAdmins"]);
-        Assert.Equal("CN=a", item.GetProperty("distinguishedName").GetString());
-        Assert.False(legacy.ContainsKey("SchemaAdmins"));
     }
 
     [Fact]

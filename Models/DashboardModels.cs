@@ -2411,21 +2411,12 @@ public class DashboardSummary
             };
         }
     }
-    public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
     public GovernanceKpiSummary NoManagerUser { get; set; } = new();
     public ADUserAccountDetailSummary ExpiredUsers { get; set; } = new();
     public ADUserAccountDetailSummary PasswordNeverExpires { get; set; } = new();
     public GovernanceKpiSummary ReversibleEncryption { get; set; } = new();
     public GovernanceKpiSummary CircularGroupNesting { get; set; } = new();
-    public PrivilegedGroupSummary AccountOperators { get; set; } = new();
-    public PrivilegedGroupSummary Administrators { get; set; } = new();
-    public PrivilegedGroupSummary BackupOperators { get; set; } = new();
-    public PrivilegedGroupSummary DomainAdmins { get; set; } = new();
-    public PrivilegedGroupSummary ServerOperators { get; set; } = new();
-    public PrivilegedGroupSummary EnterpriseAdmins { get; set; } = new();
-    public PrivilegedGroupSummary SchemaAdmins { get; set; } = new();
-    public PrivilegedGroupSummary ActiveRolesAdmins { get; set; } = new();
     public ADUserAccountDetailSummary AdminCount { get; set; } = new();
     public ADUserAccountDetailSummary EnabledUsers { get; set; } = new();
     public ADUserAccountDetailSummary DisabledUsers { get; set; } = new();
@@ -2455,12 +2446,6 @@ public class DashboardSummary
     public ADGroupsSummary ADGroups { get; set; } = new();
     public ComputersSummary Computers { get; set; } = new();
     public EntraTotalsSummary EntraTotals { get; set; } = new();
-    public ADGroupDetailSummary DistributionGroups { get; set; } = new();
-    public ADGroupDetailSummary DomainLocalGroups { get; set; } = new();
-    public ADGroupDetailSummary GlobalGroups { get; set; } = new();
-    public ADGroupDetailSummary MailEnabledSecurityGroups { get; set; } = new();
-    public ADGroupDetailSummary SecurityGroups { get; set; } = new();
-    public ADGroupDetailSummary UniversalGroups { get; set; } = new();
     public DomainControllersSummary DomainControllers { get; set; } = new();
     public ComputerBreakdownSummary ComputerClients { get; set; } = new();
     public ComputerBreakdownSummary ComputerServers { get; set; } = new();
@@ -2729,25 +2714,16 @@ public class DashboardSummary
         "EntraSingleOwnerGroups" => (EntraTotals.EntraSingleOwnerGroups().TotalCount, EntraTotals.Error),
         "EntraLargeGroups" => (EntraTotals.EntraLargeGroups(EntraLargeGroupMemberThreshold).TotalCount, EntraTotals.Error),
 
-        "ActiveRolesAdmins" => (ActiveRolesAdmins.TotalCount, ActiveRolesAdmins.Error),
         "Servers" => (Servers.TotalCount, Servers.Error),
         "Domains" => (Domains.TotalCount, Domains.Error),
         "DynamicGroups" => (DynamicGroups.TotalCount, DynamicGroups.Error),
         "GroupFamilies" => (GroupFamilies.TotalCount, GroupFamilies.Error),
         "ConfigDatabases" => (ConfigDatabases.TotalCount, ConfigDatabases.Error),
-        "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
         "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
         "CircularGroupNesting" => (CircularGroupNesting.TotalCount, CircularGroupNesting.Error),
         "NeverLoggedIn" => (NeverLoggedIn.TotalCount, NeverLoggedIn.Error),
         "ExpiredUsers" => (ExpiredUsers.TotalCount, ExpiredUsers.Error),
         "ReversibleEncryption" => (ReversibleEncryption.TotalCount, ReversibleEncryption.Error),
-        "AccountOperators" => (AccountOperators.TotalCount, AccountOperators.Error),
-        "Administrators" => (Administrators.TotalCount, Administrators.Error),
-        "BackupOperators" => (BackupOperators.TotalCount, BackupOperators.Error),
-        "DomainAdmins" => (DomainAdmins.TotalCount, DomainAdmins.Error),
-        "ServerOperators" => (ServerOperators.TotalCount, ServerOperators.Error),
-        "EnterpriseAdmins" => (EnterpriseAdmins.TotalCount, EnterpriseAdmins.Error),
-        "SchemaAdmins" => (SchemaAdmins.TotalCount, SchemaAdmins.Error),
         "AdminCount" => (AdminCount.TotalCount, AdminCount.Error),
         "EnabledUsers" => (EnabledUsers.TotalCount, EnabledUsers.Error),
         "DisabledUsers" => (DisabledUsers.TotalCount, DisabledUsers.Error),
@@ -2769,12 +2745,6 @@ public class DashboardSummary
         "DeprovisionedUsers" => (DeprovisionedUsers.TotalCount, DeprovisionedUsers.Error),
         "SpnUserAccounts" => (SpnUserAccounts.TotalCount, SpnUserAccounts.Error),
         "StaleUsers" => (StaleUsers.TotalCount, StaleUsers.Error),
-        "DistributionGroups" => (DistributionGroups.TotalCount, DistributionGroups.Error),
-        "DomainLocalGroups" => (DomainLocalGroups.TotalCount, DomainLocalGroups.Error),
-        "GlobalGroups" => (GlobalGroups.TotalCount, GlobalGroups.Error),
-        "MailEnabledSecurityGroups" => (MailEnabledSecurityGroups.TotalCount, MailEnabledSecurityGroups.Error),
-        "SecurityGroups" => (SecurityGroups.TotalCount, SecurityGroups.Error),
-        "UniversalGroups" => (UniversalGroups.TotalCount, UniversalGroups.Error),
         "DomainControllers" => (DomainControllers.TotalCount, DomainControllers.Error),
         "UnconstrainedComputers" => (UnconstrainedComputers.TotalCount, UnconstrainedComputers.Error),
         "ComputerClients" => (ComputerClients.TotalCount, ComputerClients.Error),
@@ -2888,46 +2858,6 @@ public class DashboardSummary
     /// Returns null when the KPI has no row-based detail (e.g. pure count/breakdown tiles).
     /// </summary>
     /// <summary>
-    /// Group Membership Tree targets for a KPI's detail view, matching the Razor drill-down panels:
-    /// <c>GroupDn</c> is the privileged group itself (only when it has nested members), and
-    /// <c>RowDns</c> holds a per-row group DN (null when that row has no tree to show), aligned
-    /// with the rows of <see cref="GetKpiDetailTable"/>.
-    /// </summary>
-    public (string? GroupDn, List<string?>? RowDns) GetKpiGroupTreeTargets(string kpiKey)
-    {
-        static (string?, List<string?>?) Priv(PrivilegedGroupSummary s, string fallbackName)
-        {
-            if (s.Error != null || !s.HasIndirectMembers) return (null, null);
-            var target = !string.IsNullOrEmpty(s.GroupDn) ? s.GroupDn
-                : !string.IsNullOrEmpty(s.GroupName) ? s.GroupName
-                : fallbackName;
-            return (string.IsNullOrEmpty(target) ? null : target, null);
-        }
-        static (string?, List<string?>?) Groups(ADGroupDetailSummary s) =>
-            (null, s.Items.Select(i => !string.IsNullOrEmpty(i.Dn) && i.IndirectMembers > 0 ? i.Dn : null).ToList());
-
-        return kpiKey switch
-        {
-            "AccountOperators" => Priv(AccountOperators, "Account Operators"),
-            "Administrators" => Priv(Administrators, "Administrators"),
-            "BackupOperators" => Priv(BackupOperators, "Backup Operators"),
-            "DomainAdmins" => Priv(DomainAdmins, "Domain Admins"),
-            "ServerOperators" => Priv(ServerOperators, "Server Operators"),
-            "EnterpriseAdmins" => Priv(EnterpriseAdmins, "Enterprise Admins"),
-            "SchemaAdmins" => Priv(SchemaAdmins, "Schema Admins"),
-            "ActiveRolesAdmins" => Priv(ActiveRolesAdmins, string.Empty),
-            "DistributionGroups" => Groups(DistributionGroups),
-            "DomainLocalGroups" => Groups(DomainLocalGroups),
-            "GlobalGroups" => Groups(GlobalGroups),
-            "MailEnabledSecurityGroups" => Groups(MailEnabledSecurityGroups),
-            "SecurityGroups" => Groups(SecurityGroups),
-            "UniversalGroups" => Groups(UniversalGroups),
-            "NoGroupOwner" => (null, NoGroupOwner.Items.Select(i => string.IsNullOrEmpty(i.Dn) ? null : i.Dn).ToList()),
-            _ => (null, null)
-        };
-    }
-
-    /// <summary>
     /// Detail table of a KPI: the definition-driven table when the KPI declares drilldown columns,
     /// otherwise the table built from the typed summaries.
     /// </summary>
@@ -2979,20 +2909,8 @@ public class DashboardSummary
         };
 
         // Privileged group membership (Name / Domain / Membership Type / Distinguished Name).
-        ReportTable? PrivDetail(PrivilegedGroupSummary s) => new()
-        {
-            Columns = ["Name", "Domain", "Membership", "Distinguished Name"],
-            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Domain, i.MembershipType, i.Dn]).ToList(),
-            Error = s.Error
-        };
 
         // AD group detail (Name / Direct / Indirect / Distinguished Name).
-        ReportTable? GroupDetail(ADGroupDetailSummary s) => new()
-        {
-            Columns = ["Name", "Direct Members", "Indirect Members", "Distinguished Name"],
-            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.DirectMembers.ToString(), i.IndirectMembers.ToString(), i.Dn]).ToList(),
-            Error = s.Error
-        };
 
         // Entra user-account detail (Name / Tenant / Distinguished Name / Enabled).
         ReportTable? EntraUserDetail(EntraUserDetailSummary s) => new()
@@ -3095,30 +3013,10 @@ public class DashboardSummary
             "NoManagerUser" => GovDetail(NoManagerUser),
             "ReversibleEncryption" => GovDetail(ReversibleEncryption),
             "CircularGroupNesting" => GovDetail(CircularGroupNesting),
-            "NoGroupOwner" => new ReportTable
-            {
-                Columns = ["Name", "Distinguished Name"],
-                Rows = NoGroupOwner.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
-                Error = NoGroupOwner.Error
-            },
 
             // Privileged groups
-            "AccountOperators" => PrivDetail(AccountOperators),
-            "Administrators" => PrivDetail(Administrators),
-            "BackupOperators" => PrivDetail(BackupOperators),
-            "DomainAdmins" => PrivDetail(DomainAdmins),
-            "ServerOperators" => PrivDetail(ServerOperators),
-            "EnterpriseAdmins" => PrivDetail(EnterpriseAdmins),
-            "SchemaAdmins" => PrivDetail(SchemaAdmins),
-            "ActiveRolesAdmins" => PrivDetail(ActiveRolesAdmins),
 
             // AD Groups category
-            "DistributionGroups" => GroupDetail(DistributionGroups),
-            "DomainLocalGroups" => GroupDetail(DomainLocalGroups),
-            "GlobalGroups" => GroupDetail(GlobalGroups),
-            "MailEnabledSecurityGroups" => GroupDetail(MailEnabledSecurityGroups),
-            "SecurityGroups" => GroupDetail(SecurityGroups),
-            "UniversalGroups" => GroupDetail(UniversalGroups),
 
             // Infrastructure
             "DomainControllers" => new ReportTable
@@ -3452,24 +3350,6 @@ public class ComputersSummary
     }
 }
 
-public class ADGroupDetailSummary
-{
-    public int TotalCount { get; set; }
-    public List<ADGroupDetailInfo> Items { get; set; } = new();
-    public string? Error { get; set; }
-}
-
-public class ADGroupDetailInfo : IPermissionScoped
-{
-    public string Name { get; set; } = string.Empty;
-    public string Dn { get; set; } = string.Empty;
-    public int DirectMembers { get; set; }
-    public int IndirectMembers { get; set; }
-
-    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
-    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
-}
-
 public class DomainSummary
 {
     public int TotalCount { get; set; }
@@ -3687,23 +3567,6 @@ public class ManagedObjectItem
     public int HybridCount { get; set; }
     /// <summary>For Azure/Entra tenants: guest object count. Not licensed.</summary>
     public int GuestCount { get; set; }
-}
-
-public class NoGroupOwnerSummary
-{
-    public int TotalCount { get; set; }
-    public List<NoGroupOwnerInfo> Items { get; set; } = new();
-    public string? Error { get; set; }
-}
-
-public class NoGroupOwnerInfo : IPermissionScoped
-{
-    public string Name { get; set; } = string.Empty;
-    public string Dn { get; set; } = string.Empty;
-    public string Guid { get; set; } = string.Empty;
-
-    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
-    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class GovernanceKpiSummary

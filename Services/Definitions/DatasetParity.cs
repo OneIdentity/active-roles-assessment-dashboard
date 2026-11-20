@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Definitions;
 
@@ -26,23 +26,6 @@ public static class DatasetParity
             map["ADGroups"] = summary.ADGroups.Items;
         if (summary.Computers.Error is null && summary.Computers.Items.Count > 0)
             map["Computers"] = summary.Computers.Items;
-
-        void Group(string id, PrivilegedGroupSummary? group)
-        {
-            if (group is null || group.Error is not null || group.Items.Count == 0) return;
-            map[id] = group.Items
-                .Select(m => JsonSerializer.SerializeToElement(new Dictionary<string, string> { ["distinguishedName"] = m.Dn }))
-                .ToList();
-        }
-
-        Group("AccountOperators", summary.AccountOperators);
-        Group("Administrators", summary.Administrators);
-        Group("BackupOperators", summary.BackupOperators);
-        Group("DomainAdmins", summary.DomainAdmins);
-        Group("ServerOperators", summary.ServerOperators);
-        Group("EnterpriseAdmins", summary.EnterpriseAdmins);
-        Group("SchemaAdmins", summary.SchemaAdmins);
-        Group("ActiveRolesAdmins", summary.ActiveRolesAdmins);
         return map;
     }
 

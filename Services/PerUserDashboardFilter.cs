@@ -82,27 +82,6 @@ public sealed class PerUserDashboardFilter(
         s.ReversibleEncryption = FilterGovernance(superset.ReversibleEncryption, user, model);
         s.CircularGroupNesting = FilterGovernance(superset.CircularGroupNesting, user, model);
 
-        // No-group-owner (own summary type).
-        s.NoGroupOwner = FilterNoGroupOwner(superset.NoGroupOwner, user, model);
-
-        // --- Privileged group memberships ------------------------------------
-        s.AccountOperators = FilterPrivileged(superset.AccountOperators, user, model);
-        s.Administrators = FilterPrivileged(superset.Administrators, user, model);
-        s.BackupOperators = FilterPrivileged(superset.BackupOperators, user, model);
-        s.DomainAdmins = FilterPrivileged(superset.DomainAdmins, user, model);
-        s.ServerOperators = FilterPrivileged(superset.ServerOperators, user, model);
-        s.EnterpriseAdmins = FilterPrivileged(superset.EnterpriseAdmins, user, model);
-        s.SchemaAdmins = FilterPrivileged(superset.SchemaAdmins, user, model);
-        s.ActiveRolesAdmins = FilterPrivileged(superset.ActiveRolesAdmins, user, model);
-
-        // --- Group detail breakdowns -----------------------------------------
-        s.DistributionGroups = FilterGroupDetail(superset.DistributionGroups, user, model);
-        s.DomainLocalGroups = FilterGroupDetail(superset.DomainLocalGroups, user, model);
-        s.GlobalGroups = FilterGroupDetail(superset.GlobalGroups, user, model);
-        s.MailEnabledSecurityGroups = FilterGroupDetail(superset.MailEnabledSecurityGroups, user, model);
-        s.SecurityGroups = FilterGroupDetail(superset.SecurityGroups, user, model);
-        s.UniversalGroups = FilterGroupDetail(superset.UniversalGroups, user, model);
-
         // --- Computer breakdowns ---------------------------------------------
         s.ComputerClients = FilterComputer(superset.ComputerClients, user, model);
         s.ComputerServers = FilterComputer(superset.ComputerServers, user, model);
@@ -231,36 +210,6 @@ public sealed class PerUserDashboardFilter(
         if (src.Error != null) return src;
         var items = PermissionScope.VisibleItems(src.Items, u, m);
         return new GovernanceKpiSummary { Items = items, TotalCount = items.Count };
-    }
-
-    private static NoGroupOwnerSummary FilterNoGroupOwner(NoGroupOwnerSummary? src, UserSidSet u, ArPermissionModel m)
-    {
-        if (src == null) return new NoGroupOwnerSummary();
-        if (src.Error != null) return src;
-        var items = PermissionScope.VisibleItems(src.Items, u, m);
-        return new NoGroupOwnerSummary { Items = items, TotalCount = items.Count };
-    }
-
-    private static PrivilegedGroupSummary FilterPrivileged(PrivilegedGroupSummary? src, UserSidSet u, ArPermissionModel m)
-    {
-        if (src == null) return new PrivilegedGroupSummary();
-        if (src.Error != null) return src;
-        var items = PermissionScope.VisibleItems(src.Items, u, m);
-        return new PrivilegedGroupSummary
-        {
-            Items = items,
-            TotalCount = items.Count,
-            GroupDn = src.GroupDn,
-            GroupName = src.GroupName
-        };
-    }
-
-    private static ADGroupDetailSummary FilterGroupDetail(ADGroupDetailSummary? src, UserSidSet u, ArPermissionModel m)
-    {
-        if (src == null) return new ADGroupDetailSummary();
-        if (src.Error != null) return src;
-        var items = PermissionScope.VisibleItems(src.Items, u, m);
-        return new ADGroupDetailSummary { Items = items, TotalCount = items.Count };
     }
 
     private static ComputerBreakdownSummary FilterComputer(ComputerBreakdownSummary? src, UserSidSet u, ArPermissionModel m)

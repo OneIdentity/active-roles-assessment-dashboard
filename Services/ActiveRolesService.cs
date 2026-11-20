@@ -357,96 +357,6 @@ public class ActiveRolesService
             }
         }
 
-        // Derive AD Group KPIs from AD Groups data (exclude Group Families)
-        if (summary.ADGroups.Error == null && summary.ADGroups.Items.Any())
-        {
-            var nonGroupFamilyItems = summary.ADGroups.Items
-                .Where(i => !string.Equals(GetAttr(i, "edsvaGFIsGroupFamily"), "TRUE", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (settings.IsKpiEnabled("ADGroupsCategory", "DistributionGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & unchecked((int)0x80000000)) == 0; })
-                    .ToList();
-                summary.DistributionGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "DomainLocalGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & 0x4) != 0; })
-                    .ToList();
-                summary.DomainLocalGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "GlobalGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & 0x2) != 0; })
-                    .ToList();
-                summary.GlobalGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "MailEnabledSecurityGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i =>
-                    {
-                        var gt = GetAttr(i, "groupType");
-                        if (!int.TryParse(gt, out var v)) return false;
-                        bool isSecurity = (v & unchecked((int)0x80000000)) != 0;
-                        bool hasMail = !string.IsNullOrEmpty(GetAttr(i, "mail"));
-                        return isSecurity && hasMail;
-                    })
-                    .ToList();
-                summary.MailEnabledSecurityGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "SecurityGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && v < 0; })
-                    .ToList();
-                summary.SecurityGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "UniversalGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & 0x8) != 0; })
-                    .ToList();
-                summary.UniversalGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-        }
-
-        if (settings.IsKpiEnabled("ARConfiguration", "ActiveRolesAdmins"))
-        {
-            var baseDn = ResolveRoleGroupBaseDn();
-            var filter = BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins);
-            var t = GetActiveRolesAdminsAsync(token, baseDn, filter);
-            tasks.Add(("ActiveRolesAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ActiveRolesAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
         if (settings.IsKpiEnabled("ARConfiguration", "Domains"))
         {
             var t = GetDomainsAsync(token);
@@ -471,57 +381,6 @@ public class ActiveRolesService
             tasks.Add(("ManagedObjects", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
-        if (settings.IsKpiEnabled("ADGroupsCategory", "NoGroupOwner") || settings.IsKpiEnabled("ADGovernance", "NoGroupOwner"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.NoGroupOwner;
-            var t = GetNoGroupOwnerAsync(token, baseDn, filter);
-            tasks.Add(("NoGroupOwner", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoGroupOwner = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "AccountOperators"))
-        {
-            var t = GetAccountOperatorsAsync(token);
-            tasks.Add(("AccountOperators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccountOperators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "Administrators"))
-        {
-            var t = GetAdministratorsAsync(token);
-            tasks.Add(("Administrators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Administrators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "BackupOperators"))
-        {
-            var t = GetBackupOperatorsAsync(token);
-            tasks.Add(("BackupOperators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.BackupOperators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "DomainAdmins"))
-        {
-            var t = GetDomainAdminsAsync(token);
-            tasks.Add(("DomainAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DomainAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "ServerOperators"))
-        {
-            var t = GetServerOperatorsAsync(token);
-            tasks.Add(("ServerOperators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ServerOperators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "EnterpriseAdmins"))
-        {
-            var t = GetEnterpriseAdminsAsync(token);
-            tasks.Add(("EnterpriseAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EnterpriseAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "SchemaAdmins"))
-        {
-            var t = GetSchemaAdminsAsync(token);
-            tasks.Add(("SchemaAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SchemaAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-
         // Exchange (on-prem) KPIs. Every Exchange KPI shares the generic count + drilldown shape and
         // is resolved through GetInfrastructureKpiAsync (which honours the KPI's config-driven filter,
         // base DN, attributes and captures the AD domain for per-domain segmentation). Results are keyed
@@ -722,12 +581,6 @@ public class ActiveRolesService
         Stamp(summary.ExpiringUsers?.Items);
 
         // Group detail drilldowns (derived from ADGroups).
-        Stamp(summary.DistributionGroups?.Items);
-        Stamp(summary.DomainLocalGroups?.Items);
-        Stamp(summary.GlobalGroups?.Items);
-        Stamp(summary.MailEnabledSecurityGroups?.Items);
-        Stamp(summary.SecurityGroups?.Items);
-        Stamp(summary.UniversalGroups?.Items);
 
         // Computer breakdown drilldowns (derived from Computers).
         Stamp(summary.ComputerClients?.Items);
@@ -755,20 +608,11 @@ public class ActiveRolesService
         Stamp(summary.DomainControllers?.Items);
 
         // Privileged group members.
-        Stamp(summary.AccountOperators?.Items);
-        Stamp(summary.Administrators?.Items);
-        Stamp(summary.BackupOperators?.Items);
-        Stamp(summary.DomainAdmins?.Items);
-        Stamp(summary.ServerOperators?.Items);
-        Stamp(summary.EnterpriseAdmins?.Items);
-        Stamp(summary.SchemaAdmins?.Items);
-        Stamp(summary.ActiveRolesAdmins?.Items);
 
         // Governance KPI drilldowns.
         Stamp(summary.NoManagerUser?.Items);
         Stamp(summary.ReversibleEncryption?.Items);
         Stamp(summary.CircularGroupNesting?.Items);
-        Stamp(summary.NoGroupOwner?.Items);
 
         // Domain / server infra objects.
         Stamp(summary.Domains?.Items);
@@ -780,11 +624,8 @@ public class ActiveRolesService
     {
         ADUserAccountDetailInfo u => u.Dn,
         ExpiringUserInfo e => e.Dn,
-        ADGroupDetailInfo g => g.Dn,
         ComputerBreakdownInfo c => c.Dn,
-        PrivilegedGroupMemberInfo p => p.Dn,
         GovernanceKpiInfo k => k.Dn,
-        NoGroupOwnerInfo n => n.Dn,
         DomainInfo d => d.Dn,
         ServerInfo => string.Empty, // ServerInfo has no DN; scope stays empty (admin-only visibility)
         DomainControllerInfo dc => dc.Dn,
@@ -798,11 +639,8 @@ public class ActiveRolesService
         {
             case ADUserAccountDetailInfo u: u.EffectiveLinkGuids = links; u.ObjectClass = objectClass; break;
             case ExpiringUserInfo e: e.EffectiveLinkGuids = links; e.ObjectClass = objectClass; break;
-            case ADGroupDetailInfo g: g.EffectiveLinkGuids = links; g.ObjectClass = objectClass; break;
             case ComputerBreakdownInfo c: c.EffectiveLinkGuids = links; c.ObjectClass = objectClass; break;
-            case PrivilegedGroupMemberInfo p: p.EffectiveLinkGuids = links; p.ObjectClass = objectClass; break;
             case GovernanceKpiInfo k: k.EffectiveLinkGuids = links; k.ObjectClass = objectClass; break;
-            case NoGroupOwnerInfo n: n.EffectiveLinkGuids = links; n.ObjectClass = objectClass; break;
             case DomainInfo d: d.EffectiveLinkGuids = links; d.ObjectClass = objectClass; break;
             case ServerInfo s: s.EffectiveLinkGuids = links; s.ObjectClass = objectClass; break;
             case DomainControllerInfo dc: dc.EffectiveLinkGuids = links; dc.ObjectClass = objectClass; break;
@@ -1430,29 +1268,6 @@ public class ActiveRolesService
                 return match;
         }
         return string.Empty;
-    }
-
-    private ADGroupDetailInfo ToGroupDetail(JsonElement i, ADGroupsSummary groups)
-    {
-        var dn = GetAttr(i, "distinguishedName");
-        // Member counts come from the locally-computed membership maps (native 'member' +
-        // transitive calculation) rather than AR's edsaMember/edsaMemberIndirect virtual attributes.
-        // Prefer the full DN-list maps (present on a fresh collection); fall back to the compact
-        // serialized counts when rendering from a session-cached summary (where the DN-list maps
-        // are not retained).
-        var directCount = groups.DirectByDn.TryGetValue(dn, out var direct)
-            ? direct.Count
-            : (groups.DirectCountByDn.TryGetValue(dn, out var directCached) ? directCached : 0);
-        var indirectCount = groups.IndirectByDn.TryGetValue(dn, out var indirect)
-            ? indirect.Count
-            : (groups.IndirectCountByDn.TryGetValue(dn, out var indirectCached) ? indirectCached : 0);
-        return new ADGroupDetailInfo
-        {
-            Name = GetAttr(i, "name"),
-            Dn = dn,
-            DirectMembers = directCount,
-            IndirectMembers = indirectCount
-        };
     }
 
     public async Task<DomainSummary> GetDomainsAsync(string token)
@@ -2285,59 +2100,6 @@ public class ActiveRolesService
         return result;
     }
 
-    public async Task<NoGroupOwnerSummary> GetNoGroupOwnerAsync(string token, string baseDn, string filter)
-    {
-        var result = new NoGroupOwnerSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.NoGroupOwner.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new NoGroupOwnerInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<PrivilegedGroupSummary> GetAccountOperatorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Account Operators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetAdministratorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Administrators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetBackupOperatorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Backup Operators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetDomainAdminsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Domain Admins");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetServerOperatorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Server Operators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetEnterpriseAdminsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Enterprise Admins");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetSchemaAdminsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Schema Admins");
-    }
-
     public async Task<GovernanceKpiSummary> GetInfrastructureKpiAsync(string token, KpiInfo kpi)
     {
         var result = new GovernanceKpiSummary();
@@ -2755,11 +2517,6 @@ public class ActiveRolesService
         return false;
     }
 
-    public async Task<PrivilegedGroupSummary> GetActiveRolesAdminsAsync(string token, string baseDn, string filter)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
-    }
-
     public async Task<bool> IsUserActiveRolesAdminAsync(string token, string username)
     {
         var config = _configMonitor.CurrentValue;
@@ -3104,12 +2861,6 @@ public class ActiveRolesService
         }
 
         return dn;
-    }
-
-    private async Task<PrivilegedGroupSummary> GetPrivilegedGroupMembersAsync(string token, string groupName)
-    {
-        var config = _configMonitor.CurrentValue;
-        return await GetPrivilegedGroupMembersAsync(token, config.DefaultActiveDirectoryDN, $"(&(objectClass=group)(name={groupName}))");
     }
 
     private async Task<PrivilegedGroupSummary> GetPrivilegedGroupMembersAsync(string token, string baseDn, string filter)
