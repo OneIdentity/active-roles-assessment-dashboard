@@ -87,6 +87,16 @@ internal static class BuiltInFunctions
         ["friendlyOsName"] = (2, 2, (a, _) => Services.ActiveRolesService.GetFriendlyOSName(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
         ["homeTenant"] = (1, 1, (a, _) => EntraTotalsSummary.HomeTenantOfUpn(ExprValue.Text(a[0]))),
         ["iif"] = (3, 3, (a, _) => ExprValue.Truthy(a[0]) ? a[1] : a[2]),
+        ["arBool"] = (1, 1, (a, _) => Services.ActiveRolesService.ParseArBool(ExprValue.Text(a[0]))),
+        ["arTime"] = (1, 1, (a, _) => Services.ActiveRolesService.ParseArTime(ExprValue.Text(a[0]))?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty),
+        ["replicationRole"] = (1, 1, (a, _) => Services.ActiveRolesService.ParseReplicationRole(ExprValue.Text(a[0])).ToString()),
+        ["scriptType"] = (1, 1, (a, _) => Services.ActiveRolesService.MapScriptType(ExprValue.Text(a[0]))),
+        ["apeRuleCount"] = (1, 1, (a, _) => (double)Services.ActiveRolesService.CountApeRules(ExprValue.Text(a[0]))),
+        ["membershipRuleCount"] = (1, 1, (a, _) => (double)Services.ActiveRolesService.CountMembershipRules(ExprValue.Text(a[0]))),
+        // missingNames('attrA', valueA, 'attrB', valueB, ...): comma-separated names whose value is blank.
+        ["missingNames"] = (2, 12, (a, _) => string.Join(", ", Enumerable.Range(0, a.Count / 2)
+            .Where(i => string.IsNullOrWhiteSpace(ExprValue.Text(a[i * 2 + 1])))
+            .Select(i => ExprValue.Text(a[i * 2])))),
         ["formatDate"] = (2, 2, (a, _) => ParseDate(a[0]) is { } d ? d.UtcDateTime.ToString(ExprValue.Text(a[1]), CultureInfo.InvariantCulture) : null),
         ["daysUntilDate"] = (1, 1, (a, c) => ParseDate(a[0]) is { } d ? (double)(d.UtcDateTime.Date - c.Now.UtcDateTime.Date).Days : null),
     };

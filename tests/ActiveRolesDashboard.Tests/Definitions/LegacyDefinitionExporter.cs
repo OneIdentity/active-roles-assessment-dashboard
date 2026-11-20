@@ -471,6 +471,22 @@ internal static class LegacyDefinitionExporter
         Add([.. EntraUserColumns, ExprCol("Synced From", "iif(" + EntraSynced + ", 'On-premises Active Directory', '')")], "EntraHybridUsers");
         Add([Col("Name", "name"), Col("Tenant", EntraTotalsSummary.DatasetTenantAttribute), ExprCol("Home Tenant", "homeTenant(edsaAzureUserPrincipalName)"),
             Col("Distinguished Name", "distinguishedName"), ExprCol("Enabled", EntraEnabled)], "EntraExternalUsers");
+        const string BuiltIn = "arBool(edsaIsPredefined) && arBool(edsaSystemObject)";
+        Add([Col("SQL Alias", "edsaSQLAlias"), Col("Database Name", "edsaDatabaseName"), Col("Database Type", "edsaDatabaseType"),
+            Col("Replication Support", "edsaReplicationSupport"), ExprCol("Replication Role", "replicationRole(edsaReplicationRole)")], "ConfigDatabases");
+        Add([Col("SQL Alias", "edsaSQLAlias"), Col("Database Name", "edsaDatabaseName"), Col("Database Type", "edsaDatabaseType"),
+            ExprCol("Replication Role", "replicationRole(edsaReplicationRole)")], "HistoryDatabases");
+        Add([Col("Name", "name"), ExprCol("Rules", "apeRuleCount(edsaAPEListXML)"), ExprCol("Built-in", BuiltIn), Col("Distinguished Name", "distinguishedName")], "PolicyObjects");
+        Add([Col("Name", "name"), ExprCol("Membership Rules", "membershipRuleCount(edsaMUConditionsList)"), Col("Distinguished Name", "distinguishedName")], "ManagedUnits");
+        Add([Col("Name", "name"), ExprCol("Missing", "missingNames('edsaAPOGUID', edsaAPOGUID, 'edsaSecObjectGUID', edsaSecObjectGUID)"),
+            Col("Distinguished Name", "distinguishedName")], "OrphanPolicyObjectLinks");
+        Add([Col("Name", "name"), Col("Language", "edsaScriptLanguage"), ExprCol("Type", "scriptType(edsaScriptType)"),
+            ExprCol("System", "arBool(edsaSystemObject) && arBool(edsaIsPredefined)"), Col("Distinguished Name", "distinguishedName")], "ScriptModules");
+        Add([Col("Name", "name"), Col("LDAP Display Name", "lDAPDisplayName"), ExprCol("Multi-valued", "isSingleValued == 'false'"), ExprCol("Built-in", BuiltIn)], "VirtualAttributes");
+        Add([Col("Name", "name"), ExprCol("Enabled", "edsaWorkflowIsDisabled == 'false'"),
+            ExprCol("Automation", "objectClass == 'edsAutomationWorkflowDefinition'"), Col("Distinguished Name", "distinguishedName")], "Workflows");
+        Add([Col("Name", "name"), ExprCol("Enabled", "lower(edsaDisableSchedule) != 'true'"), ExprCol("Last Run (UTC)", "arTime(edsaLastRunTime)"),
+            ExprCol("Next Run (UTC)", "arTime(edsvaNextRunTime)"), Col("Distinguished Name", "distinguishedName")], "ScheduledTasks");
         Add([Col("Name", "name"), Col("Direct Members", ADGroupsSummary.DirectMemberCountAttribute),
             Col("Indirect Members", ADGroupsSummary.IndirectMemberCountAttribute), Col("Distinguished Name", "distinguishedName")],
             "DistributionGroups", "DomainLocalGroups", "GlobalGroups", "MailEnabledSecurityGroups", "SecurityGroups", "UniversalGroups");

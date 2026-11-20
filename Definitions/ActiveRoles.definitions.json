@@ -710,7 +710,21 @@
         "sectionId": "managedunits"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "membershipRuleCount(edsaMUConditionsList)",
+            "header": "Membership Rules"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 107,
       "fallbackText": "Managed Units"
@@ -754,7 +768,25 @@
         "sectionId": "policies"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "apeRuleCount(edsaAPEListXML)",
+            "header": "Rules"
+          },
+          {
+            "expression": "arBool(edsaIsPredefined) && arBool(edsaSystemObject)",
+            "header": "Built-in"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 109,
       "fallbackText": "Policy Objects"
@@ -771,7 +803,25 @@
         "sectionId": "virtualattrs"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "lDAPDisplayName",
+            "header": "LDAP Display Name"
+          },
+          {
+            "expression": "isSingleValued == 'false'",
+            "header": "Multi-valued"
+          },
+          {
+            "expression": "arBool(edsaIsPredefined) && arBool(edsaSystemObject)",
+            "header": "Built-in"
+          }
+        ]
       },
       "sortOrder": 110,
       "fallbackText": "Virtual Attributes"
@@ -788,7 +838,25 @@
         "sectionId": "workflows"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "edsaWorkflowIsDisabled == 'false'",
+            "header": "Enabled"
+          },
+          {
+            "expression": "objectClass == 'edsAutomationWorkflowDefinition'",
+            "header": "Automation"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 111,
       "fallbackText": "Workflows"
@@ -805,7 +873,29 @@
         "sectionId": "configdatabases"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "edsaSQLAlias",
+            "header": "SQL Alias"
+          },
+          {
+            "attribute": "edsaDatabaseName",
+            "header": "Database Name"
+          },
+          {
+            "attribute": "edsaDatabaseType",
+            "header": "Database Type"
+          },
+          {
+            "attribute": "edsaReplicationSupport",
+            "header": "Replication Support"
+          },
+          {
+            "expression": "replicationRole(edsaReplicationRole)",
+            "header": "Replication Role"
+          }
+        ]
       },
       "sortOrder": 112,
       "fallbackText": "Config Databases"
@@ -822,7 +912,25 @@
         "sectionId": "historydatabases"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "edsaSQLAlias",
+            "header": "SQL Alias"
+          },
+          {
+            "attribute": "edsaDatabaseName",
+            "header": "Database Name"
+          },
+          {
+            "attribute": "edsaDatabaseType",
+            "header": "Database Type"
+          },
+          {
+            "expression": "replicationRole(edsaReplicationRole)",
+            "header": "Replication Role"
+          }
+        ]
       },
       "sortOrder": 113,
       "fallbackText": "History Databases"
@@ -839,7 +947,29 @@
         "sectionId": "scheduledtasks"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "lower(edsaDisableSchedule) != 'true'",
+            "header": "Enabled"
+          },
+          {
+            "expression": "arTime(edsaLastRunTime)",
+            "header": "Last Run (UTC)"
+          },
+          {
+            "expression": "arTime(edsvaNextRunTime)",
+            "header": "Next Run (UTC)"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 114,
       "fallbackText": "Scheduled Tasks"
@@ -1103,7 +1233,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "missingNames('edsaAPOGUID', edsaAPOGUID, 'edsaSecObjectGUID', edsaSecObjectGUID)",
+            "header": "Missing"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 121,
       "fallbackText": "Orphaned Policy Object Links"
@@ -1180,7 +1324,29 @@
         "sectionId": "scriptmodules"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaScriptLanguage",
+            "header": "Language"
+          },
+          {
+            "expression": "scriptType(edsaScriptType)",
+            "header": "Type"
+          },
+          {
+            "expression": "arBool(edsaSystemObject) && arBool(edsaIsPredefined)",
+            "header": "System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 124,
       "fallbackText": "Script Modules"

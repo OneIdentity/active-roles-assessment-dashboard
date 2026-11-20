@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -2556,7 +2556,7 @@ public class ActiveRolesService
         return result;
     }
 
-    private static int CountMembershipRules(string conditionsList)
+    internal static int CountMembershipRules(string conditionsList)
     {
         if (string.IsNullOrEmpty(conditionsList)) return 0;
         // Each rule is enclosed in [...], so count the opening brackets
@@ -2619,7 +2619,7 @@ public class ActiveRolesService
     // Parses an AR time attribute that may be either an ISO 8601 timestamp
     // (e.g. "2026-09-06T06:42:22Z", as returned for scheduled-task times) or a
     // Windows FILETIME tick value. Returns a UTC DateTime, or null if unparseable.
-    private static DateTime? ParseArTime(string raw)
+    internal static DateTime? ParseArTime(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw)) return null;
         if (DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture,
@@ -2678,7 +2678,7 @@ public class ActiveRolesService
         return result;
     }
 
-    private static ReplicationRole ParseReplicationRole(string? value) =>
+    internal static ReplicationRole ParseReplicationRole(string? value) =>
         int.TryParse(value, out var n) && Enum.IsDefined(typeof(ReplicationRole), n)
             ? (ReplicationRole)n
             : ReplicationRole.Undefined;
@@ -3085,7 +3085,7 @@ public class ActiveRolesService
 
     // Maps the edsaScriptType enum value to a human-readable script type name.
     // Enum order: PolicyScript=0, ScheduledTaskScript=1, LibraryScript=2.
-    private static string MapScriptType(string scriptType)
+    internal static string MapScriptType(string scriptType)
     {
         if (string.IsNullOrWhiteSpace(scriptType)) return "Unknown";
         return scriptType.Trim() switch
@@ -3099,7 +3099,7 @@ public class ActiveRolesService
 
     // Tolerant boolean parser for Active Roles attribute values, which the REST API may return
     // as "TRUE"/"FALSE" strings, JSON true/false (rendered "true"/"false"), or 1/0.
-    private static bool ParseArBool(string value)
+    internal static bool ParseArBool(string value)
     {
         if (string.IsNullOrWhiteSpace(value)) return false;
         var v = value.Trim();
@@ -5011,7 +5011,7 @@ public class ActiveRolesService
         return false;
     }
 
-    private static int CountApeRules(string xml)
+    internal static int CountApeRules(string xml)
     {
         if (string.IsNullOrWhiteSpace(xml))
             return 0;
