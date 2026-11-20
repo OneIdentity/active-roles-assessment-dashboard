@@ -106,6 +106,8 @@ internal static class LegacyDefinitionExporter
             ["BroadDelegationLinks"] = (DelegationLinks, NotPredefined + " && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"),
             ["UserDelegationLinks"] = (DelegationLinks, NotPredefined + " && trusteeIsUser"),
             ["RootDelegationLinks"] = (DelegationLinks, NotPredefined + " && isRootScope"),
+            ["AccessTemplateLinks"] = (DelegationLinks, ""),
+            ["OrphanAccessTemplateLinks"] = (DelegationLinks, "isBlank(edsaAccessTemplateGUID) || isBlank(edsaSecObjectGUID) || isBlank(edsaTrusteeSID)"),
             ["DynamicGroupsBrokenRules"] = (DynamicGroupsBrokenRulesId, "count(unresolvedGuids) > 0"),
             ["ManagedUnitsBrokenRules"] = (ManagedUnitsBrokenRulesId, "count(unresolvedGuids) > 0"),
             ["EntraManagedTenants"] = (EntraTenantsId, ""),
@@ -128,7 +130,7 @@ internal static class LegacyDefinitionExporter
         "ExchangeDistributionGroupsKpi", "ExchangeMailEnabledSecurityGroupsKpi", "ExchangeDynamicDistributionGroupsKpi",
         "ExchangeGroupsNoOwnerKpi", "ExchangeEmptyDistributionGroupsKpi", "ExchangeMailboxNoManagerKpi",
         "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi", "ExchangeSendOnBehalfKpi",
-        "Servers", "Domains", "AccessTemplateLinks", "AccessTemplates", "ManagedUnits", "PolicyObjectLinks", "PolicyObjects",
+        "Servers", "Domains", "AccessTemplates", "ManagedUnits", "PolicyObjectLinks", "PolicyObjects",
         "VirtualAttributes", "Workflows", "ConfigDatabases", "HistoryDatabases", "ScheduledTasks", "ScriptModules",
     };
 
@@ -141,7 +143,6 @@ internal static class LegacyDefinitionExporter
             ["EmptyAccessTemplates"] = "isEmpty(edsaATEList)",
             ["PolicyObjectsNoRules"] = "xmlCount(edsaAPEListXML, 'APE') == 0",
             ["DenyAccessTemplates"] = "aceHasDeny(edsaATEList)",
-            ["OrphanAccessTemplateLinks"] = "isBlank(edsaAccessTemplateGUID) || isBlank(edsaSecObjectGUID) || isBlank(edsaTrusteeSID)",
             ["OrphanPolicyObjectLinks"] = "isBlank(edsaAPOGUID) || isBlank(edsaSecObjectGUID)",
         };
 
@@ -153,7 +154,7 @@ internal static class LegacyDefinitionExporter
         {
             ["UnlinkedAccessTemplates"] = ("unreferencedItems", new()
             {
-                ["referenceDataset"] = "AccessTemplateLinks", ["referenceAttribute"] = "edsaAccessTemplateGUID",
+                ["referenceDataset"] = DelegationLinks, ["referenceAttribute"] = "edsaAccessTemplateGUID",
                 ["keyAttribute"] = "objectGUID", ["match"] = "guid"
             }),
             ["UnlinkedPolicyObjects"] = ("unreferencedItems", new()
@@ -493,6 +494,10 @@ internal static class LegacyDefinitionExporter
             ExprCol("Next Run (UTC)", "arTime(edsvaNextRunTime)"), Col("Distinguished Name", "distinguishedName")], "ScheduledTasks");
         Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"), Col("Distinguished Name", "distinguishedName")],
             "BroadDelegationLinks", "UserDelegationLinks", "RootDelegationLinks");
+        Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee")], "AccessTemplateLinks");
+        Add([Col("Name", "name"), Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"),
+            ExprCol("Missing", "missingNames('edsaAccessTemplateGUID', edsaAccessTemplateGUID, 'edsaSecObjectGUID', edsaSecObjectGUID, 'edsaTrusteeSID', edsaTrusteeSID)"),
+            Col("Distinguished Name", "distinguishedName")], "OrphanAccessTemplateLinks");
         Add([Col("Name", "name"), Col("Direct Members", ADGroupsSummary.DirectMemberCountAttribute),
             Col("Indirect Members", ADGroupsSummary.IndirectMemberCountAttribute), Col("Distinguished Name", "distinguishedName")],
             "DistributionGroups", "DomainLocalGroups", "GlobalGroups", "MailEnabledSecurityGroups", "SecurityGroups", "UniversalGroups");

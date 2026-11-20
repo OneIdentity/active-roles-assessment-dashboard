@@ -143,7 +143,7 @@
       ]
     },
     {
-      "id": "AccessTemplateLinks",
+      "id": "DelegationLinks",
       "dataSource": "ActiveRoles",
       "retrieval": {
         "base": "CN=AT Links,CN=Configuration",
@@ -157,6 +157,35 @@
         "edsaAccessTemplateGUID",
         "edsaIsPredefined",
         "edsaSystemObject"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "trustee",
+          "args": {
+            "attribute": "edsaTrusteeSID"
+          }
+        },
+        {
+          "name": "rootScope",
+          "args": {
+            "attribute": "edsaSecObjectGUID"
+          }
+        },
+        {
+          "name": "objectName",
+          "args": {
+            "attribute": "edsaSecObjectGUID",
+            "as": "directoryObject"
+          }
+        },
+        {
+          "name": "objectName",
+          "args": {
+            "attribute": "edsaAccessTemplateGUID",
+            "as": "accessTemplate"
+          }
+        }
       ]
     },
     {
@@ -354,67 +383,6 @@
       ]
     },
     {
-      "id": "OrphanAccessTemplateLinks",
-      "dataSource": "ActiveRoles",
-      "retrieval": {
-        "base": "CN=AT Links,CN=Configuration",
-        "filter": "(objectClass=edsACE)"
-      },
-      "attributes": [
-        "name",
-        "distinguishedName",
-        "edsaAccessTemplateGUID",
-        "edsaSecObjectGUID",
-        "edsaTrusteeSID"
-      ]
-    },
-    {
-      "id": "DelegationLinks",
-      "dataSource": "ActiveRoles",
-      "retrieval": {
-        "base": "CN=AT Links,CN=Configuration",
-        "filter": "(objectClass=edsACE)"
-      },
-      "attributes": [
-        "name",
-        "distinguishedName",
-        "edsaTrusteeSID",
-        "edsaSecObjectGUID",
-        "edsaAccessTemplateGUID",
-        "edsaIsPredefined",
-        "edsaSystemObject"
-      ],
-      "keyAttribute": "distinguishedName",
-      "enrichments": [
-        {
-          "name": "trustee",
-          "args": {
-            "attribute": "edsaTrusteeSID"
-          }
-        },
-        {
-          "name": "rootScope",
-          "args": {
-            "attribute": "edsaSecObjectGUID"
-          }
-        },
-        {
-          "name": "objectName",
-          "args": {
-            "attribute": "edsaSecObjectGUID",
-            "as": "directoryObject"
-          }
-        },
-        {
-          "name": "objectName",
-          "args": {
-            "attribute": "edsaAccessTemplateGUID",
-            "as": "accessTemplate"
-          }
-        }
-      ]
-    },
-    {
       "id": "OrphanPolicyObjectLinks",
       "dataSource": "ActiveRoles",
       "retrieval": {
@@ -603,18 +571,34 @@
       "fallbackText": "Managed Domains"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "AccessTemplateLinks",
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
-      "datasetId": "AccessTemplateLinks",
-      "evaluation": {},
+      "sourceDatasetId": "DelegationLinks",
+      "evaluation": {
+        "filter": ""
+      },
       "display": {
         "color": "orange",
         "sectionId": "atlinks"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          }
+        ]
       },
       "sortOrder": 103,
       "fallbackText": "Access Template Links"
@@ -1058,7 +1042,7 @@
         "type": "Function",
         "function": "unreferencedItems",
         "args": {
-          "referenceDataset": "AccessTemplateLinks",
+          "referenceDataset": "DelegationLinks",
           "referenceAttribute": "edsaAccessTemplateGUID",
           "keyAttribute": "objectGUID",
           "match": "guid"
@@ -1153,11 +1137,11 @@
       "fallbackText": "Unlinked User-Created Policy Objects"
     },
     {
-      "kind": "Search",
+      "kind": "Derived",
       "id": "OrphanAccessTemplateLinks",
       "categoryId": "ARDelegation",
       "dataSource": "ActiveRoles",
-      "datasetId": "OrphanAccessTemplateLinks",
+      "sourceDatasetId": "DelegationLinks",
       "evaluation": {
         "filter": "isBlank(edsaAccessTemplateGUID) || isBlank(edsaSecObjectGUID) || isBlank(edsaTrusteeSID)"
       },
@@ -1167,7 +1151,33 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "expression": "missingNames('edsaAccessTemplateGUID', edsaAccessTemplateGUID, 'edsaSecObjectGUID', edsaSecObjectGUID, 'edsaTrusteeSID', edsaTrusteeSID)",
+            "header": "Missing"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 120,
       "fallbackText": "Orphaned Access Template Links"
