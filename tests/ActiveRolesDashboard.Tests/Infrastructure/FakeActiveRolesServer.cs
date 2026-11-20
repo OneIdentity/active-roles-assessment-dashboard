@@ -164,6 +164,8 @@ public sealed class FakeActiveRolesServer : IDisposable
         var set = TestDataSet.Load(name);
         foreach (var search in set.Searches)
             WithSearch(search.FilterContains, search.Items, search.PageSize);
+        foreach (var (guid, body) in set.Objects)
+            WithObject(guid, body);
         return this;
     }
 

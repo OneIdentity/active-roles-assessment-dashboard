@@ -11,6 +11,7 @@ public sealed class TestDataSet
     public string Name { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
     public List<SearchEntry> Searches { get; init; } = [];
+    public Dictionary<string, JsonNode> Objects { get; init; } = [];
 
     public sealed class SearchEntry
     {
@@ -39,7 +40,9 @@ public sealed class TestDataSet
                     PageSize = s["pageSize"]?.GetValue<int>() ?? 0,
                     Items = (s["items"]?.AsArray() ?? []).Select(i => i!.DeepClone()).ToList()
                 })
-                .ToList()
+                .ToList(),
+            Objects = (root["objects"]?.AsObject() ?? [])
+                .ToDictionary(o => o.Key, o => o.Value!.DeepClone())
         };
     }
 

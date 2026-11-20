@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -1424,7 +1424,7 @@ public class ActiveRolesService
             if (exKpi.Searches.Count == 0) continue;
             // Send on Behalf declares its search for the definition dataset, but its drilldown
             // (resolved delegate names) comes from the dedicated collector below.
-            if (exKpi == KpiInfo.ExchangeSendOnBehalfKpi) continue;
+            if (exKpi.Key == KpiInfo.ExchangeSendOnBehalfKpi.Key) continue;
 
             var key = exKpi.Key;
             var t = GetInfrastructureKpiAsync(token, exKpi);
@@ -1871,7 +1871,7 @@ public class ActiveRolesService
             // Request the native 'member' attribute instead of Active Roles' virtual
             // 'edsaMember'/'edsaMemberIndirect'. edsaMemberIndirect is server-computed, is the
             // dominant cost of this query, and fails (HTTP 400) on large directories. We compute
-            // indirect (transitive) membership locally below � once per collection � reproducing
+            // indirect (transitive) membership locally below ï¿½ once per collection ï¿½ reproducing
             // edsaMemberIndirect's semantics (validated against a live AR directory).
             var attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName";
             _logger.LogInformation("GetADGroupsAsync: querying base '{BaseDn}' with filter '{Filter}'", baseDn, filter);
@@ -3245,7 +3245,7 @@ public class ActiveRolesService
                         return GetAttr(item, "displayName") is { Length: > 0 } dn ? dn : GetAttr(item, "name");
                     }
 
-                    // The stored objectSid may also be Base64 � decode and compare
+                    // The stored objectSid may also be Base64 ï¿½ decode and compare
                     try
                     {
                         var itemSidBytes = Convert.FromBase64String(itemSid);
@@ -3927,8 +3927,8 @@ public class ActiveRolesService
     {
         if (string.IsNullOrEmpty(dn))
             return dn;
-        var match = System.Text.RegularExpressions.Regex.Match(dn, @"^CN=([^,]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        return match.Success ? match.Groups[1].Value.Replace("\\,", ",") : dn;
+        var match = System.Text.RegularExpressions.Regex.Match(dn, @"^CN=((?:\\.|[^,\\])+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return match.Success ? System.Text.RegularExpressions.Regex.Replace(match.Groups[1].Value, @"\\(.)", "$1") : dn;
     }
 
     /// <summary>
@@ -3971,7 +3971,7 @@ public class ActiveRolesService
     private static bool TryDecodeBase64(string value, out byte[] bytes)
     {
         bytes = [];
-        // SDDL always starts with an owner/DACL token like "O:" or "D:" � never valid SD base64.
+        // SDDL always starts with an owner/DACL token like "O:" or "D:" ï¿½ never valid SD base64.
         if (value.StartsWith("O:", StringComparison.Ordinal) || value.StartsWith("D:", StringComparison.Ordinal))
             return false;
         var buffer = new byte[((value.Length + 3) / 4) * 3];
@@ -4328,7 +4328,7 @@ public class ActiveRolesService
     {
         if (string.IsNullOrEmpty(dn)) return dn;
 
-        // Find the first ",CN=" segment after a "DC=" segment � that indicates
+        // Find the first ",CN=" segment after a "DC=" segment ï¿½ that indicates
         // the start of the Active Roles virtual tree namespace suffix.
         var dcIndex = dn.IndexOf(",DC=", StringComparison.OrdinalIgnoreCase);
         if (dcIndex < 0) return dn;
@@ -4348,7 +4348,7 @@ public class ActiveRolesService
             }
             else if (nextSegment.StartsWith("CN=", StringComparison.OrdinalIgnoreCase))
             {
-                // Non-DC component after DCs � this is the virtual tree suffix
+                // Non-DC component after DCs ï¿½ this is the virtual tree suffix
                 return dn[..nextComma];
             }
             else

@@ -23,6 +23,29 @@ public sealed class DefinitionParityTests : IDisposable
     private static DefinitionRegistry Registry() =>
         new DefinitionStore(DefinitionStore.LoadEmbedded(typeof(DefinitionStore).Assembly), null).Registry;
 
+    private async Task<DashboardSummary> BuildSummaryAsync() => (await BuildSummaryWithCheckerAsync()).Summary;
+
+    private async Task<(DashboardSummary Summary, DefinitionParityChecker Checker)> BuildSummaryWithCheckerAsync()
+    {
+        var config = new TestOptionsMonitor<ActiveRolesConfig>(new ActiveRolesConfig
+        {
+            ApiBaseUrl = _server.ApiBaseUrl,
+            RstsUrl = _server.RstsUrl,
+        });
+        var factory = new TestHttpClientFactory(TimeSpan.FromSeconds(10));
+        var tokens = new ServiceAccountTokenProvider(
+            new RstsAuthService(config, factory),
+            new ServiceAccountSecretProtector(new EphemeralDataProtectionProvider()),
+            config,
+            NullLogger<ServiceAccountTokenProvider>.Instance);
+        var checker = new DefinitionParityChecker(NullLogger<DefinitionParityChecker>.Instance);
+        var registry = Registry();
+        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(registry, new KpiEvaluator(new KpiFunctionRegistry()));
+        var collector = new ActiveRolesDashboard.Services.Definitions.DatasetCollector(registry, NullLogger<ActiveRolesDashboard.Services.Definitions.DatasetCollector>.Instance);
+        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker, kpiCalculator: calculator, datasetCollector: collector);
+        return (await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken), checker);
+    }
+
     [Fact]
     public void Every_migrated_kpi_is_an_expression_in_the_embedded_files()
     {
@@ -76,28 +99,12 @@ public sealed class DefinitionParityTests : IDisposable
 
     [Theory]
     [InlineData("small-domain")]
+    [InlineData("exchange-permissions")]
     public async Task Migrated_kpis_match_legacy_values(string dataSet)
     {
         _server.WithDataSet(dataSet);
-        var config = new TestOptionsMonitor<ActiveRolesConfig>(new ActiveRolesConfig
-        {
-            ApiBaseUrl = _server.ApiBaseUrl,
-            RstsUrl = _server.RstsUrl,
-        });
-        var factory = new TestHttpClientFactory(TimeSpan.FromSeconds(10));
-        var tokens = new ServiceAccountTokenProvider(
-            new RstsAuthService(config, factory),
-            new ServiceAccountSecretProtector(new EphemeralDataProtectionProvider()),
-            config,
-            NullLogger<ServiceAccountTokenProvider>.Instance);
-        var checker = new DefinitionParityChecker(NullLogger<DefinitionParityChecker>.Instance);
+        var (summary, checker) = await BuildSummaryWithCheckerAsync();
         var registry = Registry();
-        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(registry, new KpiEvaluator(new KpiFunctionRegistry()));
-        var collector = new ActiveRolesDashboard.Services.Definitions.DatasetCollector(registry, NullLogger<ActiveRolesDashboard.Services.Definitions.DatasetCollector>.Instance);
-        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker, kpiCalculator: calculator, datasetCollector: collector);
-
-        var summary = await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
-
         var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).Concat(LegacyDefinitionExporter.MigratedFunctions.Keys).Concat(LegacyDefinitionExporter.MigratedComposites.Keys).Concat(LegacyDefinitionExporter.MigratedSearchFilters.Keys).Concat(LegacyDefinitionExporter.MigratedSearchFunctions.Keys).ToList();
         Assert.All(expected, id => Assert.True(summary.KpiResults.ContainsKey(id), $"{id} was not evaluated"));
 
@@ -126,6 +133,19 @@ public sealed class DefinitionParityTests : IDisposable
         }
         Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.NotEmpty(summary.DefinitionDetailTables);
+    }
+
+    [Fact]
+    public async Task Exchange_permission_drilldowns_resolve_trustees()
+    {
+        _server.WithDataSet("exchange-permissions");
+        var summary = await BuildSummaryAsync();
+
+        string[] Rows(string id) => summary.GetKpiDetailTable(id)!.Rows.Select(r => string.Join("|", r)).ToArray();
+
+        Assert.Equal(["Finance Mailbox|TEST|Frank Delegate|CN=Finance Mailbox,OU=Mail,DC=test,DC=local"], Rows("ExchangeSendAsKpi"));
+        Assert.Equal(["Finance Mailbox|TEST|Grace Reader|CN=Finance Mailbox,OU=Mail,DC=test,DC=local"], Rows("ExchangeFullAccessDelegatesKpi"));
+        Assert.Equal(["Exec Mailbox|TEST|Dana Assistant, Smith, Eve|CN=Exec Mailbox,OU=Mail,DC=test,DC=local"], Rows("ExchangeSendOnBehalfKpi"));
     }
 
     /// <summary>Drilldowns where the definition table fills a column the typed table leaves blank.</summary>

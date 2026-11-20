@@ -1,0 +1,56 @@
+{
+  "description": "Exchange mailboxes with explicit Send As, Full Access and Send on Behalf delegations.",
+  "searches": [
+    {
+      "filterContains": "(!(msExchRecipientTypeDetails=4))",
+      "items": [
+        {
+          "objectGUID": "33333333-0000-0000-0000-000000000001",
+          "objectSid": "S-1-5-21-1000-2000-3000-1101",
+          "name": "Finance Mailbox",
+          "distinguishedName": "CN=Finance Mailbox,OU=Mail,DC=test,DC=local",
+          "edsaDomainNetbiosName": "TEST"
+        },
+        {
+          "objectGUID": "33333333-0000-0000-0000-000000000002",
+          "objectSid": "S-1-5-21-1000-2000-3000-1102",
+          "name": "Plain Mailbox",
+          "distinguishedName": "CN=Plain Mailbox,OU=Mail,DC=test,DC=local",
+          "edsaDomainNetbiosName": "TEST"
+        }
+      ]
+    },
+    {
+      "filterContains": "(publicDelegates=*)",
+      "items": [
+        {
+          "name": "Exec Mailbox",
+          "distinguishedName": "CN=Exec Mailbox,OU=Mail,DC=test,DC=local",
+          "edsaDomainNetbiosName": "TEST",
+          "publicDelegates": [
+            "CN=Dana Assistant,OU=Users,DC=test,DC=local",
+            "CN=Smith\\, Eve,OU=Users,DC=test,DC=local"
+          ]
+        }
+      ]
+    },
+    {
+      "filterContains": "objectSid=S-1-5-21-1000-2000-3000-1201",
+      "items": [ { "name": "Frank Delegate" } ]
+    },
+    {
+      "filterContains": "objectSid=S-1-5-21-1000-2000-3000-1202",
+      "items": [ { "name": "Grace Reader" } ]
+    }
+  ],
+  "objects": {
+    "33333333-0000-0000-0000-000000000001": {
+      "nTSecurityDescriptor": "O:BAD:(OA;;CR;ab721a54-1e2f-11d0-9819-00aa0040529b;;S-1-5-21-1000-2000-3000-1201)(OA;;CR;ab721a54-1e2f-11d0-9819-00aa0040529b;;S-1-5-21-1000-2000-3000-1101)(OA;;CR;ab721a54-1e2f-11d0-9819-00aa0040529b;;S-1-5-21-1000-2000-3000-512)",
+      "msExchMailboxSecurityDescriptor": "O:BAD:(A;;CC;;;S-1-5-21-1000-2000-3000-1202)(A;;CC;;;PS)(A;ID;CC;;;S-1-5-21-1000-2000-3000-1201)"
+    },
+    "33333333-0000-0000-0000-000000000002": {
+      "nTSecurityDescriptor": "O:BAD:(A;;RP;;;AU)",
+      "msExchMailboxSecurityDescriptor": "O:BAD:(A;;CC;;;PS)"
+    }
+  }
+}
