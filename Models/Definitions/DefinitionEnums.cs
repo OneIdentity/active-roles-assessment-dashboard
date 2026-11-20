@@ -90,6 +90,17 @@ public enum ChartKind
     Ring
 }
 
+/// <summary>Where a KPI detail view links to the Group Membership Tree.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<GroupTreeScope>))]
+public enum GroupTreeScope
+{
+    /// <summary>Each row may link to its own group.</summary>
+    Row,
+
+    /// <summary>The whole KPI links to a single group.</summary>
+    Kpi
+}
+
 /// <summary>Severity used to rank risk KPIs.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<KpiSeverity>))]
 public enum KpiSeverity

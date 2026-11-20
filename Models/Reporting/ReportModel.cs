@@ -86,4 +86,10 @@ public class ReportTable
     public List<string> Columns { get; set; } = new();
     public List<IReadOnlyList<string>> Rows { get; set; } = new();
     public string? Error { get; set; }
+
+    /// <summary>Group Membership Tree target for the whole table, when any.</summary>
+    public string? GroupTreeDn { get; set; }
+
+    /// <summary>Per-row Group Membership Tree targets aligned with <see cref="Rows"/>, when any.</summary>
+    public List<string?>? RowGroupTreeDns { get; set; }
 }

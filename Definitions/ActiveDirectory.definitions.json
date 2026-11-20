@@ -679,7 +679,8 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {}
       },
       "sortOrder": 6,
       "fallbackText": "No Group Owner"
@@ -946,7 +947,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "fallbackText": "Account Operators"
     },
@@ -980,7 +986,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "sortOrder": 1,
       "fallbackText": "Administrators"
@@ -1015,7 +1026,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "sortOrder": 2,
       "fallbackText": "Backup Operators"
@@ -1050,7 +1066,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "sortOrder": 3,
       "fallbackText": "Domain Admins"
@@ -1085,7 +1106,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "sortOrder": 4,
       "fallbackText": "Server Operators"
@@ -1120,7 +1146,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "sortOrder": 5,
       "fallbackText": "Enterprise Admins"
@@ -1155,7 +1186,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "sortOrder": 6,
       "fallbackText": "Schema Admins"
@@ -1967,7 +2003,10 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
       },
       "fallbackText": "Distribution Groups"
     },
@@ -2003,7 +2042,10 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
       },
       "sortOrder": 1,
       "fallbackText": "Domain Local Groups"
@@ -2040,7 +2082,10 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
       },
       "sortOrder": 2,
       "fallbackText": "Global Groups"
@@ -2077,7 +2122,10 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
       },
       "sortOrder": 3,
       "fallbackText": "Mail Enabled Security Groups"
@@ -2114,7 +2162,10 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
       },
       "sortOrder": 4,
       "fallbackText": "Security Groups"
@@ -2151,7 +2202,10 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
       },
       "sortOrder": 5,
       "fallbackText": "Universal Groups"

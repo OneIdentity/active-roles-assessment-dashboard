@@ -106,6 +106,7 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
                     ? ExpressionEvaluator.Evaluate(expr, item, context)
                     : ExpressionEvaluator.ReadAttribute(item, c.Attribute)))
                 .ToList()).ToList();
+            ApplyGroupTree(table, drilldown.GroupTree, selected, context);
         }
         catch (Exception ex)
         {
@@ -117,6 +118,29 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
 
     /// <summary>Booleans render as True/False to match the typed tables.</summary>
     private static string CellText(object? value) => value is bool b ? b.ToString() : ExprValue.Text(value);
+
+    /// <summary>
+    /// Resolves the Group Membership Tree targets declared by the drilldown: one DN per row, or a
+    /// single DN for the whole KPI taken from the first matching item.
+    /// </summary>
+    private void ApplyGroupTree(ReportTable table, GroupTreeDefinition? groupTree, IEnumerable<System.Text.Json.JsonElement> selected, EvaluationContext context)
+    {
+        if (groupTree is null || string.IsNullOrWhiteSpace(groupTree.Target)) return;
+
+        var target = evaluator.Parse(groupTree.Target);
+        var when = string.IsNullOrWhiteSpace(groupTree.When) ? null : evaluator.Parse(groupTree.When);
+        string? Resolve(System.Text.Json.JsonElement item)
+        {
+            if (when is not null && !ExprValue.Truthy(ExpressionEvaluator.Evaluate(when, item, context))) return null;
+            var dn = ExprValue.Text(ExpressionEvaluator.Evaluate(target, item, context));
+            return string.IsNullOrEmpty(dn) ? null : dn;
+        }
+
+        if (groupTree.Scope == GroupTreeScope.Kpi)
+            table.GroupTreeDn = selected.Select(Resolve).FirstOrDefault(dn => dn is not null);
+        else
+            table.RowGroupTreeDns = selected.Select(Resolve).ToList();
+    }
 
     /// <summary>
     /// Combines the results of other KPIs. A composite is only produced once every source has a

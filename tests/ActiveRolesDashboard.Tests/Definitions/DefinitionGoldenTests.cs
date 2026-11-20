@@ -87,4 +87,38 @@ public sealed class DefinitionGoldenTests : IDisposable
             .ToList();
         Assert.True(diffs.Count == 0, string.Join(Environment.NewLine, diffs));
     }
+
+    [Theory]
+    [InlineData("small-domain")]
+    [InlineData("exchange-permissions")]
+    public async Task Group_tree_targets_match_typed_targets(string dataSet)
+    {
+        _server.WithDataSet(dataSet);
+        var summary = await BuildSummaryAsync();
+        var keys = new[]
+        {
+            "AccountOperators", "Administrators", "BackupOperators", "DomainAdmins", "ServerOperators",
+            "EnterpriseAdmins", "SchemaAdmins", "ActiveRolesAdmins", "DistributionGroups", "DomainLocalGroups",
+            "GlobalGroups", "MailEnabledSecurityGroups", "SecurityGroups", "UniversalGroups", "NoGroupOwner",
+        };
+
+        var diffs = new List<string>();
+        foreach (var key in keys)
+        {
+            var (typedDn, typedRows) = summary.GetKpiGroupTreeTargets(key);
+            var table = summary.GetKpiDetailTable(key);
+            var genericDn = table?.Error is null ? table?.GroupTreeDn : null;
+            if (!string.Equals(typedDn, genericDn, StringComparison.OrdinalIgnoreCase))
+                diffs.Add($"{key}: GroupTreeDn typed '{typedDn}' generic '{genericDn}'");
+
+            static string Targets(IEnumerable<string?>? dns) =>
+                string.Join(";", (dns ?? []).OfType<string>().Order(StringComparer.OrdinalIgnoreCase));
+            var typed = Targets(typedRows);
+            var generic = table?.Error is null ? Targets(table?.RowGroupTreeDns) : string.Empty;
+            if (!string.Equals(typed, generic, StringComparison.OrdinalIgnoreCase))
+                diffs.Add($"{key}: RowGroupTreeDns typed '{typed}' generic '{generic}'");
+        }
+
+        Assert.True(diffs.Count == 0, string.Join(Environment.NewLine, diffs));
+    }
 }

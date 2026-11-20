@@ -528,7 +528,20 @@ internal static class LegacyDefinitionExporter
     private static DrilldownDefinition ToDrilldown(KpiInfo k) => new()
     {
         Enabled = k.HasDrilldown,
-        Columns = k.HasDrilldown && DrilldownColumns.TryGetValue(k.Key, out var columns) ? columns : []
+        Columns = k.HasDrilldown && DrilldownColumns.TryGetValue(k.Key, out var columns) ? columns : [],
+        GroupTree = k.HasDrilldown ? GroupTree(k.Key) : null
+    };
+
+    private static GroupTreeDefinition? GroupTree(string key) => key switch
+    {
+        "AccountOperators" or "Administrators" or "BackupOperators" or "DomainAdmins" or "ServerOperators"
+            or "EnterpriseAdmins" or "SchemaAdmins" or "ActiveRolesAdmins" =>
+            new() { Scope = GroupTreeScope.Kpi, When = "membershipType == 'Indirect'", Target = "groupDN" },
+        "DistributionGroups" or "DomainLocalGroups" or "GlobalGroups" or "MailEnabledSecurityGroups"
+            or "SecurityGroups" or "UniversalGroups" =>
+            new() { Target = "iif(indirectMemberCount > 0, distinguishedName, '')" },
+        "NoGroupOwner" => new() { Target = "distinguishedName" },
+        _ => null
     };
 
     private static DatasetDefinition ToDataset(KpiSearchDefinition search, string datasetId, DataSource source)

@@ -9,6 +9,24 @@ public sealed class DrilldownDefinition
     public string ItemKeyAttribute { get; init; } = "objectGUID";
 
     public IReadOnlyList<DrilldownColumn> Columns { get; init; } = [];
+
+    /// <summary>Optional Group Membership Tree link shown with the detail view.</summary>
+    public GroupTreeDefinition? GroupTree { get; init; }
+}
+
+/// <summary>Group Membership Tree target of a KPI detail view.</summary>
+public sealed class GroupTreeDefinition
+{
+    public GroupTreeScope Scope { get; init; } = GroupTreeScope.Row;
+
+    /// <summary>
+    /// Expression evaluated per row item giving the group DN; an empty result means no tree.
+    /// For <see cref="GroupTreeScope.Kpi"/> the first non-empty result among matching items is used.
+    /// </summary>
+    public string Target { get; init; } = "distinguishedName";
+
+    /// <summary>Optional filter selecting the items considered for a KPI-level target.</summary>
+    public string? When { get; init; }
 }
 
 /// <summary>A column in the KPI detail view.</summary>

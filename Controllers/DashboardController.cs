@@ -420,7 +420,7 @@ public class DashboardController : ControllerBase
         var result = _exclusions.Evaluate(summary, kpi.Key);
         var table = summary.GetKpiDetailTable(kpi.Key);
         _exclusions.ApplyToTable(kpi.Key, table);
-        var (groupTreeDn, rowGroupTreeDns) = summary.GetKpiGroupTreeTargets(kpi.Key);
+        var rowGroupTreeDns = table?.RowGroupTreeDns;
         return Ok(new KpiDetail
         {
             Key = kpi.Key,
@@ -429,8 +429,8 @@ public class DashboardController : ControllerBase
             Error = table?.Error ?? result.Error,
             Columns = table?.Columns ?? new(),
             Rows = table?.Rows ?? new(),
-            GroupTreeDn = groupTreeDn,
-            RowGroupTreeDns = rowGroupTreeDns is not null && rowGroupTreeDns.Count == (table?.Rows.Count ?? 0) ? rowGroupTreeDns : null,
+            GroupTreeDn = table?.Error is null ? table?.GroupTreeDn : null,
+            RowGroupTreeDns = table?.Error is null && rowGroupTreeDns is not null && rowGroupTreeDns.Count == table!.Rows.Count ? rowGroupTreeDns : null,
             ExclusionsNotApplied = result.NotApplied,
             WebInterfaceUrl = _arConfig.CurrentValue.WebInterfaceUrl?.Trim() ?? string.Empty
         });

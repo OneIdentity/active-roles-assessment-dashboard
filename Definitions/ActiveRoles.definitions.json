@@ -508,7 +508,12 @@
             "attribute": "distinguishedName",
             "header": "Distinguished Name"
           }
-        ]
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
       },
       "fallbackText": "Active Roles Admins"
     },
