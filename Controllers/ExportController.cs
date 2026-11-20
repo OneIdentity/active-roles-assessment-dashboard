@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
@@ -78,7 +78,7 @@ public class ExportController : ControllerBase
         // what the user is viewing. Applied at the shared choke point on DashboardSummary.
         var segmentFilter = SegmentFilterSession.Get(HttpContext.Session);
         summary.ApplySegmentFilter(segmentFilter);
-        _kpiCalculator?.Reevaluate(summary, DefinitionParityChecker.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
+        _kpiCalculator?.Reevaluate(summary, Services.Definitions.DefinitionKpiCalculator.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
 
         // Resolve the caller's role permissions to enforce export governance server-side. The
         // Export button is hidden without ExportDashboardData, but a crafted POST must also be

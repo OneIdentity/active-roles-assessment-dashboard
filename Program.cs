@@ -134,7 +134,6 @@ builder.Services.AddSingleton(sp => sp.GetRequiredService<ActiveRolesDashboard.M
 builder.Services.AddSingleton(sp => new ActiveRolesDashboard.Models.Definitions.Evaluation.KpiFunctionRegistry(
     sp.GetServices<ActiveRolesDashboard.Models.Definitions.Evaluation.IKpiFunction>()));
 builder.Services.AddSingleton<ActiveRolesDashboard.Models.Definitions.Evaluation.KpiEvaluator>();
-builder.Services.AddSingleton<DefinitionParityChecker>();
 builder.Services.AddSingleton<ActiveRolesDashboard.Services.Definitions.DatasetCollector>();
 builder.Services.AddSingleton<ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator>();
 

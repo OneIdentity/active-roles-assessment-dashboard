@@ -153,7 +153,7 @@ public sealed class PerUserDashboardFilter(
     {
         if (kpiCalculator == null || superset.KpiResults.Count == 0) return filtered;
 
-        var context = DefinitionParityChecker.CreateContext(config?.CurrentValue ?? new ActiveRolesConfig(), DateTimeOffset.UtcNow, superset.ExcludeFromManagementLinkDns);
+        var context = Definitions.DefinitionKpiCalculator.CreateContext(config?.CurrentValue ?? new ActiveRolesConfig(), DateTimeOffset.UtcNow, superset.ExcludeFromManagementLinkDns);
         kpiCalculator.Populate(filtered, kpi => superset.KpiResults.ContainsKey(kpi.Id), context);
         return filtered;
     }

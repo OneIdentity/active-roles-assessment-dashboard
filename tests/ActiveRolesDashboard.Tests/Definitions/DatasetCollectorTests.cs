@@ -143,20 +143,6 @@ public sealed class DatasetCollectorTests : IDisposable
     }
 
     [Fact]
-    public void Parity_reports_missing_and_extra_items_by_distinguished_name()
-    {
-        static JsonElement Item(string dn) => JsonDocument.Parse($"{{\"distinguishedName\":\"{dn}\"}}").RootElement;
-        var legacy = new Dictionary<string, IReadOnlyList<JsonElement>> { ["D"] = [Item("CN=a"), Item("CN=b")] };
-        var generic = new Dictionary<string, DatasetResult> { ["D"] = new([Item("cn=A"), Item("CN=c")], null) };
-
-        var result = Assert.Single(DatasetParity.Compare(legacy, generic));
-
-        Assert.False(result.Matches);
-        Assert.Equal(1, result.MissingInGeneric);
-        Assert.Equal(1, result.ExtraInGeneric);
-    }
-
-    [Fact]
     public async Task Exchange_datasets_share_one_descriptor_fetch_per_mailbox()
     {
         const string sendAsSid = "S-1-5-21-1-2-3-1001";
@@ -211,33 +197,5 @@ public sealed class DatasetCollectorTests : IDisposable
         Assert.Equal(2, Trustees(results["ExchangeSendAsMailboxes"]).Count());
         Assert.All(Trustees(results["ExchangeFullAccessMailboxes"]), t => Assert.DoesNotContain(sendAsSid, t));
         Assert.Equal(2, Trustees(results["ExchangeFullAccessMailboxes"]).Count());
-    }
-
-    [Theory]
-    [InlineData("small-domain")]
-    public async Task Shadow_collection_matches_legacy_datasets(string dataSet)
-    {
-        _server.WithDataSet(dataSet);
-        var config = new TestOptionsMonitor<ActiveRolesConfig>(new ActiveRolesConfig
-        {
-            ApiBaseUrl = _server.ApiBaseUrl,
-            RstsUrl = _server.RstsUrl,
-            DefinitionDatasetShadowCollection = true,
-        });
-        var factory = new TestHttpClientFactory(TimeSpan.FromSeconds(10));
-        var tokens = new ServiceAccountTokenProvider(
-            new RstsAuthService(config, factory),
-            new ServiceAccountSecretProtector(new EphemeralDataProtectionProvider()),
-            config,
-            NullLogger<ServiceAccountTokenProvider>.Instance);
-        var collector = new DatasetCollector(Registry(), NullLogger<DatasetCollector>.Instance);
-        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, datasetCollector: collector);
-
-        await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
-
-        var results = service.LastDatasetParity;
-        Assert.NotEmpty(results);
-        Assert.All(results, r => Assert.True(r.Matches,
-            $"{r.DatasetId}: legacy {r.Legacy}, definition {r.Generic}, missing {r.MissingInGeneric}, extra {r.ExtraInGeneric} {r.Error}"));
     }
 }

@@ -23,9 +23,7 @@ public sealed class DefinitionParityTests : IDisposable
     private static DefinitionRegistry Registry() =>
         new DefinitionStore(DefinitionStore.LoadEmbedded(typeof(DefinitionStore).Assembly), null).Registry;
 
-    private async Task<DashboardSummary> BuildSummaryAsync() => (await BuildSummaryWithCheckerAsync()).Summary;
-
-    private async Task<(DashboardSummary Summary, DefinitionParityChecker Checker)> BuildSummaryWithCheckerAsync()
+    private async Task<DashboardSummary> BuildSummaryAsync()
     {
         var config = new TestOptionsMonitor<ActiveRolesConfig>(new ActiveRolesConfig
         {
@@ -38,12 +36,11 @@ public sealed class DefinitionParityTests : IDisposable
             new ServiceAccountSecretProtector(new EphemeralDataProtectionProvider()),
             config,
             NullLogger<ServiceAccountTokenProvider>.Instance);
-        var checker = new DefinitionParityChecker(NullLogger<DefinitionParityChecker>.Instance);
         var registry = Registry();
         var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(registry, new KpiEvaluator(new KpiFunctionRegistry()));
         var collector = new ActiveRolesDashboard.Services.Definitions.DatasetCollector(registry, NullLogger<ActiveRolesDashboard.Services.Definitions.DatasetCollector>.Instance);
-        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, checker, kpiCalculator: calculator, datasetCollector: collector);
-        return (await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken), checker);
+        var service = new ActiveRolesService(factory, config, NullLogger<ActiveRolesService>.Instance, tokens, kpiCalculator: calculator, datasetCollector: collector);
+        return await service.GetDashboardSummaryAsync(FakeActiveRolesServer.ValidToken);
     }
 
     [Fact]

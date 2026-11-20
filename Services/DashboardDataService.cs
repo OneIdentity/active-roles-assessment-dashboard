@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using Microsoft.Extensions.Options;
 
@@ -313,7 +313,7 @@ public sealed class DashboardDataService
         };
 
         summary.ApplySegmentFilter(filter);
-        _kpiCalculator?.Reevaluate(summary, DefinitionParityChecker.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
+        _kpiCalculator?.Reevaluate(summary, Definitions.DefinitionKpiCalculator.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
         return view;
     }
 

@@ -14,23 +14,19 @@ public class ActiveRolesService
     private readonly IOptionsMonitor<ActiveRolesConfig> _configMonitor;
     private readonly ILogger<ActiveRolesService> _logger;
     private readonly ServiceAccountTokenProvider _serviceTokens;
-    private readonly DefinitionParityChecker? _parityChecker;
     private readonly Definitions.DatasetCollector? _datasetCollector;
     private readonly Definitions.DefinitionKpiCalculator? _kpiCalculator;
 
-    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, DefinitionParityChecker? parityChecker = null, Definitions.DatasetCollector? datasetCollector = null, Definitions.DefinitionKpiCalculator? kpiCalculator = null)
+    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, Definitions.DatasetCollector? datasetCollector = null, Definitions.DefinitionKpiCalculator? kpiCalculator = null)
     {
         _httpClientFactory = httpClientFactory;
         _configMonitor = configMonitor;
         _logger = logger;
         _serviceTokens = serviceTokens;
-        _parityChecker = parityChecker;
         _datasetCollector = datasetCollector;
         _kpiCalculator = kpiCalculator;
     }
 
-    /// <summary>Most recent dataset parity comparison from shadow collection (empty when disabled).</summary>
-    public IReadOnlyList<Definitions.DatasetParityResult> LastDatasetParity { get; private set; } = [];
     // Very short-lived memo of the full AD group graph, used ONLY by the membership-check path
     // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
     // plus up to three dashboard role-group checks - shares one full (objectClass=group) enumeration
@@ -502,17 +498,13 @@ public class ActiveRolesService
                     }
                 }
 
-                _kpiCalculator.Populate(summary, settings, DefinitionParityChecker.CreateContext(config, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
-                _parityChecker?.Check(summary);
+                _kpiCalculator.Populate(summary, settings, Definitions.DefinitionKpiCalculator.CreateContext(config, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Definition KPI evaluation failed");
             }
         }
-
-        if (_datasetCollector != null && config.DefinitionDatasetShadowCollection)
-            await ShadowCollectDatasetsAsync(token, summary);
 
         return summary;
     }
@@ -3448,30 +3440,6 @@ public class ActiveRolesService
         private sealed record MailboxDescriptors(
             System.Security.AccessControl.RawSecurityDescriptor? Object,
             System.Security.AccessControl.RawSecurityDescriptor? Mailbox);
-    }
-
-    private async Task ShadowCollectDatasetsAsync(string token, DashboardSummary summary)
-    {
-        try
-        {
-            var legacy = Definitions.DatasetParity.LegacyDatasets(summary);
-            if (legacy.Count == 0) return;
-
-            var generic = await CollectDatasetsAsync(token, _datasetCollector!, legacy.Keys, summary);
-            var results = Definitions.DatasetParity.Compare(legacy, generic);
-            foreach (var r in results.Where(r => !r.Matches))
-            {
-                _logger.LogWarning("Dataset parity mismatch for {Dataset}: legacy {Legacy}, definition {Generic}, missing {Missing}, extra {Extra} {Error}",
-                    r.DatasetId, r.Legacy, r.Generic, r.MissingInGeneric, r.ExtraInGeneric, r.Error);
-            }
-
-            _logger.LogInformation("Dataset parity: {Matched}/{Total} definition datasets match", results.Count(r => r.Matches), results.Count);
-            LastDatasetParity = results;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Definition dataset shadow collection failed");
-        }
     }
 
     private static string BuildAttributesQuery(string attributes)

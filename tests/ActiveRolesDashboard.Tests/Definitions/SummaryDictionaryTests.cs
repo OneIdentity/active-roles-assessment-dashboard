@@ -120,20 +120,4 @@ public sealed class SummaryDictionaryTests
         Assert.Equal(DashboardSummary.StaleKpiResultError, copy.KpiResults["Disabled"].Error);
         Assert.Equal(DashboardSummary.StaleKpiResultError, copy.GetKpiResult("Disabled").Error);
     }
-
-    [Fact]
-    public void Parity_checker_compares_kpi_results_with_legacy_values()
-    {
-        var summary = new DashboardSummary
-        {
-            DisabledUsers = new ADUserAccountDetailSummary { TotalCount = 2 },
-        };
-        summary.KpiResults["DisabledUsers"] = new KpiResult(3, null);
-
-        var result = Assert.Single(new DefinitionParityChecker(Microsoft.Extensions.Logging.Abstractions.NullLogger<DefinitionParityChecker>.Instance).Check(summary));
-
-        Assert.False(result.Matches);
-        Assert.Equal(2, result.Legacy);
-        Assert.Equal(3, result.Definition);
-    }
 }

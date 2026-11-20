@@ -1165,11 +1165,6 @@ public class ActiveRolesConfig
     // (evaluation cost grows with rule count). Surfaced in the Dynamic Groups drilldown.
     public int DynamicGroupExpensiveRuleThreshold { get; set; } = 10;
 
-    // When true, each summary build also collects the AD user/group/computer datasets from the
-    // definitions and logs how they compare with the legacy collection. Doubles those queries, so
-    // it is off by default and intended only for verifying the definition-driven collection.
-    public bool DefinitionDatasetShadowCollection { get; set; }
-
     // Entra group-membership loading and large-group tuning (grouped under the Entra section).
     public EntraConfig Entra { get; set; } = new();
 

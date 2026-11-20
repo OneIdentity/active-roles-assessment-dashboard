@@ -12,6 +12,19 @@ namespace ActiveRolesDashboard.Services.Definitions;
 /// </summary>
 public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEvaluator evaluator)
 {
+    public static EvaluationContext CreateContext(ActiveRolesConfig config, DateTimeOffset now, IEnumerable<string>? excludeLinkDns = null) => new()
+    {
+        Now = now,
+        Parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["staleDays"] = (double)(config.StaleAccountThresholdDays > 0 ? config.StaleAccountThresholdDays : 90),
+            ["passwordAgeDays"] = (double)(config.PasswordAgeThresholdDays > 0 ? config.PasswordAgeThresholdDays : 365),
+            ["entraLargeGroupThreshold"] = (double)Math.Max(1, config.Entra.LargeGroupMemberThreshold),
+            // Effective "Exclude from Managed Scope" policy link DNs; objects carrying one are unmanaged.
+            ["excludeLinkDns"] = (IReadOnlyList<string>)(excludeLinkDns?.ToList() ?? []),
+        }
+    };
+
     public void Populate(DashboardSummary summary, KpiSettings settings, EvaluationContext context) =>
         Populate(summary, kpi => settings.IsKpiEnabled(kpi.CategoryId, kpi.Id), context);
 
