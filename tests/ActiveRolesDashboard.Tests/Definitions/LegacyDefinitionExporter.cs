@@ -356,7 +356,7 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown },
+                Drilldown = ToDrilldown(k),
                 Sources = c.Sources,
                 Aggregate = c.Aggregate
             };
@@ -371,7 +371,7 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown },
+                Drilldown = ToDrilldown(k),
                 SourceDatasetId = f.Dataset,
                 Evaluation = new EvaluationDefinition { Type = EvaluationType.Function, Function = f.Function }
             };
@@ -385,7 +385,7 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown },
+                Drilldown = ToDrilldown(k),
                 SourceDatasetId = migrated ? m.Dataset : null,
                 Evaluation = migrated ? new EvaluationDefinition { Filter = m.Filter } : legacy
             };
@@ -402,7 +402,7 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId,
+                Drilldown = ToDrilldown(k), DatasetId = datasetId,
                 // Fixed-object KPIs count the expanded (direct and indirect) members of the group.
                 Evaluation = new EvaluationDefinition()
             }
@@ -410,7 +410,7 @@ internal static class LegacyDefinitionExporter
             {
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
-                Drilldown = new DrilldownDefinition { Enabled = k.HasDrilldown }, DatasetId = datasetId,
+                Drilldown = ToDrilldown(k), DatasetId = datasetId,
                 Evaluation = MigratedSearches.Contains(k.Key) ? new EvaluationDefinition()
                     : MigratedSearchFilters.TryGetValue(k.Key, out var filter) ? new EvaluationDefinition { Filter = filter }
                     : MigratedSearchFunctions.TryGetValue(k.Key, out var fn) ? new EvaluationDefinition
@@ -421,6 +421,52 @@ internal static class LegacyDefinitionExporter
                     : legacy
             };
     }
+
+    private static DrilldownColumn Col(string header, string attribute) => new() { Header = header, Attribute = attribute };
+    private static DrilldownColumn ExprCol(string header, string expression) => new() { Header = header, Expression = expression };
+
+    private static readonly DrilldownColumn[] NameDomainDn = [Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"), Col("Distinguished Name", "distinguishedName")];
+    private static readonly DrilldownColumn[] NameDn = [Col("Name", "name"), Col("Distinguished Name", "distinguishedName")];
+    private static readonly DrilldownColumn[] NameTenantDn = [Col("Name", "name"), Col("Tenant", EntraTotalsSummary.DatasetTenantAttribute), Col("Distinguished Name", "distinguishedName")];
+    private static readonly DrilldownColumn[] EntraUserColumns = [.. NameTenantDn, ExprCol("Enabled", EntraEnabled)];
+
+    /// <summary>
+    /// Drilldown columns reproducing the typed detail tables from the definition datasets. KPIs
+    /// whose tables need values the datasets do not carry (managed status, indirect membership,
+    /// correlated identities, resolved trustees) keep the typed table until those are modelled.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, DrilldownColumn[]> DrilldownColumns = BuildDrilldownColumns();
+
+    private static Dictionary<string, DrilldownColumn[]> BuildDrilldownColumns()
+    {
+        var map = new Dictionary<string, DrilldownColumn[]>(StringComparer.OrdinalIgnoreCase);
+        void Add(DrilldownColumn[] columns, params string[] ids) { foreach (var id in ids) map[id] = columns; }
+
+        Add(NameDomainDn, "OnPremOnlyUsers", "MustChangePassword", "StalePasswords", "PasswordNotRequired", "SmartCardRequired",
+            "CannotChangePassword", "NoKerberosPreauth", "UserReversibleEncryption", "SensitiveCannotDelegate", "TrustedForDelegation",
+            "SpnUserAccounts", "StaleUsers", "UseDesEncryption", "PasswordNeverExpires", "NeverLoggedIn", "ExpiredUsers", "AdminCount",
+            "NoManagerUser", "ReversibleEncryption", "CircularGroupNesting");
+        Add([Col("Name", "name"), Col("Distinguished Name", "distinguishedName"), Col("Description", "description")], "DeprovisionedUsers");
+        Add([Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"), Col("Site", "msDS-SiteName"), Col("Distinguished Name", "distinguishedName")], "DomainControllers");
+        Add(NameDn, "EmptyAccessTemplates", "UnlinkedAccessTemplates", "DenyAccessTemplates", "PolicyObjectsNoRules", "UnlinkedPolicyObjects",
+            "DynamicGroupsBrokenRules", "ManagedUnitsBrokenRules", "PolicyObjectLinks", "GroupFamilies", "DynamicGroups");
+        Add(NameTenantDn, "EntraDistributionGroups", "EntraDynamicDistributionGroups", "EntraMicrosoft365Groups", "EntraSecurityGroups",
+            "EntraEmptyGroups", "EntraNoGroupOwner", "EntraGuestContainingGroups", "EntraPublicGroups", "EntraOnPremSyncedGroups",
+            "EntraSingleOwnerGroups", "EntraLargeGroups");
+        Add(EntraUserColumns, "EntraNoManagerUser", "EntraGuestUsers", "EntraInternalUsers", "EntraCloudOnlyUsers");
+        Add(NameDomainDn, "ExchangeServersKpi", "ExchangeTotalMailboxes", "ExchangeMailboxDatabasesKpi", "ExchangeAcceptedDomainsKpi",
+            "ExchangeMailboxServersKpi", "ExchangeDAGsKpi", "ExchangeUserMailboxesKpi", "ExchangeSharedMailboxesKpi", "ExchangeRoomMailboxesKpi",
+            "ExchangeEquipmentMailboxesKpi", "ExchangeMailUsersKpi", "ExchangeMailContactsKpi", "ExchangeDistributionGroupsKpi",
+            "ExchangeMailEnabledSecurityGroupsKpi", "ExchangeDynamicDistributionGroupsKpi", "ExchangeGroupsNoOwnerKpi",
+            "ExchangeEmptyDistributionGroupsKpi", "ExchangeMailboxNoManagerKpi", "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi");
+        return map;
+    }
+
+    private static DrilldownDefinition ToDrilldown(KpiInfo k) => new()
+    {
+        Enabled = k.HasDrilldown,
+        Columns = k.HasDrilldown && DrilldownColumns.TryGetValue(k.Key, out var columns) ? columns : []
+    };
 
     private static DatasetDefinition ToDataset(KpiSearchDefinition search, string datasetId, DataSource source)
     {

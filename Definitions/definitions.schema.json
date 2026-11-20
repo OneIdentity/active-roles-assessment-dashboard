@@ -96,12 +96,14 @@
             "additionalProperties": false,
             "properties": {
               "attribute": { "type": "string" },
+              "expression": { "type": "string" },
+              "header": { "type": "string" },
               "localizationKey": { "type": "string" },
               "format": { "type": "string" },
               "sortable": { "type": "boolean" },
               "filterable": { "type": "boolean" }
             },
-            "required": [ "attribute" ]
+            "anyOf": [ { "required": [ "attribute" ] }, { "required": [ "expression" ] } ]
           }
         }
       }

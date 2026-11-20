@@ -689,7 +689,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 13,
       "fallbackText": "No Manager (User)"
@@ -763,7 +777,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 16,
       "fallbackText": "Never Logged In"
@@ -783,7 +811,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 17,
       "fallbackText": "Expired Users"
@@ -803,7 +845,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 18,
       "fallbackText": "Reversible Encryption"
@@ -997,7 +1053,21 @@
         "sectionId": "passwordneverexpires"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 6,
       "fallbackText": "Password Never Expires"
@@ -1016,7 +1086,21 @@
         "sectionId": "mustchangepassword"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "Must Change Password"
@@ -1035,7 +1119,21 @@
         "sectionId": "passwordnotrequired"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 7,
       "fallbackText": "Password Not Required"
@@ -1054,7 +1152,21 @@
         "sectionId": "smartcardrequired"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 10,
       "fallbackText": "Smart Card Required"
@@ -1073,7 +1185,21 @@
         "sectionId": "cannotchangepassword"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Cannot Change Password"
     },
@@ -1092,7 +1218,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 24,
       "fallbackText": "Stale Passwords"
@@ -1111,7 +1251,21 @@
         "sectionId": "nokerberospreauth"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Do Not Require Kerberos Preauthentication"
@@ -1130,7 +1284,21 @@
         "sectionId": "userreversibleencryption"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 8,
       "fallbackText": "Reversible Encryption"
@@ -1149,7 +1317,21 @@
         "sectionId": "sensitivecannotdelegate"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 9,
       "fallbackText": "Sensitive - Cannot Be Delegated"
@@ -1168,7 +1350,21 @@
         "sectionId": "trustedfordelegation"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 11,
       "fallbackText": "Trusted for Delegation"
@@ -1187,7 +1383,21 @@
         "sectionId": "usedesencryption"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 12,
       "fallbackText": "Use DES Encryption"
@@ -1206,7 +1416,21 @@
         "sectionId": "deprovisionedusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "attribute": "description",
+            "header": "Description"
+          }
+        ]
       },
       "sortOrder": 13,
       "fallbackText": "Deprovisioned Users"
@@ -1226,7 +1450,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 19,
       "fallbackText": "Service Accounts (SPN)"
@@ -1246,7 +1484,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 20,
       "fallbackText": "Stale Accounts (Inactive)"
@@ -1335,7 +1587,21 @@
         "sectionId": "onpremonlyusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 25,
       "fallbackText": "On-Prem-Only Users"
@@ -1488,7 +1754,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 8,
       "fallbackText": "Circular Group Nesting"
@@ -1507,7 +1787,21 @@
         "sectionId": "admincount"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Admin Count"
     },
@@ -1592,7 +1886,25 @@
         "sectionId": "domaincontrollers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "msDS-SiteName",
+            "header": "Site"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Domain Controllers"

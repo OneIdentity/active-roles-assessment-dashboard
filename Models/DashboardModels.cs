@@ -2371,6 +2371,20 @@ public class DashboardSummary
 
     private Dictionary<string, Definitions.KpiResult> _kpiResults = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Detail tables of definition KPIs that declare drilldown columns, keyed by KPI id. Built on
+    /// first access from the items selected by the evaluation. Not serialized: they are rebuilt
+    /// whenever the KPIs are (re-)evaluated.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, Lazy<ReportTable>> DefinitionDetailTables
+    {
+        get => _definitionDetailTables;
+        set => _definitionDetailTables = new(value ?? [], StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, Lazy<ReportTable>> _definitionDetailTables = new(StringComparer.OrdinalIgnoreCase);
+
     public ADUserAccountsSummary ADUserAccounts { get; set; } = new();
     public DomainSummary Domains { get; set; } = new();
     public ServerSummary Servers { get; set; } = new();
@@ -2671,6 +2685,8 @@ public class DashboardSummary
         // missed re-evaluation shows up as an error instead of a wrong (unfiltered) value.
         foreach (var id in KpiResults.Keys.ToList())
             KpiResults[id] = Definitions.KpiResult.Failed(StaleKpiResultError);
+        foreach (var id in DefinitionDetailTables.Keys.ToList())
+            DefinitionDetailTables[id] = new Lazy<ReportTable>(new ReportTable { Error = StaleKpiResultError });
     }
 
     public const string StaleKpiResultError = "Definition result was not re-evaluated after the segment filter was applied";
@@ -2980,7 +2996,15 @@ public class DashboardSummary
         };
     }
 
-    public ReportTable? GetKpiDetailTable(string kpiKey)
+    /// <summary>
+    /// Detail table of a KPI: the definition-driven table when the KPI declares drilldown columns,
+    /// otherwise the table built from the typed summaries.
+    /// </summary>
+    public ReportTable? GetKpiDetailTable(string kpiKey) =>
+        DefinitionDetailTables.TryGetValue(kpiKey, out var table) ? table.Value : GetLegacyKpiDetailTable(kpiKey);
+
+    /// <summary>Detail table built from the hand-written typed summaries (used for parity checks).</summary>
+    public ReportTable? GetLegacyKpiDetailTable(string kpiKey)
     {
         // Strongly-typed AD user-account detail summaries (Name / Domain / Distinguished Name).
         ReportTable? UserDetail(ADUserAccountDetailSummary s) => new()

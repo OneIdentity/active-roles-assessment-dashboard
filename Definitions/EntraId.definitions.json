@@ -223,7 +223,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "No Manager (User)"
@@ -242,7 +260,25 @@
         "sectionId": "entraguestusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "Guest Users"
@@ -261,7 +297,25 @@
         "sectionId": "entrainternalusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Internal Users"
@@ -318,7 +372,25 @@
         "sectionId": "entracloudonlyusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          }
+        ]
       },
       "sortOrder": 7,
       "fallbackText": "Cloud-Only Users"
@@ -356,7 +428,21 @@
         "sectionId": "entradistributiongroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Distribution Groups"
     },
@@ -374,7 +460,21 @@
         "sectionId": "entradynamicdistributiongroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Dynamic Distribution Groups"
@@ -393,7 +493,21 @@
         "sectionId": "entramicrosoft365groups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Microsoft 365 Groups"
@@ -412,7 +526,21 @@
         "sectionId": "entrasecuritygroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "Security Groups"
@@ -432,7 +560,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Empty Groups"
@@ -452,7 +594,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "No Group Owner"
@@ -473,7 +629,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 6,
       "fallbackText": "Guest-Containing Groups"
@@ -493,7 +663,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 7,
       "fallbackText": "Public M365 Groups"
@@ -512,7 +696,21 @@
         "sectionId": "entraonpremsyncedgroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 8,
       "fallbackText": "On-Premises Synced Groups"
@@ -532,7 +730,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 9,
       "fallbackText": "Single-Owner Groups"
@@ -552,7 +764,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 10,
       "fallbackText": "Large Groups"

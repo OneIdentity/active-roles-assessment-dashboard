@@ -14,7 +14,14 @@ public sealed class DrilldownDefinition
 /// <summary>A column in the KPI detail view.</summary>
 public sealed class DrilldownColumn
 {
+    /// <summary>Attribute shown in the column. Ignored when <see cref="Expression"/> is set.</summary>
     public string Attribute { get; init; } = string.Empty;
+
+    /// <summary>Optional expression computing the cell value from the row item.</summary>
+    public string? Expression { get; init; }
+
+    /// <summary>Column header used when no localized header is found.</summary>
+    public string? Header { get; init; }
 
     /// <summary>Resource key for the column header.</summary>
     public string? LocalizationKey { get; init; }

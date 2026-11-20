@@ -1,6 +1,7 @@
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Definitions;
 using ActiveRolesDashboard.Models.Definitions.Evaluation;
+using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
 using ActiveRolesDashboard.Tests.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
@@ -104,5 +105,30 @@ public sealed class DefinitionParityTests : IDisposable
         var checkedIds = results.Select(r => r.KpiId).ToHashSet(StringComparer.OrdinalIgnoreCase);
         Assert.All(expected, id => Assert.True(checkedIds.Contains(id), $"{id} was not parity-checked"));
         Assert.All(results, r => Assert.True(r.Matches, $"{r.KpiId}: legacy {r.Legacy}, definition {r.Definition} {r.Error}"));
+
+        // Drilldowns: the definition table must match the typed table (same columns, same rows).
+        // Known improvements over the typed tables are listed with the column they fill in.
+        var mismatches = new List<string>();
+        foreach (var id in LegacyDefinitionExporter.DrilldownColumns.Keys.Where(summary.DefinitionDetailTables.ContainsKey))
+        {
+            var generic = summary.GetKpiDetailTable(id)!;
+            var legacy = summary.GetLegacyKpiDetailTable(id)!;
+            if (generic.Error is not null) { mismatches.Add($"{id}: {generic.Error}"); continue; }
+            if (!legacy.Columns.SequenceEqual(generic.Columns)) { mismatches.Add($"{id}: columns [{string.Join(",", legacy.Columns)}] vs [{string.Join(",", generic.Columns)}]"); continue; }
+            var filled = DrilldownImprovements.TryGetValue(id, out var column) ? legacy.Columns.IndexOf(column) : -1;
+            IEnumerable<string> Keys(ReportTable t, bool blankFilled) => t.Rows
+                .Select(r => string.Join("|", r.Select((v, i) => blankFilled && i == filled ? string.Empty : v)))
+                .Order(StringComparer.Ordinal);
+            if (!Keys(legacy, false).SequenceEqual(Keys(generic, filled >= 0)))
+                mismatches.Add($"{id}: legacy [{string.Join("; ", Keys(legacy, false))}] definition [{string.Join("; ", Keys(generic, false))}]");
+        }
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
+        Assert.NotEmpty(summary.DefinitionDetailTables);
     }
+
+    /// <summary>Drilldowns where the definition table fills a column the typed table leaves blank.</summary>
+    private static readonly Dictionary<string, string> DrilldownImprovements = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["NoManagerUser"] = "Domain",
+    };
 }

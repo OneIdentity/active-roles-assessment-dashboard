@@ -37,6 +37,7 @@ public static class DefinitionValidator
             if (string.IsNullOrWhiteSpace(k.Id)) errors.Add("A KPI has no id.");
             if (!categories.Contains(k.CategoryId)) errors.Add($"{name} references unknown category '{k.CategoryId}'.");
             ValidateCharts(k.Charts, name, kpis, datasets, errors);
+            ValidateDrilldown(k.Drilldown, name, errors);
 
             switch (k)
             {
@@ -96,9 +97,21 @@ public static class DefinitionValidator
             errors.Add($"{name} aggregate {e.Aggregate} requires aggregateAttribute.");
     }
 
+    private static void ValidateDrilldown(DrilldownDefinition d, string name, List<string> errors)
+    {
+        foreach (var c in d.Columns)
+        {
+            if (string.IsNullOrWhiteSpace(c.Attribute) && string.IsNullOrWhiteSpace(c.Expression))
+                errors.Add($"{name} drilldown column has neither attribute nor expression.");
+            if (string.IsNullOrWhiteSpace(c.Expression)) continue;
+            try { Evaluation.ExpressionParser.Parse(c.Expression); }
+            catch (Evaluation.ExpressionException ex) { errors.Add($"{name} drilldown column expression is invalid: {ex.Message}"); }
+        }
+    }
+
     private static void ValidateRetrieval(RetrievalDefinition r, string name, List<string> errors)
     {
-        if (string.IsNullOrWhiteSpace(r.Endpoint))
+        if (string.IsNullOrWhiteSpace(r.Endpoint)) errors.Add($"{name} retrieval has no endpoint.");
         if (r.Target == RetrievalTarget.Objects && r.Objects.Count == 0) errors.Add($"{name} retrieval targets objects but lists none.");
         if (r.Scope is not ("base" or "one" or "sub")) errors.Add($"{name} retrieval scope '{r.Scope}' is invalid.");
     }

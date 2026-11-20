@@ -8,14 +8,17 @@ namespace ActiveRolesDashboard.Models.Definitions.Evaluation;
 /// <c>referenceAttribute</c> (required), <c>keyAttribute</c> (default <c>objectGUID</c>) and
 /// <c>match</c> (<c>guid</c> to ignore braces and case, otherwise case-insensitive text).
 /// </summary>
-public sealed class UnreferencedItemsFunction : IKpiFunction
+public sealed class UnreferencedItemsFunction : IKpiItemSelector
 {
     public const string FunctionName = "unreferencedItems";
     public const string ReferenceDatasetArg = "referenceDataset";
 
     public string Name => FunctionName;
 
-    public long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context)
+    public long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context) =>
+        Select(items, args, context).Count;
+
+    public IReadOnlyList<JsonElement> Select(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context)
     {
         var referenceDataset = Arg(args, ReferenceDatasetArg, null)
             ?? throw new ExpressionException($"{FunctionName} requires '{ReferenceDatasetArg}'.");
@@ -37,7 +40,7 @@ public sealed class UnreferencedItemsFunction : IKpiFunction
             .Where(v => v.Length > 0)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return items.Count(i => !referenced.Contains(Normalize(ExprValue.Text(ExpressionEvaluator.ReadAttribute(i, keyAttribute)))));
+        return items.Where(i => !referenced.Contains(Normalize(ExprValue.Text(ExpressionEvaluator.ReadAttribute(i, keyAttribute))))).ToList();
     }
 
     private static string? Arg(IReadOnlyDictionary<string, JsonElement> args, string name, string? fallback) =>

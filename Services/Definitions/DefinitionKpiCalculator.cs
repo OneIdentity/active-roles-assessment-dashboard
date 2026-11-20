@@ -1,6 +1,7 @@
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Definitions;
 using ActiveRolesDashboard.Models.Definitions.Evaluation;
+using ActiveRolesDashboard.Models.Reporting;
 
 namespace ActiveRolesDashboard.Services.Definitions;
 
@@ -20,6 +21,7 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
         var datasets = summary.Datasets;
         context = context.WithDatasets(datasets);
         var results = new Dictionary<string, KpiResult>(StringComparer.OrdinalIgnoreCase);
+        var tables = new Dictionary<string, Lazy<ReportTable>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var kpi in registry.Set.Kpis)
         {
@@ -36,28 +38,85 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             if (!datasets.TryGetValue(datasetId, out var dataset))
             {
                 results[kpi.Id] = KpiResult.Failed($"Dataset '{datasetId}' was not collected");
+                AddFailedTable(tables, kpi, results[kpi.Id].Error!);
                 continue;
             }
 
             if (dataset.Error is not null)
             {
                 results[kpi.Id] = KpiResult.Failed(dataset.Error);
+                AddFailedTable(tables, kpi, dataset.Error);
                 continue;
             }
 
             try
             {
                 results[kpi.Id] = new KpiResult(evaluator.Evaluate(evaluation, dataset.Items, context) ?? 0, null);
+                if (HasColumns(kpi))
+                {
+                    var (items, ctx, definition) = (dataset.Items, context, evaluation);
+                    tables[kpi.Id] = new Lazy<ReportTable>(() => BuildTable(kpi.Drilldown, definition, items, ctx));
+                }
             }
             catch (Exception ex)
             {
                 results[kpi.Id] = KpiResult.Failed($"Definition evaluation failed: {ex.Message}");
+                AddFailedTable(tables, kpi, results[kpi.Id].Error!);
             }
         }
 
         PopulateComposites(summary, results, include);
         summary.KpiResults = results;
+        summary.DefinitionDetailTables = tables;
     }
+
+    private static bool HasColumns(KpiDefinition kpi) => kpi.Drilldown.Enabled && kpi.Drilldown.Columns.Count > 0;
+
+    private static void AddFailedTable(Dictionary<string, Lazy<ReportTable>> tables, KpiDefinition kpi, string error)
+    {
+        if (!HasColumns(kpi)) return;
+        var table = new ReportTable { Columns = kpi.Drilldown.Columns.Select(Header).ToList(), Error = error };
+        tables[kpi.Id] = new Lazy<ReportTable>(table);
+    }
+
+    private static string Header(DrilldownColumn c) =>
+        !string.IsNullOrWhiteSpace(c.Header) ? c.Header : !string.IsNullOrWhiteSpace(c.Attribute) ? c.Attribute : c.Expression ?? string.Empty;
+
+    /// <summary>
+    /// Builds the detail table of a KPI from the items its evaluation counts. Evaluation errors are
+    /// reported on the table rather than thrown, so the drilldown shows them.
+    /// </summary>
+    internal ReportTable BuildTable(DrilldownDefinition drilldown, EvaluationDefinition evaluation, IReadOnlyList<System.Text.Json.JsonElement> items, EvaluationContext context)
+    {
+        var table = new ReportTable { Columns = drilldown.Columns.Select(Header).ToList() };
+        try
+        {
+            var selected = evaluator.Select(evaluation, items, context);
+            if (selected is null)
+            {
+                table.Error = "This KPI does not select items, so it has no detail rows";
+                return table;
+            }
+
+            var cells = drilldown.Columns
+                .Select(c => string.IsNullOrWhiteSpace(c.Expression) ? null : evaluator.Parse(c.Expression))
+                .ToList();
+            table.Rows = selected.Select(item => (IReadOnlyList<string>)drilldown.Columns
+                .Select((c, i) => CellText(cells[i] is { } expr
+                    ? ExpressionEvaluator.Evaluate(expr, item, context)
+                    : ExpressionEvaluator.ReadAttribute(item, c.Attribute)))
+                .ToList()).ToList();
+        }
+        catch (Exception ex)
+        {
+            table.Rows = [];
+            table.Error = $"Definition drilldown failed: {ex.Message}";
+        }
+        return table;
+    }
+
+    /// <summary>Booleans render as True/False to match the typed tables.</summary>
+    private static string CellText(object? value) => value is bool b ? b.ToString() : ExprValue.Text(value);
 
     /// <summary>
     /// Combines the results of other KPIs. A composite is only produced once every source has a

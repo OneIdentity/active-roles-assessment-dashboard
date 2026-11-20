@@ -7,27 +7,35 @@ namespace ActiveRolesDashboard.Models.Definitions.Evaluation;
 /// members that are themselves groups in the dataset. Optional args <c>keyAttribute</c>
 /// (default <c>distinguishedName</c>) and <c>memberAttribute</c> (default <c>member</c>).
 /// </summary>
-public sealed class CircularGroupNestingFunction : IKpiFunction
+public sealed class CircularGroupNestingFunction : IKpiItemSelector
 {
     public string Name => "circularNesting";
 
-    public long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context)
+    public long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context) =>
+        Select(items, args, context).Count;
+
+    public IReadOnlyList<JsonElement> Select(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context)
     {
         var keyAttribute = Arg(args, "keyAttribute", "distinguishedName");
         var memberAttribute = Arg(args, "memberAttribute", "member");
 
         var adjacency = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         var members = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+        var first = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in items)
         {
             var key = ExprValue.Text(ExpressionEvaluator.ReadAttribute(item, keyAttribute));
             if (key.Length > 0 && !members.ContainsKey(key))
+            {
                 members[key] = ExprValue.List(ExpressionEvaluator.ReadAttribute(item, memberAttribute));
+                first[key] = item;
+            }
         }
         foreach (var (key, list) in members)
             adjacency[key] = list.Where(m => m.Length > 0 && members.ContainsKey(m)).ToList();
 
-        return FindNodesOnCycles(adjacency).Count;
+        var onCycle = FindNodesOnCycles(adjacency);
+        return first.Where(p => onCycle.Contains(p.Key)).Select(p => p.Value).ToList();
     }
 
     /// <summary>Iterative DFS; every node between a back edge's target and the current node is on a cycle.</summary>

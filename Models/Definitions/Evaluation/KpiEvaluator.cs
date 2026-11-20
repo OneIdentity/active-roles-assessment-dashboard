@@ -12,6 +12,12 @@ public interface IKpiFunction
     long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context);
 }
 
+/// <summary>A function whose value is the number of items it selects, so it can also supply drilldown rows.</summary>
+public interface IKpiItemSelector : IKpiFunction
+{
+    IReadOnlyList<JsonElement> Select(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context);
+}
+
 /// <summary>Registry of named transform functions available to definitions.</summary>
 public sealed class KpiFunctionRegistry
 {
@@ -76,6 +82,26 @@ public sealed class KpiEvaluator(KpiFunctionRegistry functions)
             AggregateFunction.Min => numbers.Min(),
             _ => numbers.Max()
         });
+    }
+
+    /// <summary>
+    /// Returns the items counted by <paramref name="evaluation"/>, or null when the KPI value is not
+    /// an item count (non-count aggregates and functions that do not select items).
+    /// </summary>
+    public IReadOnlyList<JsonElement>? Select(EvaluationDefinition evaluation, IReadOnlyList<JsonElement> items, EvaluationContext context)
+    {
+        if (evaluation.Type == EvaluationType.Function)
+        {
+            if (evaluation.Function is null or KpiFunctionRegistry.Legacy) return null;
+            var fn = functions.Get(evaluation.Function)
+                ?? throw new ExpressionException($"Unknown function '{evaluation.Function}'.");
+            return fn is IKpiItemSelector selector ? selector.Select(items, evaluation.Args, context) : null;
+        }
+
+        if (evaluation.Aggregate != AggregateFunction.Count) return null;
+        return string.IsNullOrWhiteSpace(evaluation.Filter)
+            ? items
+            : items.Where(i => ExpressionEvaluator.Matches(Parse(evaluation.Filter), i, context)).ToList();
     }
 
     public static long Combine(CompositeAggregate aggregate, IEnumerable<long> values)

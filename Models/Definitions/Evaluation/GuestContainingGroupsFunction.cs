@@ -8,13 +8,16 @@ namespace ActiveRolesDashboard.Models.Definitions.Evaluation;
 /// (default <c>GuestUser</c>), <c>groupTypes</c> (array; default the four Entra group types),
 /// <c>keyAttribute</c> (default <c>distinguishedName</c>) and <c>memberAttribute</c> (default <c>member</c>).
 /// </summary>
-public sealed class GuestContainingGroupsFunction : IKpiFunction
+public sealed class GuestContainingGroupsFunction : IKpiItemSelector
 {
     private static readonly string[] DefaultGroupTypes = ["DistributionGroup", "DynamicDistributionGroup", "Microsoft365Group", "SecurityGroup"];
 
     public string Name => "guestContainingGroups";
 
-    public long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context)
+    public long? Evaluate(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context) =>
+        Select(items, args, context).Count;
+
+    public IReadOnlyList<JsonElement> Select(IReadOnlyList<JsonElement> items, IReadOnlyDictionary<string, JsonElement> args, EvaluationContext context)
     {
         var typeAttribute = Arg(args, "typeAttribute", "entraObjectType");
         var guestType = Arg(args, "guestType", "GuestUser");
@@ -32,10 +35,10 @@ public sealed class GuestContainingGroupsFunction : IKpiFunction
             .Select(i => ExprValue.Text(ExpressionEvaluator.ReadAttribute(i, keyAttribute)))
             .Where(k => !string.IsNullOrWhiteSpace(k))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        if (guests.Count == 0) return 0;
+        if (guests.Count == 0) return [];
 
-        return items.Count(i => groupTypes.Contains(TypeOf(i))
-            && ExprValue.List(ExpressionEvaluator.ReadAttribute(i, memberAttribute)).Any(guests.Contains));
+        return items.Where(i => groupTypes.Contains(TypeOf(i))
+            && ExprValue.List(ExpressionEvaluator.ReadAttribute(i, memberAttribute)).Any(guests.Contains)).ToList();
     }
 
     private static string Arg(IReadOnlyDictionary<string, JsonElement> args, string name, string fallback) =>
