@@ -3620,13 +3620,6 @@ public class ConfigDatabaseSummary
     public string? Error { get; set; }
 }
 
-public class HistoryDatabaseSummary
-{
-    public int TotalCount { get; set; }
-    public List<DatabaseInfo> Items { get; set; } = new();
-    public string? Error { get; set; }
-}
-
 public class DatabaseInfo
 {
     public string SqlAlias { get; set; } = string.Empty;
