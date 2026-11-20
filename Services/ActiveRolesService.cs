@@ -5026,7 +5026,7 @@ public class ActiveRolesService
         }
     }
 
-    private static string GetFriendlyOSName(string operatingSystem, string operatingSystemVersion)
+    internal static string GetFriendlyOSName(string operatingSystem, string operatingSystemVersion)
     {
         bool isServer = operatingSystem.Contains("server", StringComparison.OrdinalIgnoreCase);
 

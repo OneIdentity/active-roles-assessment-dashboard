@@ -462,6 +462,13 @@ internal static class LegacyDefinitionExporter
         Add(NameDomainDn, "NoManagerServiceAccount", "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts", "UserAccountLockedOut",
             "EmptyGroups", "Sites", "SiteLinks", "Subnets", "Trusts", "OUs");
         Add(NameDn, "NoGroupOwner");
+        Add([Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"),
+            ExprCol("Operating System", "friendlyOsName(operatingSystem, operatingSystemVersion)"),
+            Col("Distinguished Name", "distinguishedName")],
+            "ComputerClients", "UnconstrainedComputers", "ComputerServers", "WinServer2008R2", "WinServer2012R2", "WinServer2016",
+            "WinServer2019", "WinServer2022", "WinServer2025", "ServerOther", "Win7", "Win81", "Win10_22H2", "Win11_22H2",
+            "Win11_23H2", "Win11Enterprise", "Win11Pro", "ClientsOther", "EnabledComputers", "DisabledComputers",
+            "StaleComputers", "NeverLoggedOnComputers");
         Add([Col("Server Name", "edsaEdmServiceComputerName"), Col("Version", "edsvaPublicProductVersion")], "Servers");
         Add([Col("Name", "name"), Col("DNS Name", "edsaSavedDnsName"), Col("Distinguished Name", "distinguishedName")], "Domains");
         Add([Col("Name", "name"), Col("Container", "edsvaParentCanonicalName"),

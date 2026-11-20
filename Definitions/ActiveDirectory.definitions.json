@@ -2104,7 +2104,25 @@
         "sectionId": "computerclients"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Clients"
     },
@@ -2122,7 +2140,25 @@
         "sectionId": "computerservers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Servers"
@@ -2141,7 +2177,25 @@
         "sectionId": "winserver2008r2"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Windows Server 2008 R2"
@@ -2160,7 +2214,25 @@
         "sectionId": "winserver2012r2"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "Windows Server 2012 R2"
@@ -2179,7 +2251,25 @@
         "sectionId": "winserver2016"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Windows Server 2016"
@@ -2198,7 +2288,25 @@
         "sectionId": "winserver2019"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "Windows Server 2019"
@@ -2217,7 +2325,25 @@
         "sectionId": "winserver2022"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 6,
       "fallbackText": "Windows Server 2022"
@@ -2236,7 +2362,25 @@
         "sectionId": "winserver2025"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 7,
       "fallbackText": "Windows Server 2025"
@@ -2255,7 +2399,25 @@
         "sectionId": "serverother"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 8,
       "fallbackText": "Server (other)"
@@ -2274,7 +2436,25 @@
         "sectionId": "win7"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 9,
       "fallbackText": "Windows 7"
@@ -2293,7 +2473,25 @@
         "sectionId": "win81"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 10,
       "fallbackText": "Windows 8.1"
@@ -2312,7 +2510,25 @@
         "sectionId": "win1022h2"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 11,
       "fallbackText": "Windows 10 22H2"
@@ -2331,7 +2547,25 @@
         "sectionId": "win1122h2"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 12,
       "fallbackText": "Windows 11 22H2"
@@ -2350,7 +2584,25 @@
         "sectionId": "win1123h2"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 13,
       "fallbackText": "Windows 11 23H2"
@@ -2369,7 +2621,25 @@
         "sectionId": "win11enterprise"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 14,
       "fallbackText": "Windows 11 Enterprise"
@@ -2388,7 +2658,25 @@
         "sectionId": "win11pro"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 15,
       "fallbackText": "Windows 11 Pro"
@@ -2407,7 +2695,25 @@
         "sectionId": "clientsother"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 16,
       "fallbackText": "Clients (other)"
@@ -2427,7 +2733,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 17,
       "fallbackText": "Unconstrained Delegation"
@@ -2446,7 +2770,25 @@
         "sectionId": "enabledcomputers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 18,
       "fallbackText": "Enabled Computers"
@@ -2465,7 +2807,25 @@
         "sectionId": "disabledcomputers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 19,
       "fallbackText": "Disabled Computers"
@@ -2485,7 +2845,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 20,
       "fallbackText": "Stale Computers (Inactive)"
@@ -2505,7 +2883,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 21,
       "fallbackText": "Never Logged On Computers"

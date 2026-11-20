@@ -84,6 +84,7 @@ internal static class BuiltInFunctions
         ["isBlank"] = (1, 1, (a, _) => ExprValue.List(a[0]).All(string.IsNullOrWhiteSpace)),
         ["aceHasDeny"] = (1, 1, (a, _) => ExprValue.List(a[0]).Any(AceListHasDeny)),
         ["xmlCount"] = (2, 2, (a, _) => (double)XmlElementCount(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
+        ["friendlyOsName"] = (2, 2, (a, _) => Services.ActiveRolesService.GetFriendlyOSName(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
     };
 
     /// <summary>True when an Active Roles ACE list (<c>[type;...]</c> entries) contains a Deny (D/OD) entry.</summary>
