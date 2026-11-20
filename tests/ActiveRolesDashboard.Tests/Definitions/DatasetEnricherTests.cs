@@ -15,6 +15,7 @@ public class DatasetEnricherTests
         public Task<string> ResolveSidAsync(string sid) => Task.FromResult(sid == "S-1-5-21-1" ? "CORP\\alice" : "");
         public Task<bool> IsUserSidAsync(string sid) => Task.FromResult(sid == "S-1-5-21-1");
         public Task<bool> IsRootScopeAsync(string guid) => Task.FromResult(guid == "root");
+        public Task<string> ResolveGuidNameAsync(string guid) => Task.FromResult(guid == "root" ? "corp.local" : "Unknown");
         public Task<int> CountDescendantsAsync(string dn) => dn == "bad" ? throw new InvalidOperationException() : Task.FromResult(7);
         public Task<IReadOnlyList<string>?> MailboxGranteesAsync(string objectGuid, string? ownerSid, string right) =>
             Task.FromResult<IReadOnlyList<string>?>(objectGuid == "none" ? null : right == "SendAs" ? ["S-1-5-21-1", "S-1-5-21-9", "S-1-5-21-1"] : []);
@@ -62,6 +63,17 @@ public class DatasetEnricherTests
         Assert.True(result[0].GetProperty("isRootScope").GetBoolean());
         Assert.False(result[1].GetProperty("trusteeIsUser").GetBoolean());
         Assert.False(result[1].GetProperty("isRootScope").GetBoolean());
+    }
+
+    [Fact]
+    public async Task ObjectName_resolves_guid_into_named_attribute()
+    {
+        var result = await DatasetEnricher.EnrichAsync(Dataset(EnrichmentNames.ObjectName, ("attribute", "edsaSecObjectGUID"), ("as", "directoryObject")),
+            Items(new { edsaSecObjectGUID = "root" }, new { edsaSecObjectGUID = "x" }, new { other = 1 }), new FakeLookup());
+
+        Assert.Equal("corp.local", result[0].GetProperty("directoryObject").GetString());
+        Assert.Equal("Unknown", result[1].GetProperty("directoryObject").GetString());
+        Assert.Equal("", result[2].GetProperty("directoryObject").GetString());
     }
 
     [Fact]

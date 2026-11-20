@@ -397,6 +397,20 @@
           "args": {
             "attribute": "edsaSecObjectGUID"
           }
+        },
+        {
+          "name": "objectName",
+          "args": {
+            "attribute": "edsaSecObjectGUID",
+            "as": "directoryObject"
+          }
+        },
+        {
+          "name": "objectName",
+          "args": {
+            "attribute": "edsaAccessTemplateGUID",
+            "as": "accessTemplate"
+          }
         }
       ]
     },
@@ -1173,7 +1187,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 121,
       "fallbackText": "Delegated to Broad Principals"
@@ -1193,7 +1225,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 122,
       "fallbackText": "Delegated Directly to Users"
@@ -1213,7 +1263,25 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 123,
       "fallbackText": "Delegated at Domain Root"

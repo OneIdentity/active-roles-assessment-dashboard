@@ -4915,6 +4915,7 @@ public class ActiveRolesService
         public Task<string> ResolveSidAsync(string sid) => service.ResolveSidToNameAsync(token, sid);
         public Task<bool> IsUserSidAsync(string sid) => service.IsUserTrusteeAsync(token, sid);
         public Task<bool> IsRootScopeAsync(string guid) => service.IsRootScopeAsync(token, guid);
+        public Task<string> ResolveGuidNameAsync(string guid) => service.ResolveGuidToNameAsync(token, guid);
 
         public async Task<int> CountDescendantsAsync(string dn)
         {

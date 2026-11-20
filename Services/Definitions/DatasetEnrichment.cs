@@ -22,6 +22,9 @@ public interface IDirectoryLookup
     /// <summary>True when the GUID is a domain root or the Active Directory root container.</summary>
     Task<bool> IsRootScopeAsync(string guid);
 
+    /// <summary>Name of the object with the GUID; "Unknown" when it does not resolve.</summary>
+    Task<string> ResolveGuidNameAsync(string guid);
+
     /// <summary>Number of objects beneath <paramref name="dn"/>, excluding the object itself.</summary>
     Task<int> CountDescendantsAsync(string dn);
 
@@ -107,6 +110,17 @@ public static class DatasetEnricher
                 {
                     var guid = First(item, attribute);
                     node["isRootScope"] = guid is not null && await cache.GetAsync(guid, lookup.IsRootScopeAsync);
+                };
+            }
+            case "objectname":
+            {
+                var attribute = Arg("attribute");
+                var target = Arg("as", attribute + "Name");
+                var cache = new Cache<string>();
+                return async (item, node) =>
+                {
+                    var guid = First(item, attribute);
+                    node[target] = guid is null ? "" : await cache.GetAsync(guid, lookup.ResolveGuidNameAsync);
                 };
             }
             case "descendantcount":

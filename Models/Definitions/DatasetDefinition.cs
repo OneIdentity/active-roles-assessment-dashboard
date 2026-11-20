@@ -51,6 +51,9 @@ public static class EnrichmentNames
     /// <summary>Adds <c>isRootScope</c> for the object a GUID attribute points at. Args: <c>attribute</c>.</summary>
     public const string RootScope = "rootScope";
 
+    /// <summary>Adds the name of the object a GUID attribute points at. Args: <c>attribute</c>, <c>as</c> (output attribute).</summary>
+    public const string ObjectName = "objectName";
+
     /// <summary>Adds <c>objectCount</c>: objects beneath the item, excluding itself.</summary>
     public const string DescendantCount = "descendantCount";
 
@@ -59,7 +62,7 @@ public static class EnrichmentNames
 
     public static readonly IReadOnlySet<string> All = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        UnresolvedGuids, Trustee, RootScope, DescendantCount, MailboxPermissions
+        UnresolvedGuids, Trustee, RootScope, DescendantCount, MailboxPermissions, ObjectName
     };
 }
 

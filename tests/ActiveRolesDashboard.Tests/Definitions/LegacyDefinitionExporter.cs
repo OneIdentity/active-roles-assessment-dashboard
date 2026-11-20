@@ -223,9 +223,13 @@ internal static class LegacyDefinitionExporter
             new KpiSearchDefinition { BaseDn = DatasetRequestResolver.DefaultAdDnToken, Filter = MailboxFilter, Attributes = "name,distinguishedName,edsaDomainNetbiosName,objectGUID,objectSid" },
             new EnrichmentDefinition { Name = EnrichmentNames.MailboxPermissions, Args = new Dictionary<string, string> { ["right"] = id == ExchangeSendAsId ? "SendAs" : "FullAccess" } }),
         DelegationLinks => Enriched(id, source, KpiInfo.AccessTemplateLinks.Searches[0],
-            Enrich(EnrichmentNames.Trustee, "edsaTrusteeSID"), Enrich(EnrichmentNames.RootScope, "edsaSecObjectGUID")),
+            Enrich(EnrichmentNames.Trustee, "edsaTrusteeSID"), Enrich(EnrichmentNames.RootScope, "edsaSecObjectGUID"),
+            NameOf("edsaSecObjectGUID", "directoryObject"), NameOf("edsaAccessTemplateGUID", "accessTemplate")),
         _ => null
     };
+
+    private static EnrichmentDefinition NameOf(string attribute, string target) =>
+        new() { Name = EnrichmentNames.ObjectName, Args = new Dictionary<string, string> { ["attribute"] = attribute, ["as"] = target } };
 
     private static EnrichmentDefinition Enrich(string name, string attribute) =>
         new() { Name = name, Args = new Dictionary<string, string> { ["attribute"] = attribute } };
@@ -487,6 +491,8 @@ internal static class LegacyDefinitionExporter
             ExprCol("Automation", "objectClass == 'edsAutomationWorkflowDefinition'"), Col("Distinguished Name", "distinguishedName")], "Workflows");
         Add([Col("Name", "name"), ExprCol("Enabled", "lower(edsaDisableSchedule) != 'true'"), ExprCol("Last Run (UTC)", "arTime(edsaLastRunTime)"),
             ExprCol("Next Run (UTC)", "arTime(edsvaNextRunTime)"), Col("Distinguished Name", "distinguishedName")], "ScheduledTasks");
+        Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"), Col("Distinguished Name", "distinguishedName")],
+            "BroadDelegationLinks", "UserDelegationLinks", "RootDelegationLinks");
         Add([Col("Name", "name"), Col("Direct Members", ADGroupsSummary.DirectMemberCountAttribute),
             Col("Indirect Members", ADGroupsSummary.IndirectMemberCountAttribute), Col("Distinguished Name", "distinguishedName")],
             "DistributionGroups", "DomainLocalGroups", "GlobalGroups", "MailEnabledSecurityGroups", "SecurityGroups", "UniversalGroups");
