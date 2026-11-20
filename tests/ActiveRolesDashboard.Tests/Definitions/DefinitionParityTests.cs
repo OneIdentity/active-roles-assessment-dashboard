@@ -100,38 +100,22 @@ public sealed class DefinitionParityTests : IDisposable
     [Theory]
     [InlineData("small-domain")]
     [InlineData("exchange-permissions")]
-    public async Task Migrated_kpis_match_legacy_values(string dataSet)
+    public async Task Migrated_kpis_are_evaluated_with_drilldowns(string dataSet)
     {
+        // Values and rows are frozen by DefinitionGoldenTests (captured against the typed collectors
+        // before they were removed); this test checks coverage only.
         _server.WithDataSet(dataSet);
-        var (summary, checker) = await BuildSummaryWithCheckerAsync();
-        var registry = Registry();
+        var summary = await BuildSummaryAsync();
         var expected = LegacyDefinitionExporter.Migrated.Keys.Concat(LegacyDefinitionExporter.MigratedSearches).Concat(LegacyDefinitionExporter.MigratedFunctions.Keys).Concat(LegacyDefinitionExporter.MigratedComposites.Keys).Concat(LegacyDefinitionExporter.MigratedSearchFilters.Keys).Concat(LegacyDefinitionExporter.MigratedSearchFunctions.Keys).ToList();
         Assert.All(expected, id => Assert.True(summary.KpiResults.ContainsKey(id), $"{id} was not evaluated"));
 
-        var results = checker.LastResults;
-        var checkedIds = results.Select(r => r.KpiId).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        Assert.All(expected, id => Assert.True(checkedIds.Contains(id), $"{id} was not parity-checked"));
-        Assert.All(results, r => Assert.True(r.Matches, $"{r.KpiId}: legacy {r.Legacy}, definition {r.Definition} {r.Error}"));
-
-        // Drilldowns: the definition table must match the typed table (same columns, same rows).
-        // Known improvements over the typed tables are listed with the column they fill in.
-        var mismatches = new List<string>();
-        foreach (var id in LegacyDefinitionExporter.DrilldownColumns.Keys.Where(summary.DefinitionDetailTables.ContainsKey))
-        {
-            var generic = summary.GetKpiDetailTable(id)!;
-            var legacy = summary.GetLegacyKpiDetailTable(id)!;
-            if (generic.Error is not null) { mismatches.Add($"{id}: {generic.Error}"); continue; }
-            // Typed Exchange tables drop the Trustee column when empty; definition columns are static.
-            if (legacy.Rows.Count == 0 && generic.Rows.Count == 0) continue;
-            if (!legacy.Columns.SequenceEqual(generic.Columns)) { mismatches.Add($"{id}: columns [{string.Join(",", legacy.Columns)}] vs [{string.Join(",", generic.Columns)}]"); continue; }
-            var filled = DrilldownImprovements.TryGetValue(id, out var column) ? legacy.Columns.IndexOf(column) : -1;
-            IEnumerable<string> Keys(ReportTable t, bool blankFilled) => t.Rows
-                .Select(r => string.Join("|", r.Select((v, i) => blankFilled && i == filled ? string.Empty : v)))
-                .Order(StringComparer.Ordinal);
-            if (!Keys(legacy, false).SequenceEqual(Keys(generic, filled >= 0)))
-                mismatches.Add($"{id}: legacy [{string.Join("; ", Keys(legacy, false))}] definition [{string.Join("; ", Keys(generic, false))}]");
-        }
-        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
+        var errors = LegacyDefinitionExporter.DrilldownColumns.Keys
+            .Where(summary.DefinitionDetailTables.ContainsKey)
+            .Select(id => (id, summary.GetKpiDetailTable(id)!.Error))
+            .Where(e => e.Error is not null)
+            .Select(e => $"{e.id}: {e.Error}")
+            .ToList();
+        Assert.True(errors.Count == 0, string.Join(Environment.NewLine, errors));
         Assert.NotEmpty(summary.DefinitionDetailTables);
     }
 
@@ -147,13 +131,4 @@ public sealed class DefinitionParityTests : IDisposable
         Assert.Equal(["Finance Mailbox|TEST|Grace Reader|CN=Finance Mailbox,OU=Mail,DC=test,DC=local"], Rows("ExchangeFullAccessDelegatesKpi"));
         Assert.Equal(["Exec Mailbox|TEST|Dana Assistant, Smith, Eve|CN=Exec Mailbox,OU=Mail,DC=test,DC=local"], Rows("ExchangeSendOnBehalfKpi"));
     }
-
-    /// <summary>Drilldowns where the definition table fills a column the typed table leaves blank.</summary>
-    private static readonly Dictionary<string, string> DrilldownImprovements = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["NoManagerUser"] = "Domain",
-        ["NoManagerServiceAccount"] = "Domain",
-        ["ServiceAccounts"] = "Domain",
-        ["UserAccountLockedOut"] = "Domain",
-    };
 }
