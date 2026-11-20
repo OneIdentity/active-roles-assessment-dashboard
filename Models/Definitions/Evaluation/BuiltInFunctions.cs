@@ -87,6 +87,9 @@ internal static class BuiltInFunctions
         ["friendlyOsName"] = (2, 2, (a, _) => Services.ActiveRolesService.GetFriendlyOSName(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
         ["homeTenant"] = (1, 1, (a, _) => EntraTotalsSummary.HomeTenantOfUpn(ExprValue.Text(a[0]))),
         ["iif"] = (3, 3, (a, _) => ExprValue.Truthy(a[0]) ? a[1] : a[2]),
+        // cnList(dns): distinct common names of DN values, comma-separated.
+        ["cnList"] = (1, 1, (a, _) => string.Join(", ", ExprValue.List(a[0]).Select(Services.ActiveRolesService.GetCnFromDn)
+            .Where(n => !string.IsNullOrEmpty(n)).Distinct(StringComparer.OrdinalIgnoreCase))),
         ["arBool"] = (1, 1, (a, _) => Services.ActiveRolesService.ParseArBool(ExprValue.Text(a[0]))),
         ["arTime"] = (1, 1, (a, _) => Services.ActiveRolesService.ParseArTime(ExprValue.Text(a[0]))?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty),
         ["replicationRole"] = (1, 1, (a, _) => Services.ActiveRolesService.ParseReplicationRole(ExprValue.Text(a[0])).ToString()),

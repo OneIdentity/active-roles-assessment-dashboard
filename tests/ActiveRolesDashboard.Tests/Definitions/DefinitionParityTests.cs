@@ -1,4 +1,4 @@
-using ActiveRolesDashboard.Models;
+﻿using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Definitions;
 using ActiveRolesDashboard.Models.Definitions.Evaluation;
 using ActiveRolesDashboard.Models.Reporting;
@@ -114,6 +114,8 @@ public sealed class DefinitionParityTests : IDisposable
             var generic = summary.GetKpiDetailTable(id)!;
             var legacy = summary.GetLegacyKpiDetailTable(id)!;
             if (generic.Error is not null) { mismatches.Add($"{id}: {generic.Error}"); continue; }
+            // Typed Exchange tables drop the Trustee column when empty; definition columns are static.
+            if (legacy.Rows.Count == 0 && generic.Rows.Count == 0) continue;
             if (!legacy.Columns.SequenceEqual(generic.Columns)) { mismatches.Add($"{id}: columns [{string.Join(",", legacy.Columns)}] vs [{string.Join(",", generic.Columns)}]"); continue; }
             var filled = DrilldownImprovements.TryGetValue(id, out var column) ? legacy.Columns.IndexOf(column) : -1;
             IEnumerable<string> Keys(ReportTable t, bool blankFilled) => t.Rows

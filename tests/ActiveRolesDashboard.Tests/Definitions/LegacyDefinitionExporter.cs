@@ -494,6 +494,10 @@ internal static class LegacyDefinitionExporter
             ExprCol("Next Run (UTC)", "arTime(edsvaNextRunTime)"), Col("Distinguished Name", "distinguishedName")], "ScheduledTasks");
         Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"), Col("Distinguished Name", "distinguishedName")],
             "BroadDelegationLinks", "UserDelegationLinks", "RootDelegationLinks");
+        Add([Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"), Col("Trustee", "trustee"), Col("Distinguished Name", "distinguishedName")],
+            "ExchangeSendAsKpi", "ExchangeFullAccessDelegatesKpi");
+        Add([Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"), ExprCol("Trustee", "cnList(publicDelegates)"), Col("Distinguished Name", "distinguishedName")],
+            "ExchangeSendOnBehalfKpi");
         Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee")], "AccessTemplateLinks");
         Add([Col("Name", "name"), Col("Objects", "objectCount"), Col("Note", "note"), Col("Distinguished Name", "distinguishedName")], "EntraManagedTenants");
         Add([Col("Name", "name"), Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"),

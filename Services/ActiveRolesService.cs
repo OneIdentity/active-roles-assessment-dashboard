@@ -3923,7 +3923,7 @@ public class ActiveRolesService
     }
 
     /// <summary>Extracts the first CN component from a distinguished name, falling back to the raw value.</summary>
-    private static string GetCnFromDn(string dn)
+    internal static string GetCnFromDn(string dn)
     {
         if (string.IsNullOrEmpty(dn))
             return dn;
