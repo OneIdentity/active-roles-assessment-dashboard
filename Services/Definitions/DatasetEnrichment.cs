@@ -127,7 +127,7 @@ public static class DatasetEnricher
                 return async (item, node) =>
                 {
                     var dn = First(item, "distinguishedName");
-                    if (dn is null) { node["objectCount"] = null; return; }
+                    if (dn is null) { node["objectCount"] = null; node["note"] = "Tenant distinguished name unavailable; object count skipped."; return; }
                     try { node["objectCount"] = await lookup.CountDescendantsAsync(dn); }
                     catch (Exception ex) { node["objectCount"] = null; node["note"] = $"Object count unavailable ({ex.GetType().Name})."; }
                 };

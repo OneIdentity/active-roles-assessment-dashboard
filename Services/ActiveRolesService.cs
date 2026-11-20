@@ -4479,7 +4479,7 @@ public class ActiveRolesService
         return dn;
     }
 
-    private static ManagedObjectDataPoint? ParseStatisticsRun(string xml)
+    internal static ManagedObjectDataPoint? ParseStatisticsRun(string xml)
     {
         if (string.IsNullOrWhiteSpace(xml))
             return null;

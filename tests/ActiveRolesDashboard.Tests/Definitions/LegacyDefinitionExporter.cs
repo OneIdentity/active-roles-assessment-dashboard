@@ -495,6 +495,7 @@ internal static class LegacyDefinitionExporter
         Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"), Col("Distinguished Name", "distinguishedName")],
             "BroadDelegationLinks", "UserDelegationLinks", "RootDelegationLinks");
         Add([Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee")], "AccessTemplateLinks");
+        Add([Col("Name", "name"), Col("Objects", "objectCount"), Col("Note", "note"), Col("Distinguished Name", "distinguishedName")], "EntraManagedTenants");
         Add([Col("Name", "name"), Col("Directory Object", "directoryObject"), Col("Access Template", "accessTemplate"), Col("Trustee", "trustee"),
             ExprCol("Missing", "missingNames('edsaAccessTemplateGUID', edsaAccessTemplateGUID, 'edsaSecObjectGUID', edsaSecObjectGUID, 'edsaTrusteeSID', edsaTrusteeSID)"),
             Col("Distinguished Name", "distinguishedName")], "OrphanAccessTemplateLinks");

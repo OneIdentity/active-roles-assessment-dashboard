@@ -461,7 +461,7 @@ public class DashboardController : ControllerBase
     private LicensingView BuildLicensing(DashboardSummary summary)
     {
         var view = new LicensingView();
-        var managed = summary.ManagedObjects;
+        var managed = summary.ManagedObjectStatistics;
         if (managed.Error != null)
         {
             view.Error = managed.Error;

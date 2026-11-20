@@ -1443,7 +1443,25 @@
         "sectionId": "entramanagedtenants"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "objectCount",
+            "header": "Objects"
+          },
+          {
+            "attribute": "note",
+            "header": "Note"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 125,
       "fallbackText": "Managed Entra Tenants"

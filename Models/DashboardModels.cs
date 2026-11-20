@@ -2412,6 +2412,31 @@ public class DashboardSummary
     public ScriptModuleSummary ScriptModules { get; set; } = new();
     public TenantSummary EntraManagedTenants { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
+
+    /// <summary>
+    /// Managed object statistics for the Licensing view, built from the generically collected
+    /// <c>ManagedObjects</c> dataset when available; otherwise the typed summary.
+    /// </summary>
+    [JsonIgnore]
+    public ManagedObjectSummary ManagedObjectStatistics
+    {
+        get
+        {
+            if (!CollectedDatasets.TryGetValue("ManagedObjects", out var ds))
+                return ManagedObjects;
+            if (ds.Error != null)
+                return new ManagedObjectSummary { Error = ds.Error };
+            return new ManagedObjectSummary
+            {
+                TotalCount = ds.Items.Count,
+                DataPoints = ds.Items
+                    .Select(i => Services.ActiveRolesService.ParseStatisticsRun(SegmentAttributes.AttrOf(i, "edsaStatisticsCountXML")))
+                    .OfType<ManagedObjectDataPoint>()
+                    .OrderBy(dp => dp.RunTime)
+                    .ToList()
+            };
+        }
+    }
     public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
     public GovernanceKpiSummary NoManagerUser { get; set; } = new();
