@@ -459,131 +459,11 @@ public class ActiveRolesService
             tasks.Add(("Servers", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Servers = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
-        if (settings.IsKpiEnabled("ARConfiguration", "ManagedUnits"))
-        {
-            var t = GetManagedUnitsAsync(token);
-            tasks.Add(("ManagedUnits", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedUnits = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "Workflows"))
-        {
-            var t = GetWorkflowsAsync(token);
-            tasks.Add(("Workflows", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Workflows = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "VirtualAttributes"))
-        {
-            var t = GetVirtualAttributesAsync(token);
-            tasks.Add(("VirtualAttributes", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.VirtualAttributes = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
         if (settings.IsKpiEnabled("ARConfiguration", "ConfigDatabases"))
         {
             var t = GetConfigDatabasesAsync(token);
             tasks.Add(("ConfigDatabases", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ConfigDatabases = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "HistoryDatabases"))
-        {
-            var t = GetHistoryDatabasesAsync(token);
-            tasks.Add(("HistoryDatabases", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.HistoryDatabases = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "ScheduledTasks"))
-        {
-            var t = GetScheduledTasksAsync(token);
-            tasks.Add(("ScheduledTasks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScheduledTasks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjects"))
-        {
-            var t = GetPolicyObjectsAsync(token);
-            tasks.Add(("PolicyObjects", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "AccessTemplates"))
-        {
-            var t = GetAccessTemplatesAsync(token);
-            tasks.Add(("AccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "EmptyAccessTemplates"))
-        {
-            var t = GetEmptyAccessTemplatesAsync(token);
-            tasks.Add(("EmptyAccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjectsNoRules"))
-        {
-            var t = GetPolicyObjectsNoRulesAsync(token);
-            tasks.Add(("PolicyObjectsNoRules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectsNoRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "UnlinkedAccessTemplates"))
-        {
-            var t = GetUnlinkedAccessTemplatesAsync(token);
-            tasks.Add(("UnlinkedAccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UnlinkedAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "DenyAccessTemplates"))
-        {
-            var t = GetDenyAccessTemplatesAsync(token);
-            tasks.Add(("DenyAccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DenyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "UnlinkedPolicyObjects"))
-        {
-            var t = GetUnlinkedPolicyObjectsAsync(token);
-            tasks.Add(("UnlinkedPolicyObjects", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UnlinkedPolicyObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "AccessTemplateLinks"))
-        {
-            var t = GetAccessTemplateLinksAsync(token);
-            tasks.Add(("AccessTemplateLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccessTemplateLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjectLinks"))
-        {
-            var t = GetPolicyObjectLinksAsync(token);
-            tasks.Add(("PolicyObjectLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "OrphanAccessTemplateLinks"))
-        {
-            var t = GetOrphanAccessTemplateLinksAsync(token);
-            tasks.Add(("OrphanAccessTemplateLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OrphanAccessTemplateLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "OrphanPolicyObjectLinks"))
-        {
-            var t = GetOrphanPolicyObjectLinksAsync(token);
-            tasks.Add(("OrphanPolicyObjectLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OrphanPolicyObjectLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "DynamicGroupsBrokenRules"))
-        {
-            var t = GetDynamicGroupsBrokenRulesAsync(token);
-            tasks.Add(("DynamicGroupsBrokenRules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DynamicGroupsBrokenRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "ManagedUnitsBrokenRules"))
-        {
-            var t = GetManagedUnitsBrokenRulesAsync(token);
-            tasks.Add(("ManagedUnitsBrokenRules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedUnitsBrokenRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "ScriptModules"))
-        {
-            var t = GetScriptModulesAsync(token);
-            tasks.Add(("ScriptModules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScriptModules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "EntraManagedTenants"))
-        {
-            var t = GetEntraManagedTenantsAsync(token);
-            tasks.Add(("EntraManagedTenants", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EntraManagedTenants = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
         if (settings.IsKpiEnabled("Licensing", "ManagedObjects"))
         {
@@ -598,55 +478,6 @@ public class ActiveRolesService
             var t = GetNoGroupOwnerAsync(token, baseDn, filter);
             tasks.Add(("NoGroupOwner", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoGroupOwner = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "NoManagerServiceAccount") || settings.IsKpiEnabled("ADGovernance", "NoManagerServiceAccount"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = ResolveValue(config.CustomNoManagerServiceAccountFilter, config.DefaultFilters.NoManagerServiceAccount);
-            var t = GetNoManagerServiceAccountAsync(token, baseDn, filter);
-            tasks.Add(("NoManagerServiceAccount", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoManagerServiceAccount = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "ServiceAccounts"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.ServiceAccounts;
-            var t = GetServiceAccountsAsync(token, baseDn, filter);
-            tasks.Add(("ServiceAccounts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "GmsaServiceAccounts"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.GmsaServiceAccounts;
-            var t = GetGmsaServiceAccountsAsync(token, baseDn, filter);
-            tasks.Add(("GmsaServiceAccounts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.GmsaServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "SmsaServiceAccounts"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.SmsaServiceAccounts;
-            var t = GetSmsaServiceAccountsAsync(token, baseDn, filter);
-            tasks.Add(("SmsaServiceAccounts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SmsaServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        if (settings.IsKpiEnabled("ADUserAccountsCategory", "UserAccountLockedOut") || settings.IsKpiEnabled("ADGovernance", "UserAccountLockedOut"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.UserAccountLockedOut;
-            var t = GetUserAccountLockedOutAsync(token, baseDn, filter);
-            tasks.Add(("UserAccountLockedOut", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UserAccountLockedOut = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ADGroupsCategory", "EmptyGroups") || settings.IsKpiEnabled("ADGovernance", "EmptyGroups"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.EmptyGroups;
-            var t = GetEmptyGroupsAsync(token, baseDn, filter);
-            tasks.Add(("EmptyGroups", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyGroups = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
         if (settings.IsKpiEnabled("PrivilegedGroups", "AccountOperators"))
         {
@@ -689,36 +520,6 @@ public class ActiveRolesService
             var t = GetSchemaAdminsAsync(token);
             tasks.Add(("SchemaAdmins", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SchemaAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "Sites"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.Sites);
-            tasks.Add(("Sites", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Sites = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "SiteLinks"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.SiteLinks);
-            tasks.Add(("SiteLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SiteLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "Subnets"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.Subnets);
-            tasks.Add(("Subnets", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Subnets = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "Trusts"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.Trusts);
-            tasks.Add(("Trusts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Trusts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "OUs"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.OUs);
-            tasks.Add(("OUs", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OUs = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         // Exchange (on-prem) KPIs. Every Exchange KPI shares the generic count + drilldown shape and
