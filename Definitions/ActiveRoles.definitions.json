@@ -524,7 +524,17 @@
         "sectionId": "servers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "edsaEdmServiceComputerName",
+            "header": "Server Name"
+          },
+          {
+            "attribute": "edsvaPublicProductVersion",
+            "header": "Version"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "AR Servers"
@@ -541,7 +551,21 @@
         "sectionId": "domains"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaSavedDnsName",
+            "header": "DNS Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Managed Domains"
@@ -575,7 +599,25 @@
         "sectionId": "accesstemplates"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsvaParentCanonicalName",
+            "header": "Container"
+          },
+          {
+            "expression": "in(edsaIsPredefined, 'TRUE', 'true') && in(edsaSystemObject, 'TRUE', 'true')",
+            "header": "Built-in"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 104,
       "fallbackText": "Access Templates"

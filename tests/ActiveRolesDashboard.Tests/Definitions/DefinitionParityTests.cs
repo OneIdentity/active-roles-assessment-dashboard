@@ -130,5 +130,8 @@ public sealed class DefinitionParityTests : IDisposable
     private static readonly Dictionary<string, string> DrilldownImprovements = new(StringComparer.OrdinalIgnoreCase)
     {
         ["NoManagerUser"] = "Domain",
+        ["NoManagerServiceAccount"] = "Domain",
+        ["ServiceAccounts"] = "Domain",
+        ["UserAccountLockedOut"] = "Domain",
     };
 }

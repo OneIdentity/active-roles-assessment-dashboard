@@ -669,7 +669,17 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 6,
       "fallbackText": "No Group Owner"
@@ -721,7 +731,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 14,
       "fallbackText": "No Manager (Service Account)"
@@ -739,7 +763,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 15,
       "fallbackText": "User Account Locked Out"
@@ -757,7 +795,21 @@
       },
       "isRiskKpi": true,
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 7,
       "fallbackText": "Empty Groups"
@@ -1515,7 +1567,21 @@
         "sectionId": "serviceaccounts"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 21,
       "fallbackText": "Service Accounts"
@@ -1532,7 +1598,21 @@
         "sectionId": "gmsaserviceaccounts"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 22,
       "fallbackText": "gMSA Service Accounts"
@@ -1549,7 +1629,21 @@
         "sectionId": "smsaserviceaccounts"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 23,
       "fallbackText": "sMSA Service Accounts"
@@ -1817,7 +1911,21 @@
         "sectionId": "sites"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Sites"
     },
@@ -1833,7 +1941,21 @@
         "sectionId": "sitelinks"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Site Links"
@@ -1850,7 +1972,21 @@
         "sectionId": "subnets"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Subnets"
@@ -1867,7 +2003,21 @@
         "sectionId": "ous"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "OUs"
@@ -1921,7 +2071,21 @@
         "sectionId": "trusts"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "Domain Trusts"

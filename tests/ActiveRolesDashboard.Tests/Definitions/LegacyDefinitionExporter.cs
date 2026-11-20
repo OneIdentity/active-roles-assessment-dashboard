@@ -459,6 +459,14 @@ internal static class LegacyDefinitionExporter
             "ExchangeEquipmentMailboxesKpi", "ExchangeMailUsersKpi", "ExchangeMailContactsKpi", "ExchangeDistributionGroupsKpi",
             "ExchangeMailEnabledSecurityGroupsKpi", "ExchangeDynamicDistributionGroupsKpi", "ExchangeGroupsNoOwnerKpi",
             "ExchangeEmptyDistributionGroupsKpi", "ExchangeMailboxNoManagerKpi", "ExchangeOrphanedMailboxesKpi", "ExchangeLitigationHoldDisabledKpi");
+        Add(NameDomainDn, "NoManagerServiceAccount", "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts", "UserAccountLockedOut",
+            "EmptyGroups", "Sites", "SiteLinks", "Subnets", "Trusts", "OUs");
+        Add(NameDn, "NoGroupOwner");
+        Add([Col("Server Name", "edsaEdmServiceComputerName"), Col("Version", "edsvaPublicProductVersion")], "Servers");
+        Add([Col("Name", "name"), Col("DNS Name", "edsaSavedDnsName"), Col("Distinguished Name", "distinguishedName")], "Domains");
+        Add([Col("Name", "name"), Col("Container", "edsvaParentCanonicalName"),
+            ExprCol("Built-in", "in(edsaIsPredefined, 'TRUE', 'true') && in(edsaSystemObject, 'TRUE', 'true')"),
+            Col("Distinguished Name", "distinguishedName")], "AccessTemplates");
         return map;
     }
 
