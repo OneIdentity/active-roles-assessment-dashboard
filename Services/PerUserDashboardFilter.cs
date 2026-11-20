@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 
 namespace ActiveRolesDashboard.Services;
@@ -79,19 +79,8 @@ public sealed class PerUserDashboardFilter(
 
         // --- Governance KPI drilldowns ---------------------------------------
         s.NoManagerUser = FilterGovernance(superset.NoManagerUser, user, model);
-        s.NoManagerServiceAccount = FilterGovernance(superset.NoManagerServiceAccount, user, model);
-        s.ServiceAccounts = FilterGovernance(superset.ServiceAccounts, user, model);
-        s.GmsaServiceAccounts = FilterGovernance(superset.GmsaServiceAccounts, user, model);
-        s.SmsaServiceAccounts = FilterGovernance(superset.SmsaServiceAccounts, user, model);
-        s.UserAccountLockedOut = FilterGovernance(superset.UserAccountLockedOut, user, model);
         s.ReversibleEncryption = FilterGovernance(superset.ReversibleEncryption, user, model);
-        s.EmptyGroups = FilterGovernance(superset.EmptyGroups, user, model);
         s.CircularGroupNesting = FilterGovernance(superset.CircularGroupNesting, user, model);
-        s.Sites = FilterGovernance(superset.Sites, user, model);
-        s.SiteLinks = FilterGovernance(superset.SiteLinks, user, model);
-        s.Subnets = FilterGovernance(superset.Subnets, user, model);
-        s.Trusts = FilterGovernance(superset.Trusts, user, model);
-        s.OUs = FilterGovernance(superset.OUs, user, model);
 
         // No-group-owner (own summary type).
         s.NoGroupOwner = FilterNoGroupOwner(superset.NoGroupOwner, user, model);

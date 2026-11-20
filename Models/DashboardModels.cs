@@ -1,4 +1,4 @@
-using System.Buffers;
+﻿using System.Buffers;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -2384,27 +2384,7 @@ public class DashboardSummary
     public ServerSummary Servers { get; set; } = new();
     public DynamicGroupSummary DynamicGroups { get; set; } = new();
     public GroupFamilySummary GroupFamilies { get; set; } = new();
-    public ManagedUnitSummary ManagedUnits { get; set; } = new();
-    public WorkflowSummary Workflows { get; set; } = new();
-    public VirtualAttributeSummary VirtualAttributes { get; set; } = new();
     public ConfigDatabaseSummary ConfigDatabases { get; set; } = new();
-    public HistoryDatabaseSummary HistoryDatabases { get; set; } = new();
-    public ScheduledTaskSummary ScheduledTasks { get; set; } = new();
-    public PolicyObjectSummary PolicyObjects { get; set; } = new();
-    public PolicyObjectLinkSummary PolicyObjectLinks { get; set; } = new();
-    public AccessTemplateSummary AccessTemplates { get; set; } = new();
-    public AccessTemplateLinkSummary AccessTemplateLinks { get; set; } = new();
-    public AccessTemplateSummary EmptyAccessTemplates { get; set; } = new();
-    public PolicyObjectSummary PolicyObjectsNoRules { get; set; } = new();
-    public AccessTemplateSummary UnlinkedAccessTemplates { get; set; } = new();
-    public AccessTemplateSummary DenyAccessTemplates { get; set; } = new();
-    public PolicyObjectSummary UnlinkedPolicyObjects { get; set; } = new();
-    public AccessTemplateLinkSummary OrphanAccessTemplateLinks { get; set; } = new();
-    public PolicyObjectLinkSummary OrphanPolicyObjectLinks { get; set; } = new();
-    public BrokenRuleSummary DynamicGroupsBrokenRules { get; set; } = new();
-    public BrokenRuleSummary ManagedUnitsBrokenRules { get; set; } = new();
-    public ScriptModuleSummary ScriptModules { get; set; } = new();
-    public TenantSummary EntraManagedTenants { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
 
     /// <summary>
@@ -2434,15 +2414,9 @@ public class DashboardSummary
     public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
     public GovernanceKpiSummary NoManagerUser { get; set; } = new();
-    public GovernanceKpiSummary NoManagerServiceAccount { get; set; } = new();
-    public GovernanceKpiSummary ServiceAccounts { get; set; } = new();
-    public GovernanceKpiSummary GmsaServiceAccounts { get; set; } = new();
-    public GovernanceKpiSummary SmsaServiceAccounts { get; set; } = new();
     public ADUserAccountDetailSummary ExpiredUsers { get; set; } = new();
     public ADUserAccountDetailSummary PasswordNeverExpires { get; set; } = new();
-    public GovernanceKpiSummary UserAccountLockedOut { get; set; } = new();
     public GovernanceKpiSummary ReversibleEncryption { get; set; } = new();
-    public GovernanceKpiSummary EmptyGroups { get; set; } = new();
     public GovernanceKpiSummary CircularGroupNesting { get; set; } = new();
     public PrivilegedGroupSummary AccountOperators { get; set; } = new();
     public PrivilegedGroupSummary Administrators { get; set; } = new();
@@ -2487,11 +2461,6 @@ public class DashboardSummary
     public ADGroupDetailSummary MailEnabledSecurityGroups { get; set; } = new();
     public ADGroupDetailSummary SecurityGroups { get; set; } = new();
     public ADGroupDetailSummary UniversalGroups { get; set; } = new();
-    public GovernanceKpiSummary Sites { get; set; } = new();
-    public GovernanceKpiSummary SiteLinks { get; set; } = new();
-    public GovernanceKpiSummary Subnets { get; set; } = new();
-    public GovernanceKpiSummary Trusts { get; set; } = new();
-    public GovernanceKpiSummary OUs { get; set; } = new();
     public DomainControllersSummary DomainControllers { get; set; } = new();
     public ComputerBreakdownSummary ComputerClients { get; set; } = new();
     public ComputerBreakdownSummary ComputerServers { get; set; } = new();
@@ -2763,37 +2732,11 @@ public class DashboardSummary
         "ActiveRolesAdmins" => (ActiveRolesAdmins.TotalCount, ActiveRolesAdmins.Error),
         "Servers" => (Servers.TotalCount, Servers.Error),
         "Domains" => (Domains.TotalCount, Domains.Error),
-        "AccessTemplateLinks" => (AccessTemplateLinks.TotalCount, AccessTemplateLinks.Error),
-        "AccessTemplates" => (AccessTemplates.TotalCount, AccessTemplates.Error),
         "DynamicGroups" => (DynamicGroups.TotalCount, DynamicGroups.Error),
         "GroupFamilies" => (GroupFamilies.TotalCount, GroupFamilies.Error),
-        "ManagedUnits" => (ManagedUnits.TotalCount, ManagedUnits.Error),
-        "PolicyObjectLinks" => (PolicyObjectLinks.TotalCount, PolicyObjectLinks.Error),
-        "PolicyObjects" => (PolicyObjects.TotalCount, PolicyObjects.Error),
-        "VirtualAttributes" => (VirtualAttributes.TotalCount, VirtualAttributes.Error),
         "ConfigDatabases" => (ConfigDatabases.TotalCount, ConfigDatabases.Error),
-        "HistoryDatabases" => (HistoryDatabases.TotalCount, HistoryDatabases.Error),
-        "ScheduledTasks" => (ScheduledTasks.TotalCount, ScheduledTasks.Error),
-        "EmptyAccessTemplates" => (EmptyAccessTemplates.TotalCount, EmptyAccessTemplates.Error),
-        "PolicyObjectsNoRules" => (PolicyObjectsNoRules.TotalCount, PolicyObjectsNoRules.Error),
-        "UnlinkedAccessTemplates" => (UnlinkedAccessTemplates.TotalCount, UnlinkedAccessTemplates.Error),
-        "DenyAccessTemplates" => (DenyAccessTemplates.TotalCount, DenyAccessTemplates.Error),
-        "UnlinkedPolicyObjects" => (UnlinkedPolicyObjects.TotalCount, UnlinkedPolicyObjects.Error),
-        "OrphanAccessTemplateLinks" => (OrphanAccessTemplateLinks.TotalCount, OrphanAccessTemplateLinks.Error),
-        "OrphanPolicyObjectLinks" => (OrphanPolicyObjectLinks.TotalCount, OrphanPolicyObjectLinks.Error),
-        "DynamicGroupsBrokenRules" => (DynamicGroupsBrokenRules.TotalCount, DynamicGroupsBrokenRules.Error),
-        "ManagedUnitsBrokenRules" => (ManagedUnitsBrokenRules.TotalCount, ManagedUnitsBrokenRules.Error),
-        "ScriptModules" => (ScriptModules.TotalCount, ScriptModules.Error),
-        "EntraManagedTenants" => (EntraManagedTenants.TotalCount, EntraManagedTenants.Error),
-        "Workflows" => (Workflows.TotalCount, Workflows.Error),
         "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
         "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
-        "NoManagerServiceAccount" => (NoManagerServiceAccount.TotalCount, NoManagerServiceAccount.Error),
-        "ServiceAccounts" => (ServiceAccounts.TotalCount, ServiceAccounts.Error),
-        "GmsaServiceAccounts" => (GmsaServiceAccounts.TotalCount, GmsaServiceAccounts.Error),
-        "SmsaServiceAccounts" => (SmsaServiceAccounts.TotalCount, SmsaServiceAccounts.Error),
-        "UserAccountLockedOut" => (UserAccountLockedOut.TotalCount, UserAccountLockedOut.Error),
-        "EmptyGroups" => (EmptyGroups.TotalCount, EmptyGroups.Error),
         "CircularGroupNesting" => (CircularGroupNesting.TotalCount, CircularGroupNesting.Error),
         "NeverLoggedIn" => (NeverLoggedIn.TotalCount, NeverLoggedIn.Error),
         "ExpiredUsers" => (ExpiredUsers.TotalCount, ExpiredUsers.Error),
@@ -2832,11 +2775,6 @@ public class DashboardSummary
         "MailEnabledSecurityGroups" => (MailEnabledSecurityGroups.TotalCount, MailEnabledSecurityGroups.Error),
         "SecurityGroups" => (SecurityGroups.TotalCount, SecurityGroups.Error),
         "UniversalGroups" => (UniversalGroups.TotalCount, UniversalGroups.Error),
-        "Sites" => (Sites.TotalCount, Sites.Error),
-        "SiteLinks" => (SiteLinks.TotalCount, SiteLinks.Error),
-        "Subnets" => (Subnets.TotalCount, Subnets.Error),
-        "Trusts" => (Trusts.TotalCount, Trusts.Error),
-        "OUs" => (OUs.TotalCount, OUs.Error),
         "DomainControllers" => (DomainControllers.TotalCount, DomainControllers.Error),
         "UnconstrainedComputers" => (UnconstrainedComputers.TotalCount, UnconstrainedComputers.Error),
         "ComputerClients" => (ComputerClients.TotalCount, ComputerClients.Error),
@@ -2866,11 +2804,6 @@ public class DashboardSummary
         "NoAccountLockout" => (NoAccountLockout.Value, NoAccountLockout.Error),
         "PasswordMaxAgeDays" => (PasswordMaxAgeDays.Value, PasswordMaxAgeDays.Error),
         "ManagedObjects" => (ManagedObjects.Error != null ? 0 : (ManagedObjects.DataPoints.Any() ? ManagedObjects.DataPoints.Last().Items.Sum(i => i.Count) : 0), ManagedObjects.Error),
-        // Active Roles configuration hygiene KPIs derived from already-collected summaries.
-        "DisabledWorkflows" => (Workflows.Error != null ? 0 : Workflows.Items.Count(w => !w.IsEnabled), Workflows.Error),
-        "BroadDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && IsBroadTrustee(l.Trustee)), AccessTemplateLinks.Error),
-        "UserDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && l.IsUserTrustee), AccessTemplateLinks.Error),
-        "RootDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && l.IsRootScope), AccessTemplateLinks.Error),
         // Unsupported / end-of-life operating system KPIs aggregated from the OS-breakdown summaries.
         "UnsupportedServerOs" => GetCombinedResult(WinServer2008R2.TotalCount, WinServer2008R2.Error, WinServer2012R2.TotalCount, WinServer2012R2.Error),
         "UnsupportedClientOs" => (
@@ -2883,27 +2816,6 @@ public class DashboardSummary
         // Exchange KPIs are stored generically keyed by KpiInfo.Key; resolve them from the dictionary.
         _ => ExchangeKpis.TryGetValue(kpiKey, out var ex) ? (ex.TotalCount, ex.Error) : (0, null)
     };
-
-    /// <summary>
-    /// True when a resolved Access Template Link trustee is a broad, everyone-style principal
-    /// (Everyone, Authenticated Users, Domain Users). Delegating administrative Access Templates
-    /// to such principals grants powerful rights to the whole population and should be flagged.
-    /// </summary>
-    private ReportTable DelegationLinkDetail(Func<AccessTemplateLinkInfo, bool> predicate) => new()
-    {
-        Columns = ["Directory Object", "Access Template", "Trustee", "Distinguished Name"],
-        Rows = AccessTemplateLinks.Items.Where(l => !l.IsPredefined && predicate(l))
-            .Select(l => (IReadOnlyList<string>)[l.DirectoryObject, l.AccessTemplate, l.Trustee, l.Dn]).ToList(),
-        Error = AccessTemplateLinks.Error
-    };
-
-    private static bool IsBroadTrustee(string? trustee)
-    {
-        if (string.IsNullOrWhiteSpace(trustee)) return false;
-        return trustee.Contains("Everyone", StringComparison.OrdinalIgnoreCase)
-            || trustee.Contains("Authenticated Users", StringComparison.OrdinalIgnoreCase)
-            || trustee.Contains("Domain Users", StringComparison.OrdinalIgnoreCase);
-    }
 
     private static (int Count, string? Error) GetCombinedResult(int adCount, string? adError, int entraCount, string? entraError)
     {
@@ -3181,19 +3093,8 @@ public class DashboardSummary
 
             // AD Governance category
             "NoManagerUser" => GovDetail(NoManagerUser),
-            "NoManagerServiceAccount" => GovDetail(NoManagerServiceAccount),
-            "ServiceAccounts" => GovDetail(ServiceAccounts),
-            "GmsaServiceAccounts" => GovDetail(GmsaServiceAccounts),
-            "SmsaServiceAccounts" => GovDetail(SmsaServiceAccounts),
-            "UserAccountLockedOut" => GovDetail(UserAccountLockedOut),
             "ReversibleEncryption" => GovDetail(ReversibleEncryption),
-            "EmptyGroups" => GovDetail(EmptyGroups),
             "CircularGroupNesting" => GovDetail(CircularGroupNesting),
-            "Sites" => GovDetail(Sites),
-            "SiteLinks" => GovDetail(SiteLinks),
-            "Subnets" => GovDetail(Subnets),
-            "Trusts" => GovDetail(Trusts),
-            "OUs" => GovDetail(OUs),
             "NoGroupOwner" => new ReportTable
             {
                 Columns = ["Name", "Distinguished Name"],
@@ -3264,23 +3165,11 @@ public class DashboardSummary
                 Rows = Servers.Items.Select(i => (IReadOnlyList<string>)[i.ServerName, i.Version]).ToList(),
                 Error = Servers.Error
             },
-            "AccessTemplateLinks" => new ReportTable
-            {
-                Columns = ["Directory Object", "Access Template", "Trustee"],
-                Rows = AccessTemplateLinks.Items.Select(i => (IReadOnlyList<string>)[i.DirectoryObject, i.AccessTemplate, i.Trustee]).ToList(),
-                Error = AccessTemplateLinks.Error
-            },
             "DynamicGroups" => new ReportTable
             {
                 Columns = ["Name", "Distinguished Name"],
                 Rows = DynamicGroups.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
                 Error = DynamicGroups.Error
-            },
-            "PolicyObjectLinks" => new ReportTable
-            {
-                Columns = ["Name", "Distinguished Name"],
-                Rows = PolicyObjectLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
-                Error = PolicyObjectLinks.Error
             },
             "ConfigDatabases" => new ReportTable
             {
@@ -3288,75 +3177,7 @@ public class DashboardSummary
                 Rows = ConfigDatabases.Items.Select(i => (IReadOnlyList<string>)[i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationSupport, i.ReplicationRole.ToString()]).ToList(),
                 Error = ConfigDatabases.Error
             },
-            "HistoryDatabases" => new ReportTable
-            {
-                Columns = ["SQL Alias", "Database Name", "Database Type", "Replication Role"],
-                Rows = HistoryDatabases.Items.Select(i => (IReadOnlyList<string>)[i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationRole.ToString()]).ToList(),
-                Error = HistoryDatabases.Error
-            },
-            "AccessTemplates" => ArTemplateDetail(AccessTemplates),
-            "EmptyAccessTemplates" => ArNameDnDetail(EmptyAccessTemplates.Items.Select(i => (i.Name, i.Dn)), EmptyAccessTemplates.Error),
-            "UnlinkedAccessTemplates" => ArNameDnDetail(UnlinkedAccessTemplates.Items.Select(i => (i.Name, i.Dn)), UnlinkedAccessTemplates.Error),
-            "DenyAccessTemplates" => ArNameDnDetail(DenyAccessTemplates.Items.Select(i => (i.Name, i.Dn)), DenyAccessTemplates.Error),
-            "PolicyObjects" => ArPolicyDetail(PolicyObjects),
-            "PolicyObjectsNoRules" => ArNameDnDetail(PolicyObjectsNoRules.Items.Select(i => (i.Name, i.Dn)), PolicyObjectsNoRules.Error),
-            "UnlinkedPolicyObjects" => ArNameDnDetail(UnlinkedPolicyObjects.Items.Select(i => (i.Name, i.Dn)), UnlinkedPolicyObjects.Error),
             "GroupFamilies" => ArNameDnDetail(GroupFamilies.Items.Select(i => (i.Name, i.Dn)), GroupFamilies.Error),
-            "ManagedUnits" => new ReportTable
-            {
-                Columns = ["Name", "Membership Rules", "Distinguished Name"],
-                Rows = ManagedUnits.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.RuleCount.ToString(), i.Dn]).ToList(),
-                Error = ManagedUnits.Error
-            },
-            "DynamicGroupsBrokenRules" => ArNameDnDetail(DynamicGroupsBrokenRules.Items.Select(i => (i.Name, i.Dn)), DynamicGroupsBrokenRules.Error),
-            "ManagedUnitsBrokenRules" => ArNameDnDetail(ManagedUnitsBrokenRules.Items.Select(i => (i.Name, i.Dn)), ManagedUnitsBrokenRules.Error),
-            "OrphanAccessTemplateLinks" => new ReportTable
-            {
-                Columns = ["Name", "Directory Object", "Access Template", "Trustee", "Missing", "Distinguished Name"],
-                Rows = OrphanAccessTemplateLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.DirectoryObject, i.AccessTemplate, i.Trustee, i.MissingAttributes, i.Dn]).ToList(),
-                Error = OrphanAccessTemplateLinks.Error
-            },
-            "BroadDelegationLinks" => DelegationLinkDetail(l => IsBroadTrustee(l.Trustee)),
-            "UserDelegationLinks" => DelegationLinkDetail(l => l.IsUserTrustee),
-            "RootDelegationLinks" => DelegationLinkDetail(l => l.IsRootScope),
-            "OrphanPolicyObjectLinks" => new ReportTable
-            {
-                Columns = ["Name", "Missing", "Distinguished Name"],
-                Rows = OrphanPolicyObjectLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.MissingAttributes, i.Dn]).ToList(),
-                Error = OrphanPolicyObjectLinks.Error
-            },
-            "ScriptModules" => new ReportTable
-            {
-                Columns = ["Name", "Language", "Type", "System", "Distinguished Name"],
-                Rows = ScriptModules.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Language, i.Type, i.IsSystem.ToString(), i.Dn]).ToList(),
-                Error = ScriptModules.Error
-            },
-            "EntraManagedTenants" => new ReportTable
-            {
-                Columns = ["Name", "Objects", "Note", "Distinguished Name"],
-                Rows = EntraManagedTenants.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.ObjectCount?.ToString() ?? string.Empty, i.Note, i.Dn]).ToList(),
-                Error = EntraManagedTenants.Error
-            },
-            "VirtualAttributes" => new ReportTable
-            {
-                Columns = ["Name", "LDAP Display Name", "Multi-valued", "Built-in"],
-                Rows = VirtualAttributes.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.LdapDisplayName, i.IsMultivalued.ToString(), i.IsBuiltIn.ToString()]).ToList(),
-                Error = VirtualAttributes.Error
-            },
-            "Workflows" => new ReportTable
-            {
-                Columns = ["Name", "Enabled", "Automation", "Distinguished Name"],
-                Rows = Workflows.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.IsEnabled.ToString(), i.IsAutomationWorkflow.ToString(), i.Dn]).ToList(),
-                Error = Workflows.Error
-            },
-            "ScheduledTasks" => new ReportTable
-            {
-                Columns = ["Name", "Enabled", "Last Run (UTC)", "Next Run (UTC)", "Distinguished Name"],
-                Rows = ScheduledTasks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.IsEnabled.ToString(),
-                    i.LastRunTime?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty,
-                    i.NextRunTime?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty, i.Dn]).ToList(),
-                Error = ScheduledTasks.Error
-            },
 
             _ when ExchangeKpis.TryGetValue(kpiKey, out var ex) => ExchangeDetail(ex),
 

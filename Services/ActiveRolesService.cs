@@ -766,19 +766,8 @@ public class ActiveRolesService
 
         // Governance KPI drilldowns.
         Stamp(summary.NoManagerUser?.Items);
-        Stamp(summary.NoManagerServiceAccount?.Items);
-        Stamp(summary.ServiceAccounts?.Items);
-        Stamp(summary.GmsaServiceAccounts?.Items);
-        Stamp(summary.SmsaServiceAccounts?.Items);
-        Stamp(summary.UserAccountLockedOut?.Items);
         Stamp(summary.ReversibleEncryption?.Items);
-        Stamp(summary.EmptyGroups?.Items);
         Stamp(summary.CircularGroupNesting?.Items);
-        Stamp(summary.Sites?.Items);
-        Stamp(summary.SiteLinks?.Items);
-        Stamp(summary.Subnets?.Items);
-        Stamp(summary.Trusts?.Items);
-        Stamp(summary.OUs?.Items);
         Stamp(summary.NoGroupOwner?.Items);
 
         // Domain / server infra objects.

@@ -121,7 +121,7 @@ public class PerUserDashboardFilterCoverageTests
     public void Reflection_discovers_all_filtered_families()
     {
         // Guards against the theories passing vacuously if the model shape changes.
-        Assert.True(Families.Count >= 70, $"Only {Families.Count} families discovered.");
+        Assert.True(Families.Count >= 59, $"Only {Families.Count} families discovered.");
         Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.EnabledUsers));
         Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.DomainAdmins));
         Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.StaleComputers));
