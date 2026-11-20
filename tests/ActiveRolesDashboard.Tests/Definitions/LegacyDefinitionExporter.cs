@@ -377,6 +377,7 @@ internal static class LegacyDefinitionExporter
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
                 Drilldown = ToDrilldown(k),
+                RequiresEntraMembership = k.RequiresEntraMembership,
                 SourceDatasetId = f.Dataset,
                 Evaluation = new EvaluationDefinition { Type = EvaluationType.Function, Function = f.Function }
             };
@@ -391,6 +392,7 @@ internal static class LegacyDefinitionExporter
                 Id = k.Key, FallbackText = Literal(k, "_displayName"), CategoryId = k.CategoryKey, SortOrder = k.SortOrder,
                 DataSource = source, Display = display, IsRiskKpi = k.IsRiskKpi, IsSegmentable = k.IsSegmentable,
                 Drilldown = ToDrilldown(k),
+                RequiresEntraMembership = k.RequiresEntraMembership,
                 SourceDatasetId = migrated ? m.Dataset : null,
                 Evaluation = migrated ? new EvaluationDefinition { Filter = m.Filter } : legacy
             };

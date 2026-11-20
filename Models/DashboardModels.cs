@@ -554,11 +554,6 @@ public class ChartInfo
     /// </summary>
     public bool DisableTypeToggle { get; init; }
 
-    // CSS color names used for source-split slices, in order. The first two keep the
-    // established AD (blue) / Entra (teal) mapping; the remainder give distinct colours
-    // when a chart is split across multiple tenants.
-    public static readonly IReadOnlyList<string> SourceSplitColors = ["blue", "teal", "purple", "amber", "pink", "slate", "indigo", "orange"];
-
     // Chart definitions.
     // Example: Computers category operating-system breakdown, derived from existing computer KPIs.
     public static readonly ChartInfo ComputerOsBreakdown = new()
@@ -1597,7 +1592,10 @@ public class KpiInfo
     /// </summary>
     public bool IsSegmentable { get; init; }
 
-    /// <summary>Search definitions used to retrieve data for this KPI. Empty for derived KPIs.</summary>
+    /// <summary>Value is only accurate once Entra group membership has been lazily loaded.</summary>
+    public bool RequiresEntraMembership { get; init; }
+
+    /// <summary>Search definitions
     public IReadOnlyList<KpiSearchDefinition> Searches { get; init; } = [];
 
     /// <summary>The label shown on the KPI tile. Falls back to DisplayName if not set.</summary>
@@ -1637,13 +1635,13 @@ public class KpiInfo
     public static readonly KpiInfo EntraDynamicDistributionGroups = new() { Key = "EntraDynamicDistributionGroups", DisplayName = "Dynamic Distribution Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entradynamicdistributiongroups", SortOrder = 1, HasDrilldown = true };
     public static readonly KpiInfo EntraMicrosoft365Groups = new() { Key = "EntraMicrosoft365Groups", DisplayName = "Microsoft 365 Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "purple", SectionId = "entramicrosoft365groups", SortOrder = 2, HasDrilldown = true };
     public static readonly KpiInfo EntraSecurityGroups = new() { Key = "EntraSecurityGroups", DisplayName = "Security Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "green", SectionId = "entrasecuritygroups", SortOrder = 3, HasDrilldown = true };
-    public static readonly KpiInfo EntraEmptyGroups = new() { Key = "EntraEmptyGroups", DisplayName = "Empty Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entraemptygroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraNoGroupOwner = new() { Key = "EntraNoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entranogroupowner", SortOrder = 5, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraGuestContainingGroups = new() { Key = "EntraGuestContainingGroups", DisplayName = "Guest-Containing Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "orange", SectionId = "entraguestcontaininggroups", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EntraEmptyGroups = new() { Key = "EntraEmptyGroups", DisplayName = "Empty Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entraemptygroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraNoGroupOwner = new() { Key = "EntraNoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entranogroupowner", SortOrder = 5, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraGuestContainingGroups = new() { Key = "EntraGuestContainingGroups", DisplayName = "Guest-Containing Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "orange", SectionId = "entraguestcontaininggroups", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
     public static readonly KpiInfo EntraPublicGroups = new() { Key = "EntraPublicGroups", DisplayName = "Public M365 Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "orange", SectionId = "entrapublicgroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true };
     public static readonly KpiInfo EntraOnPremSyncedGroups = new() { Key = "EntraOnPremSyncedGroups", DisplayName = "On-Premises Synced Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entraonpremsyncedgroups", SortOrder = 8, HasDrilldown = true };
-    public static readonly KpiInfo EntraSingleOwnerGroups = new() { Key = "EntraSingleOwnerGroups", DisplayName = "Single-Owner Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entrasingleownergroups", SortOrder = 9, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraLargeGroups = new() { Key = "EntraLargeGroups", DisplayName = "Large Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entralargegroups", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EntraSingleOwnerGroups = new() { Key = "EntraSingleOwnerGroups", DisplayName = "Single-Owner Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entrasingleownergroups", SortOrder = 9, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraLargeGroups = new() { Key = "EntraLargeGroups", DisplayName = "Large Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entralargegroups", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
 
     // AR Configuration KPIs
     public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARInfrastructure", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
@@ -1849,15 +1847,8 @@ public class KpiInfo
     /// see provisional (typically zero) counts. Single source of truth for the shared staleness
     /// guard and for blocking membership-dependent assessments.
     /// </summary>
-    public static readonly IReadOnlySet<string> EntraMembershipDependentKeys =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "EntraEmptyGroups",
-            "EntraNoGroupOwner",
-            "EntraGuestContainingGroups",
-            "EntraSingleOwnerGroups",
-            "EntraLargeGroups"
-        };
+    public static IReadOnlySet<string> EntraMembershipDependentKeys =>
+        All.Where(k => k.RequiresEntraMembership).Select(k => k.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     public static IReadOnlyList<KpiInfo> ForCategory(CategoryInfo category)
     {

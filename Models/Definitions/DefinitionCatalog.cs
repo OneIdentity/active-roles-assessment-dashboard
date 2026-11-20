@@ -88,6 +88,7 @@ public static class DefinitionCatalog
         SortOrder = k.SortOrder,
         IsRiskKpi = k.IsRiskKpi,
         IsSegmentable = k.IsSegmentable,
+        RequiresEntraMembership = k.RequiresEntraMembership,
         Searches = legacy?.Searches ?? [],
     };
 }

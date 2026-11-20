@@ -66,10 +66,10 @@ public class ReportBuilder
 
         // Honour the active segment selection: when a source resolves to no selected
         // segments, omit the whole dashboard section from the export.
-        if (dashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) return;
-        if (dashboardKey == DashboardInfo.EntraId.Key && !summary.EntraVisible) return;
-        if (dashboardKey == DashboardInfo.Licensing.Key && !summary.LicensingVisible) return;
-        if (dashboardKey == DashboardInfo.Exchange.Key && !summary.ExchangeVisible) return;
+        if (dashboardKey == "ActiveDirectory" && !summary.AdVisible) return;
+        if (dashboardKey == "EntraId" && !summary.EntraVisible) return;
+        if (dashboardKey == "Licensing" && !summary.LicensingVisible) return;
+        if (dashboardKey == "Exchange" && !summary.ExchangeVisible) return;
 
         // The main dashboard is an aggregate hub: export its own Overview plus the
         // Active Directory and Entra ID dashboards. Other dashboards export only their own
@@ -86,10 +86,10 @@ public class ReportBuilder
 
             // Respect segment visibility for the aggregate export: skip AD/Entra
             // categories when their source resolves to no selected segments.
-            if (category.DashboardKey == DashboardInfo.ActiveDirectory.Key && !summary.AdVisible) continue;
-            if (category.DashboardKey == DashboardInfo.EntraId.Key && !summary.EntraVisible) continue;
-            if (category.DashboardKey == DashboardInfo.Licensing.Key && !summary.LicensingVisible) continue;
-            if (category.DashboardKey == DashboardInfo.Exchange.Key && !summary.ExchangeVisible) continue;
+            if (category.DashboardKey == "ActiveDirectory" && !summary.AdVisible) continue;
+            if (category.DashboardKey == "EntraId" && !summary.EntraVisible) continue;
+            if (category.DashboardKey == "Licensing" && !summary.LicensingVisible) continue;
+            if (category.DashboardKey == "Exchange" && !summary.ExchangeVisible) continue;
 
             if (!settings.IsCategoryEnabled(category.Key)) continue;
             var section = BuildCategorySection(category, summary, settings, model.IncludeDetails);
@@ -260,7 +260,7 @@ public class ReportBuilder
                 {
                     Label = split[i].Source,
                     Value = split[i].Count,
-                    CssColor = i < ChartInfo.SourceSplitColors.Count ? ChartInfo.SourceSplitColors[i] : "slate"
+                    CssColor = i < ChartColors.SourceSplit.Count ? ChartColors.SourceSplit[i] : "slate"
                 });
             }
         }

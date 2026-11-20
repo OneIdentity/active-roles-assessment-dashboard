@@ -377,7 +377,7 @@ public class DashboardController : ControllerBase
             view.ManagedObjects = ToViewKpi(managedObjects, summary);
         }
 
-        if (!isOverview && view.Key.Equals(DashboardInfo.Licensing.Key, StringComparison.OrdinalIgnoreCase)
+        if (!isOverview && view.Key.Equals("Licensing", StringComparison.OrdinalIgnoreCase)
             && kpiSettings.IsCategoryEnabled(CategoryInfo.Get("Licensing").Key)
             && kpiSettings.IsKpiEnabled(CategoryInfo.Get("Licensing").Key, "ManagedObjects"))
         {
@@ -731,11 +731,11 @@ public class DashboardController : ControllerBase
 
                     string token;
                     if (part.Source == "Active Directory")
-                        token = ChartInfo.SourceSplitColors[0];
+                        token = ChartColors.SourceSplit[0];
                     else if (part.Source == "Entra ID")
-                        token = ChartInfo.SourceSplitColors[1 % ChartInfo.SourceSplitColors.Count];
+                        token = ChartColors.SourceSplit[1 % ChartColors.SourceSplit.Count];
                     else
-                        token = ChartInfo.SourceSplitColors[colorIndex % ChartInfo.SourceSplitColors.Count];
+                        token = ChartColors.SourceSplit[colorIndex % ChartColors.SourceSplit.Count];
 
                     dataset.Labels.Add(part.Source);
                     dataset.Values.Add(part.Count);

@@ -31,6 +31,9 @@ public abstract class KpiDefinition : DefinitionBase
     /// <summary>Value can be broken down by AD domain / Entra tenant.</summary>
     public bool IsSegmentable { get; init; }
 
+    /// <summary>Value is only accurate once Entra group membership has been lazily loaded.</summary>
+    public bool RequiresEntraMembership { get; init; }
+
     /// <summary>Attributes this KPI needs from its dataset (merged into the dataset request).</summary>
     public IReadOnlyList<string> Attributes { get; init; } = [];
 

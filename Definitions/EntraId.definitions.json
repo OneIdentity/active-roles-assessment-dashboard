@@ -669,6 +669,7 @@
         "sectionId": "entraemptygroups"
       },
       "isRiskKpi": true,
+      "requiresEntraMembership": true,
       "drilldown": {
         "enabled": true,
         "columns": [
@@ -703,6 +704,7 @@
         "sectionId": "entranogroupowner"
       },
       "isRiskKpi": true,
+      "requiresEntraMembership": true,
       "drilldown": {
         "enabled": true,
         "columns": [
@@ -738,6 +740,7 @@
         "sectionId": "entraguestcontaininggroups"
       },
       "isRiskKpi": true,
+      "requiresEntraMembership": true,
       "drilldown": {
         "enabled": true,
         "columns": [
@@ -839,6 +842,7 @@
         "sectionId": "entrasingleownergroups"
       },
       "isRiskKpi": true,
+      "requiresEntraMembership": true,
       "drilldown": {
         "enabled": true,
         "columns": [
@@ -873,6 +877,7 @@
         "sectionId": "entralargegroups"
       },
       "isRiskKpi": true,
+      "requiresEntraMembership": true,
       "drilldown": {
         "enabled": true,
         "columns": [
