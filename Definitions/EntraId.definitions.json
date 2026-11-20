@@ -185,7 +185,29 @@
         "sectionId": "entraenabledusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
       },
       "fallbackText": "Enabled Users"
     },
@@ -203,7 +225,29 @@
         "sectionId": "entradisabledusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Disabled Users"
@@ -334,7 +378,29 @@
         "sectionId": "entraexternalusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "expression": "homeTenant(edsaAzureUserPrincipalName)",
+            "header": "Home Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "External Users"
@@ -353,7 +419,29 @@
         "sectionId": "entrahybridusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          },
+          {
+            "expression": "iif(in(edsvaOnPremisesSyncEnabled, 'true', '1'), 'On-premises Active Directory', '')",
+            "header": "Synced From"
+          }
+        ]
       },
       "sortOrder": 6,
       "fallbackText": "Hybrid Users"
@@ -409,7 +497,29 @@
         "sectionId": "entramanagedusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!in(edsaAzureUserAccountEnabled, 'false', '0')",
+            "header": "Enabled"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
       },
       "sortOrder": 8,
       "fallbackText": "Managed Users"

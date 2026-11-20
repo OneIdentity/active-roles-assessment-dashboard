@@ -85,6 +85,10 @@ internal static class BuiltInFunctions
         ["aceHasDeny"] = (1, 1, (a, _) => ExprValue.List(a[0]).Any(AceListHasDeny)),
         ["xmlCount"] = (2, 2, (a, _) => (double)XmlElementCount(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
         ["friendlyOsName"] = (2, 2, (a, _) => Services.ActiveRolesService.GetFriendlyOSName(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
+        ["homeTenant"] = (1, 1, (a, _) => EntraTotalsSummary.HomeTenantOfUpn(ExprValue.Text(a[0]))),
+        ["iif"] = (3, 3, (a, _) => ExprValue.Truthy(a[0]) ? a[1] : a[2]),
+        ["formatDate"] = (2, 2, (a, _) => ParseDate(a[0]) is { } d ? d.UtcDateTime.ToString(ExprValue.Text(a[1]), CultureInfo.InvariantCulture) : null),
+        ["daysUntilDate"] = (1, 1, (a, c) => ParseDate(a[0]) is { } d ? (double)(d.UtcDateTime.Date - c.Now.UtcDateTime.Date).Days : null),
     };
 
     /// <summary>True when an Active Roles ACE list (<c>[type;...]</c> entries) contains a Deny (D/OD) entry.</summary>

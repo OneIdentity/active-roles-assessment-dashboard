@@ -1174,7 +1174,25 @@
         "sectionId": "enabledusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "Enabled Users"
@@ -1193,7 +1211,25 @@
         "sectionId": "disabledusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Disabled Users"
@@ -1212,7 +1248,25 @@
         "sectionId": "expiringusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "formatDate(accountExpires, 'yyyy-MM-dd')",
+            "header": "Expiry Date"
+          },
+          {
+            "expression": "daysUntilDate(accountExpires)",
+            "header": "Days Until Expiry"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Expiring Users"
@@ -1788,7 +1842,25 @@
         "sectionId": "hybridusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "attribute": "msDS-ExternalDirectoryObjectId",
+            "header": "Synced To"
+          }
+        ]
       },
       "sortOrder": 24,
       "fallbackText": "Hybrid Users"
@@ -1840,7 +1912,25 @@
         "sectionId": "managedenabledusers"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
       },
       "sortOrder": 26,
       "fallbackText": "Managed Enabled Users"

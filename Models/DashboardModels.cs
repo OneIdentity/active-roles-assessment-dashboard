@@ -4960,9 +4960,12 @@ public class EntraTotalsSummary
     /// <c>dane_barentine.com#EXT#@mistyvalley.onmicrosoft.com</c> resolves to
     /// <c>barentine.com</c>. Returns an empty string when the value cannot be parsed.
     /// </summary>
-    private static string HomeTenantOf(EntraObjectInfo info)
+    private static string HomeTenantOf(EntraObjectInfo info) =>
+        HomeTenantOfUpn(SegmentAttributes.AttrOf(info.Raw, "edsaAzureUserPrincipalName"));
+
+    /// <summary>Home tenant parsed from an external user's UPN; empty when not external.</summary>
+    internal static string HomeTenantOfUpn(string? upn)
     {
-        var upn = SegmentAttributes.AttrOf(info.Raw, "edsaAzureUserPrincipalName");
         if (string.IsNullOrEmpty(upn))
             return string.Empty;
 

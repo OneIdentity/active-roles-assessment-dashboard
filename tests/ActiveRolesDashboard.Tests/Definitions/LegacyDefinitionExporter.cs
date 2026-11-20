@@ -462,6 +462,15 @@ internal static class LegacyDefinitionExporter
         Add(NameDomainDn, "NoManagerServiceAccount", "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts", "UserAccountLockedOut",
             "EmptyGroups", "Sites", "SiteLinks", "Subnets", "Trusts", "OUs");
         Add(NameDn, "NoGroupOwner");
+        const string Managed = "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)";
+        Add([.. NameDomainDn, ExprCol("Managed", Managed)], "EnabledUsers", "DisabledUsers", "ManagedEnabledUsers");
+        Add([.. NameDomainDn, Col("Synced To", "msDS-ExternalDirectoryObjectId")], "HybridUsers");
+        Add([Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"),
+            ExprCol("Expiry Date", "formatDate(accountExpires, 'yyyy-MM-dd')"), ExprCol("Days Until Expiry", "daysUntilDate(accountExpires)")], "ExpiringUsers");
+        Add([.. EntraUserColumns, ExprCol("Managed", Managed)], "EntraEnabledUsers", "EntraDisabledUsers", "EntraManagedUsers");
+        Add([.. EntraUserColumns, ExprCol("Synced From", "iif(" + EntraSynced + ", 'On-premises Active Directory', '')")], "EntraHybridUsers");
+        Add([Col("Name", "name"), Col("Tenant", EntraTotalsSummary.DatasetTenantAttribute), ExprCol("Home Tenant", "homeTenant(edsaAzureUserPrincipalName)"),
+            Col("Distinguished Name", "distinguishedName"), ExprCol("Enabled", EntraEnabled)], "EntraExternalUsers");
         Add([Col("Name", "name"), Col("Direct Members", ADGroupsSummary.DirectMemberCountAttribute),
             Col("Indirect Members", ADGroupsSummary.IndirectMemberCountAttribute), Col("Distinguished Name", "distinguishedName")],
             "DistributionGroups", "DomainLocalGroups", "GlobalGroups", "MailEnabledSecurityGroups", "SecurityGroups", "UniversalGroups");
