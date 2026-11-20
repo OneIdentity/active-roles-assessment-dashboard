@@ -3257,6 +3257,14 @@ public class ADGroupsSummary
     public Dictionary<string, int> IndirectCountByDn { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Direct members of each group that are themselves groups in this summary, keyed by group DN.
+    /// Serialized (unlike <see cref="DirectByDn"/>) and small, so nesting-based KPIs such as circular
+    /// group nesting still see the group graph after the raw <c>member</c> arrays are stripped.
+    /// </summary>
+    public Dictionary<string, List<string>> GroupMembersByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Attribute carrying a group's direct member count in the definition dataset.</summary>
     public const string DirectMemberCountAttribute = "directMemberCount";
 
@@ -3280,6 +3288,8 @@ public class ADGroupsSummary
             var dn = SegmentAttributes.AttrOf(i, "distinguishedName");
             node[DirectMemberCountAttribute] = DirectByDn.TryGetValue(dn, out var d) ? d.Count : DirectCountByDn.GetValueOrDefault(dn);
             node[IndirectMemberCountAttribute] = IndirectByDn.TryGetValue(dn, out var n) ? n.Count : IndirectCountByDn.GetValueOrDefault(dn);
+            if (!SegmentAttributes.MultiAttrOf(i, "member").Any() && GroupMembersByDn.TryGetValue(dn, out var nested) && nested.Count > 0)
+                node["member"] = new System.Text.Json.Nodes.JsonArray(nested.Select(m => (System.Text.Json.Nodes.JsonNode?)m).ToArray());
             return JsonSerializer.SerializeToElement(node);
         }).ToList();
         _datasetItems = (Items, items);
@@ -3302,6 +3312,7 @@ public class ADGroupsSummary
             Error = null,
             DirectByDn = DirectByDn,
             IndirectByDn = IndirectByDn,
+            GroupMembersByDn = GroupMembersByDn,
             DirectCountByDn = DirectCountByDn,
             IndirectCountByDn = IndirectCountByDn
         };
@@ -3327,6 +3338,7 @@ public class ADGroupsSummary
             Error = Error,
             DirectByDn = DirectByDn,
             IndirectByDn = IndirectByDn,
+            GroupMembersByDn = GroupMembersByDn,
             DirectCountByDn = DirectCountByDn,
             IndirectCountByDn = IndirectCountByDn
         };

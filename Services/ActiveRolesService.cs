@@ -818,6 +818,10 @@ public class ActiveRolesService
                 (g, attr) => GetMultiValuedAttr(g, attr));
             result.DirectByDn = membership.DirectByDn;
             result.IndirectByDn = membership.IndirectByDn;
+            result.GroupMembersByDn = membership.DirectByDn
+                .Select(kv => (kv.Key, Groups: kv.Value.Where(membership.DirectByDn.ContainsKey).ToList()))
+                .Where(e => e.Groups.Count > 0)
+                .ToDictionary(e => e.Key, e => e.Groups, StringComparer.OrdinalIgnoreCase);
 
             // Compact, serializable per-DN counts so derived group-detail KPIs keep correct
             // member counts after the summary round-trips through the session store, where the
