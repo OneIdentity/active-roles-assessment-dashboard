@@ -508,7 +508,25 @@
         "tileFallbackText": "AR Admins"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Active Roles Admins"
     },

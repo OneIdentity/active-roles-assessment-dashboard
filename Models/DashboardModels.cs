@@ -2338,7 +2338,7 @@ public class DashboardSummary
         {
             var map = new Dictionary<string, Definitions.DatasetResult>(CollectedDatasets, StringComparer.OrdinalIgnoreCase);
             map["ADUserAccounts"] = new(ADUserAccounts.Items, ADUserAccounts.Error);
-            map["ADGroups"] = new(ADGroups.Items, ADGroups.Error);
+            map["ADGroups"] = new(ADGroups.ToDatasetItems(), ADGroups.Error);
             map["Computers"] = new(Computers.Items, Computers.Error);
             if (EntraTotals is not null)
                 map[EntraTotalsSummary.DatasetId] = new(EntraTotals.ToDatasetItems(), EntraTotals.Error);
@@ -3519,6 +3519,35 @@ public class ADGroupsSummary
     public Dictionary<string, int> IndirectCountByDn { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Attribute carrying a group's direct member count in the definition dataset.</summary>
+    public const string DirectMemberCountAttribute = "directMemberCount";
+
+    /// <summary>Attribute carrying a group's indirect (transitive) member count in the definition dataset.</summary>
+    public const string IndirectMemberCountAttribute = "indirectMemberCount";
+
+    private (List<JsonElement> Source, List<JsonElement> Items)? _datasetItems;
+
+    /// <summary>
+    /// Group items for the definition dataset, each carrying the locally computed direct and
+    /// indirect member counts so drilldowns can show them. Cached per <see cref="Items"/> list.
+    /// </summary>
+    public List<JsonElement> ToDatasetItems()
+    {
+        if (_datasetItems is { } cached && ReferenceEquals(cached.Source, Items))
+            return cached.Items;
+
+        var items = Items.Select(i =>
+        {
+            var node = System.Text.Json.Nodes.JsonNode.Parse(i.GetRawText()) as System.Text.Json.Nodes.JsonObject ?? [];
+            var dn = SegmentAttributes.AttrOf(i, "distinguishedName");
+            node[DirectMemberCountAttribute] = DirectByDn.TryGetValue(dn, out var d) ? d.Count : DirectCountByDn.GetValueOrDefault(dn);
+            node[IndirectMemberCountAttribute] = IndirectByDn.TryGetValue(dn, out var n) ? n.Count : IndirectCountByDn.GetValueOrDefault(dn);
+            return JsonSerializer.SerializeToElement(node);
+        }).ToList();
+        _datasetItems = (Items, items);
+        return items;
+    }
+
     /// <summary>Reduces this summary to items whose domain is in <paramref name="effectiveDomains"/>.</summary>
     public ADGroupsSummary Filter(ISet<string> effectiveDomains)
     {
@@ -3526,7 +3555,7 @@ public class ADGroupsSummary
             return this;
 
         var items = Items.Where(i => effectiveDomains.Contains(SegmentAttributes.DomainOf(i))).ToList();
-        // The membership maps are keyed by DN, so they can be shared as-is: lookups for the
+        // The membership maps
         // retained items still resolve, and unused keys are harmless.
         return new ADGroupsSummary
         {

@@ -462,6 +462,11 @@ internal static class LegacyDefinitionExporter
         Add(NameDomainDn, "NoManagerServiceAccount", "ServiceAccounts", "GmsaServiceAccounts", "SmsaServiceAccounts", "UserAccountLockedOut",
             "EmptyGroups", "Sites", "SiteLinks", "Subnets", "Trusts", "OUs");
         Add(NameDn, "NoGroupOwner");
+        Add([Col("Name", "name"), Col("Direct Members", ADGroupsSummary.DirectMemberCountAttribute),
+            Col("Indirect Members", ADGroupsSummary.IndirectMemberCountAttribute), Col("Distinguished Name", "distinguishedName")],
+            "DistributionGroups", "DomainLocalGroups", "GlobalGroups", "MailEnabledSecurityGroups", "SecurityGroups", "UniversalGroups");
+        Add([Col("Name", "name"), Col("Domain", "domain"), Col("Membership", "membershipType"), Col("Distinguished Name", "distinguishedName")],
+            "AccountOperators", "Administrators", "BackupOperators", "DomainAdmins", "ServerOperators", "EnterpriseAdmins", "SchemaAdmins", "ActiveRolesAdmins");
         Add([Col("Name", "name"), Col("Domain", "edsaDomainNetbiosName"),
             ExprCol("Operating System", "friendlyOsName(operatingSystem, operatingSystemVersion)"),
             Col("Distinguished Name", "distinguishedName")],

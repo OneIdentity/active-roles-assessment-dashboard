@@ -928,7 +928,25 @@
         "sectionId": "accountoperators"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Account Operators"
     },
@@ -944,7 +962,25 @@
         "sectionId": "administrators"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Administrators"
@@ -961,7 +997,25 @@
         "sectionId": "backupoperators"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Backup Operators"
@@ -978,7 +1032,25 @@
         "sectionId": "domainadmins"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "Domain Admins"
@@ -995,7 +1067,25 @@
         "sectionId": "serveroperators"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Server Operators"
@@ -1012,7 +1102,25 @@
         "sectionId": "enterpriseadmins"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "Enterprise Admins"
@@ -1029,7 +1137,25 @@
         "sectionId": "schemaadmins"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 6,
       "fallbackText": "Schema Admins"
@@ -1733,7 +1859,25 @@
         "sectionId": "distributiongroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "fallbackText": "Distribution Groups"
     },
@@ -1751,7 +1895,25 @@
         "sectionId": "domainlocalgroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 1,
       "fallbackText": "Domain Local Groups"
@@ -1770,7 +1932,25 @@
         "sectionId": "globalgroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 2,
       "fallbackText": "Global Groups"
@@ -1789,7 +1969,25 @@
         "sectionId": "mailenabledsecuritygroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 3,
       "fallbackText": "Mail Enabled Security Groups"
@@ -1808,7 +2006,25 @@
         "sectionId": "securitygroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 4,
       "fallbackText": "Security Groups"
@@ -1827,7 +2043,25 @@
         "sectionId": "universalgroups"
       },
       "drilldown": {
-        "enabled": true
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
       },
       "sortOrder": 5,
       "fallbackText": "Universal Groups"
