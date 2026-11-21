@@ -201,6 +201,27 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
     }
 
     /// <summary>
+    /// Re-evaluates only <paramref name="kpiId"/> (and, for composites, its transitive sources),
+    /// provided it was already evaluated. Used by single-KPI drilldowns to avoid recomputing the
+    /// whole catalog.
+    /// </summary>
+    public void Reevaluate(DashboardSummary summary, EvaluationContext context, string kpiId)
+    {
+        if (!summary.KpiResults.ContainsKey(kpiId)) return;
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var byId = registry.Set.Kpis.ToDictionary(k => k.Id, StringComparer.OrdinalIgnoreCase);
+        var stack = new Stack<string>([kpiId]);
+        while (stack.Count > 0)
+        {
+            var id = stack.Pop();
+            if (!ids.Add(id)) continue;
+            if (byId.TryGetValue(id, out var def) && def is CompositeKpi composite)
+                foreach (var source in composite.Sources) stack.Push(source);
+        }
+        Populate(summary, kpi => ids.Contains(kpi.Id), context);
+    }
+
+    /// <summary>
     /// Ids of datasets read by enabled expression KPIs that are not already provided by the typed
     /// summaries, i.e. the datasets the generic collector must fetch.
     /// </summary>

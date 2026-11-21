@@ -290,10 +290,34 @@ public sealed class DashboardDataService
     }
 
     /// <summary>
+    /// Returns the summary with the session's active segment filter applied and KPIs re-evaluated,
+    /// reusing an in-memory copy while the per-user cache entry and the filter are unchanged. The
+    /// result may be shared between requests and must be treated as read-only.
+    /// </summary>
+    public async Task<DashboardSummary> LoadFilteredSummaryAsync(HttpContext http, string token, DashboardAccess access, KpiSettings kpiSettings)
+    {
+        var user = UserKey(http);
+        var filterKey = http.Session.GetString(SegmentFilterSession.SessionKey) ?? string.Empty;
+        var json = _userSummaryCache.GetSummary(user);
+        if (json is not null
+            && _userSummaryCache.GetFilteredSummary(user, json, filterKey) is { } cached
+            && !ShouldReconcileMembership(cached))
+            return cached;
+
+        var summary = await LoadIndexSummaryAsync(http, token, access, kpiSettings);
+        ApplyActiveSegmentFilter(http, summary);
+
+        var source = _userSummaryCache.GetSummary(user);
+        if (source is not null)
+            _userSummaryCache.SetFilteredSummary(user, source, filterKey, summary);
+        return summary;
+    }
+
+    /// <summary>
     /// Applies the session's active segment filter to <paramref name="summary"/> (in place),
     /// capturing available segments from the UNFILTERED summary first.
     /// </summary>
-    public SegmentSelectionView ApplyActiveSegmentFilter(HttpContext http, DashboardSummary summary)
+    public SegmentSelectionView ApplyActiveSegmentFilter(HttpContext http, DashboardSummary summary, string? onlyKpiId = null)
     {
         var filter = SegmentFilterSession.Get(http.Session);
 
@@ -313,7 +337,11 @@ public sealed class DashboardDataService
         };
 
         summary.ApplySegmentFilter(filter);
-        _kpiCalculator?.Reevaluate(summary, Definitions.DefinitionKpiCalculator.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
+        var context = Definitions.DefinitionKpiCalculator.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns);
+        if (onlyKpiId is null)
+            _kpiCalculator?.Reevaluate(summary, context);
+        else
+            _kpiCalculator?.Reevaluate(summary, context, onlyKpiId);
         return view;
     }
 

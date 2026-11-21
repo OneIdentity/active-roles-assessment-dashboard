@@ -91,6 +91,20 @@ public sealed class PerUserSummaryCache
     /// <summary>Stores the full dashboard summary JSON for the user.</summary>
     public void SetSummary(string user, string json) => Write(SummaryKey(user), json);
 
+    /// <summary>
+    /// Gets the segment-filtered, evaluated summary previously built from <paramref name="sourceJson"/>
+    /// for <paramref name="filterKey"/>. Returns null once the source summary entry is replaced,
+    /// cleared or invalidated, so the in-memory object never outlives the JSON it was built from.
+    /// The returned instance is shared and must be treated as read-only.
+    /// </summary>
+    public DashboardSummary? GetFilteredSummary(string user, string sourceJson, string filterKey) =>
+        _cache.TryGetValue(FilteredKey(user), out (string Source, string Filter, DashboardSummary Summary) e)
+        && ReferenceEquals(e.Source, sourceJson) && e.Filter == filterKey ? e.Summary : null;
+
+    /// <summary>Stores the segment-filtered, evaluated summary built from <paramref name="sourceJson"/>.</summary>
+    public void SetFilteredSummary(string user, string sourceJson, string filterKey, DashboardSummary summary) =>
+        _cache.Set(FilteredKey(user), (sourceJson, filterKey, summary), new MemoryCacheEntryOptions { SlidingExpiration = Lifetime });
+
     /// <summary>Gets the cached overview totals JSON for the user, or null if absent.</summary>
     public string? GetOverview(string user) => Read(OverviewKey(user));
 
@@ -162,6 +176,8 @@ public sealed class PerUserSummaryCache
     private static string SummaryKey(string user) => $"pu-summary::{Normalize(user)}";
 
     private static string OverviewKey(string user) => $"pu-overview::{Normalize(user)}";
+
+    private static string FilteredKey(string user) => $"pu-filtered::{Normalize(user)}";
 
     private static string AdminKey(string user) => $"pu-admin::{Normalize(user)}";
 

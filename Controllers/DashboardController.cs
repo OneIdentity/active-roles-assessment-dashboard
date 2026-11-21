@@ -407,8 +407,7 @@ public class DashboardController : ControllerBase
             return NotFound();
 
         var access = await _data.ResolveAccessAsync(HttpContext, token);
-        var summary = await _data.LoadIndexSummaryAsync(HttpContext, token, access, kpiSettings);
-        _data.ApplyActiveSegmentFilter(HttpContext, summary);
+        var summary = await _data.LoadFilteredSummaryAsync(HttpContext, token, access, kpiSettings);
 
         var category = CategoryInfo.All.FirstOrDefault(c => KpiInfo.ForCategory(c).Any(k => k.Key == kpi.Key));
         var dashboardKey = category?.DashboardKey ?? string.Empty;
