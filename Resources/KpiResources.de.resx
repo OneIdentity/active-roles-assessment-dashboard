@@ -189,7 +189,7 @@
   <data name="Kpi_ExchangeDynamicDistributionGroupsKpi" xml:space="preserve"><value>Dynamische Verteilergruppen</value></data>
   <data name="Kpi_ExchangeGroupsNoOwnerKpi" xml:space="preserve"><value>Gruppen ohne Besitzer</value></data>
   <data name="Kpi_ExchangeEmptyDistributionGroupsKpi" xml:space="preserve"><value>Leere Verteilergruppen</value></data>
-  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Nicht verwaltete Postfächer</value></data>
+  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Postfächer ohne Vorgesetzten</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Verwaiste Postfächer (deaktiviert)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Beweissicherungsverfahren deaktiviert</value></data>
   <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Aktivierte Computer</value></data>

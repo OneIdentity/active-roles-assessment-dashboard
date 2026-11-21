@@ -1,0 +1,1175 @@
+{
+  "categories": [
+    {
+      "id": "ExchangeOverview",
+      "dashboardId": "Exchange",
+      "kind": "Overview",
+      "charts": [
+        {
+          "id": "ExchangeMailboxesByDomain",
+          "type": "Pie",
+          "sourceSplitKpiId": "ExchangeTotalMailboxes",
+          "sliceOffset": 16,
+          "fallbackText": "Mailboxes by Domain"
+        }
+      ],
+      "sortOrder": -1,
+      "fallbackText": "Overview"
+    },
+    {
+      "id": "ExchangeGovernance",
+      "dashboardId": "Exchange",
+      "kind": "Risk",
+      "kpiSortOrder": "AtoZ",
+      "fallbackText": "Governance and Risk"
+    },
+    {
+      "id": "ExchangeInfrastructure",
+      "dashboardId": "Exchange",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 1,
+      "fallbackText": "Infrastructure"
+    },
+    {
+      "id": "ExchangeMailboxes",
+      "dashboardId": "Exchange",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ExchangeMailboxTypeBreakdown",
+          "series": [
+            {
+              "kpiId": "ExchangeUserMailboxesKpi",
+              "color": "blue"
+            },
+            {
+              "kpiId": "ExchangeSharedMailboxesKpi",
+              "color": "green"
+            },
+            {
+              "kpiId": "ExchangeRoomMailboxesKpi",
+              "color": "teal"
+            },
+            {
+              "kpiId": "ExchangeEquipmentMailboxesKpi",
+              "color": "amber"
+            }
+          ],
+          "fallbackText": "Mailboxes by Type"
+        }
+      ],
+      "sortOrder": 2,
+      "fallbackText": "Mailboxes"
+    },
+    {
+      "id": "ExchangeGroups",
+      "dashboardId": "Exchange",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ExchangeGroupTypeBreakdown",
+          "series": [
+            {
+              "kpiId": "ExchangeDistributionGroupsKpi",
+              "color": "blue"
+            },
+            {
+              "kpiId": "ExchangeMailEnabledSecurityGroupsKpi",
+              "color": "green"
+            },
+            {
+              "kpiId": "ExchangeDynamicDistributionGroupsKpi",
+              "color": "teal"
+            }
+          ],
+          "fallbackText": "Mail-Enabled Groups by Type"
+        }
+      ],
+      "sortOrder": 3,
+      "fallbackText": "Distribution Groups"
+    },
+    {
+      "id": "ExchangePermissions",
+      "dashboardId": "Exchange",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 4,
+      "fallbackText": "Permissions"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ExchangeServersKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeServers}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "serialNumber",
+        "msExchCurrentServerRoles"
+      ]
+    },
+    {
+      "id": "ExchangeTotalMailboxes",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeMailboxDatabasesKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeMailboxDatabases}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeAcceptedDomainsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeAcceptedDomains}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "domainName"
+      ]
+    },
+    {
+      "id": "ExchangeMailboxServersKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeMailboxServers}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "serialNumber"
+      ]
+    },
+    {
+      "id": "ExchangeDAGsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeDAGs}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeUserMailboxesKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeUserMailboxes}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeSharedMailboxesKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeSharedMailboxes}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeRoomMailboxesKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeRoomMailboxes}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeEquipmentMailboxesKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeEquipmentMailboxes}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeMailUsersKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeMailUsers}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeMailContactsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeMailContacts}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeDistributionGroupsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeDistributionGroups}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "ExchangeMailEnabledSecurityGroupsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeMailEnabledSecurityGroups}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "ExchangeDynamicDistributionGroupsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeDynamicDistributionGroups}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeGroupsNoOwnerKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeGroupsNoOwner}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeEmptyDistributionGroupsKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeEmptyDistributionGroups}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeMailboxNoManagerKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeMailboxNoManager}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeOrphanedMailboxesKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeOrphanedMailboxes}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "ExchangeLitigationHoldDisabledKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ExchangeLitigationHoldDisabled}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "edsva-MsExch-LitigationHoldEnabled"
+      ]
+    },
+    {
+      "id": "ExchangeFullAccessMailboxes",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "objectGUID",
+        "objectSid"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "mailboxPermissions",
+          "args": {
+            "right": "FullAccess"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ExchangeSendOnBehalfKpi",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*)(publicDelegates=*))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "publicDelegates"
+      ]
+    },
+    {
+      "id": "ExchangeSendAsMailboxes",
+      "dataSource": "Exchange",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=user)(homeMDB=*)(!(msExchRecipientTypeDetails=4)))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "objectGUID",
+        "objectSid"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "mailboxPermissions",
+          "args": {
+            "right": "SendAs"
+          }
+        }
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Search",
+      "id": "ExchangeServersKpi",
+      "categoryId": "ExchangeOverview",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeServersKpi",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "exchangeservers",
+        "tileFallbackText": "Servers"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Exchange Servers"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeTotalMailboxes",
+      "categoryId": "ExchangeOverview",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeTotalMailboxes",
+      "evaluation": {},
+      "display": {
+        "color": "green",
+        "sectionId": "exchangetotalmailboxes",
+        "tileFallbackText": "Mailboxes"
+      },
+      "isSegmentable": true,
+      "drilldown": {},
+      "sortOrder": 1,
+      "fallbackText": "Total Mailboxes"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeMailboxDatabasesKpi",
+      "categoryId": "ExchangeOverview",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeMailboxDatabasesKpi",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "exchangemailboxdatabases",
+        "tileFallbackText": "Databases"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Mailbox Databases"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeAcceptedDomainsKpi",
+      "categoryId": "ExchangeOverview",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeAcceptedDomainsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "orange",
+        "sectionId": "exchangeaccepteddomains"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 3,
+      "fallbackText": "Accepted Domains"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeMailboxServersKpi",
+      "categoryId": "ExchangeInfrastructure",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeMailboxServersKpi",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "exchangemailboxservers"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Mailbox Servers"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeDAGsKpi",
+      "categoryId": "ExchangeInfrastructure",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeDAGsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "purple",
+        "sectionId": "exchangedags",
+        "tileFallbackText": "DAGs"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Database Availability Groups"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeUserMailboxesKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeUserMailboxesKpi",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "exchangeusermailboxes"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "User Mailboxes"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeSharedMailboxesKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeSharedMailboxesKpi",
+      "evaluation": {},
+      "display": {
+        "color": "green",
+        "sectionId": "exchangesharedmailboxes"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Shared Mailboxes"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeRoomMailboxesKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeRoomMailboxesKpi",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "exchangeroommailboxes"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Room Mailboxes"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeEquipmentMailboxesKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeEquipmentMailboxesKpi",
+      "evaluation": {},
+      "display": {
+        "color": "amber",
+        "sectionId": "exchangeequipmentmailboxes"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 3,
+      "fallbackText": "Equipment Mailboxes"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeMailUsersKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeMailUsersKpi",
+      "evaluation": {},
+      "display": {
+        "color": "purple",
+        "sectionId": "exchangemailusers"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 4,
+      "fallbackText": "Mail Enabled User"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeMailContactsKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeMailContactsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "pink",
+        "sectionId": "exchangemailcontacts"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 5,
+      "fallbackText": "Mail Enabled Contact"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeDistributionGroupsKpi",
+      "categoryId": "ExchangeGroups",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeDistributionGroupsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "exchangedistributiongroups"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Distribution Groups"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeMailEnabledSecurityGroupsKpi",
+      "categoryId": "ExchangeGroups",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeMailEnabledSecurityGroupsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "green",
+        "sectionId": "exchangemailenabledsecuritygroups"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Mail-Enabled Security Groups"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeDynamicDistributionGroupsKpi",
+      "categoryId": "ExchangeGroups",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeDynamicDistributionGroupsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "exchangedynamicdistributiongroups"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Dynamic Distribution Groups"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeGroupsNoOwnerKpi",
+      "categoryId": "ExchangeGroups",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeGroupsNoOwnerKpi",
+      "evaluation": {},
+      "display": {
+        "color": "amber",
+        "sectionId": "exchangegroupsnoowner"
+      },
+      "isRiskKpi": true,
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 3,
+      "fallbackText": "Groups With No Owner"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeEmptyDistributionGroupsKpi",
+      "categoryId": "ExchangeGroups",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeEmptyDistributionGroupsKpi",
+      "evaluation": {},
+      "display": {
+        "color": "slate",
+        "sectionId": "exchangeemptydistributiongroups"
+      },
+      "isRiskKpi": true,
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 4,
+      "fallbackText": "Empty Distribution Groups"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeMailboxNoManagerKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeMailboxNoManagerKpi",
+      "evaluation": {},
+      "display": {
+        "color": "purple",
+        "sectionId": "exchangemailboxnomanager"
+      },
+      "isRiskKpi": true,
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 6,
+      "fallbackText": "Mailboxes Without Manager"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeOrphanedMailboxesKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeOrphanedMailboxesKpi",
+      "evaluation": {},
+      "display": {
+        "color": "red",
+        "sectionId": "exchangeorphanedmailboxes"
+      },
+      "isRiskKpi": true,
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 7,
+      "fallbackText": "Orphaned Mailboxes (Disabled)"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeLitigationHoldDisabledKpi",
+      "categoryId": "ExchangeMailboxes",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeLitigationHoldDisabledKpi",
+      "evaluation": {},
+      "display": {
+        "color": "orange",
+        "sectionId": "exchangelitigationholddisabled"
+      },
+      "isRiskKpi": true,
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 8,
+      "fallbackText": "Litigation Hold Disabled"
+    },
+    {
+      "kind": "Derived",
+      "id": "ExchangeFullAccessDelegatesKpi",
+      "categoryId": "ExchangePermissions",
+      "dataSource": "Exchange",
+      "sourceDatasetId": "ExchangeFullAccessMailboxes",
+      "evaluation": {
+        "filter": "count(trustees) > 0"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "exchangefullaccessdelegates",
+        "tileFallbackText": "Full Access"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Mailbox Permissions (Full Access)"
+    },
+    {
+      "kind": "Search",
+      "id": "ExchangeSendOnBehalfKpi",
+      "categoryId": "ExchangePermissions",
+      "dataSource": "Exchange",
+      "datasetId": "ExchangeSendOnBehalfKpi",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "exchangesendonbehalf",
+        "tileFallbackText": "Send on Behalf"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "cnList(publicDelegates)",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Mailbox Permissions (Send on Behalf)"
+    },
+    {
+      "kind": "Derived",
+      "id": "ExchangeSendAsKpi",
+      "categoryId": "ExchangePermissions",
+      "dataSource": "Exchange",
+      "sourceDatasetId": "ExchangeSendAsMailboxes",
+      "evaluation": {
+        "filter": "count(trustees) > 0"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "exchangesendas",
+        "tileFallbackText": "Send As"
+      },
+      "isSegmentable": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Mailbox Permissions (Send As)"
+    }
+  ]
+}

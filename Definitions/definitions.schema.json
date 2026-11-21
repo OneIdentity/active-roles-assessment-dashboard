@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneidentity.com/schemas/active-roles-dashboard/definitions.schema.json",
+  "title": "Active Roles Dashboard KPI and category definitions",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "categories": { "type": "array", "items": { "$ref": "#/$defs/category" } },
+    "datasets": { "type": "array", "items": { "$ref": "#/$defs/dataset" } },
+    "kpis": { "type": "array", "items": { "$ref": "#/$defs/kpi" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$" },
+    "dataSource": { "enum": [ "ActiveDirectory", "ActiveRoles", "EntraId", "Exchange", "Licensing" ] },
+    "sortOrder": { "enum": [ "Custom", "AtoZ", "ZtoA", "CustomThenAtoZ" ] },
+    "stringList": { "type": "array", "items": { "type": "string" } },
+    "base": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "type": "integer", "minimum": 1 },
+        "enabled": { "type": "boolean" },
+        "sortOrder": { "type": "integer" },
+        "localizationKey": { "type": "string" },
+        "fallbackText": { "type": "string" },
+        "requiresRole": { "$ref": "#/$defs/stringList" },
+        "tags": { "$ref": "#/$defs/stringList" }
+      },
+      "required": [ "id" ]
+    },
+    "category": {
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": {
+        "dashboardId": { "type": "string" },
+        "kind": { "enum": [ "Standard", "Overview", "Risk" ] },
+        "kpiSortOrder": { "$ref": "#/$defs/sortOrder" },
+        "enabledWhen": { "type": "string" },
+        "charts": { "type": "array", "items": { "$ref": "#/$defs/chart" } }
+      },
+      "required": [ "dashboardId" ],
+      "unevaluatedProperties": false
+    },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "method": { "enum": [ "Rest" ] },
+        "target": { "enum": [ "Search", "Objects" ] },
+        "endpoint": { "type": "string" },
+        "base": { "type": "string" },
+        "filter": { "type": "string" },
+        "scope": { "enum": [ "base", "one", "sub" ] },
+        "pageSize": { "type": "integer", "minimum": 1 },
+        "objects": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "dataSource": { "$ref": "#/$defs/dataSource" },
+        "retrieval": { "$ref": "#/$defs/retrieval" },
+        "attributes": { "$ref": "#/$defs/stringList" },
+        "segmentAttribute": { "type": "string" },
+        "keyAttribute": { "type": "string" }
+      },
+      "required": [ "id", "dataSource", "retrieval" ]
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": [ "Expression", "Function" ] },
+        "filter": { "type": "string" },
+        "aggregate": { "enum": [ "Count", "DistinctCount", "Sum", "Min", "Max" ] },
+        "aggregateAttribute": { "type": "string" },
+        "function": { "type": "string" },
+        "args": { "type": "object" }
+      },
+      "if": { "properties": { "type": { "const": "Function" } }, "required": [ "type" ] },
+      "then": { "required": [ "function" ] }
+    },
+    "drilldown": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "itemKeyAttribute": { "type": "string" },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attribute": { "type": "string" },
+              "expression": { "type": "string" },
+              "header": { "type": "string" },
+              "localizationKey": { "type": "string" },
+              "format": { "type": "string" },
+              "sortable": { "type": "boolean" },
+              "filterable": { "type": "boolean" }
+            },
+            "anyOf": [ { "required": [ "attribute" ] }, { "required": [ "expression" ] } ]
+          }
+        }
+      }
+    },
+    "chart": {
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": {
+        "type": { "enum": [ "Doughnut", "Pie", "Bar", "Line", "Ring" ] },
+        "series": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kpiId": { "type": "string" },
+              "datasetId": { "type": "string" },
+              "groupBy": { "type": "string" },
+              "filter": { "type": "string" },
+              "top": { "type": "integer", "minimum": 1 },
+              "labelKey": { "type": "string" },
+              "label": { "type": "string" },
+              "color": { "type": "string" }
+            },
+            "oneOf": [ { "required": [ "kpiId" ] }, { "required": [ "datasetId", "groupBy" ] } ]
+          }
+        },
+        "sourceSplitKpiId": { "type": "string" },
+        "sliceOffset": { "type": "integer", "minimum": 0 },
+        "allowTypeToggle": { "type": "boolean" },
+        "showLegend": { "type": "boolean" },
+        "colors": { "$ref": "#/$defs/stringList" },
+        "valueFormat": { "type": "string" },
+        "emptyStateKey": { "type": "string" },
+        "minHeight": { "type": "integer", "minimum": 0 }
+      },
+      "unevaluatedProperties": false
+    },
+    "kpi": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        { "if": { "properties": { "kind": { "enum": [ "Search", "Objects" ] } } }, "then": { "required": [ "datasetId" ] } },
+        { "if": { "properties": { "kind": { "const": "Composite" } } }, "then": { "required": [ "sources" ] } }
+      ],
+      "properties": {
+        "kind": { "enum": [ "Search", "Objects", "Derived", "Composite" ] },
+        "categoryId": { "type": "string" },
+        "dataSource": { "$ref": "#/$defs/dataSource" },
+        "display": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "color": { "type": "string" },
+            "sectionId": { "type": "string" },
+            "tileLabelKey": { "type": "string" },
+            "tileFallbackText": { "type": "string" }
+          }
+        },
+        "isRiskKpi": { "type": "boolean" },
+        "severity": { "enum": [ "None", "Low", "Medium", "High", "Critical" ] },
+        "isSegmentable": { "type": "boolean" },
+        "attributes": { "$ref": "#/$defs/stringList" },
+        "drilldown": { "$ref": "#/$defs/drilldown" },
+        "charts": { "type": "array", "items": { "$ref": "#/$defs/chart" } },
+        "thresholdKey": { "type": "string" },
+        "exclusionKey": { "type": "string" },
+        "datasetId": { "type": "string" },
+        "retrieval": { "$ref": "#/$defs/retrieval" },
+        "evaluation": { "$ref": "#/$defs/evaluation" },
+        "sourceDatasetId": { "type": "string" },
+        "sourceKpiId": { "type": "string" },
+        "sources": { "$ref": "#/$defs/stringList" },
+        "aggregate": { "enum": [ "Sum", "Max", "Min", "First" ] }
+      },
+      "required": [ "kind", "categoryId", "dataSource" ],
+      "unevaluatedProperties": false
+    }
+  }
+}

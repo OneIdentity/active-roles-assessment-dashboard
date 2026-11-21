@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "id": "Licensing",
+      "dashboardId": "Licensing",
+      "fallbackText": "Licensing"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ManagedObjects",
+      "dataSource": "Licensing",
+      "retrieval": {
+        "base": "CN=Managed Object Statistics,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsManagedObjectStatisticsData)"
+      },
+      "attributes": [
+        "name",
+        "edsaStatisticsCountXML"
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Derived",
+      "id": "ManagedObjects",
+      "categoryId": "Licensing",
+      "dataSource": "Licensing",
+      "sourceDatasetId": "ManagedObjects",
+      "evaluation": {
+        "type": "Function",
+        "function": "managedObjectStatistics"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "managedobjects"
+      },
+      "drilldown": {
+        "enabled": true
+      },
+      "fallbackText": "Managed Objects"
+    }
+  ]
+}

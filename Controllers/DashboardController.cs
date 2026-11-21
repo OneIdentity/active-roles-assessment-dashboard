@@ -289,7 +289,7 @@ public class DashboardController : ControllerBase
             Tiles = BuildTiles(summary, access),
             GeneratedAtUtc = DateTime.UtcNow
         };
-        payload.Tabs.Add(new DashboardTab { Key = OverviewKey, Title = CategoryInfo.Overview.DisplayName });
+        payload.Tabs.Add(new DashboardTab { Key = OverviewKey, Title = CategoryInfo.Get("Overview").DisplayName });
         payload.Tabs.AddRange(payload.Tiles.Select(t => new DashboardTab { Key = t.Key, Title = t.Title }));
 
         return Ok(payload);
@@ -318,8 +318,8 @@ public class DashboardController : ControllerBase
         string sourceSplitKey;
         if (isOverview)
         {
-            categories = [CategoryInfo.Overview, CategoryInfo.ADGovernance];
-            title = CategoryInfo.Overview.DisplayName;
+            categories = [CategoryInfo.Get("Overview"), CategoryInfo.Get("ADGovernance")];
+            title = CategoryInfo.Get("Overview").DisplayName;
             sourceSplitKey = "ADUserAccounts";
         }
         else
@@ -377,9 +377,9 @@ public class DashboardController : ControllerBase
             view.ManagedObjects = ToViewKpi(managedObjects, summary);
         }
 
-        if (!isOverview && view.Key.Equals(DashboardInfo.Licensing.Key, StringComparison.OrdinalIgnoreCase)
-            && kpiSettings.IsCategoryEnabled(CategoryInfo.Licensing.Key)
-            && kpiSettings.IsKpiEnabled(CategoryInfo.Licensing.Key, "ManagedObjects"))
+        if (!isOverview && view.Key.Equals("Licensing", StringComparison.OrdinalIgnoreCase)
+            && kpiSettings.IsCategoryEnabled(CategoryInfo.Get("Licensing").Key)
+            && kpiSettings.IsKpiEnabled(CategoryInfo.Get("Licensing").Key, "ManagedObjects"))
         {
             view.Licensing = BuildLicensing(summary);
         }
@@ -407,8 +407,7 @@ public class DashboardController : ControllerBase
             return NotFound();
 
         var access = await _data.ResolveAccessAsync(HttpContext, token);
-        var summary = await _data.LoadIndexSummaryAsync(HttpContext, token, access, kpiSettings);
-        _data.ApplyActiveSegmentFilter(HttpContext, summary);
+        var summary = await _data.LoadFilteredSummaryAsync(HttpContext, token, access, kpiSettings);
 
         var category = CategoryInfo.All.FirstOrDefault(c => KpiInfo.ForCategory(c).Any(k => k.Key == kpi.Key));
         var dashboardKey = category?.DashboardKey ?? string.Empty;
@@ -420,7 +419,7 @@ public class DashboardController : ControllerBase
         var result = _exclusions.Evaluate(summary, kpi.Key);
         var table = summary.GetKpiDetailTable(kpi.Key);
         _exclusions.ApplyToTable(kpi.Key, table);
-        var (groupTreeDn, rowGroupTreeDns) = summary.GetKpiGroupTreeTargets(kpi.Key);
+        var rowGroupTreeDns = table?.RowGroupTreeDns;
         return Ok(new KpiDetail
         {
             Key = kpi.Key,
@@ -429,8 +428,8 @@ public class DashboardController : ControllerBase
             Error = table?.Error ?? result.Error,
             Columns = table?.Columns ?? new(),
             Rows = table?.Rows ?? new(),
-            GroupTreeDn = groupTreeDn,
-            RowGroupTreeDns = rowGroupTreeDns is not null && rowGroupTreeDns.Count == (table?.Rows.Count ?? 0) ? rowGroupTreeDns : null,
+            GroupTreeDn = table?.Error is null ? table?.GroupTreeDn : null,
+            RowGroupTreeDns = table?.Error is null && rowGroupTreeDns is not null && rowGroupTreeDns.Count == table!.Rows.Count ? rowGroupTreeDns : null,
             ExclusionsNotApplied = result.NotApplied,
             WebInterfaceUrl = _arConfig.CurrentValue.WebInterfaceUrl?.Trim() ?? string.Empty
         });
@@ -461,7 +460,7 @@ public class DashboardController : ControllerBase
     private LicensingView BuildLicensing(DashboardSummary summary)
     {
         var view = new LicensingView();
-        var managed = summary.ManagedObjects;
+        var managed = summary.ManagedObjectStatistics;
         if (managed.Error != null)
         {
             view.Error = managed.Error;
@@ -671,7 +670,7 @@ public class DashboardController : ControllerBase
 
     private OverviewSection BuildOverview(DashboardSummary summary, KpiSettings settings)
     {
-        var category = CategoryInfo.Overview;
+        var category = CategoryInfo.Get("Overview");
         var section = new OverviewSection
         {
             Enabled = settings.OverviewEnabled,
@@ -731,11 +730,11 @@ public class DashboardController : ControllerBase
 
                     string token;
                     if (part.Source == "Active Directory")
-                        token = ChartInfo.SourceSplitColors[0];
+                        token = ChartColors.SourceSplit[0];
                     else if (part.Source == "Entra ID")
-                        token = ChartInfo.SourceSplitColors[1 % ChartInfo.SourceSplitColors.Count];
+                        token = ChartColors.SourceSplit[1 % ChartColors.SourceSplit.Count];
                     else
-                        token = ChartInfo.SourceSplitColors[colorIndex % ChartInfo.SourceSplitColors.Count];
+                        token = ChartColors.SourceSplit[colorIndex % ChartColors.SourceSplit.Count];
 
                     dataset.Labels.Add(part.Source);
                     dataset.Values.Add(part.Count);

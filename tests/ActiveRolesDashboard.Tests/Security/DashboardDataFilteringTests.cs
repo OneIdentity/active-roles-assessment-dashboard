@@ -128,6 +128,13 @@ public class DashboardDataFilteringTests : IDisposable
             {
                 Items = [DetailUser("own-enabled", OwnLink), DetailUser("group-enabled", GroupLink), DetailUser("other-enabled", OtherLink)],
                 TotalCount = 3
+            },
+            KpiResults =
+            {
+                ["ADUserAccounts"] = new Models.Definitions.KpiResult(3, null),
+                ["AdOverviewUsers"] = new Models.Definitions.KpiResult(3, null),
+                ["EntraOverviewUsers"] = new Models.Definitions.KpiResult(0, null),
+                ["EnabledUsers"] = new Models.Definitions.KpiResult(3, null)
             }
         };
     }
@@ -223,9 +230,9 @@ public class DashboardDataFilteringTests : IDisposable
 
         Assert.Equal(2, (int)detail["count"]!);
         Assert.Equal(2, detail["rows"]!.AsArray().Count);
-        Assert.Contains("own-enabled", body);
-        Assert.Contains("group-enabled", body);
-        Assert.DoesNotContain("other-enabled", body);
+        Assert.Contains("own-user", body);
+        Assert.Contains("group-user", body);
+        Assert.DoesNotContain("other-user", body);
     }
 
     [Fact]

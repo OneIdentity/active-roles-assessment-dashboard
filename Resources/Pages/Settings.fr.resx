@@ -299,4 +299,37 @@
   <data name="Lbl_PowerUsersGroup" xml:space="preserve">
     <value>Utilisateurs avancés - Nom du groupe</value>
   </data>
+  <data name="Card_Definitions" xml:space="preserve">
+    <value>Définitions du tableau de bord</value>
+  </data>
+  <data name="Hint_Definitions" xml:space="preserve">
+    <value>Les définitions des KPI, catégories et graphiques sont intégrées à l'application. Les fichiers *.definitions.json dans App_Data\Definitions les remplacent et sont chargés au démarrage.</value>
+  </data>
+  <data name="Definitions_OverridesActive" xml:space="preserve">
+    <value>Des fichiers de définition personnalisés sont utilisés.</value>
+  </data>
+  <data name="Definitions_EmbeddedActive" xml:space="preserve">
+    <value>Les définitions intégrées sont utilisées.</value>
+  </data>
+  <data name="Definitions_LoadedErrors" xml:space="preserve">
+    <value>Ces fichiers de définition ont été rejetés au démarrage ; les définitions intégrées sont donc utilisées :</value>
+  </data>
+  <data name="Definitions_NoPending" xml:space="preserve">
+    <value>Aucune modification de définition n'est en attente.</value>
+  </data>
+  <data name="Definitions_PendingErrors" xml:space="preserve">
+    <value>Les fichiers de définition ont changé et ne peuvent pas être appliqués tant que ces problèmes ne sont pas corrigés :</value>
+  </data>
+  <data name="Definitions_Pending" xml:space="preserve">
+    <value>Les fichiers de définition ont changé. Redémarrez l'application pour les appliquer.</value>
+  </data>
+  <data name="Definitions_ConfirmRestart" xml:space="preserve">
+    <value>Redémarrer l'application maintenant ? Les utilisateurs perdront brièvement la connexion.</value>
+  </data>
+  <data name="Button_ApplyDefinitions" xml:space="preserve">
+    <value>Appliquer et redémarrer</value>
+  </data>
+  <data name="Definitions_Restarting" xml:space="preserve">
+    <value>L'application redémarre. Rechargez cette page dans quelques instants.</value>
+  </data>
 </root>

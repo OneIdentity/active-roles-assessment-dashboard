@@ -1,0 +1,1475 @@
+{
+  "categories": [
+    {
+      "id": "ARConfiguration",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "CustomThenAtoZ",
+      "fallbackText": "Configuration"
+    },
+    {
+      "id": "ARDelegation",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ArDelegationHygiene",
+          "series": [
+            {
+              "kpiId": "BroadDelegationLinks",
+              "color": "red"
+            },
+            {
+              "kpiId": "UserDelegationLinks",
+              "color": "amber"
+            },
+            {
+              "kpiId": "RootDelegationLinks",
+              "color": "orange"
+            },
+            {
+              "kpiId": "DenyAccessTemplates",
+              "color": "purple"
+            },
+            {
+              "kpiId": "OrphanAccessTemplateLinks",
+              "color": "slate"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Delegation Hygiene"
+        }
+      ],
+      "sortOrder": 1,
+      "fallbackText": "Delegation"
+    },
+    {
+      "id": "ARManagedDirectories",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 2,
+      "fallbackText": "Managed Directories"
+    },
+    {
+      "id": "ARInfrastructure",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 3,
+      "fallbackText": "Infrastructure"
+    },
+    {
+      "id": "ARAutomation",
+      "dashboardId": "ActiveRoles",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ArPolicyCompliance",
+          "type": "Bar",
+          "series": [
+            {
+              "kpiId": "PolicyObjectsNoRules",
+              "color": "orange"
+            },
+            {
+              "kpiId": "UnlinkedPolicyObjects",
+              "color": "amber"
+            },
+            {
+              "kpiId": "OrphanPolicyObjectLinks",
+              "color": "red"
+            },
+            {
+              "kpiId": "DynamicGroupsBrokenRules",
+              "color": "purple"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Policy Compliance"
+        }
+      ],
+      "sortOrder": 4,
+      "fallbackText": "Automation"
+    },
+    {
+      "id": "ARGovernance",
+      "dashboardId": "ActiveRoles",
+      "kind": "Risk",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": -1,
+      "fallbackText": "Governance and Risk"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ActiveRolesAdmins",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ActiveRolesAdmins}",
+        "objects": [
+          "APP-ACTIVEROLES-ADMINS"
+        ]
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "Servers",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsARService)"
+      },
+      "attributes": [
+        "edsaEdmServiceComputerName",
+        "edsvaPublicProductVersion",
+        "edsvaDiagnosticLogTurnedOn"
+      ]
+    },
+    {
+      "id": "Domains",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Managed Domains,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsDomainCacheConfig)"
+      },
+      "attributes": [
+        "name",
+        "edsvaDomainDNS",
+        "edsaSavedDnsName",
+        "edsaUseOverrideAccount"
+      ]
+    },
+    {
+      "id": "DelegationLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AT Links,CN=Configuration",
+        "filter": "(objectClass=edsACE)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaTrusteeSID",
+        "edsaSecObjectGUID",
+        "edsaAccessTemplateGUID",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "trustee",
+          "args": {
+            "attribute": "edsaTrusteeSID"
+          }
+        },
+        {
+          "name": "rootScope",
+          "args": {
+            "attribute": "edsaSecObjectGUID"
+          }
+        },
+        {
+          "name": "objectName",
+          "args": {
+            "attribute": "edsaSecObjectGUID",
+            "as": "directoryObject"
+          }
+        },
+        {
+          "name": "objectName",
+          "args": {
+            "attribute": "edsaAccessTemplateGUID",
+            "as": "accessTemplate"
+          }
+        }
+      ]
+    },
+    {
+      "id": "AccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(objectClass=edsAccessTemplate)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsvaParentCanonicalName",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "ManagedUnits",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Managed Units,CN=Configuration",
+        "filter": "(objectClass=edsManagedUnit)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaMUConditionsList"
+      ]
+    },
+    {
+      "id": "PolicyObjectLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AP Links,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObjectLink)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "PolicyObjects",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Policies,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObject)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAPEListXML",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "VirtualAttributes",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsVirtualAttribute)"
+      },
+      "attributes": [
+        "name",
+        "lDAPDisplayName",
+        "isSingleValued",
+        "edsaIsPredefined",
+        "edsaSystemObject"
+      ]
+    },
+    {
+      "id": "Workflows",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Workflow,CN=Policies,CN=Configuration",
+        "filter": "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectClass",
+        "edsaWorkflowIsDisabled"
+      ]
+    },
+    {
+      "id": "ConfigDatabases",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Configuration Databases,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsReplicationPartner)"
+      },
+      "attributes": [
+        "edsaSQLAlias",
+        "edsaDatabaseName",
+        "edsaDatabaseType",
+        "edsaReplicationSupport",
+        "edsaReplicationRole"
+      ]
+    },
+    {
+      "id": "HistoryDatabases",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Management History Databases,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsMHReplicationPartner)"
+      },
+      "attributes": [
+        "edsaSQLAlias",
+        "edsaDatabaseName",
+        "edsaDatabaseType",
+        "edsaReplicationRole"
+      ]
+    },
+    {
+      "id": "ScheduledTasks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Scheduled Tasks,CN=Server Configuration,CN=Configuration",
+        "filter": "(objectClass=edsScheduledTask)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaLastRunTime",
+        "edsvaNextRunTime",
+        "edsaDisableSchedule"
+      ]
+    },
+    {
+      "id": "EmptyAccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(objectClass=edsAccessTemplate)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaATEList"
+      ]
+    },
+    {
+      "id": "PolicyObjectsNoRules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Policies,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObject)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAPEListXML"
+      ]
+    },
+    {
+      "id": "UnlinkedAccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectGUID"
+      ]
+    },
+    {
+      "id": "DenyAccessTemplates",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Access Templates,CN=Configuration",
+        "filter": "(objectClass=edsAccessTemplate)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectGUID",
+        "edsaATEList"
+      ]
+    },
+    {
+      "id": "UnlinkedPolicyObjects",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Policies,CN=Configuration",
+        "filter": "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "objectGUID"
+      ]
+    },
+    {
+      "id": "OrphanPolicyObjectLinks",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=AP Links,CN=Configuration",
+        "filter": "(objectClass=edsPolicyObjectLink)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaAPOGUID",
+        "edsaSecObjectGUID"
+      ]
+    },
+    {
+      "id": "DynamicGroupsWithBrokenRules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Configuration",
+        "filter": "(objectClass=edsDynamicGroup)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDGConditionsList"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "unresolvedGuids",
+          "args": {
+            "attribute": "edsaDGConditionsList"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ManagedUnitsWithBrokenRules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Managed Units,CN=Configuration",
+        "filter": "(objectClass=edsManagedUnit)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaMUConditionsList"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "unresolvedGuids",
+          "args": {
+            "attribute": "edsaMUConditionsList"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ScriptModules",
+      "dataSource": "ActiveRoles",
+      "retrieval": {
+        "base": "CN=Script Modules,CN=Configuration",
+        "filter": "(objectClass=edsScriptModule)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaScriptLanguage",
+        "edsaScriptType",
+        "edsaSystemObject",
+        "edsaIsPredefined"
+      ]
+    },
+    {
+      "id": "EntraTenants",
+      "dataSource": "EntraId",
+      "retrieval": {
+        "base": "{DefaultAzureConfigurationDN}",
+        "filter": "(objectClass=edsAzureTenantcontainer)",
+        "scope": "one"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ],
+      "keyAttribute": "distinguishedName",
+      "enrichments": [
+        {
+          "name": "descendantCount"
+        }
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Objects",
+      "id": "ActiveRolesAdmins",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ActiveRolesAdmins",
+      "evaluation": {},
+      "display": {
+        "color": "red",
+        "sectionId": "aradmins",
+        "tileFallbackText": "AR Admins"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "fallbackText": "Active Roles Admins"
+    },
+    {
+      "kind": "Search",
+      "id": "Servers",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "Servers",
+      "evaluation": {},
+      "display": {
+        "color": "green",
+        "sectionId": "servers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "edsaEdmServiceComputerName",
+            "header": "Server Name"
+          },
+          {
+            "attribute": "edsvaPublicProductVersion",
+            "header": "Version"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "AR Servers"
+    },
+    {
+      "kind": "Search",
+      "id": "Domains",
+      "categoryId": "ARManagedDirectories",
+      "dataSource": "ActiveRoles",
+      "datasetId": "Domains",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "domains"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaSavedDnsName",
+            "header": "DNS Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Managed Domains"
+    },
+    {
+      "kind": "Derived",
+      "id": "AccessTemplateLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
+      "evaluation": {
+        "filter": ""
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "atlinks"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          }
+        ]
+      },
+      "sortOrder": 103,
+      "fallbackText": "Access Template Links"
+    },
+    {
+      "kind": "Search",
+      "id": "AccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "AccessTemplates",
+      "evaluation": {},
+      "display": {
+        "color": "red",
+        "sectionId": "accesstemplates"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsvaParentCanonicalName",
+            "header": "Container"
+          },
+          {
+            "expression": "in(edsaIsPredefined, 'TRUE', 'true') && in(edsaSystemObject, 'TRUE', 'true')",
+            "header": "Built-in"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 104,
+      "fallbackText": "Access Templates"
+    },
+    {
+      "kind": "Derived",
+      "id": "DynamicGroups",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsaIsDynamicGroup == 'TRUE'"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "dynamicgroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 105,
+      "fallbackText": "Dynamic Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "GroupFamilies",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily == 'TRUE'"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "groupfamilies"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 106,
+      "fallbackText": "Group Families"
+    },
+    {
+      "kind": "Search",
+      "id": "ManagedUnits",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ManagedUnits",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "managedunits"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "membershipRuleCount(edsaMUConditionsList)",
+            "header": "Membership Rules"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 107,
+      "fallbackText": "Managed Units"
+    },
+    {
+      "kind": "Search",
+      "id": "PolicyObjectLinks",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "PolicyObjectLinks",
+      "evaluation": {},
+      "display": {
+        "color": "amber",
+        "sectionId": "polinks"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 108,
+      "fallbackText": "Policy Object Links"
+    },
+    {
+      "kind": "Search",
+      "id": "PolicyObjects",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "PolicyObjects",
+      "evaluation": {},
+      "display": {
+        "color": "slate",
+        "sectionId": "policies"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "apeRuleCount(edsaAPEListXML)",
+            "header": "Rules"
+          },
+          {
+            "expression": "arBool(edsaIsPredefined) && arBool(edsaSystemObject)",
+            "header": "Built-in"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 109,
+      "fallbackText": "Policy Objects"
+    },
+    {
+      "kind": "Search",
+      "id": "VirtualAttributes",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "VirtualAttributes",
+      "evaluation": {},
+      "display": {
+        "color": "pink",
+        "sectionId": "virtualattrs"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "lDAPDisplayName",
+            "header": "LDAP Display Name"
+          },
+          {
+            "expression": "isSingleValued == 'false'",
+            "header": "Multi-valued"
+          },
+          {
+            "expression": "arBool(edsaIsPredefined) && arBool(edsaSystemObject)",
+            "header": "Built-in"
+          }
+        ]
+      },
+      "sortOrder": 110,
+      "fallbackText": "Virtual Attributes"
+    },
+    {
+      "kind": "Search",
+      "id": "Workflows",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "Workflows",
+      "evaluation": {},
+      "display": {
+        "color": "amber",
+        "sectionId": "workflows"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "edsaWorkflowIsDisabled == 'false'",
+            "header": "Enabled"
+          },
+          {
+            "expression": "objectClass == 'edsAutomationWorkflowDefinition'",
+            "header": "Automation"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 111,
+      "fallbackText": "Workflows"
+    },
+    {
+      "kind": "Search",
+      "id": "ConfigDatabases",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ConfigDatabases",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "configdatabases"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "edsaSQLAlias",
+            "header": "SQL Alias"
+          },
+          {
+            "attribute": "edsaDatabaseName",
+            "header": "Database Name"
+          },
+          {
+            "attribute": "edsaDatabaseType",
+            "header": "Database Type"
+          },
+          {
+            "attribute": "edsaReplicationSupport",
+            "header": "Replication Support"
+          },
+          {
+            "expression": "replicationRole(edsaReplicationRole)",
+            "header": "Replication Role"
+          }
+        ]
+      },
+      "sortOrder": 112,
+      "fallbackText": "Config Databases"
+    },
+    {
+      "kind": "Search",
+      "id": "HistoryDatabases",
+      "categoryId": "ARInfrastructure",
+      "dataSource": "ActiveRoles",
+      "datasetId": "HistoryDatabases",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "historydatabases"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "edsaSQLAlias",
+            "header": "SQL Alias"
+          },
+          {
+            "attribute": "edsaDatabaseName",
+            "header": "Database Name"
+          },
+          {
+            "attribute": "edsaDatabaseType",
+            "header": "Database Type"
+          },
+          {
+            "expression": "replicationRole(edsaReplicationRole)",
+            "header": "Replication Role"
+          }
+        ]
+      },
+      "sortOrder": 113,
+      "fallbackText": "History Databases"
+    },
+    {
+      "kind": "Search",
+      "id": "ScheduledTasks",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ScheduledTasks",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "scheduledtasks"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "lower(edsaDisableSchedule) != 'true'",
+            "header": "Enabled"
+          },
+          {
+            "expression": "arTime(edsaLastRunTime)",
+            "header": "Last Run (UTC)"
+          },
+          {
+            "expression": "arTime(edsvaNextRunTime)",
+            "header": "Next Run (UTC)"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 114,
+      "fallbackText": "Scheduled Tasks"
+    },
+    {
+      "kind": "Search",
+      "id": "EmptyAccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "EmptyAccessTemplates",
+      "evaluation": {
+        "filter": "isEmpty(edsaATEList)"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "emptyaccesstemplates"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 115,
+      "fallbackText": "Empty Access Templates"
+    },
+    {
+      "kind": "Search",
+      "id": "PolicyObjectsNoRules",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "PolicyObjectsNoRules",
+      "evaluation": {
+        "filter": "xmlCount(edsaAPEListXML, 'APE') == 0"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "policyobjectsnorules"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 116,
+      "fallbackText": "Policy Objects With No Rules"
+    },
+    {
+      "kind": "Search",
+      "id": "UnlinkedAccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "UnlinkedAccessTemplates",
+      "evaluation": {
+        "type": "Function",
+        "function": "unreferencedItems",
+        "args": {
+          "referenceDataset": "DelegationLinks",
+          "referenceAttribute": "edsaAccessTemplateGUID",
+          "keyAttribute": "objectGUID",
+          "match": "guid"
+        }
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "unlinkedaccesstemplates"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 117,
+      "fallbackText": "Unlinked User-Created Access Templates"
+    },
+    {
+      "kind": "Search",
+      "id": "DenyAccessTemplates",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "DenyAccessTemplates",
+      "evaluation": {
+        "filter": "aceHasDeny(edsaATEList)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "denyaccesstemplates"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 118,
+      "fallbackText": "Access Templates With Deny Permissions"
+    },
+    {
+      "kind": "Search",
+      "id": "UnlinkedPolicyObjects",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "UnlinkedPolicyObjects",
+      "evaluation": {
+        "type": "Function",
+        "function": "unreferencedItems",
+        "args": {
+          "referenceDataset": "OrphanPolicyObjectLinks",
+          "referenceAttribute": "edsaAPOGUID",
+          "keyAttribute": "objectGUID",
+          "match": "guid"
+        }
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "unlinkedpolicyobjects"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 119,
+      "fallbackText": "Unlinked User-Created Policy Objects"
+    },
+    {
+      "kind": "Derived",
+      "id": "OrphanAccessTemplateLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
+      "evaluation": {
+        "filter": "isBlank(edsaAccessTemplateGUID) || isBlank(edsaSecObjectGUID) || isBlank(edsaTrusteeSID)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "orphanaccesstemplatelinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "expression": "missingNames('edsaAccessTemplateGUID', edsaAccessTemplateGUID, 'edsaSecObjectGUID', edsaSecObjectGUID, 'edsaTrusteeSID', edsaTrusteeSID)",
+            "header": "Missing"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 120,
+      "fallbackText": "Orphaned Access Template Links"
+    },
+    {
+      "kind": "Derived",
+      "id": "BroadDelegationLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
+      "evaluation": {
+        "filter": "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE') && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "broaddelegationlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 121,
+      "fallbackText": "Delegated to Broad Principals"
+    },
+    {
+      "kind": "Derived",
+      "id": "UserDelegationLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
+      "evaluation": {
+        "filter": "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE') && trusteeIsUser"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "userdelegationlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 122,
+      "fallbackText": "Delegated Directly to Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "RootDelegationLinks",
+      "categoryId": "ARDelegation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DelegationLinks",
+      "evaluation": {
+        "filter": "!(edsaIsPredefined == 'TRUE' && edsaSystemObject == 'TRUE') && isRootScope"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "rootdelegationlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "directoryObject",
+            "header": "Directory Object"
+          },
+          {
+            "attribute": "accessTemplate",
+            "header": "Access Template"
+          },
+          {
+            "attribute": "trustee",
+            "header": "Trustee"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 123,
+      "fallbackText": "Delegated at Domain Root"
+    },
+    {
+      "kind": "Search",
+      "id": "OrphanPolicyObjectLinks",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "datasetId": "OrphanPolicyObjectLinks",
+      "evaluation": {
+        "filter": "isBlank(edsaAPOGUID) || isBlank(edsaSecObjectGUID)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "orphanpolicyobjectlinks"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "expression": "missingNames('edsaAPOGUID', edsaAPOGUID, 'edsaSecObjectGUID', edsaSecObjectGUID)",
+            "header": "Missing"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 121,
+      "fallbackText": "Orphaned Policy Object Links"
+    },
+    {
+      "kind": "Derived",
+      "id": "DynamicGroupsBrokenRules",
+      "categoryId": "ARAutomation",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "DynamicGroupsWithBrokenRules",
+      "evaluation": {
+        "filter": "count(unresolvedGuids) > 0"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "dynamicgroupsbrokenrules"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 122,
+      "fallbackText": "Dynamic Groups With Broken Rules"
+    },
+    {
+      "kind": "Derived",
+      "id": "ManagedUnitsBrokenRules",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "sourceDatasetId": "ManagedUnitsWithBrokenRules",
+      "evaluation": {
+        "filter": "count(unresolvedGuids) > 0"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "managedunitsbrokenrules"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 123,
+      "fallbackText": "Managed Units With Broken Rules"
+    },
+    {
+      "kind": "Search",
+      "id": "ScriptModules",
+      "categoryId": "ARConfiguration",
+      "dataSource": "ActiveRoles",
+      "datasetId": "ScriptModules",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "scriptmodules"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaScriptLanguage",
+            "header": "Language"
+          },
+          {
+            "expression": "scriptType(edsaScriptType)",
+            "header": "Type"
+          },
+          {
+            "expression": "arBool(edsaSystemObject) && arBool(edsaIsPredefined)",
+            "header": "System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 124,
+      "fallbackText": "Script Modules"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraManagedTenants",
+      "categoryId": "ARManagedDirectories",
+      "dataSource": "EntraId",
+      "sourceDatasetId": "EntraTenants",
+      "evaluation": {
+        "filter": ""
+      },
+      "display": {
+        "color": "indigo",
+        "sectionId": "entramanagedtenants"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "objectCount",
+            "header": "Objects"
+          },
+          {
+            "attribute": "note",
+            "header": "Note"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 125,
+      "fallbackText": "Managed Entra Tenants"
+    }
+  ]
+}

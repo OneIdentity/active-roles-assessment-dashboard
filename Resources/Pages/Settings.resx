@@ -300,4 +300,37 @@
   <data name="Label_PageSize" xml:space="preserve">
     <value>Page size</value>
   </data>
+  <data name="Card_Definitions" xml:space="preserve">
+    <value>Dashboard Definitions</value>
+  </data>
+  <data name="Hint_Definitions" xml:space="preserve">
+    <value>KPI, category and chart definitions are embedded in the application. Files named *.definitions.json in App_Data\Definitions override them and are loaded at startup.</value>
+  </data>
+  <data name="Definitions_OverridesActive" xml:space="preserve">
+    <value>Custom definition files are in use.</value>
+  </data>
+  <data name="Definitions_EmbeddedActive" xml:space="preserve">
+    <value>The built-in definitions are in use.</value>
+  </data>
+  <data name="Definitions_LoadedErrors" xml:space="preserve">
+    <value>These definition files were rejected at startup, so the built-in definitions are in use:</value>
+  </data>
+  <data name="Definitions_NoPending" xml:space="preserve">
+    <value>No definition changes are waiting to be applied.</value>
+  </data>
+  <data name="Definitions_PendingErrors" xml:space="preserve">
+    <value>The definition files have changed and cannot be applied until these problems are fixed:</value>
+  </data>
+  <data name="Definitions_Pending" xml:space="preserve">
+    <value>The definition files have changed. Restart the application to apply them.</value>
+  </data>
+  <data name="Definitions_ConfirmRestart" xml:space="preserve">
+    <value>Restart the application now? Users will briefly lose their connection.</value>
+  </data>
+  <data name="Button_ApplyDefinitions" xml:space="preserve">
+    <value>Apply and restart</value>
+  </data>
+  <data name="Definitions_Restarting" xml:space="preserve">
+    <value>The application is restarting. Reload this page in a few moments.</value>
+  </data>
 </root>

@@ -1,0 +1,148 @@
+{
+  "categories": [
+    {
+      "id": "Overview",
+      "dashboardId": "Main",
+      "kind": "Overview",
+      "charts": [
+        {
+          "id": "OverviewUsersBySource",
+          "type": "Pie",
+          "sourceSplitKpiId": "ADUserAccounts",
+          "sliceOffset": 16,
+          "fallbackText": "Users by Source"
+        },
+        {
+          "id": "OverviewGroupsBySource",
+          "type": "Pie",
+          "sourceSplitKpiId": "ADGroups",
+          "sliceOffset": 16,
+          "sortOrder": 1,
+          "fallbackText": "Groups by Source"
+        },
+        {
+          "id": "OverviewComputersBySource",
+          "type": "Pie",
+          "sourceSplitKpiId": "Computers",
+          "sliceOffset": 16,
+          "sortOrder": 2,
+          "fallbackText": "Computers / Devices by Source"
+        }
+      ],
+      "fallbackText": "Overview"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ADUserAccounts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ADUserAccounts}"
+      },
+      "attributes": [
+        "{ConfigAttributes:ADUserAccounts}"
+      ]
+    },
+    {
+      "id": "ADGroups",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ADGroups}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "groupType",
+        "edsaIsDynamicGroup",
+        "member",
+        "mail",
+        "edsvaGFIsGroupFamily",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "Computers",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=computer)"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "userAccountControl",
+        "edsaDomainNetbiosName",
+        "operatingSystem",
+        "operatingSystemVersion",
+        "msDS-SiteName",
+        "pwdLastSet",
+        "lastLogonTimestamp"
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Composite",
+      "id": "ADUserAccounts",
+      "categoryId": "Overview",
+      "dataSource": "ActiveDirectory",
+      "sources": [
+        "AdOverviewUsers",
+        "EntraOverviewUsers"
+      ],
+      "display": {
+        "color": "blue"
+      },
+      "drilldown": {},
+      "fallbackText": "Total Users"
+    },
+    {
+      "kind": "Composite",
+      "id": "ADGroups",
+      "categoryId": "Overview",
+      "dataSource": "ActiveDirectory",
+      "sources": [
+        "AdOverviewGroups",
+        "EntraOverviewGroups"
+      ],
+      "display": {
+        "color": "green"
+      },
+      "drilldown": {},
+      "sortOrder": 1,
+      "fallbackText": "Total Groups"
+    },
+    {
+      "kind": "Search",
+      "id": "Computers",
+      "categoryId": "Overview",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "Computers",
+      "evaluation": {},
+      "display": {
+        "color": "teal"
+      },
+      "drilldown": {},
+      "sortOrder": 2,
+      "fallbackText": "Total Computers"
+    },
+    {
+      "kind": "Composite",
+      "id": "MainTotalMailboxes",
+      "categoryId": "Overview",
+      "dataSource": "Exchange",
+      "sources": [
+        "ExchangeTotalMailboxes"
+      ],
+      "aggregate": "First",
+      "display": {
+        "color": "purple"
+      },
+      "drilldown": {},
+      "sortOrder": 3,
+      "fallbackText": "Total Mailboxes"
+    }
+  ]
+}

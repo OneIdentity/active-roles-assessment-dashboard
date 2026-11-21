@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Models.Reporting;
 using ActiveRolesDashboard.Services;
@@ -19,9 +19,13 @@ public class ExportController : ControllerBase
     private readonly ActiveRolesService _activeRoles;
     private readonly PerUserSummaryCache _summaryCache;
     private readonly RoleService _roleService;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> _arConfig;
+    private readonly Services.Definitions.DefinitionKpiCalculator? _kpiCalculator;
 
-    public ExportController(ReportBuilder reportBuilder, ReportExporterFactory exporterFactory, UserSettingsService userSettings, ActiveRolesService activeRoles, PerUserSummaryCache summaryCache, RoleService roleService)
+    public ExportController(ReportBuilder reportBuilder, ReportExporterFactory exporterFactory, UserSettingsService userSettings, ActiveRolesService activeRoles, PerUserSummaryCache summaryCache, RoleService roleService, Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> arConfig, Services.Definitions.DefinitionKpiCalculator? kpiCalculator = null)
     {
+        _arConfig = arConfig;
+        _kpiCalculator = kpiCalculator;
         _reportBuilder = reportBuilder;
         _exporterFactory = exporterFactory;
         _userSettings = userSettings;
@@ -74,6 +78,7 @@ public class ExportController : ControllerBase
         // what the user is viewing. Applied at the shared choke point on DashboardSummary.
         var segmentFilter = SegmentFilterSession.Get(HttpContext.Session);
         summary.ApplySegmentFilter(segmentFilter);
+        _kpiCalculator?.Reevaluate(summary, Services.Definitions.DefinitionKpiCalculator.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
 
         // Resolve the caller's role permissions to enforce export governance server-side. The
         // Export button is hidden without ExportDashboardData, but a crafted POST must also be

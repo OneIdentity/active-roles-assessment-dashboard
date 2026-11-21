@@ -1,4 +1,4 @@
-using System.Buffers;
+﻿using System.Buffers;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -349,12 +349,22 @@ public class CategoryInfo
         KpiSortOrder = CategorySortOrder.AtoZ
     };
 
-    public static readonly IReadOnlyList<CategoryInfo> All = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARManagedDirectories, ARInfrastructure, ARAutomation, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
+    /// <summary>Effective categories. Replaced at startup from the loaded definitions (see <see cref="Definitions.DefinitionCatalog"/>).</summary>
+    public static IReadOnlyList<CategoryInfo> All { get; private set; } = [Overview, ADOverview, EntraOverview, ARConfiguration, ARDelegation, ARManagedDirectories, ARInfrastructure, ARAutomation, ARGovernance, ADGovernance, PrivilegedGroups, ADUserAccountsCategory, ADGroupsCategory, PrivilegedUsers, Infrastructure, ComputersCategory, NHIs, EntraIDGovernance, EntraUserAccounts, EntraGroups, Licensing, ExchangeOverview, ExchangeGovernance, ExchangeInfrastructure, ExchangeMailboxes, ExchangeGroups, ExchangePermissions];
 
-    private static readonly Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
+    private static Dictionary<string, CategoryInfo> ByKey = All.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
+
+    internal static void Replace(IReadOnlyList<CategoryInfo> categories)
+    {
+        All = categories;
+        ByKey = categories.ToDictionary(c => c.Key, StringComparer.OrdinalIgnoreCase);
+    }
 
     /// <summary>Resolves a category by its key, or null when unknown.</summary>
     public static CategoryInfo? FromKey(string key) => ByKey.TryGetValue(key, out var category) ? category : null;
+
+    /// <summary>Resolves a category by key from the effective (definition-backed) list; unknown keys yield a key-only placeholder.</summary>
+    public static CategoryInfo Get(string key) => FromKey(key) ?? new CategoryInfo { Key = key, DisplayName = key };
 
     public static IReadOnlyList<CategoryInfo> ForDashboard(DashboardInfo dashboard)
     {
@@ -543,11 +553,6 @@ public class ChartInfo
     /// donut would be misleading.
     /// </summary>
     public bool DisableTypeToggle { get; init; }
-
-    // CSS color names used for source-split slices, in order. The first two keep the
-    // established AD (blue) / Entra (teal) mapping; the remainder give distinct colours
-    // when a chart is split across multiple tenants.
-    public static readonly IReadOnlyList<string> SourceSplitColors = ["blue", "teal", "purple", "amber", "pink", "slate", "indigo", "orange"];
 
     // Chart definitions.
     // Example: Computers category operating-system breakdown, derived from existing computer KPIs.
@@ -987,7 +992,8 @@ public class ChartInfo
         SourceSplitKpiKey = "ExchangeTotalMailboxes"
     };
 
-    public static readonly IReadOnlyList<ChartInfo> All =
+    /// <summary>Effective charts. Replaced at startup from the loaded definitions.</summary>
+    public static IReadOnlyList<ChartInfo> All { get; internal set; } =
     [
         ComputerOsBreakdown, ComputerAccountStateBreakdown,
         GroupTypeBreakdown, GroupHygiene,
@@ -1561,6 +1567,10 @@ public class KpiInfo
     }
 
     public string CategoryKey { get; init; } = string.Empty;
+
+    /// <summary>The system this KPI describes. Recorded explicitly on every KPI.</summary>
+    public Definitions.DataSource DataSource { get; init; }
+
     public string CssColor { get; init; } = string.Empty;
     public string SectionId { get; init; } = string.Empty;
     public bool HasDrilldown { get; init; }
@@ -1577,220 +1587,224 @@ public class KpiInfo
     /// </summary>
     public bool IsSegmentable { get; init; }
 
-    /// <summary>Search definitions used to retrieve data for this KPI. Empty for derived KPIs.</summary>
+    /// <summary>Value is only accurate once Entra group membership has been lazily loaded.</summary>
+    public bool RequiresEntraMembership { get; init; }
+
+    /// <summary>Search definitions
     public IReadOnlyList<KpiSearchDefinition> Searches { get; init; } = [];
 
     /// <summary>The label shown on the KPI tile. Falls back to DisplayName if not set.</summary>
     public string Label => string.IsNullOrEmpty(TileLabel) ? DisplayName : TileLabel;
 
     // Overview KPIs (use config-driven filters/attributes; SharedSearchKey enables reuse)
-    public static readonly KpiInfo ADUserAccounts = new() { Key = "ADUserAccounts", DisplayName = "Total Users", CategoryKey = "Overview", CssColor = "blue", SortOrder = 0, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADUserAccounts}", Attributes = "{ConfigAttributes:ADUserAccounts}", SharedSearchKey = "ADUserAccounts" }] };
-    public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADGroups}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
-    public static readonly KpiInfo Computers = new() { Key = "Computers", DisplayName = "Total Computers", CategoryKey = "Overview", CssColor = "teal", SortOrder = 2, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=computer)", Attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,pwdLastSet,lastLogonTimestamp" }] };
+    public static readonly KpiInfo ADUserAccounts = new() { Key = "ADUserAccounts", DisplayName = "Total Users", CategoryKey = "Overview", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SortOrder = 0, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADUserAccounts}", Attributes = "{ConfigAttributes:ADUserAccounts}", SharedSearchKey = "ADUserAccounts" }] };
+    public static readonly KpiInfo ADGroups = new() { Key = "ADGroups", DisplayName = "Total Groups", CategoryKey = "Overview", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SortOrder = 1, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ADGroups}", Attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName", SharedSearchKey = "ADGroups" }] };
+    public static readonly KpiInfo Computers = new() { Key = "Computers", DisplayName = "Total Computers", CategoryKey = "Overview", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SortOrder = 2, HasDrilldown = false, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=computer)", Attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,pwdLastSet,lastLogonTimestamp" }] };
     // Main Overview mailbox total. Carries no Searches of its own: the value is sourced from the
     // already-computed Exchange ExchangeTotalMailboxes KPI (see GetKpiResult). Rendered on the main
     // dashboard only when the Exchange dashboard is visible to the user.
-    public static readonly KpiInfo MainTotalMailboxes = new() { Key = "MainTotalMailboxes", DisplayName = "Total Mailboxes", CategoryKey = "Overview", CssColor = "purple", SortOrder = 3, HasDrilldown = false };
+    public static readonly KpiInfo MainTotalMailboxes = new() { Key = "MainTotalMailboxes", DisplayName = "Total Mailboxes", CategoryKey = "Overview", DataSource = Definitions.DataSource.Exchange, CssColor = "purple", SortOrder = 3, HasDrilldown = false };
 
     // Single-source Overview KPIs (AD-only) shown on the Active Directory dashboard's Overview.
     // These reuse the shared AD datasets, so they carry no Searches of their own and honour the domain selection via the reduced summaries.
-    public static readonly KpiInfo AdOverviewUsers = new() { Key = "AdOverviewUsers", DisplayName = "Total Users", CategoryKey = "ADOverview", CssColor = "blue", SortOrder = 0, HasDrilldown = false };
-    public static readonly KpiInfo AdOverviewGroups = new() { Key = "AdOverviewGroups", DisplayName = "Total Groups", CategoryKey = "ADOverview", CssColor = "green", SortOrder = 1, HasDrilldown = false };
-    public static readonly KpiInfo AdOverviewComputers = new() { Key = "AdOverviewComputers", DisplayName = "Total Computers", CategoryKey = "ADOverview", CssColor = "teal", SortOrder = 2, HasDrilldown = false };
+    public static readonly KpiInfo AdOverviewUsers = new() { Key = "AdOverviewUsers", DisplayName = "Total Users", CategoryKey = "ADOverview", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SortOrder = 0, HasDrilldown = false };
+    public static readonly KpiInfo AdOverviewGroups = new() { Key = "AdOverviewGroups", DisplayName = "Total Groups", CategoryKey = "ADOverview", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SortOrder = 1, HasDrilldown = false };
+    public static readonly KpiInfo AdOverviewComputers = new() { Key = "AdOverviewComputers", DisplayName = "Total Computers", CategoryKey = "ADOverview", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SortOrder = 2, HasDrilldown = false };
 
     // Single-source Overview KPIs (Entra-only) shown on the Entra ID dashboard's Overview.
     // These reuse the Entra totals dataset and honour the tenant selection via the reduced summary.
-    public static readonly KpiInfo EntraOverviewUsers = new() { Key = "EntraOverviewUsers", DisplayName = "Total Users", CategoryKey = "EntraOverview", CssColor = "blue", SortOrder = 0, HasDrilldown = false };
-    public static readonly KpiInfo EntraOverviewGroups = new() { Key = "EntraOverviewGroups", DisplayName = "Total Groups", CategoryKey = "EntraOverview", CssColor = "green", SortOrder = 1, HasDrilldown = false };
+    public static readonly KpiInfo EntraOverviewUsers = new() { Key = "EntraOverviewUsers", DisplayName = "Total Users", CategoryKey = "EntraOverview", DataSource = Definitions.DataSource.EntraId, CssColor = "blue", SortOrder = 0, HasDrilldown = false };
+    public static readonly KpiInfo EntraOverviewGroups = new() { Key = "EntraOverviewGroups", DisplayName = "Total Groups", CategoryKey = "EntraOverview", DataSource = Definitions.DataSource.EntraId, CssColor = "green", SortOrder = 1, HasDrilldown = false };
 
     // Entra User Accounts KPIs (derived from the Entra totals user objects, honouring the tenant selection)
-    public static readonly KpiInfo EntraEnabledUsers = new() { Key = "EntraEnabledUsers", DisplayName = "Enabled Users", CategoryKey = "EntraUserAccounts", CssColor = "green", SectionId = "entraenabledusers", SortOrder = 0, HasDrilldown = true };
-    public static readonly KpiInfo EntraDisabledUsers = new() { Key = "EntraDisabledUsers", DisplayName = "Disabled Users", CategoryKey = "EntraUserAccounts", CssColor = "red", SectionId = "entradisabledusers", SortOrder = 1, HasDrilldown = true };
-    public static readonly KpiInfo EntraNoManagerUser = new() { Key = "EntraNoManagerUser", DisplayName = "No Manager (User)", CategoryKey = "EntraUserAccounts", CssColor = "purple", SectionId = "entranomanageruser", SortOrder = 2, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraGuestUsers = new() { Key = "EntraGuestUsers", DisplayName = "Guest Users", CategoryKey = "EntraUserAccounts", CssColor = "orange", SectionId = "entraguestusers", SortOrder = 3, HasDrilldown = true };
-    public static readonly KpiInfo EntraInternalUsers = new() { Key = "EntraInternalUsers", DisplayName = "Internal Users", CategoryKey = "EntraUserAccounts", CssColor = "teal", SectionId = "entrainternalusers", SortOrder = 4, HasDrilldown = true };
-    public static readonly KpiInfo EntraExternalUsers = new() { Key = "EntraExternalUsers", DisplayName = "External Users", CategoryKey = "EntraUserAccounts", CssColor = "pink", SectionId = "entraexternalusers", SortOrder = 5, HasDrilldown = true };
-    public static readonly KpiInfo EntraHybridUsers = new() { Key = "EntraHybridUsers", DisplayName = "Hybrid Users", CategoryKey = "EntraUserAccounts", CssColor = "teal", SectionId = "entrahybridusers", SortOrder = 6, HasDrilldown = true };
-    public static readonly KpiInfo EntraCloudOnlyUsers = new() { Key = "EntraCloudOnlyUsers", DisplayName = "Cloud-Only Users", CategoryKey = "EntraUserAccounts", CssColor = "blue", SectionId = "entracloudonlyusers", SortOrder = 7, HasDrilldown = true };
-    public static readonly KpiInfo EntraManagedUsers = new() { Key = "EntraManagedUsers", DisplayName = "Managed Users", CategoryKey = "EntraUserAccounts", CssColor = "green", SectionId = "entramanagedusers", SortOrder = 8, HasDrilldown = true };
-    public static readonly KpiInfo EntraDistributionGroups = new() { Key = "EntraDistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "EntraGroups", CssColor = "blue", SectionId = "entradistributiongroups", SortOrder = 0, HasDrilldown = true };
-    public static readonly KpiInfo EntraDynamicDistributionGroups = new() { Key = "EntraDynamicDistributionGroups", DisplayName = "Dynamic Distribution Groups", CategoryKey = "EntraGroups", CssColor = "teal", SectionId = "entradynamicdistributiongroups", SortOrder = 1, HasDrilldown = true };
-    public static readonly KpiInfo EntraMicrosoft365Groups = new() { Key = "EntraMicrosoft365Groups", DisplayName = "Microsoft 365 Groups", CategoryKey = "EntraGroups", CssColor = "purple", SectionId = "entramicrosoft365groups", SortOrder = 2, HasDrilldown = true };
-    public static readonly KpiInfo EntraSecurityGroups = new() { Key = "EntraSecurityGroups", DisplayName = "Security Groups", CategoryKey = "EntraGroups", CssColor = "green", SectionId = "entrasecuritygroups", SortOrder = 3, HasDrilldown = true };
-    public static readonly KpiInfo EntraEmptyGroups = new() { Key = "EntraEmptyGroups", DisplayName = "Empty Groups", CategoryKey = "EntraGroups", CssColor = "slate", SectionId = "entraemptygroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraNoGroupOwner = new() { Key = "EntraNoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "EntraGroups", CssColor = "amber", SectionId = "entranogroupowner", SortOrder = 5, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraGuestContainingGroups = new() { Key = "EntraGuestContainingGroups", DisplayName = "Guest-Containing Groups", CategoryKey = "EntraGroups", CssColor = "orange", SectionId = "entraguestcontaininggroups", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraPublicGroups = new() { Key = "EntraPublicGroups", DisplayName = "Public M365 Groups", CategoryKey = "EntraGroups", CssColor = "orange", SectionId = "entrapublicgroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraOnPremSyncedGroups = new() { Key = "EntraOnPremSyncedGroups", DisplayName = "On-Premises Synced Groups", CategoryKey = "EntraGroups", CssColor = "teal", SectionId = "entraonpremsyncedgroups", SortOrder = 8, HasDrilldown = true };
-    public static readonly KpiInfo EntraSingleOwnerGroups = new() { Key = "EntraSingleOwnerGroups", DisplayName = "Single-Owner Groups", CategoryKey = "EntraGroups", CssColor = "amber", SectionId = "entrasingleownergroups", SortOrder = 9, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EntraLargeGroups = new() { Key = "EntraLargeGroups", DisplayName = "Large Groups", CategoryKey = "EntraGroups", CssColor = "slate", SectionId = "entralargegroups", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EntraEnabledUsers = new() { Key = "EntraEnabledUsers", DisplayName = "Enabled Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "green", SectionId = "entraenabledusers", SortOrder = 0, HasDrilldown = true };
+    public static readonly KpiInfo EntraDisabledUsers = new() { Key = "EntraDisabledUsers", DisplayName = "Disabled Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "red", SectionId = "entradisabledusers", SortOrder = 1, HasDrilldown = true };
+    public static readonly KpiInfo EntraNoManagerUser = new() { Key = "EntraNoManagerUser", DisplayName = "No Manager (User)", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "purple", SectionId = "entranomanageruser", SortOrder = 2, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EntraGuestUsers = new() { Key = "EntraGuestUsers", DisplayName = "Guest Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "orange", SectionId = "entraguestusers", SortOrder = 3, HasDrilldown = true };
+    public static readonly KpiInfo EntraInternalUsers = new() { Key = "EntraInternalUsers", DisplayName = "Internal Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entrainternalusers", SortOrder = 4, HasDrilldown = true };
+    public static readonly KpiInfo EntraExternalUsers = new() { Key = "EntraExternalUsers", DisplayName = "External Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "pink", SectionId = "entraexternalusers", SortOrder = 5, HasDrilldown = true };
+    public static readonly KpiInfo EntraHybridUsers = new() { Key = "EntraHybridUsers", DisplayName = "Hybrid Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entrahybridusers", SortOrder = 6, HasDrilldown = true };
+    public static readonly KpiInfo EntraCloudOnlyUsers = new() { Key = "EntraCloudOnlyUsers", DisplayName = "Cloud-Only Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "blue", SectionId = "entracloudonlyusers", SortOrder = 7, HasDrilldown = true };
+    public static readonly KpiInfo EntraManagedUsers = new() { Key = "EntraManagedUsers", DisplayName = "Managed Users", CategoryKey = "EntraUserAccounts", DataSource = Definitions.DataSource.EntraId, CssColor = "green", SectionId = "entramanagedusers", SortOrder = 8, HasDrilldown = true };
+    public static readonly KpiInfo EntraDistributionGroups = new() { Key = "EntraDistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "blue", SectionId = "entradistributiongroups", SortOrder = 0, HasDrilldown = true };
+    public static readonly KpiInfo EntraDynamicDistributionGroups = new() { Key = "EntraDynamicDistributionGroups", DisplayName = "Dynamic Distribution Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entradynamicdistributiongroups", SortOrder = 1, HasDrilldown = true };
+    public static readonly KpiInfo EntraMicrosoft365Groups = new() { Key = "EntraMicrosoft365Groups", DisplayName = "Microsoft 365 Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "purple", SectionId = "entramicrosoft365groups", SortOrder = 2, HasDrilldown = true };
+    public static readonly KpiInfo EntraSecurityGroups = new() { Key = "EntraSecurityGroups", DisplayName = "Security Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "green", SectionId = "entrasecuritygroups", SortOrder = 3, HasDrilldown = true };
+    public static readonly KpiInfo EntraEmptyGroups = new() { Key = "EntraEmptyGroups", DisplayName = "Empty Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entraemptygroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraNoGroupOwner = new() { Key = "EntraNoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entranogroupowner", SortOrder = 5, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraGuestContainingGroups = new() { Key = "EntraGuestContainingGroups", DisplayName = "Guest-Containing Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "orange", SectionId = "entraguestcontaininggroups", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraPublicGroups = new() { Key = "EntraPublicGroups", DisplayName = "Public M365 Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "orange", SectionId = "entrapublicgroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EntraOnPremSyncedGroups = new() { Key = "EntraOnPremSyncedGroups", DisplayName = "On-Premises Synced Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entraonpremsyncedgroups", SortOrder = 8, HasDrilldown = true };
+    public static readonly KpiInfo EntraSingleOwnerGroups = new() { Key = "EntraSingleOwnerGroups", DisplayName = "Single-Owner Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entrasingleownergroups", SortOrder = 9, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraLargeGroups = new() { Key = "EntraLargeGroups", DisplayName = "Large Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entralargegroups", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
 
     // AR Configuration KPIs
-    public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARInfrastructure", CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
-    public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARInfrastructure", CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion,edsvaDiagnosticLogTurnedOn" }] };
-    public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARManagedDirectories", CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
-    public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARDelegation", CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo DynamicGroups = new() { Key = "DynamicGroups", DisplayName = "Dynamic Groups", CategoryKey = "ARAutomation", CssColor = "purple", SectionId = "dynamicgroups", SortOrder = 105, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList,edsvaDGControllingService" }] };
-    public static readonly KpiInfo GroupFamilies = new() { Key = "GroupFamilies", DisplayName = "Group Families", CategoryKey = "ARConfiguration", CssColor = "purple", SectionId = "groupfamilies", SortOrder = 106, HasDrilldown = true };
-    public static readonly KpiInfo ManagedUnits = new() { Key = "ManagedUnits", DisplayName = "Managed Units", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "managedunits", SortOrder = 107, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
-    public static readonly KpiInfo PolicyObjectLinks = new() { Key = "PolicyObjectLinks", DisplayName = "Policy Object Links", CategoryKey = "ARAutomation", CssColor = "amber", SectionId = "polinks", SortOrder = 108, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARAutomation", CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARDelegation", CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
-    public static readonly KpiInfo PolicyObjectsNoRules = new() { Key = "PolicyObjectsNoRules", DisplayName = "Policy Objects With No Rules", CategoryKey = "ARAutomation", CssColor = "orange", SectionId = "policyobjectsnorules", SortOrder = 116, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
-    public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARDelegation", CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
-    public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
-    public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARAutomation", CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
-    public static readonly KpiInfo OrphanAccessTemplateLinks = new() { Key = "OrphanAccessTemplateLinks", DisplayName = "Orphaned Access Template Links", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "orphanaccesstemplatelinks", SortOrder = 120, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaAccessTemplateGUID,edsaSecObjectGUID,edsaTrusteeSID" }] };
-    public static readonly KpiInfo BroadDelegationLinks = new() { Key = "BroadDelegationLinks", DisplayName = "Delegated to Broad Principals", CategoryKey = "ARDelegation", CssColor = "red", SectionId = "broaddelegationlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo UserDelegationLinks = new() { Key = "UserDelegationLinks", DisplayName = "Delegated Directly to Users", CategoryKey = "ARDelegation", CssColor = "amber", SectionId = "userdelegationlinks", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo RootDelegationLinks = new() { Key = "RootDelegationLinks", DisplayName = "Delegated at Domain Root", CategoryKey = "ARDelegation", CssColor = "orange", SectionId = "rootdelegationlinks", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo OrphanPolicyObjectLinks = new() { Key = "OrphanPolicyObjectLinks", DisplayName = "Orphaned Policy Object Links", CategoryKey = "ARAutomation", CssColor = "red", SectionId = "orphanpolicyobjectlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName,edsaAPOGUID,edsaSecObjectGUID" }] };
-    public static readonly KpiInfo DynamicGroupsBrokenRules = new() { Key = "DynamicGroupsBrokenRules", DisplayName = "Dynamic Groups With Broken Rules", CategoryKey = "ARAutomation", CssColor = "red", SectionId = "dynamicgroupsbrokenrules", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList" }] };
-    public static readonly KpiInfo ManagedUnitsBrokenRules = new() { Key = "ManagedUnitsBrokenRules", DisplayName = "Managed Units With Broken Rules", CategoryKey = "ARConfiguration", CssColor = "red", SectionId = "managedunitsbrokenrules", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
-    public static readonly KpiInfo ScriptModules = new() { Key = "ScriptModules", DisplayName = "Script Modules", CategoryKey = "ARConfiguration", CssColor = "teal", SectionId = "scriptmodules", SortOrder = 124, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Script Modules,CN=Configuration", Filter = "(objectClass=edsScriptModule)", Attributes = "name,distinguishedName,edsaScriptLanguage,edsaScriptType,edsaSystemObject,edsaIsPredefined" }] };
+    public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARInfrastructure", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
+    public static readonly KpiInfo Servers = new() { Key = "Servers", DisplayName = "AR Servers", CategoryKey = "ARInfrastructure", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "green", SectionId = "servers", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsARService)", Attributes = "edsaEdmServiceComputerName,edsvaPublicProductVersion,edsvaDiagnosticLogTurnedOn" }] };
+    public static readonly KpiInfo Domains = new() { Key = "Domains", DisplayName = "Managed Domains", CategoryKey = "ARManagedDirectories", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "blue", SectionId = "domains", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Domains,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsDomainCacheConfig)", Attributes = "name,edsvaDomainDNS,edsaSavedDnsName,edsaUseOverrideAccount" }] };
+    public static readonly KpiInfo AccessTemplateLinks = new() { Key = "AccessTemplateLinks", DisplayName = "Access Template Links", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "orange", SectionId = "atlinks", SortOrder = 103, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaTrusteeSID,edsaSecObjectGUID,edsaAccessTemplateGUID,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo AccessTemplates = new() { Key = "AccessTemplates", DisplayName = "Access Templates", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "accesstemplates", SortOrder = 104, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsvaParentCanonicalName,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo DynamicGroups = new() { Key = "DynamicGroups", DisplayName = "Dynamic Groups", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "purple", SectionId = "dynamicgroups", SortOrder = 105, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList,edsvaDGControllingService" }] };
+    public static readonly KpiInfo GroupFamilies = new() { Key = "GroupFamilies", DisplayName = "Group Families", CategoryKey = "ARConfiguration", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "purple", SectionId = "groupfamilies", SortOrder = 106, HasDrilldown = true };
+    public static readonly KpiInfo ManagedUnits = new() { Key = "ManagedUnits", DisplayName = "Managed Units", CategoryKey = "ARConfiguration", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "teal", SectionId = "managedunits", SortOrder = 107, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
+    public static readonly KpiInfo PolicyObjectLinks = new() { Key = "PolicyObjectLinks", DisplayName = "Policy Object Links", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "amber", SectionId = "polinks", SortOrder = 108, HasDrilldown = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo PolicyObjects = new() { Key = "PolicyObjects", DisplayName = "Policy Objects", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "slate", SectionId = "policies", SortOrder = 109, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo EmptyAccessTemplates = new() { Key = "EmptyAccessTemplates", DisplayName = "Empty Access Templates", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "amber", SectionId = "emptyaccesstemplates", SortOrder = 115, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,edsaATEList" }] };
+    public static readonly KpiInfo PolicyObjectsNoRules = new() { Key = "PolicyObjectsNoRules", DisplayName = "Policy Objects With No Rules", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "orange", SectionId = "policyobjectsnorules", SortOrder = 116, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(objectClass=edsPolicyObject)", Attributes = "name,distinguishedName,edsaAPEListXML" }] };
+    public static readonly KpiInfo UnlinkedAccessTemplates = new() { Key = "UnlinkedAccessTemplates", DisplayName = "Unlinked User-Created Access Templates", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "amber", SectionId = "unlinkedaccesstemplates", SortOrder = 117, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(&(objectClass=edsAccessTemplate)(edsaIsPredefined=FALSE)(edsaSystemObject=FALSE))", Attributes = "name,distinguishedName,objectGUID" }] };
+    public static readonly KpiInfo DenyAccessTemplates = new() { Key = "DenyAccessTemplates", DisplayName = "Access Templates With Deny Permissions", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "denyaccesstemplates", SortOrder = 118, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Access Templates,CN=Configuration", Filter = "(objectClass=edsAccessTemplate)", Attributes = "name,distinguishedName,objectGUID,edsaATEList" }] };
+    public static readonly KpiInfo UnlinkedPolicyObjects = new() { Key = "UnlinkedPolicyObjects", DisplayName = "Unlinked User-Created Policy Objects", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "orange", SectionId = "unlinkedpolicyobjects", SortOrder = 119, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Policies,CN=Configuration", Filter = "(&(objectClass=edsPolicyObject)(!(name=Built-in*)))", Attributes = "name,distinguishedName,objectGUID" }] };
+    public static readonly KpiInfo OrphanAccessTemplateLinks = new() { Key = "OrphanAccessTemplateLinks", DisplayName = "Orphaned Access Template Links", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "orphanaccesstemplatelinks", SortOrder = 120, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AT Links,CN=Configuration", Filter = "(objectClass=edsACE)", Attributes = "name,distinguishedName,edsaAccessTemplateGUID,edsaSecObjectGUID,edsaTrusteeSID" }] };
+    public static readonly KpiInfo BroadDelegationLinks = new() { Key = "BroadDelegationLinks", DisplayName = "Delegated to Broad Principals", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "broaddelegationlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo UserDelegationLinks = new() { Key = "UserDelegationLinks", DisplayName = "Delegated Directly to Users", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "amber", SectionId = "userdelegationlinks", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo RootDelegationLinks = new() { Key = "RootDelegationLinks", DisplayName = "Delegated at Domain Root", CategoryKey = "ARDelegation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "orange", SectionId = "rootdelegationlinks", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo OrphanPolicyObjectLinks = new() { Key = "OrphanPolicyObjectLinks", DisplayName = "Orphaned Policy Object Links", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "orphanpolicyobjectlinks", SortOrder = 121, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=AP Links,CN=Configuration", Filter = "(objectClass=edsPolicyObjectLink)", Attributes = "name,distinguishedName,edsaAPOGUID,edsaSecObjectGUID" }] };
+    public static readonly KpiInfo DynamicGroupsBrokenRules = new() { Key = "DynamicGroupsBrokenRules", DisplayName = "Dynamic Groups With Broken Rules", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "dynamicgroupsbrokenrules", SortOrder = 122, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Configuration", Filter = "(objectClass=edsDynamicGroup)", Attributes = "name,distinguishedName,edsaDGConditionsList" }] };
+    public static readonly KpiInfo ManagedUnitsBrokenRules = new() { Key = "ManagedUnitsBrokenRules", DisplayName = "Managed Units With Broken Rules", CategoryKey = "ARConfiguration", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "managedunitsbrokenrules", SortOrder = 123, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "CN=Managed Units,CN=Configuration", Filter = "(objectClass=edsManagedUnit)", Attributes = "name,distinguishedName,edsaMUConditionsList" }] };
+    public static readonly KpiInfo ScriptModules = new() { Key = "ScriptModules", DisplayName = "Script Modules", CategoryKey = "ARConfiguration", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "teal", SectionId = "scriptmodules", SortOrder = 124, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Script Modules,CN=Configuration", Filter = "(objectClass=edsScriptModule)", Attributes = "name,distinguishedName,edsaScriptLanguage,edsaScriptType,edsaSystemObject,edsaIsPredefined" }] };
     // Inventory of Entra/Azure tenants managed by Active Roles. The Azure configuration base DN
     // is resolved at runtime from configuration (DefaultAzureConfigurationDN), so the search is
     // driven by GetEntraManagedTenantsAsync rather than the generic ExecuteKpiSearchAsync path.
-    public static readonly KpiInfo EntraManagedTenants = new() { Key = "EntraManagedTenants", DisplayName = "Managed Entra Tenants", CategoryKey = "ARManagedDirectories", CssColor = "indigo", SectionId = "entramanagedtenants", SortOrder = 125, HasDrilldown = true };
-    public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued,edsaIsPredefined,edsaSystemObject" }] };
-    public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARAutomation", CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
-    public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARInfrastructure", CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
-    public static readonly KpiInfo HistoryDatabases = new() { Key = "HistoryDatabases", DisplayName = "History Databases", CategoryKey = "ARInfrastructure", CssColor = "teal", SectionId = "historydatabases", SortOrder = 113, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Management History Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsMHReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationRole" }] };
-    public static readonly KpiInfo ScheduledTasks = new() { Key = "ScheduledTasks", DisplayName = "Scheduled Tasks", CategoryKey = "ARConfiguration", CssColor = "blue", SectionId = "scheduledtasks", SortOrder = 114, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Scheduled Tasks,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsScheduledTask)", Attributes = "name,distinguishedName,edsaLastRunTime,edsvaNextRunTime,edsaDisableSchedule" }] };
+    public static readonly KpiInfo EntraManagedTenants = new() { Key = "EntraManagedTenants", DisplayName = "Managed Entra Tenants", CategoryKey = "ARManagedDirectories", DataSource = Definitions.DataSource.EntraId, CssColor = "indigo", SectionId = "entramanagedtenants", SortOrder = 125, HasDrilldown = true };
+    public static readonly KpiInfo VirtualAttributes = new() { Key = "VirtualAttributes", DisplayName = "Virtual Attributes", CategoryKey = "ARConfiguration", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "pink", SectionId = "virtualattrs", SortOrder = 110, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Virtual Attributes,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsVirtualAttribute)", Attributes = "name,lDAPDisplayName,isSingleValued,edsaIsPredefined,edsaSystemObject" }] };
+    public static readonly KpiInfo Workflows = new() { Key = "Workflows", DisplayName = "Workflows", CategoryKey = "ARAutomation", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "amber", SectionId = "workflows", SortOrder = 111, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Workflow,CN=Policies,CN=Configuration", Filter = "(|(objectClass=edsWorkflowDefinition)(objectClass=edsAutomationWorkflowDefinition))", Attributes = "name,distinguishedName,objectClass,edsaWorkflowIsDisabled" }] };
+    public static readonly KpiInfo ConfigDatabases = new() { Key = "ConfigDatabases", DisplayName = "Config Databases", CategoryKey = "ARInfrastructure", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "blue", SectionId = "configdatabases", SortOrder = 112, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Configuration Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationSupport,edsaReplicationRole" }] };
+    public static readonly KpiInfo HistoryDatabases = new() { Key = "HistoryDatabases", DisplayName = "History Databases", CategoryKey = "ARInfrastructure", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "teal", SectionId = "historydatabases", SortOrder = 113, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Management History Databases,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsMHReplicationPartner)", Attributes = "edsaSQLAlias,edsaDatabaseName,edsaDatabaseType,edsaReplicationRole" }] };
+    public static readonly KpiInfo ScheduledTasks = new() { Key = "ScheduledTasks", DisplayName = "Scheduled Tasks", CategoryKey = "ARConfiguration", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "blue", SectionId = "scheduledtasks", SortOrder = 114, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Scheduled Tasks,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsScheduledTask)", Attributes = "name,distinguishedName,edsaLastRunTime,edsvaNextRunTime,edsaDisableSchedule" }] };
 
     // AD Governance KPIs
-    public static readonly KpiInfo NoGroupOwner = new() { Key = "NoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "ADGroupsCategory", CssColor = "amber", SectionId = "nogroupowner", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoGroupOwner}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo NoManagerUser = new() { Key = "NoManagerUser", DisplayName = "No Manager (User)", CategoryKey = "ADUserAccountsCategory", CssColor = "purple", SectionId = "nomanageruser", SortOrder = 13, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoManagerUser}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo NoManagerServiceAccount = new() { Key = "NoManagerServiceAccount", DisplayName = "No Manager (Service Account)", CategoryKey = "NHIs", CssColor = "teal", SectionId = "nomanagersa", SortOrder = 14, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoManagerServiceAccount}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo UserAccountLockedOut = new() { Key = "UserAccountLockedOut", DisplayName = "User Account Locked Out", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "accountlockedout", SortOrder = 15, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:UserAccountLockedOut}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo EmptyGroups = new() { Key = "EmptyGroups", DisplayName = "Empty Groups", CategoryKey = "ADGroupsCategory", CssColor = "slate", SectionId = "emptygroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:EmptyGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo NeverLoggedIn = new() { Key = "NeverLoggedIn", DisplayName = "Never Logged In", CategoryKey = "ADUserAccountsCategory", CssColor = "orange", SectionId = "neverloggedin", SortOrder = 16, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo ExpiredUsers = new() { Key = "ExpiredUsers", DisplayName = "Expired Users", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "expiredusers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:UserAccountExpired}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo ReversibleEncryption = new() { Key = "ReversibleEncryption", DisplayName = "Reversible Encryption", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "reversibleencryption", SortOrder = 18, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo NoGroupOwner = new() { Key = "NoGroupOwner", DisplayName = "No Group Owner", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "nogroupowner", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoGroupOwner}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo NoManagerUser = new() { Key = "NoManagerUser", DisplayName = "No Manager (User)", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "nomanageruser", SortOrder = 13, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoManagerUser}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo NoManagerServiceAccount = new() { Key = "NoManagerServiceAccount", DisplayName = "No Manager (Service Account)", CategoryKey = "NHIs", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "nomanagersa", SortOrder = 14, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:NoManagerServiceAccount}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo UserAccountLockedOut = new() { Key = "UserAccountLockedOut", DisplayName = "User Account Locked Out", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "pink", SectionId = "accountlockedout", SortOrder = 15, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:UserAccountLockedOut}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo EmptyGroups = new() { Key = "EmptyGroups", DisplayName = "Empty Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "slate", SectionId = "emptygroups", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:EmptyGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo NeverLoggedIn = new() { Key = "NeverLoggedIn", DisplayName = "Never Logged In", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "neverloggedin", SortOrder = 16, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo ExpiredUsers = new() { Key = "ExpiredUsers", DisplayName = "Expired Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "expiredusers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:UserAccountExpired}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo ReversibleEncryption = new() { Key = "ReversibleEncryption", DisplayName = "Reversible Encryption", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "reversibleencryption", SortOrder = 18, HasDrilldown = true, IsRiskKpi = true };
 
     // Privileged Groups KPIs
-    public static readonly KpiInfo AccountOperators = new() { Key = "AccountOperators", DisplayName = "Account Operators", CategoryKey = "PrivilegedGroups", CssColor = "orange", SectionId = "accountoperators", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Account Operators))", GroupName = "Account Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo Administrators = new() { Key = "Administrators", DisplayName = "Administrators", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "administrators", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Administrators))", GroupName = "Administrators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo BackupOperators = new() { Key = "BackupOperators", DisplayName = "Backup Operators", CategoryKey = "PrivilegedGroups", CssColor = "amber", SectionId = "backupoperators", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Backup Operators))", GroupName = "Backup Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo DomainAdmins = new() { Key = "DomainAdmins", DisplayName = "Domain Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "domainadmins", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Domain Admins))", GroupName = "Domain Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo ServerOperators = new() { Key = "ServerOperators", DisplayName = "Server Operators", CategoryKey = "PrivilegedGroups", CssColor = "purple", SectionId = "serveroperators", SortOrder = 4, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Server Operators))", GroupName = "Server Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo EnterpriseAdmins = new() { Key = "EnterpriseAdmins", DisplayName = "Enterprise Admins", CategoryKey = "PrivilegedGroups", CssColor = "red", SectionId = "enterpriseadmins", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Enterprise Admins))", GroupName = "Enterprise Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo SchemaAdmins = new() { Key = "SchemaAdmins", DisplayName = "Schema Admins", CategoryKey = "PrivilegedGroups", CssColor = "pink", SectionId = "schemaadmins", SortOrder = 6, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Schema Admins))", GroupName = "Schema Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo AccountOperators = new() { Key = "AccountOperators", DisplayName = "Account Operators", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "accountoperators", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Account Operators))", GroupName = "Account Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo Administrators = new() { Key = "Administrators", DisplayName = "Administrators", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "administrators", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Administrators))", GroupName = "Administrators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo BackupOperators = new() { Key = "BackupOperators", DisplayName = "Backup Operators", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "backupoperators", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Backup Operators))", GroupName = "Backup Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo DomainAdmins = new() { Key = "DomainAdmins", DisplayName = "Domain Admins", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "pink", SectionId = "domainadmins", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Domain Admins))", GroupName = "Domain Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ServerOperators = new() { Key = "ServerOperators", DisplayName = "Server Operators", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "serveroperators", SortOrder = 4, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Server Operators))", GroupName = "Server Operators", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo EnterpriseAdmins = new() { Key = "EnterpriseAdmins", DisplayName = "Enterprise Admins", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "enterpriseadmins", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Enterprise Admins))", GroupName = "Enterprise Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo SchemaAdmins = new() { Key = "SchemaAdmins", DisplayName = "Schema Admins", CategoryKey = "PrivilegedGroups", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "pink", SectionId = "schemaadmins", SortOrder = 6, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=group)(name=Schema Admins))", GroupName = "Schema Admins", Attributes = "distinguishedName,edsaDomainNetbiosName,member" }] };
 
     // AD User Accounts KPIs (derived from shared ADUserAccounts search)
-    public static readonly KpiInfo CannotChangePassword = new() { Key = "CannotChangePassword", DisplayName = "Cannot Change Password", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "cannotchangepassword", SortOrder = 0, HasDrilldown = true };
-    public static readonly KpiInfo DisabledUsers = new() { Key = "DisabledUsers", DisplayName = "Disabled Users", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "disabledusers", SortOrder = 1, HasDrilldown = true };
-    public static readonly KpiInfo NoKerberosPreauth = new() { Key = "NoKerberosPreauth", DisplayName = "Do Not Require Kerberos Preauthentication", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "nokerberospreauth", SortOrder = 2, HasDrilldown = true };
-    public static readonly KpiInfo EnabledUsers = new() { Key = "EnabledUsers", DisplayName = "Enabled Users", CategoryKey = "ADUserAccountsCategory", CssColor = "green", SectionId = "enabledusers", SortOrder = 3, HasDrilldown = true };
-    public static readonly KpiInfo ExpiringUsers = new() { Key = "ExpiringUsers", DisplayName = "Expiring Users", CategoryKey = "ADUserAccountsCategory", CssColor = "orange", SectionId = "expiringusers", SortOrder = 4, HasDrilldown = true };
-    public static readonly KpiInfo MustChangePassword = new() { Key = "MustChangePassword", DisplayName = "Must Change Password", CategoryKey = "ADUserAccountsCategory", CssColor = "blue", SectionId = "mustchangepassword", SortOrder = 5, HasDrilldown = true };
-    public static readonly KpiInfo PasswordNeverExpires = new() { Key = "PasswordNeverExpires", DisplayName = "Password Never Expires", CategoryKey = "ADUserAccountsCategory", CssColor = "purple", SectionId = "passwordneverexpires", SortOrder = 6, HasDrilldown = true };
-    public static readonly KpiInfo PasswordNotRequired = new() { Key = "PasswordNotRequired", DisplayName = "Password Not Required", CategoryKey = "ADUserAccountsCategory", CssColor = "amber", SectionId = "passwordnotrequired", SortOrder = 7, HasDrilldown = true };
-    public static readonly KpiInfo UserReversibleEncryption = new() { Key = "UserReversibleEncryption", DisplayName = "Reversible Encryption", CategoryKey = "ADUserAccountsCategory", CssColor = "red", SectionId = "userreversibleencryption", SortOrder = 8, HasDrilldown = true };
-    public static readonly KpiInfo SensitiveCannotDelegate = new() { Key = "SensitiveCannotDelegate", DisplayName = "Sensitive - Cannot Be Delegated", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "sensitivecannotdelegate", SortOrder = 9, HasDrilldown = true };
-    public static readonly KpiInfo SmartCardRequired = new() { Key = "SmartCardRequired", DisplayName = "Smart Card Required", CategoryKey = "ADUserAccountsCategory", CssColor = "teal", SectionId = "smartcardrequired", SortOrder = 10, HasDrilldown = true };
-    public static readonly KpiInfo TrustedForDelegation = new() { Key = "TrustedForDelegation", DisplayName = "Trusted for Delegation", CategoryKey = "ADUserAccountsCategory", CssColor = "green", SectionId = "trustedfordelegation", SortOrder = 11, HasDrilldown = true };
-    public static readonly KpiInfo UseDesEncryption = new() { Key = "UseDesEncryption", DisplayName = "Use DES Encryption", CategoryKey = "ADUserAccountsCategory", CssColor = "orange", SectionId = "usedesencryption", SortOrder = 12, HasDrilldown = true };
-    public static readonly KpiInfo DeprovisionedUsers = new() { Key = "DeprovisionedUsers", DisplayName = "Deprovisioned Users", CategoryKey = "ADUserAccountsCategory", CssColor = "pink", SectionId = "deprovisionedusers", SortOrder = 13, HasDrilldown = true };
-    public static readonly KpiInfo SpnUserAccounts = new() { Key = "SpnUserAccounts", DisplayName = "Service Accounts (SPN)", CategoryKey = "NHIs", CssColor = "red", SectionId = "spnuseraccounts", SortOrder = 19, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo StaleUsers = new() { Key = "StaleUsers", DisplayName = "Stale Accounts (Inactive)", CategoryKey = "ADUserAccountsCategory", CssColor = "amber", SectionId = "staleusers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo StalePasswords = new() { Key = "StalePasswords", DisplayName = "Stale Passwords", CategoryKey = "ADUserAccountsCategory", CssColor = "amber", SectionId = "stalepasswords", SortOrder = 24, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo ServiceAccounts = new() { Key = "ServiceAccounts", DisplayName = "Service Accounts", CategoryKey = "NHIs", CssColor = "teal", SectionId = "serviceaccounts", SortOrder = 21, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ServiceAccounts}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo GmsaServiceAccounts = new() { Key = "GmsaServiceAccounts", DisplayName = "gMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "gmsaserviceaccounts", SortOrder = 22, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:GmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
-    public static readonly KpiInfo SmsaServiceAccounts = new() { Key = "SmsaServiceAccounts", DisplayName = "sMSA Service Accounts", CategoryKey = "NHIs", CssColor = "purple", SectionId = "smsaserviceaccounts", SortOrder = 23, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:SmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo CannotChangePassword = new() { Key = "CannotChangePassword", DisplayName = "Cannot Change Password", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "slate", SectionId = "cannotchangepassword", SortOrder = 0, HasDrilldown = true };
+    public static readonly KpiInfo DisabledUsers = new() { Key = "DisabledUsers", DisplayName = "Disabled Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "disabledusers", SortOrder = 1, HasDrilldown = true };
+    public static readonly KpiInfo NoKerberosPreauth = new() { Key = "NoKerberosPreauth", DisplayName = "Do Not Require Kerberos Preauthentication", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "pink", SectionId = "nokerberospreauth", SortOrder = 2, HasDrilldown = true };
+    public static readonly KpiInfo EnabledUsers = new() { Key = "EnabledUsers", DisplayName = "Enabled Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "enabledusers", SortOrder = 3, HasDrilldown = true };
+    public static readonly KpiInfo ExpiringUsers = new() { Key = "ExpiringUsers", DisplayName = "Expiring Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "expiringusers", SortOrder = 4, HasDrilldown = true };
+    public static readonly KpiInfo MustChangePassword = new() { Key = "MustChangePassword", DisplayName = "Must Change Password", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "mustchangepassword", SortOrder = 5, HasDrilldown = true };
+    public static readonly KpiInfo PasswordNeverExpires = new() { Key = "PasswordNeverExpires", DisplayName = "Password Never Expires", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "passwordneverexpires", SortOrder = 6, HasDrilldown = true };
+    public static readonly KpiInfo PasswordNotRequired = new() { Key = "PasswordNotRequired", DisplayName = "Password Not Required", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "passwordnotrequired", SortOrder = 7, HasDrilldown = true };
+    public static readonly KpiInfo UserReversibleEncryption = new() { Key = "UserReversibleEncryption", DisplayName = "Reversible Encryption", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "userreversibleencryption", SortOrder = 8, HasDrilldown = true };
+    public static readonly KpiInfo SensitiveCannotDelegate = new() { Key = "SensitiveCannotDelegate", DisplayName = "Sensitive - Cannot Be Delegated", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "slate", SectionId = "sensitivecannotdelegate", SortOrder = 9, HasDrilldown = true };
+    public static readonly KpiInfo SmartCardRequired = new() { Key = "SmartCardRequired", DisplayName = "Smart Card Required", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "smartcardrequired", SortOrder = 10, HasDrilldown = true };
+    public static readonly KpiInfo TrustedForDelegation = new() { Key = "TrustedForDelegation", DisplayName = "Trusted for Delegation", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "trustedfordelegation", SortOrder = 11, HasDrilldown = true };
+    public static readonly KpiInfo UseDesEncryption = new() { Key = "UseDesEncryption", DisplayName = "Use DES Encryption", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "usedesencryption", SortOrder = 12, HasDrilldown = true };
+    public static readonly KpiInfo DeprovisionedUsers = new() { Key = "DeprovisionedUsers", DisplayName = "Deprovisioned Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "pink", SectionId = "deprovisionedusers", SortOrder = 13, HasDrilldown = true };
+    public static readonly KpiInfo SpnUserAccounts = new() { Key = "SpnUserAccounts", DisplayName = "Service Accounts (SPN)", CategoryKey = "NHIs", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "spnuseraccounts", SortOrder = 19, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo StaleUsers = new() { Key = "StaleUsers", DisplayName = "Stale Accounts (Inactive)", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "staleusers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo StalePasswords = new() { Key = "StalePasswords", DisplayName = "Stale Passwords", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "stalepasswords", SortOrder = 24, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo ServiceAccounts = new() { Key = "ServiceAccounts", DisplayName = "Service Accounts", CategoryKey = "NHIs", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "serviceaccounts", SortOrder = 21, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ServiceAccounts}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo GmsaServiceAccounts = new() { Key = "GmsaServiceAccounts", DisplayName = "gMSA Service Accounts", CategoryKey = "NHIs", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "gmsaserviceaccounts", SortOrder = 22, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:GmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
+    public static readonly KpiInfo SmsaServiceAccounts = new() { Key = "SmsaServiceAccounts", DisplayName = "sMSA Service Accounts", CategoryKey = "NHIs", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "smsaserviceaccounts", SortOrder = 23, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:SmsaServiceAccounts}", Attributes = "name,distinguishedName" }] };
     // Hybrid identity KPIs (derived from shared ADUserAccounts search via msDS-ExternalDirectoryObjectId).
-    public static readonly KpiInfo HybridUsers = new() { Key = "HybridUsers", DisplayName = "Hybrid Users", CategoryKey = "ADUserAccountsCategory", CssColor = "teal", SectionId = "hybridusers", SortOrder = 24, HasDrilldown = true };
-    public static readonly KpiInfo OnPremOnlyUsers = new() { Key = "OnPremOnlyUsers", DisplayName = "On-Prem-Only Users", CategoryKey = "ADUserAccountsCategory", CssColor = "slate", SectionId = "onpremonlyusers", SortOrder = 25, HasDrilldown = true };
-    public static readonly KpiInfo ManagedEnabledUsers = new() { Key = "ManagedEnabledUsers", DisplayName = "Managed Enabled Users", CategoryKey = "ADUserAccountsCategory", CssColor = "green", SectionId = "managedenabledusers", SortOrder = 26, HasDrilldown = true };
+    public static readonly KpiInfo HybridUsers = new() { Key = "HybridUsers", DisplayName = "Hybrid Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "hybridusers", SortOrder = 24, HasDrilldown = true };
+    public static readonly KpiInfo OnPremOnlyUsers = new() { Key = "OnPremOnlyUsers", DisplayName = "On-Prem-Only Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "slate", SectionId = "onpremonlyusers", SortOrder = 25, HasDrilldown = true };
+    public static readonly KpiInfo ManagedEnabledUsers = new() { Key = "ManagedEnabledUsers", DisplayName = "Managed Enabled Users", CategoryKey = "ADUserAccountsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "managedenabledusers", SortOrder = 26, HasDrilldown = true };
 
     // AD Groups KPIs (derived from shared ADGroups search)
-    public static readonly KpiInfo DistributionGroups = new() { Key = "DistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "distributiongroups", SortOrder = 0, HasDrilldown = true };
+    public static readonly KpiInfo DistributionGroups = new() { Key = "DistributionGroups", DisplayName = "Distribution Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "distributiongroups", SortOrder = 0, HasDrilldown = true };
 
     // Privileged Users KPIs (derived from shared ADUserAccounts search)
-    public static readonly KpiInfo AdminCount = new() { Key = "AdminCount", DisplayName = "Admin Count", CategoryKey = "PrivilegedUsers", CssColor = "red", SectionId = "admincount", SortOrder = 0, HasDrilldown = true };
+    public static readonly KpiInfo AdminCount = new() { Key = "AdminCount", DisplayName = "Admin Count", CategoryKey = "PrivilegedUsers", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "admincount", SortOrder = 0, HasDrilldown = true };
 
     // Infrastructure KPIs
-    public static readonly KpiInfo Sites = new() { Key = "Sites", DisplayName = "Sites", CategoryKey = "Infrastructure", CssColor = "blue", SectionId = "sites", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=site)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
-    public static readonly KpiInfo SiteLinks = new() { Key = "SiteLinks", DisplayName = "Site Links", CategoryKey = "Infrastructure", CssColor = "green", SectionId = "sitelinks", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=siteLink)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
-    public static readonly KpiInfo Subnets = new() { Key = "Subnets", DisplayName = "Subnets", CategoryKey = "Infrastructure", CssColor = "teal", SectionId = "subnets", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=subnet)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
-    public static readonly KpiInfo OUs = new() { Key = "OUs", DisplayName = "OUs", CategoryKey = "Infrastructure", CssColor = "orange", SectionId = "ous", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=organizationalUnit)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
-    public static readonly KpiInfo DomainControllers = new() { Key = "DomainControllers", DisplayName = "Domain Controllers", CategoryKey = "Infrastructure", CssColor = "purple", SectionId = "domaincontrollers", SortOrder = 4, HasDrilldown = true };
-    public static readonly KpiInfo Trusts = new() { Key = "Trusts", DisplayName = "Domain Trusts", CategoryKey = "Infrastructure", CssColor = "indigo", SectionId = "trusts", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=trustedDomain)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
-    public static readonly KpiInfo DomainLocalGroups = new() { Key = "DomainLocalGroups", DisplayName = "Domain Local Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "domainlocalgroups", SortOrder = 1, HasDrilldown = true };
-    public static readonly KpiInfo GlobalGroups = new() { Key = "GlobalGroups", DisplayName = "Global Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "globalgroups", SortOrder = 2, HasDrilldown = true };
-    public static readonly KpiInfo MailEnabledSecurityGroups = new() { Key = "MailEnabledSecurityGroups", DisplayName = "Mail Enabled Security Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "mailenabledsecuritygroups", SortOrder = 3, HasDrilldown = true };
-    public static readonly KpiInfo SecurityGroups = new() { Key = "SecurityGroups", DisplayName = "Security Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "securitygroups", SortOrder = 4, HasDrilldown = true };
-    public static readonly KpiInfo UniversalGroups = new() { Key = "UniversalGroups", DisplayName = "Universal Groups", CategoryKey = "ADGroupsCategory", CssColor = "blue", SectionId = "universalgroups", SortOrder = 5, HasDrilldown = true };
-    public static readonly KpiInfo CircularGroupNesting = new() { Key = "CircularGroupNesting", DisplayName = "Circular Group Nesting", CategoryKey = "ADGroupsCategory", CssColor = "red", SectionId = "circulargroupnesting", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo Sites = new() { Key = "Sites", DisplayName = "Sites", CategoryKey = "Infrastructure", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "sites", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=site)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
+    public static readonly KpiInfo SiteLinks = new() { Key = "SiteLinks", DisplayName = "Site Links", CategoryKey = "Infrastructure", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "sitelinks", SortOrder = 1, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=siteLink)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
+    public static readonly KpiInfo Subnets = new() { Key = "Subnets", DisplayName = "Subnets", CategoryKey = "Infrastructure", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "subnets", SortOrder = 2, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=subnet)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
+    public static readonly KpiInfo OUs = new() { Key = "OUs", DisplayName = "OUs", CategoryKey = "Infrastructure", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "ous", SortOrder = 3, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=organizationalUnit)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
+    public static readonly KpiInfo DomainControllers = new() { Key = "DomainControllers", DisplayName = "Domain Controllers", CategoryKey = "Infrastructure", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "domaincontrollers", SortOrder = 4, HasDrilldown = true };
+    public static readonly KpiInfo Trusts = new() { Key = "Trusts", DisplayName = "Domain Trusts", CategoryKey = "Infrastructure", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "indigo", SectionId = "trusts", SortOrder = 5, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(objectClass=trustedDomain)", Attributes = "name,edsaDomainNetbiosName,distinguishedName" }] };
+    public static readonly KpiInfo DomainLocalGroups = new() { Key = "DomainLocalGroups", DisplayName = "Domain Local Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "domainlocalgroups", SortOrder = 1, HasDrilldown = true };
+    public static readonly KpiInfo GlobalGroups = new() { Key = "GlobalGroups", DisplayName = "Global Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "globalgroups", SortOrder = 2, HasDrilldown = true };
+    public static readonly KpiInfo MailEnabledSecurityGroups = new() { Key = "MailEnabledSecurityGroups", DisplayName = "Mail Enabled Security Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "mailenabledsecuritygroups", SortOrder = 3, HasDrilldown = true };
+    public static readonly KpiInfo SecurityGroups = new() { Key = "SecurityGroups", DisplayName = "Security Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "securitygroups", SortOrder = 4, HasDrilldown = true };
+    public static readonly KpiInfo UniversalGroups = new() { Key = "UniversalGroups", DisplayName = "Universal Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "universalgroups", SortOrder = 5, HasDrilldown = true };
+    public static readonly KpiInfo CircularGroupNesting = new() { Key = "CircularGroupNesting", DisplayName = "Circular Group Nesting", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "circulargroupnesting", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true };
 
     // Computers category KPIs (derived from Computers dataset)
-    public static readonly KpiInfo ComputerClients = new() { Key = "ComputerClients", DisplayName = "Clients", CategoryKey = "ComputersCategory", CssColor = "blue", SectionId = "computerclients", SortOrder = 0, HasDrilldown = true };
-    public static readonly KpiInfo ComputerServers = new() { Key = "ComputerServers", DisplayName = "Servers", CategoryKey = "ComputersCategory", CssColor = "green", SectionId = "computerservers", SortOrder = 1, HasDrilldown = true };
-    public static readonly KpiInfo WinServer2008R2 = new() { Key = "WinServer2008R2", DisplayName = "Windows Server 2008 R2", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "winserver2008r2", SortOrder = 2, HasDrilldown = true };
-    public static readonly KpiInfo WinServer2012R2 = new() { Key = "WinServer2012R2", DisplayName = "Windows Server 2012 R2", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "winserver2012r2", SortOrder = 3, HasDrilldown = true };
-    public static readonly KpiInfo WinServer2016 = new() { Key = "WinServer2016", DisplayName = "Windows Server 2016", CategoryKey = "ComputersCategory", CssColor = "orange", SectionId = "winserver2016", SortOrder = 4, HasDrilldown = true };
-    public static readonly KpiInfo WinServer2019 = new() { Key = "WinServer2019", DisplayName = "Windows Server 2019", CategoryKey = "ComputersCategory", CssColor = "amber", SectionId = "winserver2019", SortOrder = 5, HasDrilldown = true };
-    public static readonly KpiInfo WinServer2022 = new() { Key = "WinServer2022", DisplayName = "Windows Server 2022", CategoryKey = "ComputersCategory", CssColor = "teal", SectionId = "winserver2022", SortOrder = 6, HasDrilldown = true };
-    public static readonly KpiInfo WinServer2025 = new() { Key = "WinServer2025", DisplayName = "Windows Server 2025", CategoryKey = "ComputersCategory", CssColor = "green", SectionId = "winserver2025", SortOrder = 7, HasDrilldown = true };
-    public static readonly KpiInfo ServerOther = new() { Key = "ServerOther", DisplayName = "Server (other)", CategoryKey = "ComputersCategory", CssColor = "slate", SectionId = "serverother", SortOrder = 8, HasDrilldown = true };
-    public static readonly KpiInfo Win7 = new() { Key = "Win7", DisplayName = "Windows 7", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "win7", SortOrder = 9, HasDrilldown = true };
-    public static readonly KpiInfo Win81 = new() { Key = "Win81", DisplayName = "Windows 8.1", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "win81", SortOrder = 10, HasDrilldown = true };
-    public static readonly KpiInfo Win10_22H2 = new() { Key = "Win10_22H2", DisplayName = "Windows 10 22H2", CategoryKey = "ComputersCategory", CssColor = "orange", SectionId = "win1022h2", SortOrder = 11, HasDrilldown = true };
-    public static readonly KpiInfo Win11_22H2 = new() { Key = "Win11_22H2", DisplayName = "Windows 11 22H2", CategoryKey = "ComputersCategory", CssColor = "blue", SectionId = "win1122h2", SortOrder = 12, HasDrilldown = true };
-    public static readonly KpiInfo Win11_23H2 = new() { Key = "Win11_23H2", DisplayName = "Windows 11 23H2", CategoryKey = "ComputersCategory", CssColor = "teal", SectionId = "win1123h2", SortOrder = 13, HasDrilldown = true };
-    public static readonly KpiInfo Win11Enterprise = new() { Key = "Win11Enterprise", DisplayName = "Windows 11 Enterprise", CategoryKey = "ComputersCategory", CssColor = "indigo", SectionId = "win11enterprise", SortOrder = 14, HasDrilldown = true };
-    public static readonly KpiInfo Win11Pro = new() { Key = "Win11Pro", DisplayName = "Windows 11 Pro", CategoryKey = "ComputersCategory", CssColor = "purple", SectionId = "win11pro", SortOrder = 15, HasDrilldown = true };
-    public static readonly KpiInfo ClientsOther = new() { Key = "ClientsOther", DisplayName = "Clients (other)", CategoryKey = "ComputersCategory", CssColor = "slate", SectionId = "clientsother", SortOrder = 16, HasDrilldown = true };
-    public static readonly KpiInfo UnconstrainedComputers = new() { Key = "UnconstrainedComputers", DisplayName = "Unconstrained Delegation", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "unconstrainedcomputers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo EnabledComputers = new() { Key = "EnabledComputers", DisplayName = "Enabled Computers", CategoryKey = "ComputersCategory", CssColor = "green", SectionId = "enabledcomputers", SortOrder = 18, HasDrilldown = true };
-    public static readonly KpiInfo DisabledComputers = new() { Key = "DisabledComputers", DisplayName = "Disabled Computers", CategoryKey = "ComputersCategory", CssColor = "red", SectionId = "disabledcomputers", SortOrder = 19, HasDrilldown = true };
-    public static readonly KpiInfo StaleComputers = new() { Key = "StaleComputers", DisplayName = "Stale Computers (Inactive)", CategoryKey = "ComputersCategory", CssColor = "amber", SectionId = "stalecomputers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
-    public static readonly KpiInfo NeverLoggedOnComputers = new() { Key = "NeverLoggedOnComputers", DisplayName = "Never Logged On Computers", CategoryKey = "ComputersCategory", CssColor = "orange", SectionId = "neverloggedoncomputers", SortOrder = 21, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo ComputerClients = new() { Key = "ComputerClients", DisplayName = "Clients", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "computerclients", SortOrder = 0, HasDrilldown = true };
+    public static readonly KpiInfo ComputerServers = new() { Key = "ComputerServers", DisplayName = "Servers", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "computerservers", SortOrder = 1, HasDrilldown = true };
+    public static readonly KpiInfo WinServer2008R2 = new() { Key = "WinServer2008R2", DisplayName = "Windows Server 2008 R2", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "winserver2008r2", SortOrder = 2, HasDrilldown = true };
+    public static readonly KpiInfo WinServer2012R2 = new() { Key = "WinServer2012R2", DisplayName = "Windows Server 2012 R2", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "winserver2012r2", SortOrder = 3, HasDrilldown = true };
+    public static readonly KpiInfo WinServer2016 = new() { Key = "WinServer2016", DisplayName = "Windows Server 2016", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "winserver2016", SortOrder = 4, HasDrilldown = true };
+    public static readonly KpiInfo WinServer2019 = new() { Key = "WinServer2019", DisplayName = "Windows Server 2019", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "winserver2019", SortOrder = 5, HasDrilldown = true };
+    public static readonly KpiInfo WinServer2022 = new() { Key = "WinServer2022", DisplayName = "Windows Server 2022", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "winserver2022", SortOrder = 6, HasDrilldown = true };
+    public static readonly KpiInfo WinServer2025 = new() { Key = "WinServer2025", DisplayName = "Windows Server 2025", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "winserver2025", SortOrder = 7, HasDrilldown = true };
+    public static readonly KpiInfo ServerOther = new() { Key = "ServerOther", DisplayName = "Server (other)", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "slate", SectionId = "serverother", SortOrder = 8, HasDrilldown = true };
+    public static readonly KpiInfo Win7 = new() { Key = "Win7", DisplayName = "Windows 7", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "win7", SortOrder = 9, HasDrilldown = true };
+    public static readonly KpiInfo Win81 = new() { Key = "Win81", DisplayName = "Windows 8.1", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "win81", SortOrder = 10, HasDrilldown = true };
+    public static readonly KpiInfo Win10_22H2 = new() { Key = "Win10_22H2", DisplayName = "Windows 10 22H2", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "win1022h2", SortOrder = 11, HasDrilldown = true };
+    public static readonly KpiInfo Win11_22H2 = new() { Key = "Win11_22H2", DisplayName = "Windows 11 22H2", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "win1122h2", SortOrder = 12, HasDrilldown = true };
+    public static readonly KpiInfo Win11_23H2 = new() { Key = "Win11_23H2", DisplayName = "Windows 11 23H2", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "teal", SectionId = "win1123h2", SortOrder = 13, HasDrilldown = true };
+    public static readonly KpiInfo Win11Enterprise = new() { Key = "Win11Enterprise", DisplayName = "Windows 11 Enterprise", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "indigo", SectionId = "win11enterprise", SortOrder = 14, HasDrilldown = true };
+    public static readonly KpiInfo Win11Pro = new() { Key = "Win11Pro", DisplayName = "Windows 11 Pro", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "purple", SectionId = "win11pro", SortOrder = 15, HasDrilldown = true };
+    public static readonly KpiInfo ClientsOther = new() { Key = "ClientsOther", DisplayName = "Clients (other)", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "slate", SectionId = "clientsother", SortOrder = 16, HasDrilldown = true };
+    public static readonly KpiInfo UnconstrainedComputers = new() { Key = "UnconstrainedComputers", DisplayName = "Unconstrained Delegation", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "unconstrainedcomputers", SortOrder = 17, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo EnabledComputers = new() { Key = "EnabledComputers", DisplayName = "Enabled Computers", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "green", SectionId = "enabledcomputers", SortOrder = 18, HasDrilldown = true };
+    public static readonly KpiInfo DisabledComputers = new() { Key = "DisabledComputers", DisplayName = "Disabled Computers", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "disabledcomputers", SortOrder = 19, HasDrilldown = true };
+    public static readonly KpiInfo StaleComputers = new() { Key = "StaleComputers", DisplayName = "Stale Computers (Inactive)", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "stalecomputers", SortOrder = 20, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo NeverLoggedOnComputers = new() { Key = "NeverLoggedOnComputers", DisplayName = "Never Logged On Computers", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "orange", SectionId = "neverloggedoncomputers", SortOrder = 21, HasDrilldown = true, IsRiskKpi = true };
 
     // Licensing KPIs
-    public static readonly KpiInfo ManagedObjects = new() { Key = "ManagedObjects", DisplayName = "Managed Objects", CategoryKey = "Licensing", CssColor = "slate", SectionId = "managedobjects", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Object Statistics,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsManagedObjectStatisticsData)", Attributes = "name,edsaStatisticsCountXML" }] };
+    public static readonly KpiInfo ManagedObjects = new() { Key = "ManagedObjects", DisplayName = "Managed Objects", CategoryKey = "Licensing", DataSource = Definitions.DataSource.Licensing, CssColor = "slate", SectionId = "managedobjects", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "CN=Managed Object Statistics,CN=Server Configuration,CN=Configuration", Filter = "(objectClass=edsManagedObjectStatisticsData)", Attributes = "name,edsaStatisticsCountXML" }] };
 
     // Exchange Overview KPIs (phase 1 - counts)
-    public static readonly KpiInfo ExchangeServersKpi = new() { Key = "ExchangeServersKpi", DisplayName = "Exchange Servers", TileLabel = "Servers", CategoryKey = "ExchangeOverview", CssColor = "blue", SectionId = "exchangeservers", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeServers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,serialNumber,msExchCurrentServerRoles" }] };
-    public static readonly KpiInfo ExchangeTotalMailboxes = new() { Key = "ExchangeTotalMailboxes", DisplayName = "Total Mailboxes", TileLabel = "Mailboxes", CategoryKey = "ExchangeOverview", CssColor = "green", SectionId = "exchangetotalmailboxes", SortOrder = 1, HasDrilldown = false, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=user)(homeMDB=*))", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeMailboxDatabasesKpi = new() { Key = "ExchangeMailboxDatabasesKpi", DisplayName = "Mailbox Databases", TileLabel = "Databases", CategoryKey = "ExchangeOverview", CssColor = "teal", SectionId = "exchangemailboxdatabases", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxDatabases}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeAcceptedDomainsKpi = new() { Key = "ExchangeAcceptedDomainsKpi", DisplayName = "Accepted Domains", CategoryKey = "ExchangeOverview", CssColor = "orange", SectionId = "exchangeaccepteddomains", SortOrder = 3, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeAcceptedDomains}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,domainName" }] };
+    public static readonly KpiInfo ExchangeServersKpi = new() { Key = "ExchangeServersKpi", DisplayName = "Exchange Servers", TileLabel = "Servers", CategoryKey = "ExchangeOverview", DataSource = Definitions.DataSource.Exchange, CssColor = "blue", SectionId = "exchangeservers", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeServers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,serialNumber,msExchCurrentServerRoles" }] };
+    public static readonly KpiInfo ExchangeTotalMailboxes = new() { Key = "ExchangeTotalMailboxes", DisplayName = "Total Mailboxes", TileLabel = "Mailboxes", CategoryKey = "ExchangeOverview", DataSource = Definitions.DataSource.Exchange, CssColor = "green", SectionId = "exchangetotalmailboxes", SortOrder = 1, HasDrilldown = false, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=user)(homeMDB=*))", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailboxDatabasesKpi = new() { Key = "ExchangeMailboxDatabasesKpi", DisplayName = "Mailbox Databases", TileLabel = "Databases", CategoryKey = "ExchangeOverview", DataSource = Definitions.DataSource.Exchange, CssColor = "teal", SectionId = "exchangemailboxdatabases", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxDatabases}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeAcceptedDomainsKpi = new() { Key = "ExchangeAcceptedDomainsKpi", DisplayName = "Accepted Domains", CategoryKey = "ExchangeOverview", DataSource = Definitions.DataSource.Exchange, CssColor = "orange", SectionId = "exchangeaccepteddomains", SortOrder = 3, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeAcceptedDomains}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,domainName" }] };
 
     // Exchange Infrastructure KPIs (phase 1 - counts)
-    public static readonly KpiInfo ExchangeMailboxServersKpi = new() { Key = "ExchangeMailboxServersKpi", DisplayName = "Mailbox Servers", CategoryKey = "ExchangeInfrastructure", CssColor = "blue", SectionId = "exchangemailboxservers", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxServers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,serialNumber" }] };
-    public static readonly KpiInfo ExchangeDAGsKpi = new() { Key = "ExchangeDAGsKpi", DisplayName = "Database Availability Groups", TileLabel = "DAGs", CategoryKey = "ExchangeInfrastructure", CssColor = "purple", SectionId = "exchangedags", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDAGs}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailboxServersKpi = new() { Key = "ExchangeMailboxServersKpi", DisplayName = "Mailbox Servers", CategoryKey = "ExchangeInfrastructure", DataSource = Definitions.DataSource.Exchange, CssColor = "blue", SectionId = "exchangemailboxservers", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxServers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,serialNumber" }] };
+    public static readonly KpiInfo ExchangeDAGsKpi = new() { Key = "ExchangeDAGsKpi", DisplayName = "Database Availability Groups", TileLabel = "DAGs", CategoryKey = "ExchangeInfrastructure", DataSource = Definitions.DataSource.Exchange, CssColor = "purple", SectionId = "exchangedags", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDAGs}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
 
     // Exchange Mailboxes KPIs (phase 1 - counts by recipient type)
-    public static readonly KpiInfo ExchangeUserMailboxesKpi = new() { Key = "ExchangeUserMailboxesKpi", DisplayName = "User Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "blue", SectionId = "exchangeusermailboxes", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeUserMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeSharedMailboxesKpi = new() { Key = "ExchangeSharedMailboxesKpi", DisplayName = "Shared Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "green", SectionId = "exchangesharedmailboxes", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeSharedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeRoomMailboxesKpi = new() { Key = "ExchangeRoomMailboxesKpi", DisplayName = "Room Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "teal", SectionId = "exchangeroommailboxes", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeRoomMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeEquipmentMailboxesKpi = new() { Key = "ExchangeEquipmentMailboxesKpi", DisplayName = "Equipment Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "amber", SectionId = "exchangeequipmentmailboxes", SortOrder = 3, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeEquipmentMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeMailUsersKpi = new() { Key = "ExchangeMailUsersKpi", DisplayName = "Mail Enabled User", CategoryKey = "ExchangeMailboxes", CssColor = "purple", SectionId = "exchangemailusers", SortOrder = 4, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailUsers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeMailContactsKpi = new() { Key = "ExchangeMailContactsKpi", DisplayName = "Mail Enabled Contact", CategoryKey = "ExchangeMailboxes", CssColor = "pink", SectionId = "exchangemailcontacts", SortOrder = 5, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailContacts}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeUserMailboxesKpi = new() { Key = "ExchangeUserMailboxesKpi", DisplayName = "User Mailboxes", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "blue", SectionId = "exchangeusermailboxes", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeUserMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeSharedMailboxesKpi = new() { Key = "ExchangeSharedMailboxesKpi", DisplayName = "Shared Mailboxes", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "green", SectionId = "exchangesharedmailboxes", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeSharedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeRoomMailboxesKpi = new() { Key = "ExchangeRoomMailboxesKpi", DisplayName = "Room Mailboxes", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "teal", SectionId = "exchangeroommailboxes", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeRoomMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeEquipmentMailboxesKpi = new() { Key = "ExchangeEquipmentMailboxesKpi", DisplayName = "Equipment Mailboxes", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "amber", SectionId = "exchangeequipmentmailboxes", SortOrder = 3, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeEquipmentMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailUsersKpi = new() { Key = "ExchangeMailUsersKpi", DisplayName = "Mail Enabled User", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "purple", SectionId = "exchangemailusers", SortOrder = 4, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailUsers}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailContactsKpi = new() { Key = "ExchangeMailContactsKpi", DisplayName = "Mail Enabled Contact", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "pink", SectionId = "exchangemailcontacts", SortOrder = 5, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailContacts}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
 
     // Exchange Distribution Groups KPIs (phase 1 - counts)
-    public static readonly KpiInfo ExchangeDistributionGroupsKpi = new() { Key = "ExchangeDistributionGroupsKpi", DisplayName = "Distribution Groups", CategoryKey = "ExchangeGroups", CssColor = "blue", SectionId = "exchangedistributiongroups", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo ExchangeMailEnabledSecurityGroupsKpi = new() { Key = "ExchangeMailEnabledSecurityGroupsKpi", DisplayName = "Mail-Enabled Security Groups", CategoryKey = "ExchangeGroups", CssColor = "green", SectionId = "exchangemailenabledsecuritygroups", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailEnabledSecurityGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,member" }] };
-    public static readonly KpiInfo ExchangeDynamicDistributionGroupsKpi = new() { Key = "ExchangeDynamicDistributionGroupsKpi", DisplayName = "Dynamic Distribution Groups", CategoryKey = "ExchangeGroups", CssColor = "teal", SectionId = "exchangedynamicdistributiongroups", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDynamicDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeDistributionGroupsKpi = new() { Key = "ExchangeDistributionGroupsKpi", DisplayName = "Distribution Groups", CategoryKey = "ExchangeGroups", DataSource = Definitions.DataSource.Exchange, CssColor = "blue", SectionId = "exchangedistributiongroups", SortOrder = 0, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ExchangeMailEnabledSecurityGroupsKpi = new() { Key = "ExchangeMailEnabledSecurityGroupsKpi", DisplayName = "Mail-Enabled Security Groups", CategoryKey = "ExchangeGroups", DataSource = Definitions.DataSource.Exchange, CssColor = "green", SectionId = "exchangemailenabledsecuritygroups", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailEnabledSecurityGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,member" }] };
+    public static readonly KpiInfo ExchangeDynamicDistributionGroupsKpi = new() { Key = "ExchangeDynamicDistributionGroupsKpi", DisplayName = "Dynamic Distribution Groups", CategoryKey = "ExchangeGroups", DataSource = Definitions.DataSource.Exchange, CssColor = "teal", SectionId = "exchangedynamicdistributiongroups", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeDynamicDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
 
     // Exchange Governance and Risk KPIs (phase 2 - flagged IsRiskKpi so they also surface in the Governance category)
-    public static readonly KpiInfo ExchangeGroupsNoOwnerKpi = new() { Key = "ExchangeGroupsNoOwnerKpi", DisplayName = "Groups With No Owner", CategoryKey = "ExchangeGroups", CssColor = "amber", SectionId = "exchangegroupsnoowner", SortOrder = 3, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeGroupsNoOwner}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeEmptyDistributionGroupsKpi = new() { Key = "ExchangeEmptyDistributionGroupsKpi", DisplayName = "Empty Distribution Groups", CategoryKey = "ExchangeGroups", CssColor = "slate", SectionId = "exchangeemptydistributiongroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeEmptyDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeMailboxNoManagerKpi = new() { Key = "ExchangeMailboxNoManagerKpi", DisplayName = "Unmanaged Mailboxes", CategoryKey = "ExchangeMailboxes", CssColor = "purple", SectionId = "exchangemailboxnomanager", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxNoManager}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeOrphanedMailboxesKpi = new() { Key = "ExchangeOrphanedMailboxesKpi", DisplayName = "Orphaned Mailboxes (Disabled)", CategoryKey = "ExchangeMailboxes", CssColor = "red", SectionId = "exchangeorphanedmailboxes", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeOrphanedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
-    public static readonly KpiInfo ExchangeLitigationHoldDisabledKpi = new() { Key = "ExchangeLitigationHoldDisabledKpi", DisplayName = "Litigation Hold Disabled", CategoryKey = "ExchangeMailboxes", CssColor = "orange", SectionId = "exchangelitigationholddisabled", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeLitigationHoldDisabled}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,edsva-MsExch-LitigationHoldEnabled" }] };
+    public static readonly KpiInfo ExchangeGroupsNoOwnerKpi = new() { Key = "ExchangeGroupsNoOwnerKpi", DisplayName = "Groups With No Owner", CategoryKey = "ExchangeGroups", DataSource = Definitions.DataSource.Exchange, CssColor = "amber", SectionId = "exchangegroupsnoowner", SortOrder = 3, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeGroupsNoOwner}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeEmptyDistributionGroupsKpi = new() { Key = "ExchangeEmptyDistributionGroupsKpi", DisplayName = "Empty Distribution Groups", CategoryKey = "ExchangeGroups", DataSource = Definitions.DataSource.Exchange, CssColor = "slate", SectionId = "exchangeemptydistributiongroups", SortOrder = 4, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeEmptyDistributionGroups}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeMailboxNoManagerKpi = new() { Key = "ExchangeMailboxNoManagerKpi", DisplayName = "Mailboxes Without Manager", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "purple", SectionId = "exchangemailboxnomanager", SortOrder = 6, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeMailboxNoManager}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeOrphanedMailboxesKpi = new() { Key = "ExchangeOrphanedMailboxesKpi", DisplayName = "Orphaned Mailboxes (Disabled)", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "red", SectionId = "exchangeorphanedmailboxes", SortOrder = 7, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeOrphanedMailboxes}", Attributes = "name,distinguishedName,edsaDomainNetbiosName" }] };
+    public static readonly KpiInfo ExchangeLitigationHoldDisabledKpi = new() { Key = "ExchangeLitigationHoldDisabledKpi", DisplayName = "Litigation Hold Disabled", CategoryKey = "ExchangeMailboxes", DataSource = Definitions.DataSource.Exchange, CssColor = "orange", SectionId = "exchangelitigationholddisabled", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ExchangeLitigationHoldDisabled}", Attributes = "name,distinguishedName,edsaDomainNetbiosName,edsva-MsExch-LitigationHoldEnabled" }] };
 
     // Exchange Permissions KPIs (mailbox delegation / access). Full Access and Send on Behalf are
     // simple LDAP object counts (msExchDelegateListLink / publicDelegates populated on the mailbox).
-    public static readonly KpiInfo ExchangeFullAccessDelegatesKpi = new() { Key = "ExchangeFullAccessDelegatesKpi", DisplayName = "Mailbox Permissions (Full Access)", TileLabel = "Full Access", CategoryKey = "ExchangePermissions", CssColor = "blue", SectionId = "exchangefullaccessdelegates", SortOrder = 0, HasDrilldown = true, IsSegmentable = true };
-    public static readonly KpiInfo ExchangeSendOnBehalfKpi = new() { Key = "ExchangeSendOnBehalfKpi", DisplayName = "Mailbox Permissions (Send on Behalf)", TileLabel = "Send on Behalf", CategoryKey = "ExchangePermissions", CssColor = "teal", SectionId = "exchangesendonbehalf", SortOrder = 1, HasDrilldown = true, IsSegmentable = true };
+    public static readonly KpiInfo ExchangeFullAccessDelegatesKpi = new() { Key = "ExchangeFullAccessDelegatesKpi", DisplayName = "Mailbox Permissions (Full Access)", TileLabel = "Full Access", CategoryKey = "ExchangePermissions", DataSource = Definitions.DataSource.Exchange, CssColor = "blue", SectionId = "exchangefullaccessdelegates", SortOrder = 0, HasDrilldown = true, IsSegmentable = true };
+    public static readonly KpiInfo ExchangeSendOnBehalfKpi = new() { Key = "ExchangeSendOnBehalfKpi", DisplayName = "Mailbox Permissions (Send on Behalf)", TileLabel = "Send on Behalf", CategoryKey = "ExchangePermissions", DataSource = Definitions.DataSource.Exchange, CssColor = "teal", SectionId = "exchangesendonbehalf", SortOrder = 1, HasDrilldown = true, IsSegmentable = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "(&(objectClass=user)(homeMDB=*)(publicDelegates=*))", Attributes = "name,distinguishedName,edsaDomainNetbiosName,publicDelegates" }] };
     // Send As is an ACE in each mailbox's nTSecurityDescriptor, not an attribute, so it cannot be
     // expressed as an LDAP filter. It carries no Searches and is resolved by the dedicated
     // DACL-parsing collector (GetExchangeSendAsKpiAsync), which the generic Exchange loop skips.
-    public static readonly KpiInfo ExchangeSendAsKpi = new() { Key = "ExchangeSendAsKpi", DisplayName = "Mailbox Permissions (Send As)", TileLabel = "Send As", CategoryKey = "ExchangePermissions", CssColor = "purple", SectionId = "exchangesendas", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [] };
+    public static readonly KpiInfo ExchangeSendAsKpi = new() { Key = "ExchangeSendAsKpi", DisplayName = "Mailbox Permissions (Send As)", TileLabel = "Send As", CategoryKey = "ExchangePermissions", DataSource = Definitions.DataSource.Exchange, CssColor = "purple", SectionId = "exchangesendas", SortOrder = 2, HasDrilldown = true, IsSegmentable = true, Searches = [] };
 
-    public static readonly IReadOnlyList<KpiInfo> All =
+    /// <summary>Effective KPIs. Replaced at startup from the loaded definitions.</summary>
+    public static IReadOnlyList<KpiInfo> All { get; internal set; } =
     [
         ADUserAccounts, ADGroups, Computers, MainTotalMailboxes,
         AdOverviewUsers, AdOverviewGroups, AdOverviewComputers,
@@ -1802,6 +1816,7 @@ public class KpiInfo
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
         EnabledUsers, DisabledUsers, ExpiringUsers, PasswordNeverExpires,
         MustChangePassword, PasswordNotRequired, SmartCardRequired, CannotChangePassword, StalePasswords,
+        NoKerberosPreauth, UserReversibleEncryption, SensitiveCannotDelegate, TrustedForDelegation, UseDesEncryption,
         DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers, ManagedEnabledUsers,
         DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting,
         AdminCount,
@@ -1827,15 +1842,8 @@ public class KpiInfo
     /// see provisional (typically zero) counts. Single source of truth for the shared staleness
     /// guard and for blocking membership-dependent assessments.
     /// </summary>
-    public static readonly IReadOnlySet<string> EntraMembershipDependentKeys =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "EntraEmptyGroups",
-            "EntraNoGroupOwner",
-            "EntraGuestContainingGroups",
-            "EntraSingleOwnerGroups",
-            "EntraLargeGroups"
-        };
+    public static IReadOnlySet<string> EntraMembershipDependentKeys =>
+        All.Where(k => k.RequiresEntraMembership).Select(k => k.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     public static IReadOnlyList<KpiInfo> ForCategory(CategoryInfo category)
     {
@@ -2274,6 +2282,8 @@ public class DashboardSummary
     {
         var clone = (DashboardSummary)MemberwiseClone();
         clone.ADGroups = ADGroups.WithoutMemberPayload();
+        clone.KpiResults = KpiResults;
+        clone.CollectedDatasets = CollectedDatasets;
 
         // ExchangeKpis is populated by concurrent task continuations during collection. Take a
         // snapshot under the same lock used for those writes so the serialized copy is a stable,
@@ -2303,60 +2313,114 @@ public class DashboardSummary
         "Entra group membership is still loading. Group-membership KPIs (Empty Groups, No Group Owner, " +
         "Guest-Containing Groups, Single-Owner Groups, Large Groups) may be inaccurate until loading completes.";
 
+    /// <summary>
+    /// Definition datasets keyed by dataset id. Search datasets that are still collected by the
+    /// hand-written code are exposed as views over the typed summaries, so segment and per-user
+    /// filtering applied to those summaries is reflected here. Datasets collected generically are
+    /// added through <see cref="CollectedDatasets"/>. Not serialized: the items are already persisted
+    /// through the typed summaries.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyDictionary<string, Definitions.DatasetResult> Datasets
+    {
+        get
+        {
+            var map = new Dictionary<string, Definitions.DatasetResult>(CollectedDatasets, StringComparer.OrdinalIgnoreCase);
+            map["ADUserAccounts"] = new(ADUserAccounts.Items, ADUserAccounts.Error);
+            map["ADGroups"] = new(ADGroups.ToDatasetItems(), ADGroups.Error);
+            map["Computers"] = new(Computers.Items, Computers.Error);
+            if (EntraTotals is not null)
+                map[EntraTotalsSummary.DatasetId] = new(EntraTotals.ToDatasetItems(), EntraTotals.Error);
+            return map;
+        }
+    }
+
+    /// <summary>
+    /// Datasets collected generically from the definitions, keyed by dataset id. Serialized so the
+    /// cached superset can be re-filtered and re-evaluated per viewer.
+    /// </summary>
+    public Dictionary<string, Definitions.DatasetResult> CollectedDatasets
+    {
+        get => _collectedDatasets;
+        set => _collectedDatasets = new(value ?? [], StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, Definitions.DatasetResult> _collectedDatasets = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Values of definition-driven KPIs, keyed by KPI id. Populated by the definition evaluator for
+    /// KPIs whose evaluation is an expression; legacy KPIs remain available through
+    /// <see cref="GetKpiResult"/>.
+    /// </summary>
+    public Dictionary<string, Definitions.KpiResult> KpiResults
+    {
+        get => _kpiResults;
+        set => _kpiResults = new(value ?? [], StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, Definitions.KpiResult> _kpiResults = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Detail tables of definition KPIs that declare drilldown columns, keyed by KPI id. Built on
+    /// first access from the items selected by the evaluation. Not serialized: they are rebuilt
+    /// whenever the KPIs are (re-)evaluated.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, Lazy<ReportTable>> DefinitionDetailTables
+    {
+        get => _definitionDetailTables;
+        set => _definitionDetailTables = new(value ?? [], StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, Lazy<ReportTable>> _definitionDetailTables = new(StringComparer.OrdinalIgnoreCase);
+
     public ADUserAccountsSummary ADUserAccounts { get; set; } = new();
     public DomainSummary Domains { get; set; } = new();
     public ServerSummary Servers { get; set; } = new();
     public DynamicGroupSummary DynamicGroups { get; set; } = new();
     public GroupFamilySummary GroupFamilies { get; set; } = new();
-    public ManagedUnitSummary ManagedUnits { get; set; } = new();
-    public WorkflowSummary Workflows { get; set; } = new();
-    public VirtualAttributeSummary VirtualAttributes { get; set; } = new();
     public ConfigDatabaseSummary ConfigDatabases { get; set; } = new();
-    public HistoryDatabaseSummary HistoryDatabases { get; set; } = new();
-    public ScheduledTaskSummary ScheduledTasks { get; set; } = new();
-    public PolicyObjectSummary PolicyObjects { get; set; } = new();
-    public PolicyObjectLinkSummary PolicyObjectLinks { get; set; } = new();
-    public AccessTemplateSummary AccessTemplates { get; set; } = new();
-    public AccessTemplateLinkSummary AccessTemplateLinks { get; set; } = new();
-    public AccessTemplateSummary EmptyAccessTemplates { get; set; } = new();
-    public PolicyObjectSummary PolicyObjectsNoRules { get; set; } = new();
-    public AccessTemplateSummary UnlinkedAccessTemplates { get; set; } = new();
-    public AccessTemplateSummary DenyAccessTemplates { get; set; } = new();
-    public PolicyObjectSummary UnlinkedPolicyObjects { get; set; } = new();
-    public AccessTemplateLinkSummary OrphanAccessTemplateLinks { get; set; } = new();
-    public PolicyObjectLinkSummary OrphanPolicyObjectLinks { get; set; } = new();
-    public BrokenRuleSummary DynamicGroupsBrokenRules { get; set; } = new();
-    public BrokenRuleSummary ManagedUnitsBrokenRules { get; set; } = new();
-    public ScriptModuleSummary ScriptModules { get; set; } = new();
-    public TenantSummary EntraManagedTenants { get; set; } = new();
     public ManagedObjectSummary ManagedObjects { get; set; } = new();
-    public NoGroupOwnerSummary NoGroupOwner { get; set; } = new();
+
+    /// <summary>
+    /// Managed object statistics for the Licensing view, built from the generically collected
+    /// <c>ManagedObjects</c> dataset when available; otherwise the typed summary.
+    /// </summary>
+    [JsonIgnore]
+    public ManagedObjectSummary ManagedObjectStatistics
+    {
+        get
+        {
+            if (!CollectedDatasets.TryGetValue("ManagedObjects", out var ds))
+                return ManagedObjects;
+            if (ds.Error != null)
+                return new ManagedObjectSummary { Error = ds.Error };
+            return new ManagedObjectSummary
+            {
+                TotalCount = ds.Items.Count,
+                DataPoints = ds.Items
+                    .Select(i => Services.ActiveRolesService.ParseStatisticsRun(SegmentAttributes.AttrOf(i, "edsaStatisticsCountXML")))
+                    .OfType<ManagedObjectDataPoint>()
+                    .OrderBy(dp => dp.RunTime)
+                    .ToList()
+            };
+        }
+    }
     public ADUserAccountDetailSummary NeverLoggedIn { get; set; } = new();
     public GovernanceKpiSummary NoManagerUser { get; set; } = new();
-    public GovernanceKpiSummary NoManagerServiceAccount { get; set; } = new();
-    public GovernanceKpiSummary ServiceAccounts { get; set; } = new();
-    public GovernanceKpiSummary GmsaServiceAccounts { get; set; } = new();
-    public GovernanceKpiSummary SmsaServiceAccounts { get; set; } = new();
     public ADUserAccountDetailSummary ExpiredUsers { get; set; } = new();
     public ADUserAccountDetailSummary PasswordNeverExpires { get; set; } = new();
-    public GovernanceKpiSummary UserAccountLockedOut { get; set; } = new();
     public GovernanceKpiSummary ReversibleEncryption { get; set; } = new();
-    public GovernanceKpiSummary EmptyGroups { get; set; } = new();
     public GovernanceKpiSummary CircularGroupNesting { get; set; } = new();
-    public PrivilegedGroupSummary AccountOperators { get; set; } = new();
-    public PrivilegedGroupSummary Administrators { get; set; } = new();
-    public PrivilegedGroupSummary BackupOperators { get; set; } = new();
-    public PrivilegedGroupSummary DomainAdmins { get; set; } = new();
-    public PrivilegedGroupSummary ServerOperators { get; set; } = new();
-    public PrivilegedGroupSummary EnterpriseAdmins { get; set; } = new();
-    public PrivilegedGroupSummary SchemaAdmins { get; set; } = new();
-    public PrivilegedGroupSummary ActiveRolesAdmins { get; set; } = new();
     public ADUserAccountDetailSummary AdminCount { get; set; } = new();
     public ADUserAccountDetailSummary EnabledUsers { get; set; } = new();
     public ADUserAccountDetailSummary DisabledUsers { get; set; } = new();
 
     /// <summary>Number of effective (non-blocking) "Exclude from Managed Scope" policy links resolved. Zero means nothing is excluded from management.</summary>
     public int ExcludeFromManagementLinkCount { get; set; }
+
+    /// <summary>The effective "Exclude from Managed Scope" policy link DNs used to decide managed status.</summary>
+    public List<string> ExcludeFromManagementLinkDns { get; set; } = [];
 
     public ADUserAccountDetailSummary MustChangePassword { get; set; } = new();
     public ADUserAccountDetailSummary StalePasswords { get; set; } = new();
@@ -2377,17 +2441,6 @@ public class DashboardSummary
     public ADGroupsSummary ADGroups { get; set; } = new();
     public ComputersSummary Computers { get; set; } = new();
     public EntraTotalsSummary EntraTotals { get; set; } = new();
-    public ADGroupDetailSummary DistributionGroups { get; set; } = new();
-    public ADGroupDetailSummary DomainLocalGroups { get; set; } = new();
-    public ADGroupDetailSummary GlobalGroups { get; set; } = new();
-    public ADGroupDetailSummary MailEnabledSecurityGroups { get; set; } = new();
-    public ADGroupDetailSummary SecurityGroups { get; set; } = new();
-    public ADGroupDetailSummary UniversalGroups { get; set; } = new();
-    public GovernanceKpiSummary Sites { get; set; } = new();
-    public GovernanceKpiSummary SiteLinks { get; set; } = new();
-    public GovernanceKpiSummary Subnets { get; set; } = new();
-    public GovernanceKpiSummary Trusts { get; set; } = new();
-    public GovernanceKpiSummary OUs { get; set; } = new();
     public DomainControllersSummary DomainControllers { get; set; } = new();
     public ComputerBreakdownSummary ComputerClients { get; set; } = new();
     public ComputerBreakdownSummary ComputerServers { get; set; } = new();
@@ -2422,13 +2475,6 @@ public class DashboardSummary
     /// <summary>Returns the Exchange KPI summary for the given key, or an empty summary when absent.</summary>
     public GovernanceKpiSummary ExchangeKpi(string key) =>
         ExchangeKpis.TryGetValue(key, out var s) ? s : new GovernanceKpiSummary();
-
-    // Tier 2 security-health scalar signals.
-    public SecurityHealthSummary KrbtgtPasswordAge { get; set; } = new();
-    public SecurityHealthSummary WeakPasswordLength { get; set; } = new();
-    public SecurityHealthSummary PasswordComplexityDisabled { get; set; } = new();
-    public SecurityHealthSummary NoAccountLockout { get; set; } = new();
-    public SecurityHealthSummary PasswordMaxAgeDays { get; set; } = new();
 
     /// <summary>
     /// Aggregated count of Entra group-like objects (Security, Microsoft 365,
@@ -2595,200 +2641,27 @@ public class DashboardSummary
 
         AdVisible = effectiveDomains.Count > 0;
         EntraVisible = EntraTotals.Tenants.Count > 0;
+
+        // Definition KPI values were computed over the unfiltered datasets. Mark them stale so a
+        // missed re-evaluation shows up as an error instead of a wrong (unfiltered) value.
+        foreach (var id in KpiResults.Keys.ToList())
+            KpiResults[id] = Definitions.KpiResult.Failed(StaleKpiResultError);
+        foreach (var id in DefinitionDetailTables.Keys.ToList())
+            DefinitionDetailTables[id] = new Lazy<ReportTable>(new ReportTable { Error = StaleKpiResultError });
     }
 
-    /// <summary>Returns the count and error for any KPI by key, enabling generic tile rendering.</summary>
-    public (int Count, string? Error) GetKpiResult(string kpiKey) => kpiKey switch
-    {
-        "ADUserAccounts" => GetCombinedResult(ADUserAccounts.TotalCount, ADUserAccounts.Error, EntraTotals.CountFor(EntraObjectType.User), EntraTotals.Error),
-        "ADGroups" => GetCombinedResult(ADGroups.TotalCount, ADGroups.Error, EntraGroupsTotal, EntraTotals.Error),
-        "Computers" => (Computers.TotalCount, Computers.Error),
-        // Main Overview mailbox total: sourced from the already-computed Exchange result.
-        "MainTotalMailboxes" => ExchangeKpis.TryGetValue("ExchangeTotalMailboxes", out var mbx) ? (mbx.TotalCount, mbx.Error) : (0, null),
+    public const string StaleKpiResultError = "Definition result was not re-evaluated after the segment filter was applied";
 
-        // Single-source Overview KPIs (AD-only) for the Active Directory dashboard Overview.
-        "AdOverviewUsers" => (ADUserAccounts.TotalCount, ADUserAccounts.Error),
-        "AdOverviewGroups" => (ADGroups.TotalCount, ADGroups.Error),
-        "AdOverviewComputers" => (Computers.TotalCount, Computers.Error),
-
-        // Single-source Overview KPIs (Entra-only) for the Entra ID dashboard Overview.
-        "EntraOverviewUsers" => (EntraTotals.CountFor(EntraObjectType.User), EntraTotals.Error),
-        "EntraOverviewGroups" => (EntraGroupsTotal, EntraTotals.Error),
-
-        // Entra User Accounts KPIs (derived from the Entra user objects).
-        "EntraEnabledUsers" => (EntraTotals.EntraUsers(enabled: true).TotalCount, EntraTotals.Error),
-        "EntraDisabledUsers" => (EntraTotals.EntraUsers(enabled: false).TotalCount, EntraTotals.Error),
-        "EntraNoManagerUser" => (EntraTotals.EntraUsers(noManager: true).TotalCount, EntraTotals.Error),
-        "EntraGuestUsers" => (EntraTotals.CountFor(EntraObjectType.GuestUser), EntraTotals.Error),
-        "EntraInternalUsers" => (EntraTotals.EntraUsersByOrigin(external: false).TotalCount, EntraTotals.Error),
-        "EntraExternalUsers" => (EntraTotals.EntraUsersByOrigin(external: true).TotalCount, EntraTotals.Error),
-        "EntraHybridUsers" => (EntraTotals.EntraUsers(onPremSynced: true).TotalCount, EntraTotals.Error),
-        "EntraCloudOnlyUsers" => (EntraTotals.EntraUsers(onPremSynced: false).TotalCount, EntraTotals.Error),
-        "EntraManagedUsers" => (EntraTotals.EntraUsers(enabled: true).Items.Count(i => i.IsManaged), EntraTotals.Error),
-        "EntraDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DistributionGroup), EntraTotals.Error),
-        "EntraDynamicDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DynamicDistributionGroup), EntraTotals.Error),
-        "EntraMicrosoft365Groups" => (EntraTotals.CountFor(EntraObjectType.Microsoft365Group), EntraTotals.Error),
-        "EntraSecurityGroups" => (EntraTotals.CountFor(EntraObjectType.SecurityGroup), EntraTotals.Error),
-        "EntraEmptyGroups" => (EntraTotals.EntraEmptyGroups().TotalCount, EntraTotals.Error),
-        "EntraNoGroupOwner" => (EntraTotals.EntraNoGroupOwnerGroups().TotalCount, EntraTotals.Error),
-        "EntraGuestContainingGroups" => (EntraTotals.EntraGuestContainingGroups().TotalCount, EntraTotals.Error),
-        "EntraPublicGroups" => (EntraTotals.EntraPublicGroups().TotalCount, EntraTotals.Error),
-        "EntraOnPremSyncedGroups" => (EntraTotals.EntraOnPremSyncedGroups().TotalCount, EntraTotals.Error),
-        "EntraSingleOwnerGroups" => (EntraTotals.EntraSingleOwnerGroups().TotalCount, EntraTotals.Error),
-        "EntraLargeGroups" => (EntraTotals.EntraLargeGroups(EntraLargeGroupMemberThreshold).TotalCount, EntraTotals.Error),
-
-        "ActiveRolesAdmins" => (ActiveRolesAdmins.TotalCount, ActiveRolesAdmins.Error),
-        "Servers" => (Servers.TotalCount, Servers.Error),
-        "Domains" => (Domains.TotalCount, Domains.Error),
-        "AccessTemplateLinks" => (AccessTemplateLinks.TotalCount, AccessTemplateLinks.Error),
-        "AccessTemplates" => (AccessTemplates.TotalCount, AccessTemplates.Error),
-        "DynamicGroups" => (DynamicGroups.TotalCount, DynamicGroups.Error),
-        "GroupFamilies" => (GroupFamilies.TotalCount, GroupFamilies.Error),
-        "ManagedUnits" => (ManagedUnits.TotalCount, ManagedUnits.Error),
-        "PolicyObjectLinks" => (PolicyObjectLinks.TotalCount, PolicyObjectLinks.Error),
-        "PolicyObjects" => (PolicyObjects.TotalCount, PolicyObjects.Error),
-        "VirtualAttributes" => (VirtualAttributes.TotalCount, VirtualAttributes.Error),
-        "ConfigDatabases" => (ConfigDatabases.TotalCount, ConfigDatabases.Error),
-        "HistoryDatabases" => (HistoryDatabases.TotalCount, HistoryDatabases.Error),
-        "ScheduledTasks" => (ScheduledTasks.TotalCount, ScheduledTasks.Error),
-        "EmptyAccessTemplates" => (EmptyAccessTemplates.TotalCount, EmptyAccessTemplates.Error),
-        "PolicyObjectsNoRules" => (PolicyObjectsNoRules.TotalCount, PolicyObjectsNoRules.Error),
-        "UnlinkedAccessTemplates" => (UnlinkedAccessTemplates.TotalCount, UnlinkedAccessTemplates.Error),
-        "DenyAccessTemplates" => (DenyAccessTemplates.TotalCount, DenyAccessTemplates.Error),
-        "UnlinkedPolicyObjects" => (UnlinkedPolicyObjects.TotalCount, UnlinkedPolicyObjects.Error),
-        "OrphanAccessTemplateLinks" => (OrphanAccessTemplateLinks.TotalCount, OrphanAccessTemplateLinks.Error),
-        "OrphanPolicyObjectLinks" => (OrphanPolicyObjectLinks.TotalCount, OrphanPolicyObjectLinks.Error),
-        "DynamicGroupsBrokenRules" => (DynamicGroupsBrokenRules.TotalCount, DynamicGroupsBrokenRules.Error),
-        "ManagedUnitsBrokenRules" => (ManagedUnitsBrokenRules.TotalCount, ManagedUnitsBrokenRules.Error),
-        "ScriptModules" => (ScriptModules.TotalCount, ScriptModules.Error),
-        "EntraManagedTenants" => (EntraManagedTenants.TotalCount, EntraManagedTenants.Error),
-        "Workflows" => (Workflows.TotalCount, Workflows.Error),
-        "NoGroupOwner" => (NoGroupOwner.TotalCount, NoGroupOwner.Error),
-        "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
-        "NoManagerServiceAccount" => (NoManagerServiceAccount.TotalCount, NoManagerServiceAccount.Error),
-        "ServiceAccounts" => (ServiceAccounts.TotalCount, ServiceAccounts.Error),
-        "GmsaServiceAccounts" => (GmsaServiceAccounts.TotalCount, GmsaServiceAccounts.Error),
-        "SmsaServiceAccounts" => (SmsaServiceAccounts.TotalCount, SmsaServiceAccounts.Error),
-        "UserAccountLockedOut" => (UserAccountLockedOut.TotalCount, UserAccountLockedOut.Error),
-        "EmptyGroups" => (EmptyGroups.TotalCount, EmptyGroups.Error),
-        "CircularGroupNesting" => (CircularGroupNesting.TotalCount, CircularGroupNesting.Error),
-        "NeverLoggedIn" => (NeverLoggedIn.TotalCount, NeverLoggedIn.Error),
-        "ExpiredUsers" => (ExpiredUsers.TotalCount, ExpiredUsers.Error),
-        "ReversibleEncryption" => (ReversibleEncryption.TotalCount, ReversibleEncryption.Error),
-        "AccountOperators" => (AccountOperators.TotalCount, AccountOperators.Error),
-        "Administrators" => (Administrators.TotalCount, Administrators.Error),
-        "BackupOperators" => (BackupOperators.TotalCount, BackupOperators.Error),
-        "DomainAdmins" => (DomainAdmins.TotalCount, DomainAdmins.Error),
-        "ServerOperators" => (ServerOperators.TotalCount, ServerOperators.Error),
-        "EnterpriseAdmins" => (EnterpriseAdmins.TotalCount, EnterpriseAdmins.Error),
-        "SchemaAdmins" => (SchemaAdmins.TotalCount, SchemaAdmins.Error),
-        "AdminCount" => (AdminCount.TotalCount, AdminCount.Error),
-        "EnabledUsers" => (EnabledUsers.TotalCount, EnabledUsers.Error),
-        "DisabledUsers" => (DisabledUsers.TotalCount, DisabledUsers.Error),
-        "HybridUsers" => (HybridUsers.TotalCount, HybridUsers.Error),
-        "OnPremOnlyUsers" => (OnPremOnlyUsers.TotalCount, OnPremOnlyUsers.Error),
-        "ManagedEnabledUsers" => (EnabledUsers.Items.Count(i => i.IsManaged), EnabledUsers.Error),
-        "ExpiringUsers" => (ExpiringUsers.TotalCount, ExpiringUsers.Error),
-        "PasswordNeverExpires" => (PasswordNeverExpires.TotalCount, PasswordNeverExpires.Error),
-        "MustChangePassword" => (MustChangePassword.TotalCount, MustChangePassword.Error),
-        "StalePasswords" => (StalePasswords.TotalCount, StalePasswords.Error),
-        "PasswordNotRequired" => (PasswordNotRequired.TotalCount, PasswordNotRequired.Error),
-        "SmartCardRequired" => (SmartCardRequired.TotalCount, SmartCardRequired.Error),
-        "CannotChangePassword" => (CannotChangePassword.TotalCount, CannotChangePassword.Error),
-        "NoKerberosPreauth" => (NoKerberosPreauth.TotalCount, NoKerberosPreauth.Error),
-        "UserReversibleEncryption" => (UserReversibleEncryption.TotalCount, UserReversibleEncryption.Error),
-        "SensitiveCannotDelegate" => (SensitiveCannotDelegate.TotalCount, SensitiveCannotDelegate.Error),
-        "TrustedForDelegation" => (TrustedForDelegation.TotalCount, TrustedForDelegation.Error),
-        "UseDesEncryption" => (UseDesEncryption.TotalCount, UseDesEncryption.Error),
-        "DeprovisionedUsers" => (DeprovisionedUsers.TotalCount, DeprovisionedUsers.Error),
-        "SpnUserAccounts" => (SpnUserAccounts.TotalCount, SpnUserAccounts.Error),
-        "StaleUsers" => (StaleUsers.TotalCount, StaleUsers.Error),
-        "DistributionGroups" => (DistributionGroups.TotalCount, DistributionGroups.Error),
-        "DomainLocalGroups" => (DomainLocalGroups.TotalCount, DomainLocalGroups.Error),
-        "GlobalGroups" => (GlobalGroups.TotalCount, GlobalGroups.Error),
-        "MailEnabledSecurityGroups" => (MailEnabledSecurityGroups.TotalCount, MailEnabledSecurityGroups.Error),
-        "SecurityGroups" => (SecurityGroups.TotalCount, SecurityGroups.Error),
-        "UniversalGroups" => (UniversalGroups.TotalCount, UniversalGroups.Error),
-        "Sites" => (Sites.TotalCount, Sites.Error),
-        "SiteLinks" => (SiteLinks.TotalCount, SiteLinks.Error),
-        "Subnets" => (Subnets.TotalCount, Subnets.Error),
-        "Trusts" => (Trusts.TotalCount, Trusts.Error),
-        "OUs" => (OUs.TotalCount, OUs.Error),
-        "DomainControllers" => (DomainControllers.TotalCount, DomainControllers.Error),
-        "UnconstrainedComputers" => (UnconstrainedComputers.TotalCount, UnconstrainedComputers.Error),
-        "ComputerClients" => (ComputerClients.TotalCount, ComputerClients.Error),
-        "ComputerServers" => (ComputerServers.TotalCount, ComputerServers.Error),
-        "WinServer2008R2" => (WinServer2008R2.TotalCount, WinServer2008R2.Error),
-        "WinServer2012R2" => (WinServer2012R2.TotalCount, WinServer2012R2.Error),
-        "WinServer2016" => (WinServer2016.TotalCount, WinServer2016.Error),
-        "WinServer2019" => (WinServer2019.TotalCount, WinServer2019.Error),
-        "WinServer2022" => (WinServer2022.TotalCount, WinServer2022.Error),
-        "WinServer2025" => (WinServer2025.TotalCount, WinServer2025.Error),
-        "ServerOther" => (ServerOther.TotalCount, ServerOther.Error),
-        "Win7" => (Win7.TotalCount, Win7.Error),
-        "Win81" => (Win81.TotalCount, Win81.Error),
-        "Win10_22H2" => (Win10_22H2.TotalCount, Win10_22H2.Error),
-        "Win11_22H2" => (Win11_22H2.TotalCount, Win11_22H2.Error),
-        "Win11_23H2" => (Win11_23H2.TotalCount, Win11_23H2.Error),
-        "Win11Enterprise" => (Win11Enterprise.TotalCount, Win11Enterprise.Error),
-        "Win11Pro" => (Win11Pro.TotalCount, Win11Pro.Error),
-        "ClientsOther" => (ClientsOther.TotalCount, ClientsOther.Error),
-        "StaleComputers" => (StaleComputers.TotalCount, StaleComputers.Error),
-        "EnabledComputers" => (EnabledComputers.TotalCount, EnabledComputers.Error),
-        "DisabledComputers" => (DisabledComputers.TotalCount, DisabledComputers.Error),
-        "NeverLoggedOnComputers" => (NeverLoggedOnComputers.TotalCount, NeverLoggedOnComputers.Error),
-        "KrbtgtPasswordAgeDays" => (KrbtgtPasswordAge.Value, KrbtgtPasswordAge.Error),
-        "WeakPasswordLength" => (WeakPasswordLength.Value, WeakPasswordLength.Error),
-        "PasswordComplexityDisabled" => (PasswordComplexityDisabled.Value, PasswordComplexityDisabled.Error),
-        "NoAccountLockout" => (NoAccountLockout.Value, NoAccountLockout.Error),
-        "PasswordMaxAgeDays" => (PasswordMaxAgeDays.Value, PasswordMaxAgeDays.Error),
-        "ManagedObjects" => (ManagedObjects.Error != null ? 0 : (ManagedObjects.DataPoints.Any() ? ManagedObjects.DataPoints.Last().Items.Sum(i => i.Count) : 0), ManagedObjects.Error),
-        // Active Roles configuration hygiene KPIs derived from already-collected summaries.
-        "DisabledWorkflows" => (Workflows.Error != null ? 0 : Workflows.Items.Count(w => !w.IsEnabled), Workflows.Error),
-        "BroadDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && IsBroadTrustee(l.Trustee)), AccessTemplateLinks.Error),
-        "UserDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && l.IsUserTrustee), AccessTemplateLinks.Error),
-        "RootDelegationLinks" => (AccessTemplateLinks.Error != null ? 0 : AccessTemplateLinks.Items.Count(l => !l.IsPredefined && l.IsRootScope), AccessTemplateLinks.Error),
-        // Unsupported / end-of-life operating system KPIs aggregated from the OS-breakdown summaries.
-        "UnsupportedServerOs" => GetCombinedResult(WinServer2008R2.TotalCount, WinServer2008R2.Error, WinServer2012R2.TotalCount, WinServer2012R2.Error),
-        "UnsupportedClientOs" => (
-            (Win7.Error ?? Win81.Error ?? Win10_22H2.Error) != null ? 0 : Win7.TotalCount + Win81.TotalCount + Win10_22H2.TotalCount,
-            Win7.Error ?? Win81.Error ?? Win10_22H2.Error),
-        "UnsupportedOs" => (
-            (WinServer2008R2.Error ?? WinServer2012R2.Error ?? Win7.Error ?? Win81.Error ?? Win10_22H2.Error) != null ? 0
-                : WinServer2008R2.TotalCount + WinServer2012R2.TotalCount + Win7.TotalCount + Win81.TotalCount + Win10_22H2.TotalCount,
-            WinServer2008R2.Error ?? WinServer2012R2.Error ?? Win7.Error ?? Win81.Error ?? Win10_22H2.Error),
-        // Exchange KPIs are stored generically keyed by KpiInfo.Key; resolve them from the dictionary.
-        _ => ExchangeKpis.TryGetValue(kpiKey, out var ex) ? (ex.TotalCount, ex.Error) : (0, null)
-    };
+    public const string KpiNotEvaluatedError = "KPI not evaluated";
 
     /// <summary>
-    /// True when a resolved Access Template Link trustee is a broad, everyone-style principal
-    /// (Everyone, Authenticated Users, Domain Users). Delegating administrative Access Templates
-    /// to such principals grants powerful rights to the whole population and should be flagged.
+    /// Returns the count and error for any KPI by key from the definition evaluation
+    /// (<see cref="KpiResults"/>). KPIs that were not evaluated report <see cref="KpiNotEvaluatedError"/>.
     /// </summary>
-    private ReportTable DelegationLinkDetail(Func<AccessTemplateLinkInfo, bool> predicate) => new()
-    {
-        Columns = ["Directory Object", "Access Template", "Trustee", "Distinguished Name"],
-        Rows = AccessTemplateLinks.Items.Where(l => !l.IsPredefined && predicate(l))
-            .Select(l => (IReadOnlyList<string>)[l.DirectoryObject, l.AccessTemplate, l.Trustee, l.Dn]).ToList(),
-        Error = AccessTemplateLinks.Error
-    };
-
-    private static bool IsBroadTrustee(string? trustee)
-    {
-        if (string.IsNullOrWhiteSpace(trustee)) return false;
-        return trustee.Contains("Everyone", StringComparison.OrdinalIgnoreCase)
-            || trustee.Contains("Authenticated Users", StringComparison.OrdinalIgnoreCase)
-            || trustee.Contains("Domain Users", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static (int Count, string? Error) GetCombinedResult(int adCount, string? adError, int entraCount, string? entraError)
-    {
-        // If both fail, show error; if one succeeds, show partial count
-        if (adError != null && entraError != null)
-            return (0, adError);
-        return (adCount + entraCount, null);
-    }
+    public (int Count, string? Error) GetKpiResult(string kpiKey) =>
+        KpiResults.TryGetValue(kpiKey, out var result)
+            ? ((int)result.Value, result.Error)
+            : (0, KpiNotEvaluatedError);
 
     /// <summary>
     /// Returns the Active Directory vs Entra ID breakdown for a combined Overview KPI.
@@ -2853,46 +2726,14 @@ public class DashboardSummary
     /// Returns null when the KPI has no row-based detail (e.g. pure count/breakdown tiles).
     /// </summary>
     /// <summary>
-    /// Group Membership Tree targets for a KPI's detail view, matching the Razor drill-down panels:
-    /// <c>GroupDn</c> is the privileged group itself (only when it has nested members), and
-    /// <c>RowDns</c> holds a per-row group DN (null when that row has no tree to show), aligned
-    /// with the rows of <see cref="GetKpiDetailTable"/>.
+    /// Detail table of a KPI: the definition-driven table when the KPI declares drilldown columns,
+    /// otherwise the table built from the typed summaries.
     /// </summary>
-    public (string? GroupDn, List<string?>? RowDns) GetKpiGroupTreeTargets(string kpiKey)
-    {
-        static (string?, List<string?>?) Priv(PrivilegedGroupSummary s, string fallbackName)
-        {
-            if (s.Error != null || !s.HasIndirectMembers) return (null, null);
-            var target = !string.IsNullOrEmpty(s.GroupDn) ? s.GroupDn
-                : !string.IsNullOrEmpty(s.GroupName) ? s.GroupName
-                : fallbackName;
-            return (string.IsNullOrEmpty(target) ? null : target, null);
-        }
-        static (string?, List<string?>?) Groups(ADGroupDetailSummary s) =>
-            (null, s.Items.Select(i => !string.IsNullOrEmpty(i.Dn) && i.IndirectMembers > 0 ? i.Dn : null).ToList());
+    public ReportTable? GetKpiDetailTable(string kpiKey) =>
+        DefinitionDetailTables.TryGetValue(kpiKey, out var table) ? table.Value : GetLegacyKpiDetailTable(kpiKey);
 
-        return kpiKey switch
-        {
-            "AccountOperators" => Priv(AccountOperators, "Account Operators"),
-            "Administrators" => Priv(Administrators, "Administrators"),
-            "BackupOperators" => Priv(BackupOperators, "Backup Operators"),
-            "DomainAdmins" => Priv(DomainAdmins, "Domain Admins"),
-            "ServerOperators" => Priv(ServerOperators, "Server Operators"),
-            "EnterpriseAdmins" => Priv(EnterpriseAdmins, "Enterprise Admins"),
-            "SchemaAdmins" => Priv(SchemaAdmins, "Schema Admins"),
-            "ActiveRolesAdmins" => Priv(ActiveRolesAdmins, string.Empty),
-            "DistributionGroups" => Groups(DistributionGroups),
-            "DomainLocalGroups" => Groups(DomainLocalGroups),
-            "GlobalGroups" => Groups(GlobalGroups),
-            "MailEnabledSecurityGroups" => Groups(MailEnabledSecurityGroups),
-            "SecurityGroups" => Groups(SecurityGroups),
-            "UniversalGroups" => Groups(UniversalGroups),
-            "NoGroupOwner" => (null, NoGroupOwner.Items.Select(i => string.IsNullOrEmpty(i.Dn) ? null : i.Dn).ToList()),
-            _ => (null, null)
-        };
-    }
-
-    public ReportTable? GetKpiDetailTable(string kpiKey)
+    /// <summary>Detail table built from the hand-written typed summaries (used for parity checks).</summary>
+    public ReportTable? GetLegacyKpiDetailTable(string kpiKey)
     {
         // Strongly-typed AD user-account detail summaries (Name / Domain / Distinguished Name).
         ReportTable? UserDetail(ADUserAccountDetailSummary s) => new()
@@ -2936,20 +2777,8 @@ public class DashboardSummary
         };
 
         // Privileged group membership (Name / Domain / Membership Type / Distinguished Name).
-        ReportTable? PrivDetail(PrivilegedGroupSummary s) => new()
-        {
-            Columns = ["Name", "Domain", "Membership", "Distinguished Name"],
-            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Domain, i.MembershipType, i.Dn]).ToList(),
-            Error = s.Error
-        };
 
         // AD group detail (Name / Direct / Indirect / Distinguished Name).
-        ReportTable? GroupDetail(ADGroupDetailSummary s) => new()
-        {
-            Columns = ["Name", "Direct Members", "Indirect Members", "Distinguished Name"],
-            Rows = s.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.DirectMembers.ToString(), i.IndirectMembers.ToString(), i.Dn]).ToList(),
-            Error = s.Error
-        };
 
         // Entra user-account detail (Name / Tenant / Distinguished Name / Enabled).
         ReportTable? EntraUserDetail(EntraUserDetailSummary s) => new()
@@ -3050,43 +2879,12 @@ public class DashboardSummary
 
             // AD Governance category
             "NoManagerUser" => GovDetail(NoManagerUser),
-            "NoManagerServiceAccount" => GovDetail(NoManagerServiceAccount),
-            "ServiceAccounts" => GovDetail(ServiceAccounts),
-            "GmsaServiceAccounts" => GovDetail(GmsaServiceAccounts),
-            "SmsaServiceAccounts" => GovDetail(SmsaServiceAccounts),
-            "UserAccountLockedOut" => GovDetail(UserAccountLockedOut),
             "ReversibleEncryption" => GovDetail(ReversibleEncryption),
-            "EmptyGroups" => GovDetail(EmptyGroups),
             "CircularGroupNesting" => GovDetail(CircularGroupNesting),
-            "Sites" => GovDetail(Sites),
-            "SiteLinks" => GovDetail(SiteLinks),
-            "Subnets" => GovDetail(Subnets),
-            "Trusts" => GovDetail(Trusts),
-            "OUs" => GovDetail(OUs),
-            "NoGroupOwner" => new ReportTable
-            {
-                Columns = ["Name", "Distinguished Name"],
-                Rows = NoGroupOwner.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
-                Error = NoGroupOwner.Error
-            },
 
             // Privileged groups
-            "AccountOperators" => PrivDetail(AccountOperators),
-            "Administrators" => PrivDetail(Administrators),
-            "BackupOperators" => PrivDetail(BackupOperators),
-            "DomainAdmins" => PrivDetail(DomainAdmins),
-            "ServerOperators" => PrivDetail(ServerOperators),
-            "EnterpriseAdmins" => PrivDetail(EnterpriseAdmins),
-            "SchemaAdmins" => PrivDetail(SchemaAdmins),
-            "ActiveRolesAdmins" => PrivDetail(ActiveRolesAdmins),
 
             // AD Groups category
-            "DistributionGroups" => GroupDetail(DistributionGroups),
-            "DomainLocalGroups" => GroupDetail(DomainLocalGroups),
-            "GlobalGroups" => GroupDetail(GlobalGroups),
-            "MailEnabledSecurityGroups" => GroupDetail(MailEnabledSecurityGroups),
-            "SecurityGroups" => GroupDetail(SecurityGroups),
-            "UniversalGroups" => GroupDetail(UniversalGroups),
 
             // Infrastructure
             "DomainControllers" => new ReportTable
@@ -3133,23 +2931,11 @@ public class DashboardSummary
                 Rows = Servers.Items.Select(i => (IReadOnlyList<string>)[i.ServerName, i.Version]).ToList(),
                 Error = Servers.Error
             },
-            "AccessTemplateLinks" => new ReportTable
-            {
-                Columns = ["Directory Object", "Access Template", "Trustee"],
-                Rows = AccessTemplateLinks.Items.Select(i => (IReadOnlyList<string>)[i.DirectoryObject, i.AccessTemplate, i.Trustee]).ToList(),
-                Error = AccessTemplateLinks.Error
-            },
             "DynamicGroups" => new ReportTable
             {
                 Columns = ["Name", "Distinguished Name"],
                 Rows = DynamicGroups.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
                 Error = DynamicGroups.Error
-            },
-            "PolicyObjectLinks" => new ReportTable
-            {
-                Columns = ["Name", "Distinguished Name"],
-                Rows = PolicyObjectLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Dn]).ToList(),
-                Error = PolicyObjectLinks.Error
             },
             "ConfigDatabases" => new ReportTable
             {
@@ -3157,75 +2943,7 @@ public class DashboardSummary
                 Rows = ConfigDatabases.Items.Select(i => (IReadOnlyList<string>)[i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationSupport, i.ReplicationRole.ToString()]).ToList(),
                 Error = ConfigDatabases.Error
             },
-            "HistoryDatabases" => new ReportTable
-            {
-                Columns = ["SQL Alias", "Database Name", "Database Type", "Replication Role"],
-                Rows = HistoryDatabases.Items.Select(i => (IReadOnlyList<string>)[i.SqlAlias, i.DatabaseName, i.DatabaseType, i.ReplicationRole.ToString()]).ToList(),
-                Error = HistoryDatabases.Error
-            },
-            "AccessTemplates" => ArTemplateDetail(AccessTemplates),
-            "EmptyAccessTemplates" => ArNameDnDetail(EmptyAccessTemplates.Items.Select(i => (i.Name, i.Dn)), EmptyAccessTemplates.Error),
-            "UnlinkedAccessTemplates" => ArNameDnDetail(UnlinkedAccessTemplates.Items.Select(i => (i.Name, i.Dn)), UnlinkedAccessTemplates.Error),
-            "DenyAccessTemplates" => ArNameDnDetail(DenyAccessTemplates.Items.Select(i => (i.Name, i.Dn)), DenyAccessTemplates.Error),
-            "PolicyObjects" => ArPolicyDetail(PolicyObjects),
-            "PolicyObjectsNoRules" => ArNameDnDetail(PolicyObjectsNoRules.Items.Select(i => (i.Name, i.Dn)), PolicyObjectsNoRules.Error),
-            "UnlinkedPolicyObjects" => ArNameDnDetail(UnlinkedPolicyObjects.Items.Select(i => (i.Name, i.Dn)), UnlinkedPolicyObjects.Error),
             "GroupFamilies" => ArNameDnDetail(GroupFamilies.Items.Select(i => (i.Name, i.Dn)), GroupFamilies.Error),
-            "ManagedUnits" => new ReportTable
-            {
-                Columns = ["Name", "Membership Rules", "Distinguished Name"],
-                Rows = ManagedUnits.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.RuleCount.ToString(), i.Dn]).ToList(),
-                Error = ManagedUnits.Error
-            },
-            "DynamicGroupsBrokenRules" => ArNameDnDetail(DynamicGroupsBrokenRules.Items.Select(i => (i.Name, i.Dn)), DynamicGroupsBrokenRules.Error),
-            "ManagedUnitsBrokenRules" => ArNameDnDetail(ManagedUnitsBrokenRules.Items.Select(i => (i.Name, i.Dn)), ManagedUnitsBrokenRules.Error),
-            "OrphanAccessTemplateLinks" => new ReportTable
-            {
-                Columns = ["Name", "Directory Object", "Access Template", "Trustee", "Missing", "Distinguished Name"],
-                Rows = OrphanAccessTemplateLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.DirectoryObject, i.AccessTemplate, i.Trustee, i.MissingAttributes, i.Dn]).ToList(),
-                Error = OrphanAccessTemplateLinks.Error
-            },
-            "BroadDelegationLinks" => DelegationLinkDetail(l => IsBroadTrustee(l.Trustee)),
-            "UserDelegationLinks" => DelegationLinkDetail(l => l.IsUserTrustee),
-            "RootDelegationLinks" => DelegationLinkDetail(l => l.IsRootScope),
-            "OrphanPolicyObjectLinks" => new ReportTable
-            {
-                Columns = ["Name", "Missing", "Distinguished Name"],
-                Rows = OrphanPolicyObjectLinks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.MissingAttributes, i.Dn]).ToList(),
-                Error = OrphanPolicyObjectLinks.Error
-            },
-            "ScriptModules" => new ReportTable
-            {
-                Columns = ["Name", "Language", "Type", "System", "Distinguished Name"],
-                Rows = ScriptModules.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.Language, i.Type, i.IsSystem.ToString(), i.Dn]).ToList(),
-                Error = ScriptModules.Error
-            },
-            "EntraManagedTenants" => new ReportTable
-            {
-                Columns = ["Name", "Objects", "Note", "Distinguished Name"],
-                Rows = EntraManagedTenants.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.ObjectCount?.ToString() ?? string.Empty, i.Note, i.Dn]).ToList(),
-                Error = EntraManagedTenants.Error
-            },
-            "VirtualAttributes" => new ReportTable
-            {
-                Columns = ["Name", "LDAP Display Name", "Multi-valued", "Built-in"],
-                Rows = VirtualAttributes.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.LdapDisplayName, i.IsMultivalued.ToString(), i.IsBuiltIn.ToString()]).ToList(),
-                Error = VirtualAttributes.Error
-            },
-            "Workflows" => new ReportTable
-            {
-                Columns = ["Name", "Enabled", "Automation", "Distinguished Name"],
-                Rows = Workflows.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.IsEnabled.ToString(), i.IsAutomationWorkflow.ToString(), i.Dn]).ToList(),
-                Error = Workflows.Error
-            },
-            "ScheduledTasks" => new ReportTable
-            {
-                Columns = ["Name", "Enabled", "Last Run (UTC)", "Next Run (UTC)", "Distinguished Name"],
-                Rows = ScheduledTasks.Items.Select(i => (IReadOnlyList<string>)[i.Name, i.IsEnabled.ToString(),
-                    i.LastRunTime?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty,
-                    i.NextRunTime?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty, i.Dn]).ToList(),
-                Error = ScheduledTasks.Error
-            },
 
             _ when ExchangeKpis.TryGetValue(kpiKey, out var ex) => ExchangeDetail(ex),
 
@@ -3407,6 +3125,45 @@ public class ADGroupsSummary
     public Dictionary<string, int> IndirectCountByDn { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Direct members of each group that are themselves groups in this summary, keyed by group DN.
+    /// Serialized (unlike <see cref="DirectByDn"/>) and small, so nesting-based KPIs such as circular
+    /// group nesting still see the group graph after the raw <c>member</c> arrays are stripped.
+    /// </summary>
+    public Dictionary<string, List<string>> GroupMembersByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Attribute carrying a group's direct member count in the definition dataset.</summary>
+    public const string DirectMemberCountAttribute = "directMemberCount";
+
+    /// <summary>Attribute carrying a group's indirect (transitive) member count in the definition dataset.</summary>
+    public const string IndirectMemberCountAttribute = "indirectMemberCount";
+
+    private (List<JsonElement> Source, List<JsonElement> Items)? _datasetItems;
+
+    /// <summary>
+    /// Group items for the definition dataset, each carrying the locally computed direct and
+    /// indirect member counts so drilldowns can show them. Cached per <see cref="Items"/> list.
+    /// </summary>
+    public List<JsonElement> ToDatasetItems()
+    {
+        if (_datasetItems is { } cached && ReferenceEquals(cached.Source, Items))
+            return cached.Items;
+
+        var items = Items.Select(i =>
+        {
+            var node = System.Text.Json.Nodes.JsonNode.Parse(i.GetRawText()) as System.Text.Json.Nodes.JsonObject ?? [];
+            var dn = SegmentAttributes.AttrOf(i, "distinguishedName");
+            node[DirectMemberCountAttribute] = DirectByDn.TryGetValue(dn, out var d) ? d.Count : DirectCountByDn.GetValueOrDefault(dn);
+            node[IndirectMemberCountAttribute] = IndirectByDn.TryGetValue(dn, out var n) ? n.Count : IndirectCountByDn.GetValueOrDefault(dn);
+            if (!SegmentAttributes.MultiAttrOf(i, "member").Any() && GroupMembersByDn.TryGetValue(dn, out var nested) && nested.Count > 0)
+                node["member"] = new System.Text.Json.Nodes.JsonArray(nested.Select(m => (System.Text.Json.Nodes.JsonNode?)m).ToArray());
+            return JsonSerializer.SerializeToElement(node);
+        }).ToList();
+        _datasetItems = (Items, items);
+        return items;
+    }
+
     /// <summary>Reduces this summary to items whose domain is in <paramref name="effectiveDomains"/>.</summary>
     public ADGroupsSummary Filter(ISet<string> effectiveDomains)
     {
@@ -3414,7 +3171,7 @@ public class ADGroupsSummary
             return this;
 
         var items = Items.Where(i => effectiveDomains.Contains(SegmentAttributes.DomainOf(i))).ToList();
-        // The membership maps are keyed by DN, so they can be shared as-is: lookups for the
+        // The membership maps
         // retained items still resolve, and unused keys are harmless.
         return new ADGroupsSummary
         {
@@ -3423,6 +3180,7 @@ public class ADGroupsSummary
             Error = null,
             DirectByDn = DirectByDn,
             IndirectByDn = IndirectByDn,
+            GroupMembersByDn = GroupMembersByDn,
             DirectCountByDn = DirectCountByDn,
             IndirectCountByDn = IndirectCountByDn
         };
@@ -3448,6 +3206,7 @@ public class ADGroupsSummary
             Error = Error,
             DirectByDn = DirectByDn,
             IndirectByDn = IndirectByDn,
+            GroupMembersByDn = GroupMembersByDn,
             DirectCountByDn = DirectCountByDn,
             IndirectCountByDn = IndirectCountByDn
         };
@@ -3469,24 +3228,6 @@ public class ComputersSummary
         var items = Items.Where(i => effectiveDomains.Contains(SegmentAttributes.DomainOf(i))).ToList();
         return new ComputersSummary { TotalCount = items.Count, Items = items, Error = null };
     }
-}
-
-public class ADGroupDetailSummary
-{
-    public int TotalCount { get; set; }
-    public List<ADGroupDetailInfo> Items { get; set; } = new();
-    public string? Error { get; set; }
-}
-
-public class ADGroupDetailInfo : IPermissionScoped
-{
-    public string Name { get; set; } = string.Empty;
-    public string Dn { get; set; } = string.Empty;
-    public int DirectMembers { get; set; }
-    public int IndirectMembers { get; set; }
-
-    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
-    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class DomainSummary
@@ -3639,13 +3380,6 @@ public class ConfigDatabaseSummary
     public string? Error { get; set; }
 }
 
-public class HistoryDatabaseSummary
-{
-    public int TotalCount { get; set; }
-    public List<DatabaseInfo> Items { get; set; } = new();
-    public string? Error { get; set; }
-}
-
 public class DatabaseInfo
 {
     public string SqlAlias { get; set; } = string.Empty;
@@ -3713,23 +3447,6 @@ public class ManagedObjectItem
     public int HybridCount { get; set; }
     /// <summary>For Azure/Entra tenants: guest object count. Not licensed.</summary>
     public int GuestCount { get; set; }
-}
-
-public class NoGroupOwnerSummary
-{
-    public int TotalCount { get; set; }
-    public List<NoGroupOwnerInfo> Items { get; set; } = new();
-    public string? Error { get; set; }
-}
-
-public class NoGroupOwnerInfo : IPermissionScoped
-{
-    public string Name { get; set; } = string.Empty;
-    public string Dn { get; set; } = string.Empty;
-    public string Guid { get; set; } = string.Empty;
-
-    [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
-    [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
 }
 
 public class GovernanceKpiSummary
@@ -4426,6 +4143,46 @@ public class EntraTotalsSummary
     /// </summary>
     public int MembershipLoadedCount { get; set; }
 
+    /// <summary>Definition dataset id exposing <see cref="Items"/> to generic KPI definitions.</summary>
+    public const string DatasetId = "EntraObjects";
+
+    /// <summary>Attribute added to each dataset item carrying its <see cref="EntraObjectType"/> name.</summary>
+    public const string DatasetObjectTypeAttribute = "entraObjectType";
+
+    /// <summary>Attribute added to each dataset item carrying its source tenant.</summary>
+    public const string DatasetTenantAttribute = "entraTenant";
+
+    /// <summary>
+    /// Projects <see cref="Items"/> into definition dataset items: the raw attributes plus the
+    /// object type and tenant, which are not part of the raw Active Roles data.
+    /// </summary>
+    public IReadOnlyList<JsonElement> ToDatasetItems()
+    {
+        var list = new List<JsonElement>(Items.Count);
+        foreach (var item in Items)
+        {
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                writer.WriteStartObject();
+                if (item.Raw.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var p in item.Raw.EnumerateObject())
+                    {
+                        if (p.Name is DatasetObjectTypeAttribute or DatasetTenantAttribute) continue;
+                        p.WriteTo(writer);
+                    }
+                }
+                writer.WriteString(DatasetObjectTypeAttribute, item.ObjectType.ToString());
+                writer.WriteString(DatasetTenantAttribute, item.Tenant);
+                writer.WriteEndObject();
+            }
+            using var doc = JsonDocument.Parse(stream.ToArray());
+            list.Add(doc.RootElement.Clone());
+        }
+        return list;
+    }
+
     public int CountFor(EntraObjectType type) =>
         ByObjectType.FirstOrDefault(c => c.ObjectType == type)?.TotalCount ?? 0;
 
@@ -4779,9 +4536,12 @@ public class EntraTotalsSummary
     /// <c>dane_barentine.com#EXT#@mistyvalley.onmicrosoft.com</c> resolves to
     /// <c>barentine.com</c>. Returns an empty string when the value cannot be parsed.
     /// </summary>
-    private static string HomeTenantOf(EntraObjectInfo info)
+    private static string HomeTenantOf(EntraObjectInfo info) =>
+        HomeTenantOfUpn(SegmentAttributes.AttrOf(info.Raw, "edsaAzureUserPrincipalName"));
+
+    /// <summary>Home tenant parsed from an external user's UPN; empty when not external.</summary>
+    internal static string HomeTenantOfUpn(string? upn)
     {
-        var upn = SegmentAttributes.AttrOf(info.Raw, "edsaAzureUserPrincipalName");
         if (string.IsNullOrEmpty(upn))
             return string.Empty;
 
@@ -4894,21 +4654,4 @@ public class ComputerBreakdownInfo : IPermissionScoped
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// A single scalar security-health signal (e.g. krbtgt password age in days, or a
-/// weak-policy indicator encoded as a count). <see cref="Value"/> carries the measured
-/// number consumed by assessment rules via RiskSummary.GetKpiResult.
-/// </summary>
-public class SecurityHealthSummary
-{
-    public int Value { get; set; }
-    public string? Error { get; set; }
-
-    /// <summary>
-    /// The NetBIOS domain this signal was measured against (e.g. krbtgt / password policy live
-    /// per domain). Used to scope the signal by domain visibility for non-admin viewers.
-    /// </summary>
-    public string Domain { get; set; } = string.Empty;
 }

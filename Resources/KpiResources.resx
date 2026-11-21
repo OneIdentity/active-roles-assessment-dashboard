@@ -246,7 +246,7 @@
   <data name="Kpi_ExchangeDynamicDistributionGroupsKpi" xml:space="preserve"><value>Dynamic Distribution Groups</value></data>
   <data name="Kpi_ExchangeGroupsNoOwnerKpi" xml:space="preserve"><value>Groups With No Owner</value></data>
   <data name="Kpi_ExchangeEmptyDistributionGroupsKpi" xml:space="preserve"><value>Empty Distribution Groups</value></data>
-  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Unmanaged Mailboxes</value></data>
+  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Mailboxes Without Manager</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Orphaned Mailboxes (Disabled)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Litigation Hold Disabled</value></data>
   <data name="Cat_ExchangePermissions" xml:space="preserve"><value>Permissions</value></data>

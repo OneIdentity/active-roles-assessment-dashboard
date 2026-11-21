@@ -50,6 +50,9 @@ public class KpiExclusionService
     public int ApplyToTable(string kpiKey, ReportTable? table)
     {
         if (table == null || table.Error != null || table.Rows.Count == 0) return 0;
+        var existing = table.Columns.IndexOf(ExcludedColumn);
+        if (existing >= 0)
+            return table.Rows.Count(r => existing < r.Count && bool.TryParse(r[existing], out var v) && v);
         var patterns = GetPatterns(kpiKey);
         if (patterns.Count == 0) return 0;
 

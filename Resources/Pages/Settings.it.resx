@@ -299,4 +299,37 @@
   <data name="Lbl_PowerUsersGroup" xml:space="preserve">
     <value>Utenti esperti - Nome del gruppo</value>
   </data>
+  <data name="Card_Definitions" xml:space="preserve">
+    <value>Definizioni del dashboard</value>
+  </data>
+  <data name="Hint_Definitions" xml:space="preserve">
+    <value>Le definizioni di KPI, categorie e grafici sono incorporate nell'applicazione. I file *.definitions.json in App_Data\Definitions le sostituiscono e vengono caricati all'avvio.</value>
+  </data>
+  <data name="Definitions_OverridesActive" xml:space="preserve">
+    <value>Sono in uso file di definizione personalizzati.</value>
+  </data>
+  <data name="Definitions_EmbeddedActive" xml:space="preserve">
+    <value>Sono in uso le definizioni incorporate.</value>
+  </data>
+  <data name="Definitions_LoadedErrors" xml:space="preserve">
+    <value>Questi file di definizione sono stati rifiutati all'avvio, quindi sono in uso le definizioni incorporate:</value>
+  </data>
+  <data name="Definitions_NoPending" xml:space="preserve">
+    <value>Nessuna modifica alle definizioni in attesa di applicazione.</value>
+  </data>
+  <data name="Definitions_PendingErrors" xml:space="preserve">
+    <value>I file di definizione sono cambiati e non possono essere applicati finché questi problemi non vengono risolti:</value>
+  </data>
+  <data name="Definitions_Pending" xml:space="preserve">
+    <value>I file di definizione sono cambiati. Riavviare l'applicazione per applicarli.</value>
+  </data>
+  <data name="Definitions_ConfirmRestart" xml:space="preserve">
+    <value>Riavviare ora l'applicazione? Gli utenti perderanno brevemente la connessione.</value>
+  </data>
+  <data name="Button_ApplyDefinitions" xml:space="preserve">
+    <value>Applica e riavvia</value>
+  </data>
+  <data name="Definitions_Restarting" xml:space="preserve">
+    <value>L'applicazione è in fase di riavvio. Ricaricare questa pagina tra qualche istante.</value>
+  </data>
 </root>

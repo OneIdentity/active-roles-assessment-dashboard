@@ -21,8 +21,11 @@ public class SettingsModel : PageModel
     private readonly PerUserSummaryCache _summaryCache;
     private readonly ServiceAccountSecretProtector _secretProtector;
 
-    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector, RoleService roleService, DirectoryFactsResolver directoryFacts)
+    public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector, RoleService roleService, DirectoryFactsResolver directoryFacts,
+        ActiveRolesDashboard.Models.Definitions.DefinitionStore definitionStore, IHostApplicationLifetime lifetime)
     {
+        _definitionStore = definitionStore;
+        _lifetime = lifetime;
         _arConfig = arConfig;
         _userSettingsService = userSettingsService;
         _env = env;
@@ -35,6 +38,53 @@ public class SettingsModel : PageModel
 
     private readonly RoleService _roleService;
     private readonly DirectoryFactsResolver _directoryFacts;
+    private readonly ActiveRolesDashboard.Models.Definitions.DefinitionStore _definitionStore;
+    private readonly IHostApplicationLifetime _lifetime;
+
+    /// <summary>State of the KPI definition override files (Active Roles administrators only).</summary>
+    public DefinitionOverrideStatus? Definitions { get; private set; }
+
+    /// <summary>True after an Apply and restart request was accepted; the host is stopping.</summary>
+    public bool DefinitionsRestarting { get; private set; }
+
+    public sealed record DefinitionOverrideStatus(
+        bool OverridesApplied,
+        IReadOnlyList<string> LoadedErrors,
+        bool HasPendingChanges,
+        IReadOnlyList<string> Files,
+        IReadOnlyList<string> PendingErrors);
+
+    private void LoadDefinitionStatus()
+    {
+        if (!IsActiveRolesAdmin) return;
+        var pending = _definitionStore.HasPendingChanges;
+        Definitions = new DefinitionOverrideStatus(
+            _definitionStore.OverridesApplied,
+            _definitionStore.OverrideErrors,
+            pending,
+            _definitionStore.CurrentOverrideFiles,
+            pending ? _definitionStore.ValidateCurrentOverrides() : []);
+    }
+
+    /// <summary>
+    /// Stops the application so the hosting environment (IIS / Windows service) restarts it and
+    /// loads the changed definition override files. Refused when the pending files are invalid.
+    /// </summary>
+    public async Task<IActionResult> OnPostApplyDefinitionsAsync()
+    {
+        await ResolvePermissionsAsync();
+        if (!IsActiveRolesAdmin)
+            return Forbid();
+
+        LoadDefinitionStatus();
+        if (Definitions is { HasPendingChanges: true, PendingErrors.Count: 0 })
+        {
+            DefinitionsRestarting = true;
+            Response.OnCompleted(() => { _lifetime.StopApplication(); return Task.CompletedTask; });
+        }
+        await OnGet();
+        return Page();
+    }
 
     [BindProperty]
     public string WebInterfaceUrl { get; set; } = string.Empty;
@@ -520,6 +570,7 @@ public class SettingsModel : PageModel
         LicensedAzureObjects = config.Licensing.AzureObjects;
         LicensedSaasObjects = config.Licensing.SaasObjects;
         LicensedTotalObjects = config.Licensing.TotalObjects;
+        LoadDefinitionStatus();
     }
 
     public async Task<IActionResult> OnPost()

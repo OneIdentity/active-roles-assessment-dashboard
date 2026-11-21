@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 
 namespace ActiveRolesDashboard.Services;
@@ -13,7 +13,9 @@ namespace ActiveRolesDashboard.Services;
 /// The superset is never mutated: each filtered summary/list is a new instance. Scalar
 /// security-health signals are scoped by domain visibility (the set of domains the viewer can see).
 /// </summary>
-public sealed class PerUserDashboardFilter
+public sealed class PerUserDashboardFilter(
+    Definitions.DefinitionKpiCalculator? kpiCalculator = null,
+    Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig>? config = null)
 {
     /// <summary>
     /// Returns a new <see cref="DashboardSummary"/> containing only the objects visible to
@@ -30,7 +32,7 @@ public sealed class PerUserDashboardFilter
         // would produce an all-zero summary. Skip the walk entirely and return that zeroed
         // projection directly - the result is identical but effectively instant.
         if (!model.HasAnyDelegation(user))
-            return Zeroed();
+            return WithKpiResults(Zeroed(), superset);
 
         var s = new DashboardSummary();
 
@@ -77,40 +79,8 @@ public sealed class PerUserDashboardFilter
 
         // --- Governance KPI drilldowns ---------------------------------------
         s.NoManagerUser = FilterGovernance(superset.NoManagerUser, user, model);
-        s.NoManagerServiceAccount = FilterGovernance(superset.NoManagerServiceAccount, user, model);
-        s.ServiceAccounts = FilterGovernance(superset.ServiceAccounts, user, model);
-        s.GmsaServiceAccounts = FilterGovernance(superset.GmsaServiceAccounts, user, model);
-        s.SmsaServiceAccounts = FilterGovernance(superset.SmsaServiceAccounts, user, model);
-        s.UserAccountLockedOut = FilterGovernance(superset.UserAccountLockedOut, user, model);
         s.ReversibleEncryption = FilterGovernance(superset.ReversibleEncryption, user, model);
-        s.EmptyGroups = FilterGovernance(superset.EmptyGroups, user, model);
         s.CircularGroupNesting = FilterGovernance(superset.CircularGroupNesting, user, model);
-        s.Sites = FilterGovernance(superset.Sites, user, model);
-        s.SiteLinks = FilterGovernance(superset.SiteLinks, user, model);
-        s.Subnets = FilterGovernance(superset.Subnets, user, model);
-        s.Trusts = FilterGovernance(superset.Trusts, user, model);
-        s.OUs = FilterGovernance(superset.OUs, user, model);
-
-        // No-group-owner (own summary type).
-        s.NoGroupOwner = FilterNoGroupOwner(superset.NoGroupOwner, user, model);
-
-        // --- Privileged group memberships ------------------------------------
-        s.AccountOperators = FilterPrivileged(superset.AccountOperators, user, model);
-        s.Administrators = FilterPrivileged(superset.Administrators, user, model);
-        s.BackupOperators = FilterPrivileged(superset.BackupOperators, user, model);
-        s.DomainAdmins = FilterPrivileged(superset.DomainAdmins, user, model);
-        s.ServerOperators = FilterPrivileged(superset.ServerOperators, user, model);
-        s.EnterpriseAdmins = FilterPrivileged(superset.EnterpriseAdmins, user, model);
-        s.SchemaAdmins = FilterPrivileged(superset.SchemaAdmins, user, model);
-        s.ActiveRolesAdmins = FilterPrivileged(superset.ActiveRolesAdmins, user, model);
-
-        // --- Group detail breakdowns -----------------------------------------
-        s.DistributionGroups = FilterGroupDetail(superset.DistributionGroups, user, model);
-        s.DomainLocalGroups = FilterGroupDetail(superset.DomainLocalGroups, user, model);
-        s.GlobalGroups = FilterGroupDetail(superset.GlobalGroups, user, model);
-        s.MailEnabledSecurityGroups = FilterGroupDetail(superset.MailEnabledSecurityGroups, user, model);
-        s.SecurityGroups = FilterGroupDetail(superset.SecurityGroups, user, model);
-        s.UniversalGroups = FilterGroupDetail(superset.UniversalGroups, user, model);
 
         // --- Computer breakdowns ---------------------------------------------
         s.ComputerClients = FilterComputer(superset.ComputerClients, user, model);
@@ -141,18 +111,6 @@ public sealed class PerUserDashboardFilter
         s.Domains = FilterDomains(superset.Domains, user, model);
         s.Servers = FilterServers(superset.Servers, user, model);
 
-        // --- Scalar security-health signals: scope by visible domains --------
-        var visibleDomains = s.Domains.Items
-            .Select(d => d.Name)
-            .Where(n => !string.IsNullOrEmpty(n))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        s.KrbtgtPasswordAge = ScopeSecurityHealth(superset.KrbtgtPasswordAge, visibleDomains);
-        s.WeakPasswordLength = ScopeSecurityHealth(superset.WeakPasswordLength, visibleDomains);
-        s.PasswordComplexityDisabled = ScopeSecurityHealth(superset.PasswordComplexityDisabled, visibleDomains);
-        s.NoAccountLockout = ScopeSecurityHealth(superset.NoAccountLockout, visibleDomains);
-        s.PasswordMaxAgeDays = ScopeSecurityHealth(superset.PasswordMaxAgeDays, visibleDomains);
-
         // --- Exchange KPIs ---------------------------------------------------
         // Each Exchange KPI is a GovernanceKpiSummary of IPermissionScoped drilldown items, so it is
         // filtered with the same per-object visibility walk as the other governance families and the
@@ -163,7 +121,29 @@ public sealed class PerUserDashboardFilter
             s.ExchangeKpis[kvp.Key] = FilterGovernance(kvp.Value, user, model);
         }
 
-        return s;
+        // --- Definition datasets and KPI results -----------------------------
+        foreach (var (id, dataset) in superset.CollectedDatasets)
+        {
+            s.CollectedDatasets[id] = dataset.Error != null
+                ? dataset
+                : new Models.Definitions.DatasetResult(PermissionScope.VisibleItems(dataset.Items, user, model), null);
+        }
+
+        return WithKpiResults(s, superset);
+    }
+
+    /// <summary>
+    /// Re-evaluates the superset's definition KPIs over the viewer's visible datasets so the values
+    /// match the filtered typed counts. Only KPIs already evaluated for the superset (enabled ones)
+    /// are recomputed.
+    /// </summary>
+    private DashboardSummary WithKpiResults(DashboardSummary filtered, DashboardSummary superset)
+    {
+        if (kpiCalculator == null || superset.KpiResults.Count == 0) return filtered;
+
+        var context = Definitions.DefinitionKpiCalculator.CreateContext(config?.CurrentValue ?? new ActiveRolesConfig(), DateTimeOffset.UtcNow, superset.ExcludeFromManagementLinkDns);
+        kpiCalculator.Populate(filtered, kpi => superset.KpiResults.ContainsKey(kpi.Id), context);
+        return filtered;
     }
 
     /// <summary>
@@ -220,36 +200,6 @@ public sealed class PerUserDashboardFilter
         return new GovernanceKpiSummary { Items = items, TotalCount = items.Count };
     }
 
-    private static NoGroupOwnerSummary FilterNoGroupOwner(NoGroupOwnerSummary? src, UserSidSet u, ArPermissionModel m)
-    {
-        if (src == null) return new NoGroupOwnerSummary();
-        if (src.Error != null) return src;
-        var items = PermissionScope.VisibleItems(src.Items, u, m);
-        return new NoGroupOwnerSummary { Items = items, TotalCount = items.Count };
-    }
-
-    private static PrivilegedGroupSummary FilterPrivileged(PrivilegedGroupSummary? src, UserSidSet u, ArPermissionModel m)
-    {
-        if (src == null) return new PrivilegedGroupSummary();
-        if (src.Error != null) return src;
-        var items = PermissionScope.VisibleItems(src.Items, u, m);
-        return new PrivilegedGroupSummary
-        {
-            Items = items,
-            TotalCount = items.Count,
-            GroupDn = src.GroupDn,
-            GroupName = src.GroupName
-        };
-    }
-
-    private static ADGroupDetailSummary FilterGroupDetail(ADGroupDetailSummary? src, UserSidSet u, ArPermissionModel m)
-    {
-        if (src == null) return new ADGroupDetailSummary();
-        if (src.Error != null) return src;
-        var items = PermissionScope.VisibleItems(src.Items, u, m);
-        return new ADGroupDetailSummary { Items = items, TotalCount = items.Count };
-    }
-
     private static ComputerBreakdownSummary FilterComputer(ComputerBreakdownSummary? src, UserSidSet u, ArPermissionModel m)
     {
         if (src == null) return new ComputerBreakdownSummary();
@@ -280,20 +230,6 @@ public sealed class PerUserDashboardFilter
         if (src.Error != null) return src;
         var items = PermissionScope.VisibleItems(src.Items, u, m);
         return new ServerSummary { Items = items, TotalCount = items.Count };
-    }
-
-    /// <summary>
-    /// Keeps a scalar security-health signal only when its measured domain is visible to the viewer.
-    /// Signals with no domain context (or measured against a hidden domain) are suppressed for
-    /// non-admins by returning an empty (no-value) summary.
-    /// </summary>
-    private static SecurityHealthSummary ScopeSecurityHealth(SecurityHealthSummary? src, ISet<string> visibleDomains)
-    {
-        if (src == null) return new SecurityHealthSummary();
-        if (src.Error != null) return src;
-        if (!string.IsNullOrEmpty(src.Domain) && visibleDomains.Contains(src.Domain))
-            return src;
-        return new SecurityHealthSummary { Error = "Not visible", Domain = src.Domain };
     }
 
     // ----- reflection-free accessors for the raw JsonElement summaries -------

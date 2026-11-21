@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using ActiveRolesDashboard.Models;
 using Microsoft.Extensions.Options;
 
@@ -48,6 +48,7 @@ public sealed class DashboardDataService
     private readonly PerUserSummaryCache _userSummaryCache;
     private readonly RoleService _roleService;
     private readonly DirectoryFactsResolver _directoryFacts;
+    private readonly Definitions.DefinitionKpiCalculator? _kpiCalculator;
 
     public DashboardDataService(
         ActiveRolesService arService,
@@ -59,7 +60,8 @@ public sealed class DashboardDataService
         ArPermissionModelService permissionModelService,
         PerUserSummaryCache userSummaryCache,
         RoleService roleService,
-        DirectoryFactsResolver directoryFacts)
+        DirectoryFactsResolver directoryFacts,
+        Definitions.DefinitionKpiCalculator? kpiCalculator = null)
     {
         _arService = arService;
         _userSettingsService = userSettingsService;
@@ -71,6 +73,7 @@ public sealed class DashboardDataService
         _userSummaryCache = userSummaryCache;
         _roleService = roleService;
         _directoryFacts = directoryFacts;
+        _kpiCalculator = kpiCalculator;
     }
 
     private static string UserKey(HttpContext http) => http.User.Identity?.Name ?? string.Empty;
@@ -287,10 +290,34 @@ public sealed class DashboardDataService
     }
 
     /// <summary>
+    /// Returns the summary with the session's active segment filter applied and KPIs re-evaluated,
+    /// reusing an in-memory copy while the per-user cache entry and the filter are unchanged. The
+    /// result may be shared between requests and must be treated as read-only.
+    /// </summary>
+    public async Task<DashboardSummary> LoadFilteredSummaryAsync(HttpContext http, string token, DashboardAccess access, KpiSettings kpiSettings)
+    {
+        var user = UserKey(http);
+        var filterKey = http.Session.GetString(SegmentFilterSession.SessionKey) ?? string.Empty;
+        var json = _userSummaryCache.GetSummary(user);
+        if (json is not null
+            && _userSummaryCache.GetFilteredSummary(user, json, filterKey) is { } cached
+            && !ShouldReconcileMembership(cached))
+            return cached;
+
+        var summary = await LoadIndexSummaryAsync(http, token, access, kpiSettings);
+        ApplyActiveSegmentFilter(http, summary);
+
+        var source = _userSummaryCache.GetSummary(user);
+        if (source is not null)
+            _userSummaryCache.SetFilteredSummary(user, source, filterKey, summary);
+        return summary;
+    }
+
+    /// <summary>
     /// Applies the session's active segment filter to <paramref name="summary"/> (in place),
     /// capturing available segments from the UNFILTERED summary first.
     /// </summary>
-    public SegmentSelectionView ApplyActiveSegmentFilter(HttpContext http, DashboardSummary summary)
+    public SegmentSelectionView ApplyActiveSegmentFilter(HttpContext http, DashboardSummary summary, string? onlyKpiId = null)
     {
         var filter = SegmentFilterSession.Get(http.Session);
 
@@ -310,6 +337,11 @@ public sealed class DashboardDataService
         };
 
         summary.ApplySegmentFilter(filter);
+        var context = Definitions.DefinitionKpiCalculator.CreateContext(_arConfig.CurrentValue, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns);
+        if (onlyKpiId is null)
+            _kpiCalculator?.Reevaluate(summary, context);
+        else
+            _kpiCalculator?.Reevaluate(summary, context, onlyKpiId);
         return view;
     }
 

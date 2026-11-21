@@ -1,0 +1,3410 @@
+{
+  "categories": [
+    {
+      "id": "ADOverview",
+      "dashboardId": "ActiveDirectory",
+      "kind": "Overview",
+      "charts": [
+        {
+          "id": "AdOverviewUsersChart",
+          "type": "Pie",
+          "sourceSplitKpiId": "AdOverviewUsers",
+          "sliceOffset": 16,
+          "fallbackText": "Users by Source"
+        },
+        {
+          "id": "AdOverviewGroupsChart",
+          "type": "Pie",
+          "sourceSplitKpiId": "AdOverviewGroups",
+          "sliceOffset": 16,
+          "sortOrder": 1,
+          "fallbackText": "Groups by Source"
+        },
+        {
+          "id": "AdOverviewComputersChart",
+          "type": "Pie",
+          "sourceSplitKpiId": "AdOverviewComputers",
+          "sliceOffset": 16,
+          "sortOrder": 2,
+          "fallbackText": "Computers / Devices by Source"
+        }
+      ],
+      "sortOrder": -1,
+      "fallbackText": "Overview"
+    },
+    {
+      "id": "ADGovernance",
+      "dashboardId": "ActiveDirectory",
+      "kind": "Risk",
+      "kpiSortOrder": "AtoZ",
+      "fallbackText": "Governance and Risk"
+    },
+    {
+      "id": "PrivilegedGroups",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 1,
+      "fallbackText": "Privileged Groups"
+    },
+    {
+      "id": "ADUserAccountsCategory",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "UserAccountStateBreakdown",
+          "series": [
+            {
+              "kpiId": "EnabledUsers",
+              "color": "green"
+            },
+            {
+              "kpiId": "DisabledUsers",
+              "color": "red"
+            }
+          ],
+          "fallbackText": "Users by Account State"
+        },
+        {
+          "id": "UserPasswordControlBreakdown",
+          "series": [
+            {
+              "kpiId": "MustChangePassword",
+              "color": "blue"
+            },
+            {
+              "kpiId": "CannotChangePassword",
+              "color": "slate"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Password Change Control"
+        },
+        {
+          "id": "UserDelegationBreakdown",
+          "series": [
+            {
+              "kpiId": "TrustedForDelegation",
+              "color": "green"
+            },
+            {
+              "kpiId": "SensitiveCannotDelegate",
+              "color": "slate"
+            }
+          ],
+          "sortOrder": 2,
+          "fallbackText": "Delegation Control"
+        },
+        {
+          "id": "UserAccountOptions",
+          "type": "Bar",
+          "series": [
+            {
+              "kpiId": "ExpiringUsers",
+              "color": "orange"
+            },
+            {
+              "kpiId": "PasswordNeverExpires",
+              "color": "purple"
+            },
+            {
+              "kpiId": "PasswordNotRequired",
+              "color": "amber"
+            },
+            {
+              "kpiId": "SmartCardRequired",
+              "color": "teal"
+            },
+            {
+              "kpiId": "UserReversibleEncryption",
+              "color": "red"
+            },
+            {
+              "kpiId": "UseDesEncryption",
+              "color": "orange"
+            },
+            {
+              "kpiId": "NoKerberosPreauth",
+              "color": "pink"
+            }
+          ],
+          "allowTypeToggle": false,
+          "sortOrder": 3,
+          "fallbackText": "Account Options"
+        },
+        {
+          "id": "UserHybridStateBreakdown",
+          "series": [
+            {
+              "kpiId": "HybridUsers",
+              "color": "teal"
+            },
+            {
+              "kpiId": "OnPremOnlyUsers",
+              "color": "slate"
+            }
+          ],
+          "sortOrder": 4,
+          "fallbackText": "Users by Sync State"
+        },
+        {
+          "id": "UserPasswordHygiene",
+          "type": "Bar",
+          "series": [
+            {
+              "kpiId": "StalePasswords",
+              "color": "amber"
+            },
+            {
+              "kpiId": "PasswordNeverExpires",
+              "color": "purple"
+            },
+            {
+              "kpiId": "PasswordNotRequired",
+              "color": "orange"
+            },
+            {
+              "kpiId": "UserReversibleEncryption",
+              "color": "red"
+            },
+            {
+              "kpiId": "MustChangePassword",
+              "color": "blue"
+            }
+          ],
+          "allowTypeToggle": false,
+          "sortOrder": 4,
+          "fallbackText": "Password Hygiene"
+        }
+      ],
+      "sortOrder": 2,
+      "fallbackText": "User Accounts"
+    },
+    {
+      "id": "ADGroupsCategory",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "GroupTypeBreakdown",
+          "series": [
+            {
+              "kpiId": "DistributionGroups",
+              "color": "blue"
+            },
+            {
+              "kpiId": "DomainLocalGroups",
+              "color": "teal"
+            },
+            {
+              "kpiId": "GlobalGroups",
+              "color": "green"
+            },
+            {
+              "kpiId": "MailEnabledSecurityGroups",
+              "color": "amber"
+            },
+            {
+              "kpiId": "SecurityGroups",
+              "color": "purple"
+            },
+            {
+              "kpiId": "UniversalGroups",
+              "color": "slate"
+            }
+          ],
+          "fallbackText": "Groups by Type"
+        },
+        {
+          "id": "GroupHygiene",
+          "type": "Bar",
+          "series": [
+            {
+              "kpiId": "EmptyGroups",
+              "color": "slate"
+            },
+            {
+              "kpiId": "NoGroupOwner",
+              "color": "amber"
+            },
+            {
+              "kpiId": "CircularGroupNesting",
+              "color": "red"
+            }
+          ],
+          "allowTypeToggle": false,
+          "sortOrder": 1,
+          "fallbackText": "Group Hygiene"
+        }
+      ],
+      "sortOrder": 3,
+      "fallbackText": "Groups"
+    },
+    {
+      "id": "PrivilegedUsers",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 4,
+      "fallbackText": "Privileged Users"
+    },
+    {
+      "id": "Infrastructure",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 5,
+      "fallbackText": "Infrastructure"
+    },
+    {
+      "id": "ComputersCategory",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "charts": [
+        {
+          "id": "ComputerOsBreakdown",
+          "series": [
+            {
+              "kpiId": "WinServer2008R2"
+            },
+            {
+              "kpiId": "WinServer2012R2"
+            },
+            {
+              "kpiId": "WinServer2016"
+            },
+            {
+              "kpiId": "WinServer2019"
+            },
+            {
+              "kpiId": "WinServer2022"
+            },
+            {
+              "kpiId": "WinServer2025"
+            },
+            {
+              "kpiId": "ServerOther"
+            },
+            {
+              "kpiId": "Win7"
+            },
+            {
+              "kpiId": "Win81"
+            },
+            {
+              "kpiId": "Win10_22H2"
+            },
+            {
+              "kpiId": "Win11_22H2"
+            },
+            {
+              "kpiId": "Win11_23H2"
+            },
+            {
+              "kpiId": "Win11Enterprise"
+            },
+            {
+              "kpiId": "Win11Pro"
+            },
+            {
+              "kpiId": "ClientsOther"
+            }
+          ],
+          "fallbackText": "Computers by Operating System"
+        },
+        {
+          "id": "ComputerAccountStateBreakdown",
+          "series": [
+            {
+              "kpiId": "EnabledComputers",
+              "color": "green"
+            },
+            {
+              "kpiId": "DisabledComputers",
+              "color": "red"
+            }
+          ],
+          "sortOrder": 1,
+          "fallbackText": "Computers by Account State"
+        }
+      ],
+      "sortOrder": 6,
+      "fallbackText": "Computers"
+    },
+    {
+      "id": "NHIs",
+      "dashboardId": "ActiveDirectory",
+      "kpiSortOrder": "AtoZ",
+      "sortOrder": 7,
+      "fallbackText": "NHIs"
+    },
+    {
+      "id": "Assessment",
+      "dashboardId": "ActiveDirectory",
+      "kind": "Hidden",
+      "sortOrder": 99,
+      "fallbackText": "Assessment Signals"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "KrbtgtAccounts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(sAMAccountName=krbtgt)"
+      },
+      "attributes": [
+        "pwdLastSet",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "DomainPolicies",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=domainDNS)"
+      },
+      "attributes": [
+        "minPwdLength",
+        "maxPwdAge",
+        "pwdProperties",
+        "lockoutThreshold",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "NoGroupOwner",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:NoGroupOwner}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "NoManagerServiceAccount",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:NoManagerServiceAccount}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "UserAccountLockedOut",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:UserAccountLockedOut}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "EmptyGroups",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:EmptyGroups}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "AccountOperators",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Account Operators))",
+        "objects": [
+          "Account Operators"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "Administrators",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Administrators))",
+        "objects": [
+          "Administrators"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "BackupOperators",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Backup Operators))",
+        "objects": [
+          "Backup Operators"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "DomainAdmins",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Domain Admins))",
+        "objects": [
+          "Domain Admins"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "ServerOperators",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Server Operators))",
+        "objects": [
+          "Server Operators"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "EnterpriseAdmins",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Enterprise Admins))",
+        "objects": [
+          "Enterprise Admins"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "SchemaAdmins",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "target": "Objects",
+        "base": "{DefaultADDN}",
+        "filter": "(&(objectClass=group)(name=Schema Admins))",
+        "objects": [
+          "Schema Admins"
+        ]
+      },
+      "attributes": [
+        "distinguishedName",
+        "edsaDomainNetbiosName",
+        "member"
+      ]
+    },
+    {
+      "id": "ServiceAccounts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:ServiceAccounts}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "GmsaServiceAccounts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:GmsaServiceAccounts}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "SmsaServiceAccounts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "{ConfigFilter:SmsaServiceAccounts}"
+      },
+      "attributes": [
+        "name",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "Sites",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=site)"
+      },
+      "attributes": [
+        "name",
+        "edsaDomainNetbiosName",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "SiteLinks",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=siteLink)"
+      },
+      "attributes": [
+        "name",
+        "edsaDomainNetbiosName",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "Subnets",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=subnet)"
+      },
+      "attributes": [
+        "name",
+        "edsaDomainNetbiosName",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "OUs",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=organizationalUnit)"
+      },
+      "attributes": [
+        "name",
+        "edsaDomainNetbiosName",
+        "distinguishedName"
+      ]
+    },
+    {
+      "id": "Trusts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=trustedDomain)"
+      },
+      "attributes": [
+        "name",
+        "edsaDomainNetbiosName",
+        "distinguishedName"
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "kind": "Search",
+      "id": "KrbtgtPasswordAgeDays",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "KrbtgtAccounts",
+      "evaluation": {
+        "filter": "exists(pwdLastSet) && pwdLastSet != 0",
+        "aggregate": "Max",
+        "aggregateExpression": "daysSince(pwdLastSet)"
+      },
+      "fallbackText": "krbtgt Password Age (days)"
+    },
+    {
+      "kind": "Search",
+      "id": "WeakPasswordLength",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(minPwdLength) && minPwdLength < 12"
+      },
+      "fallbackText": "Domains with Weak Minimum Password Length"
+    },
+    {
+      "kind": "Search",
+      "id": "PasswordComplexityDisabled",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(minPwdLength) && !hasFlag(pwdProperties, 1)"
+      },
+      "fallbackText": "Domains with Password Complexity Disabled"
+    },
+    {
+      "kind": "Search",
+      "id": "NoAccountLockout",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(lockoutThreshold) && (lockoutThreshold == 0 || lockoutThreshold > 10)"
+      },
+      "fallbackText": "Domains with Weak Account Lockout"
+    },
+    {
+      "kind": "Search",
+      "id": "PasswordMaxAgeDays",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(maxPwdAge) && maxPwdAge != 0 && maxPwdAge != -9223372036854775808",
+        "aggregate": "Max",
+        "aggregateExpression": "round(abs(maxPwdAge) / 864000000000)"
+      },
+      "fallbackText": "Maximum Password Age (days)"
+    },
+    {
+      "kind": "Composite",
+      "id": "UnsupportedServerOs",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "sources": [ "WinServer2008R2", "WinServer2012R2" ],
+      "aggregate": "Sum",
+      "fallbackText": "Unsupported Server Operating Systems"
+    },
+    {
+      "kind": "Composite",
+      "id": "UnsupportedClientOs",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "sources": [ "Win7", "Win81", "Win10_22H2" ],
+      "aggregate": "Sum",
+      "fallbackText": "Unsupported Client Operating Systems"
+    },
+    {
+      "kind": "Composite",
+      "id": "UnsupportedOs",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "sources": [ "UnsupportedServerOs", "UnsupportedClientOs" ],
+      "aggregate": "Sum",
+      "fallbackText": "Unsupported Operating Systems"
+    },
+    {
+      "kind": "Derived",
+      "id": "AdOverviewUsers",
+      "categoryId": "ADOverview",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": ""
+      },
+      "display": {
+        "color": "blue"
+      },
+      "drilldown": {},
+      "fallbackText": "Total Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "AdOverviewGroups",
+      "categoryId": "ADOverview",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": ""
+      },
+      "display": {
+        "color": "green"
+      },
+      "drilldown": {},
+      "sortOrder": 1,
+      "fallbackText": "Total Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "AdOverviewComputers",
+      "categoryId": "ADOverview",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": ""
+      },
+      "display": {
+        "color": "teal"
+      },
+      "drilldown": {},
+      "sortOrder": 2,
+      "fallbackText": "Total Computers"
+    },
+    {
+      "kind": "Search",
+      "id": "NoGroupOwner",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "NoGroupOwner",
+      "evaluation": {},
+      "display": {
+        "color": "amber",
+        "sectionId": "nogroupowner"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {}
+      },
+      "sortOrder": 6,
+      "fallbackText": "No Group Owner"
+    },
+    {
+      "kind": "Derived",
+      "id": "NoManagerUser",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "isEmpty(manager)"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "nomanageruser"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 13,
+      "fallbackText": "No Manager (User)"
+    },
+    {
+      "kind": "Search",
+      "id": "NoManagerServiceAccount",
+      "categoryId": "NHIs",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "NoManagerServiceAccount",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "nomanagersa"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 14,
+      "fallbackText": "No Manager (Service Account)"
+    },
+    {
+      "kind": "Search",
+      "id": "UserAccountLockedOut",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "UserAccountLockedOut",
+      "evaluation": {},
+      "display": {
+        "color": "pink",
+        "sectionId": "accountlockedout"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 15,
+      "fallbackText": "User Account Locked Out"
+    },
+    {
+      "kind": "Search",
+      "id": "EmptyGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "EmptyGroups",
+      "evaluation": {},
+      "display": {
+        "color": "slate",
+        "sectionId": "emptygroups"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 7,
+      "fallbackText": "Empty Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "NeverLoggedIn",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "lastLogonTimestamp == ''"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "neverloggedin"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 16,
+      "fallbackText": "Never Logged In"
+    },
+    {
+      "kind": "Derived",
+      "id": "ExpiredUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "exists(daysUntil(accountExpires)) && daysUntil(accountExpires) <= 0"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "expiredusers"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 17,
+      "fallbackText": "Expired Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "ReversibleEncryption",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x80)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "reversibleencryption"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 18,
+      "fallbackText": "Reversible Encryption"
+    },
+    {
+      "kind": "Objects",
+      "id": "AccountOperators",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "AccountOperators",
+      "evaluation": {},
+      "display": {
+        "color": "orange",
+        "sectionId": "accountoperators"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "fallbackText": "Account Operators"
+    },
+    {
+      "kind": "Objects",
+      "id": "Administrators",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "Administrators",
+      "evaluation": {},
+      "display": {
+        "color": "red",
+        "sectionId": "administrators"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "sortOrder": 1,
+      "fallbackText": "Administrators"
+    },
+    {
+      "kind": "Objects",
+      "id": "BackupOperators",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "BackupOperators",
+      "evaluation": {},
+      "display": {
+        "color": "amber",
+        "sectionId": "backupoperators"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "sortOrder": 2,
+      "fallbackText": "Backup Operators"
+    },
+    {
+      "kind": "Objects",
+      "id": "DomainAdmins",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainAdmins",
+      "evaluation": {},
+      "display": {
+        "color": "pink",
+        "sectionId": "domainadmins"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "sortOrder": 3,
+      "fallbackText": "Domain Admins"
+    },
+    {
+      "kind": "Objects",
+      "id": "ServerOperators",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "ServerOperators",
+      "evaluation": {},
+      "display": {
+        "color": "purple",
+        "sectionId": "serveroperators"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "sortOrder": 4,
+      "fallbackText": "Server Operators"
+    },
+    {
+      "kind": "Objects",
+      "id": "EnterpriseAdmins",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "EnterpriseAdmins",
+      "evaluation": {},
+      "display": {
+        "color": "red",
+        "sectionId": "enterpriseadmins"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "sortOrder": 5,
+      "fallbackText": "Enterprise Admins"
+    },
+    {
+      "kind": "Objects",
+      "id": "SchemaAdmins",
+      "categoryId": "PrivilegedGroups",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "SchemaAdmins",
+      "evaluation": {},
+      "display": {
+        "color": "pink",
+        "sectionId": "schemaadmins"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "domain",
+            "header": "Domain"
+          },
+          {
+            "attribute": "membershipType",
+            "header": "Membership"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "scope": "Kpi",
+          "target": "groupDN",
+          "when": "membershipType == 'Indirect'"
+        }
+      },
+      "sortOrder": 6,
+      "fallbackText": "Schema Admins"
+    },
+    {
+      "kind": "Derived",
+      "id": "EnabledUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2)"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "enabledusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
+      },
+      "sortOrder": 3,
+      "fallbackText": "Enabled Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "DisabledUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x2)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "disabledusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Disabled Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "ExpiringUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "daysUntil(accountExpires) > 0"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "expiringusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "formatDate(accountExpires, 'yyyy-MM-dd')",
+            "header": "Expiry Date"
+          },
+          {
+            "expression": "daysUntilDate(accountExpires)",
+            "header": "Days Until Expiry"
+          }
+        ]
+      },
+      "sortOrder": 4,
+      "fallbackText": "Expiring Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "PasswordNeverExpires",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x10000)"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "passwordneverexpires"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 6,
+      "fallbackText": "Password Never Expires"
+    },
+    {
+      "kind": "Derived",
+      "id": "MustChangePassword",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "pwdLastSet == 0"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "mustchangepassword"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 5,
+      "fallbackText": "Must Change Password"
+    },
+    {
+      "kind": "Derived",
+      "id": "PasswordNotRequired",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x20)"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "passwordnotrequired"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 7,
+      "fallbackText": "Password Not Required"
+    },
+    {
+      "kind": "Derived",
+      "id": "SmartCardRequired",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x40000)"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "smartcardrequired"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 10,
+      "fallbackText": "Smart Card Required"
+    },
+    {
+      "kind": "Derived",
+      "id": "CannotChangePassword",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x40)"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "cannotchangepassword"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Cannot Change Password"
+    },
+    {
+      "kind": "Derived",
+      "id": "StalePasswords",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2) && daysSince(pwdLastSet) > $passwordAgeDays"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "stalepasswords"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 24,
+      "fallbackText": "Stale Passwords"
+    },
+    {
+      "kind": "Derived",
+      "id": "NoKerberosPreauth",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x400000)"
+      },
+      "display": {
+        "color": "pink",
+        "sectionId": "nokerberospreauth"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Do Not Require Kerberos Preauthentication"
+    },
+    {
+      "kind": "Derived",
+      "id": "UserReversibleEncryption",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x80)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "userreversibleencryption"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 8,
+      "fallbackText": "Reversible Encryption"
+    },
+    {
+      "kind": "Derived",
+      "id": "SensitiveCannotDelegate",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x100000)"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "sensitivecannotdelegate"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 9,
+      "fallbackText": "Sensitive - Cannot Be Delegated"
+    },
+    {
+      "kind": "Derived",
+      "id": "TrustedForDelegation",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x80000)"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "trustedfordelegation"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 11,
+      "fallbackText": "Trusted for Delegation"
+    },
+    {
+      "kind": "Derived",
+      "id": "UseDesEncryption",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x200000)"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "usedesencryption"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 12,
+      "fallbackText": "Use DES Encryption"
+    },
+    {
+      "kind": "Derived",
+      "id": "DeprovisionedUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "edsvaDeprovisionStatus == '1'"
+      },
+      "display": {
+        "color": "pink",
+        "sectionId": "deprovisionedusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "attribute": "description",
+            "header": "Description"
+          }
+        ]
+      },
+      "sortOrder": 13,
+      "fallbackText": "Deprovisioned Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "SpnUserAccounts",
+      "categoryId": "NHIs",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "!isEmpty(servicePrincipalName)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "spnuseraccounts"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 19,
+      "fallbackText": "Service Accounts (SPN)"
+    },
+    {
+      "kind": "Derived",
+      "id": "StaleUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2) && daysSince(lastLogonTimestamp) > $staleDays"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "staleusers"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 20,
+      "fallbackText": "Stale Accounts (Inactive)"
+    },
+    {
+      "kind": "Search",
+      "id": "ServiceAccounts",
+      "categoryId": "NHIs",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "ServiceAccounts",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "serviceaccounts"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 21,
+      "fallbackText": "Service Accounts"
+    },
+    {
+      "kind": "Search",
+      "id": "GmsaServiceAccounts",
+      "categoryId": "NHIs",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "GmsaServiceAccounts",
+      "evaluation": {},
+      "display": {
+        "color": "purple",
+        "sectionId": "gmsaserviceaccounts"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 22,
+      "fallbackText": "gMSA Service Accounts"
+    },
+    {
+      "kind": "Search",
+      "id": "SmsaServiceAccounts",
+      "categoryId": "NHIs",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "SmsaServiceAccounts",
+      "evaluation": {},
+      "display": {
+        "color": "purple",
+        "sectionId": "smsaserviceaccounts"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 23,
+      "fallbackText": "sMSA Service Accounts"
+    },
+    {
+      "kind": "Derived",
+      "id": "HybridUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "!isEmpty(`msDS-ExternalDirectoryObjectId`)"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "hybridusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "attribute": "msDS-ExternalDirectoryObjectId",
+            "header": "Synced To"
+          }
+        ]
+      },
+      "sortOrder": 24,
+      "fallbackText": "Hybrid Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "OnPremOnlyUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "isEmpty(`msDS-ExternalDirectoryObjectId`)"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "onpremonlyusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 25,
+      "fallbackText": "On-Prem-Only Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "ManagedEnabledUsers",
+      "categoryId": "ADUserAccountsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2) && !containsAny(edsvaAPOLinksEffective, $excludeLinkDns)"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "managedenabledusers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          },
+          {
+            "expression": "!containsAny(edsvaAPOLinksEffective, $excludeLinkDns)",
+            "header": "Managed"
+          }
+        ]
+      },
+      "sortOrder": 26,
+      "fallbackText": "Managed Enabled Users"
+    },
+    {
+      "kind": "Derived",
+      "id": "DistributionGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && groupType >= 0"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "distributiongroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
+      },
+      "fallbackText": "Distribution Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "DomainLocalGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && hasFlag(groupType, 0x4)"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "domainlocalgroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
+      },
+      "sortOrder": 1,
+      "fallbackText": "Domain Local Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "GlobalGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && hasFlag(groupType, 0x2)"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "globalgroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
+      },
+      "sortOrder": 2,
+      "fallbackText": "Global Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "MailEnabledSecurityGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && groupType < 0 && !isEmpty(mail)"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "mailenabledsecuritygroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
+      },
+      "sortOrder": 3,
+      "fallbackText": "Mail Enabled Security Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "SecurityGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && groupType < 0"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "securitygroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
+      },
+      "sortOrder": 4,
+      "fallbackText": "Security Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "UniversalGroups",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "edsvaGFIsGroupFamily != 'TRUE' && hasFlag(groupType, 0x8)"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "universalgroups"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "directMemberCount",
+            "header": "Direct Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "iif(indirectMemberCount > 0, distinguishedName, '')"
+        }
+      },
+      "sortOrder": 5,
+      "fallbackText": "Universal Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "CircularGroupNesting",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "type": "Function",
+        "function": "circularNesting"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "circulargroupnesting"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 8,
+      "fallbackText": "Circular Group Nesting"
+    },
+    {
+      "kind": "Derived",
+      "id": "AdminCount",
+      "categoryId": "PrivilegedUsers",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADUserAccounts",
+      "evaluation": {
+        "filter": "adminCount == '1'"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "admincount"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Admin Count"
+    },
+    {
+      "kind": "Search",
+      "id": "Sites",
+      "categoryId": "Infrastructure",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "Sites",
+      "evaluation": {},
+      "display": {
+        "color": "blue",
+        "sectionId": "sites"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Sites"
+    },
+    {
+      "kind": "Search",
+      "id": "SiteLinks",
+      "categoryId": "Infrastructure",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "SiteLinks",
+      "evaluation": {},
+      "display": {
+        "color": "green",
+        "sectionId": "sitelinks"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Site Links"
+    },
+    {
+      "kind": "Search",
+      "id": "Subnets",
+      "categoryId": "Infrastructure",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "Subnets",
+      "evaluation": {},
+      "display": {
+        "color": "teal",
+        "sectionId": "subnets"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Subnets"
+    },
+    {
+      "kind": "Search",
+      "id": "OUs",
+      "categoryId": "Infrastructure",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "OUs",
+      "evaluation": {},
+      "display": {
+        "color": "orange",
+        "sectionId": "ous"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 3,
+      "fallbackText": "OUs"
+    },
+    {
+      "kind": "Derived",
+      "id": "DomainControllers",
+      "categoryId": "Infrastructure",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x2000)"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "domaincontrollers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "msDS-SiteName",
+            "header": "Site"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 4,
+      "fallbackText": "Domain Controllers"
+    },
+    {
+      "kind": "Search",
+      "id": "Trusts",
+      "categoryId": "Infrastructure",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "Trusts",
+      "evaluation": {},
+      "display": {
+        "color": "indigo",
+        "sectionId": "trusts"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 5,
+      "fallbackText": "Domain Trusts"
+    },
+    {
+      "kind": "Derived",
+      "id": "ComputerClients",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server')"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "computerclients"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "fallbackText": "Clients"
+    },
+    {
+      "kind": "Derived",
+      "id": "ComputerServers",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && !hasFlag(userAccountControl, 0x2000)"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "computerservers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 1,
+      "fallbackText": "Servers"
+    },
+    {
+      "kind": "Derived",
+      "id": "WinServer2008R2",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.1')"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "winserver2008r2"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 2,
+      "fallbackText": "Windows Server 2008 R2"
+    },
+    {
+      "kind": "Derived",
+      "id": "WinServer2012R2",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.3')"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "winserver2012r2"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 3,
+      "fallbackText": "Windows Server 2012 R2"
+    },
+    {
+      "kind": "Derived",
+      "id": "WinServer2016",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (14393)')"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "winserver2016"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 4,
+      "fallbackText": "Windows Server 2016"
+    },
+    {
+      "kind": "Derived",
+      "id": "WinServer2019",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (17763)')"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "winserver2019"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 5,
+      "fallbackText": "Windows Server 2019"
+    },
+    {
+      "kind": "Derived",
+      "id": "WinServer2022",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (20348)')"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "winserver2022"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 6,
+      "fallbackText": "Windows Server 2022"
+    },
+    {
+      "kind": "Derived",
+      "id": "WinServer2025",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (26100)')"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "winserver2025"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 7,
+      "fallbackText": "Windows Server 2025"
+    },
+    {
+      "kind": "Derived",
+      "id": "ServerOther",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "contains(operatingSystem, 'server') && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (14393)', '10.0 (17763)', '10.0 (20348)', '10.0 (26100)')"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "serverother"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 8,
+      "fallbackText": "Server (other)"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win7",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.1')"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "win7"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 9,
+      "fallbackText": "Windows 7"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win81",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '6.3')"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "win81"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 10,
+      "fallbackText": "Windows 8.1"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win10_22H2",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (19045)')"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "win1022h2"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 11,
+      "fallbackText": "Windows 10 22H2"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win11_22H2",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (22621)')"
+      },
+      "display": {
+        "color": "blue",
+        "sectionId": "win1122h2"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 12,
+      "fallbackText": "Windows 11 22H2"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win11_23H2",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (22631)')"
+      },
+      "display": {
+        "color": "teal",
+        "sectionId": "win1123h2"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 13,
+      "fallbackText": "Windows 11 23H2"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win11Enterprise",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (26200)')"
+      },
+      "display": {
+        "color": "indigo",
+        "sectionId": "win11enterprise"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 14,
+      "fallbackText": "Windows 11 Enterprise"
+    },
+    {
+      "kind": "Derived",
+      "id": "Win11Pro",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && in(operatingSystemVersion, '10.0 (26100)')"
+      },
+      "display": {
+        "color": "purple",
+        "sectionId": "win11pro"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 15,
+      "fallbackText": "Windows 11 Pro"
+    },
+    {
+      "kind": "Derived",
+      "id": "ClientsOther",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!contains(operatingSystem, 'server') && !in(operatingSystemVersion, '6.1', '6.3', '10.0 (19045)', '10.0 (22621)', '10.0 (22631)', '10.0 (26200)', '10.0 (26100)')"
+      },
+      "display": {
+        "color": "slate",
+        "sectionId": "clientsother"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 16,
+      "fallbackText": "Clients (other)"
+    },
+    {
+      "kind": "Derived",
+      "id": "UnconstrainedComputers",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x80000)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "unconstrainedcomputers"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 17,
+      "fallbackText": "Unconstrained Delegation"
+    },
+    {
+      "kind": "Derived",
+      "id": "EnabledComputers",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2)"
+      },
+      "display": {
+        "color": "green",
+        "sectionId": "enabledcomputers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 18,
+      "fallbackText": "Enabled Computers"
+    },
+    {
+      "kind": "Derived",
+      "id": "DisabledComputers",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "hasFlag(userAccountControl, 0x2)"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "disabledcomputers"
+      },
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 19,
+      "fallbackText": "Disabled Computers"
+    },
+    {
+      "kind": "Derived",
+      "id": "StaleComputers",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000) && daysSince(lastLogonTimestamp) > $staleDays"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "stalecomputers"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 20,
+      "fallbackText": "Stale Computers (Inactive)"
+    },
+    {
+      "kind": "Derived",
+      "id": "NeverLoggedOnComputers",
+      "categoryId": "ComputersCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "Computers",
+      "evaluation": {
+        "filter": "!hasFlag(userAccountControl, 0x2) && !hasFlag(userAccountControl, 0x2000) && !exists(daysSince(lastLogonTimestamp))"
+      },
+      "display": {
+        "color": "orange",
+        "sectionId": "neverloggedoncomputers"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "expression": "friendlyOsName(operatingSystem, operatingSystemVersion)",
+            "header": "Operating System"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 21,
+      "fallbackText": "Never Logged On Computers"
+    }
+  ]
+}

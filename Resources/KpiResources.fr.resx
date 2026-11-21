@@ -189,7 +189,7 @@
   <data name="Kpi_ExchangeDynamicDistributionGroupsKpi" xml:space="preserve"><value>Groupes de distribution dynamiques</value></data>
   <data name="Kpi_ExchangeGroupsNoOwnerKpi" xml:space="preserve"><value>Groupes sans propriétaire</value></data>
   <data name="Kpi_ExchangeEmptyDistributionGroupsKpi" xml:space="preserve"><value>Groupes de distribution vides</value></data>
-  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Boîtes aux lettres non gérées</value></data>
+  <data name="Kpi_ExchangeMailboxNoManagerKpi" xml:space="preserve"><value>Boîtes aux lettres sans responsable</value></data>
   <data name="Kpi_ExchangeOrphanedMailboxesKpi" xml:space="preserve"><value>Boîtes aux lettres orphelines (désactivées)</value></data>
   <data name="Kpi_ExchangeLitigationHoldDisabledKpi" xml:space="preserve"><value>Conservation pour litige désactivée</value></data>
   <data name="Kpi_EnabledComputers" xml:space="preserve"><value>Ordinateurs activés</value></data>

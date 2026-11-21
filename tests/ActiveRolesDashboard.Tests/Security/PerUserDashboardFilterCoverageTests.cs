@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
@@ -121,9 +121,8 @@ public class PerUserDashboardFilterCoverageTests
     public void Reflection_discovers_all_filtered_families()
     {
         // Guards against the theories passing vacuously if the model shape changes.
-        Assert.True(Families.Count >= 70, $"Only {Families.Count} families discovered.");
+        Assert.True(Families.Count >= 45, $"Only {Families.Count} families discovered.");
         Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.EnabledUsers));
-        Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.DomainAdmins));
         Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.StaleComputers));
         Assert.Contains(Families, f => f.Property.Name == nameof(DashboardSummary.Domains));
     }
@@ -209,19 +208,6 @@ public class PerUserDashboardFilterCoverageTests
     }
 
     // ---------------------------------------------------------------- non-generic families
-
-    [Fact]
-    public void Privileged_group_identity_is_preserved()
-    {
-        var (superset, _) = Populated();
-        superset.DomainAdmins.GroupDn = "CN=Domain Admins,CN=Users,DC=test,DC=local";
-        superset.DomainAdmins.GroupName = "Domain Admins";
-
-        var s = Filter.Filter(superset, Viewer(), Model());
-
-        Assert.Equal("CN=Domain Admins,CN=Users,DC=test,DC=local", s.DomainAdmins.GroupDn);
-        Assert.Equal("Domain Admins", s.DomainAdmins.GroupName);
-    }
 
     [Fact]
     public void Every_exchange_kpi_is_filtered_independently()

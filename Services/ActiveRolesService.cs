@@ -14,14 +14,19 @@ public class ActiveRolesService
     private readonly IOptionsMonitor<ActiveRolesConfig> _configMonitor;
     private readonly ILogger<ActiveRolesService> _logger;
     private readonly ServiceAccountTokenProvider _serviceTokens;
+    private readonly Definitions.DatasetCollector? _datasetCollector;
+    private readonly Definitions.DefinitionKpiCalculator? _kpiCalculator;
 
-    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens)
+    public ActiveRolesService(IHttpClientFactory httpClientFactory, IOptionsMonitor<ActiveRolesConfig> configMonitor, ILogger<ActiveRolesService> logger, ServiceAccountTokenProvider serviceTokens, Definitions.DatasetCollector? datasetCollector = null, Definitions.DefinitionKpiCalculator? kpiCalculator = null)
     {
         _httpClientFactory = httpClientFactory;
         _configMonitor = configMonitor;
         _logger = logger;
         _serviceTokens = serviceTokens;
+        _datasetCollector = datasetCollector;
+        _kpiCalculator = kpiCalculator;
     }
+
     // Very short-lived memo of the full AD group graph, used ONLY by the membership-check path
     // (GetPrivilegedGroupMembersAsync) so a single login - which runs the Active Roles admin check
     // plus up to three dashboard role-group checks - shares one full (objectClass=group) enumeration
@@ -286,309 +291,7 @@ public class ActiveRolesService
             };
         }
 
-        // Derive StaleComputers (inactive computer accounts) from Computers data.
-        // Stale = enabled computer account whose last logon (lastLogonTimestamp) is older
-        // than the inactivity threshold. Domain controllers are excluded. Computers that
-        // never authenticated (no lastLogonTimestamp) are ignored here.
-        if ((settings.IsKpiEnabled("Infrastructure", "DomainControllers") || settings.IsKpiEnabled("ComputersCategory", "StaleComputers"))
-            && summary.Computers.Error == null)
-        {
-            var staleThresholdDays = _configMonitor.CurrentValue.StaleAccountThresholdDays;
-            if (staleThresholdDays <= 0) staleThresholdDays = 90;
-            var staleCutoff = DateTime.UtcNow.AddDays(-staleThresholdDays);
-
-            bool IsComputerStale(string raw)
-            {
-                if (string.IsNullOrEmpty(raw) || !long.TryParse(raw, out var val) || val <= 0)
-                    return false;
-                try { return DateTime.FromFileTimeUtc(val) < staleCutoff; }
-                catch (ArgumentOutOfRangeException) { return false; }
-            }
-
-            var staleComputers = summary.Computers.Items
-                .Where(i =>
-                {
-                    var uac = GetAttr(i, "userAccountControl");
-                    var isDc = int.TryParse(uac, out var v) && (v & 0x2000) != 0;
-                    return !isDc
-                        && !IsAccountDisabled(uac)
-                        && IsComputerStale(GetAttr(i, "lastLogonTimestamp"));
-                })
-                .ToList();
-
-            summary.StaleComputers = new ComputerBreakdownSummary
-            {
-                TotalCount = staleComputers.Count,
-                Items = staleComputers.Select(i => new ComputerBreakdownInfo
-                {
-                    Name = GetAttr(i, "name"),
-                    Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                    Dn = GetAttr(i, "distinguishedName")
-                }).ToList()
-            };
-        }
-
-        // Derive Computers category breakdown from Computers data
-        if (settings.IsCategoryEnabled("ComputersCategory") && summary.Computers.Error == null)
-        {
-            var clientsList = new List<ComputerBreakdownInfo>();
-            var serversList = new List<ComputerBreakdownInfo>();
-            var srv2008R2List = new List<ComputerBreakdownInfo>();
-            var srv2012R2List = new List<ComputerBreakdownInfo>();
-            var srv2016List = new List<ComputerBreakdownInfo>();
-            var srv2019List = new List<ComputerBreakdownInfo>();
-            var srv2022List = new List<ComputerBreakdownInfo>();
-            var srv2025List = new List<ComputerBreakdownInfo>();
-            var srvOtherList = new List<ComputerBreakdownInfo>();
-            var win7List = new List<ComputerBreakdownInfo>();
-            var win81List = new List<ComputerBreakdownInfo>();
-            var win10_22h2List = new List<ComputerBreakdownInfo>();
-            var win11_22h2List = new List<ComputerBreakdownInfo>();
-            var win11_23h2List = new List<ComputerBreakdownInfo>();
-            var win11EntList = new List<ComputerBreakdownInfo>();
-            var win11ProList = new List<ComputerBreakdownInfo>();
-            var cliOtherList = new List<ComputerBreakdownInfo>();
-
-            foreach (var item in summary.Computers.Items)
-            {
-                var os = GetAttr(item, "operatingSystem");
-                var osVer = GetAttr(item, "operatingSystemVersion");
-                var uac = GetAttr(item, "userAccountControl");
-                bool isDC = int.TryParse(uac, out var uacVal) && (uacVal & 0x2000) != 0;
-                bool isServer = os.Contains("server", StringComparison.OrdinalIgnoreCase);
-
-                var info = new ComputerBreakdownInfo
-                {
-                    Name = GetAttr(item, "name"),
-                    Domain = GetAttr(item, "edsaDomainNetbiosName"),
-                    OperatingSystem = os,
-                    OperatingSystemVersion = osVer,
-                    FriendlyOSName = GetFriendlyOSName(os, osVer),
-                    Dn = GetAttr(item, "distinguishedName")
-                };
-
-                if (isServer)
-                {
-                    if (!isDC) serversList.Add(info);
-                    switch (osVer)
-                    {
-                        case "6.1": srv2008R2List.Add(info); break;
-                        case "6.3": srv2012R2List.Add(info); break;
-                        case "10.0 (14393)": srv2016List.Add(info); break;
-                        case "10.0 (17763)": srv2019List.Add(info); break;
-                        case "10.0 (20348)": srv2022List.Add(info); break;
-                        case "10.0 (26100)": srv2025List.Add(info); break;
-                        default: srvOtherList.Add(info); break;
-                    }
-                }
-                else
-                {
-                    clientsList.Add(info);
-                    switch (osVer)
-                    {
-                        case "6.1": win7List.Add(info); break;
-                        case "6.3": win81List.Add(info); break;
-                        case "10.0 (19045)": win10_22h2List.Add(info); break;
-                        case "10.0 (22621)": win11_22h2List.Add(info); break;
-                        case "10.0 (22631)": win11_23h2List.Add(info); break;
-                        case "10.0 (26200)": win11EntList.Add(info); break;
-                        case "10.0 (26100)": win11ProList.Add(info); break;
-                        default: cliOtherList.Add(info); break;
-                    }
-                }
-            }
-
-            summary.ComputerClients = new ComputerBreakdownSummary { TotalCount = clientsList.Count, Items = clientsList };
-            summary.ComputerServers = new ComputerBreakdownSummary { TotalCount = serversList.Count, Items = serversList };
-            summary.WinServer2008R2 = new ComputerBreakdownSummary { TotalCount = srv2008R2List.Count, Items = srv2008R2List };
-            summary.WinServer2012R2 = new ComputerBreakdownSummary { TotalCount = srv2012R2List.Count, Items = srv2012R2List };
-            summary.WinServer2016 = new ComputerBreakdownSummary { TotalCount = srv2016List.Count, Items = srv2016List };
-            summary.WinServer2019 = new ComputerBreakdownSummary { TotalCount = srv2019List.Count, Items = srv2019List };
-            summary.WinServer2022 = new ComputerBreakdownSummary { TotalCount = srv2022List.Count, Items = srv2022List };
-            summary.WinServer2025 = new ComputerBreakdownSummary { TotalCount = srv2025List.Count, Items = srv2025List };
-            summary.ServerOther = new ComputerBreakdownSummary { TotalCount = srvOtherList.Count, Items = srvOtherList };
-            summary.Win7 = new ComputerBreakdownSummary { TotalCount = win7List.Count, Items = win7List };
-            summary.Win81 = new ComputerBreakdownSummary { TotalCount = win81List.Count, Items = win81List };
-            summary.Win10_22H2 = new ComputerBreakdownSummary { TotalCount = win10_22h2List.Count, Items = win10_22h2List };
-            summary.Win11_22H2 = new ComputerBreakdownSummary { TotalCount = win11_22h2List.Count, Items = win11_22h2List };
-            summary.Win11_23H2 = new ComputerBreakdownSummary { TotalCount = win11_23h2List.Count, Items = win11_23h2List };
-            summary.Win11Enterprise = new ComputerBreakdownSummary { TotalCount = win11EntList.Count, Items = win11EntList };
-            summary.Win11Pro = new ComputerBreakdownSummary { TotalCount = win11ProList.Count, Items = win11ProList };
-            summary.ClientsOther = new ComputerBreakdownSummary { TotalCount = cliOtherList.Count, Items = cliOtherList };
-
-            // Derive UnconstrainedComputers (TRUSTED_FOR_DELEGATION = 0x80000) from Computers data.
-            if (settings.IsKpiEnabled("ComputersCategory", "UnconstrainedComputers"))
-            {
-                const int trustedForDelegationFlag = 0x80000;
-                var unconstrained = summary.Computers.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & trustedForDelegationFlag) != 0)
-                    .Select(i =>
-                    {
-                        var os = GetAttr(i, "operatingSystem");
-                        var osVer = GetAttr(i, "operatingSystemVersion");
-                        return new ComputerBreakdownInfo
-                        {
-                            Name = GetAttr(i, "name"),
-                            Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                            OperatingSystem = os,
-                            OperatingSystemVersion = osVer,
-                            FriendlyOSName = GetFriendlyOSName(os, osVer),
-                            Dn = GetAttr(i, "distinguishedName")
-                        };
-                    })
-                    .ToList();
-                summary.UnconstrainedComputers = new ComputerBreakdownSummary { TotalCount = unconstrained.Count, Items = unconstrained };
-            }
-
-            // Derive computer account state (enabled/disabled) and never-logged-on accounts.
-            // Never logged on = enabled, non-DC computer with no lastLogonTimestamp.
-            ComputerBreakdownInfo ToComputerInfo(JsonElement i)
-            {
-                var os = GetAttr(i, "operatingSystem");
-                var osVer = GetAttr(i, "operatingSystemVersion");
-                return new ComputerBreakdownInfo
-                {
-                    Name = GetAttr(i, "name"),
-                    Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                    OperatingSystem = os,
-                    OperatingSystemVersion = osVer,
-                    FriendlyOSName = GetFriendlyOSName(os, osVer),
-                    Dn = GetAttr(i, "distinguishedName")
-                };
-            }
-
-            var enabledComputers = new List<ComputerBreakdownInfo>();
-            var disabledComputers = new List<ComputerBreakdownInfo>();
-            var neverLoggedOnComputers = new List<ComputerBreakdownInfo>();
-            foreach (var i in summary.Computers.Items)
-            {
-                var uac = GetAttr(i, "userAccountControl");
-                if (IsAccountDisabled(uac))
-                {
-                    disabledComputers.Add(ToComputerInfo(i));
-                    continue;
-                }
-                enabledComputers.Add(ToComputerInfo(i));
-                var isDc = int.TryParse(uac, out var v) && (v & 0x2000) != 0;
-                var lastLogon = GetAttr(i, "lastLogonTimestamp");
-                if (!isDc && (string.IsNullOrEmpty(lastLogon) || !long.TryParse(lastLogon, out var ts) || ts <= 0))
-                    neverLoggedOnComputers.Add(ToComputerInfo(i));
-            }
-
-            if (settings.IsKpiEnabled("ComputersCategory", "EnabledComputers"))
-                summary.EnabledComputers = new ComputerBreakdownSummary { TotalCount = enabledComputers.Count, Items = enabledComputers };
-            if (settings.IsKpiEnabled("ComputersCategory", "DisabledComputers"))
-                summary.DisabledComputers = new ComputerBreakdownSummary { TotalCount = disabledComputers.Count, Items = disabledComputers };
-            if (settings.IsKpiEnabled("ComputersCategory", "NeverLoggedOnComputers"))
-                summary.NeverLoggedOnComputers = new ComputerBreakdownSummary { TotalCount = neverLoggedOnComputers.Count, Items = neverLoggedOnComputers };
-        }
-
-        // Derive NoManagerUser from AD User Accounts data
-        if ((settings.IsKpiEnabled("ADUserAccountsCategory", "NoManagerUser") || settings.IsKpiEnabled("ADGovernance", "NoManagerUser")) && summary.ADUserAccounts.Error == null)
-        {
-            var noManagerUsers = summary.ADUserAccounts.Items
-                .Where(i => string.IsNullOrEmpty(GetAttr(i, "manager")))
-                .ToList();
-            summary.NoManagerUser = new GovernanceKpiSummary
-            {
-                TotalCount = noManagerUsers.Count,
-                Items = noManagerUsers.Select(i => new GovernanceKpiInfo
-                {
-                    Name = GetAttr(i, "name"),
-                    Dn = GetAttr(i, "distinguishedName"),
-                    Guid = GetAttr(i, "objectGuid")
-                }).ToList()
-            };
-        }
-
-        // Derive NeverLoggedIn from AD User Accounts data
-        if ((settings.IsKpiEnabled("ADUserAccountsCategory", "NeverLoggedIn") || settings.IsKpiEnabled("ADGovernance", "NeverLoggedIn")) && summary.ADUserAccounts.Error == null)
-        {
-            var neverLoggedIn = summary.ADUserAccounts.Items
-                .Where(i => string.IsNullOrEmpty(GetAttr(i, "lastLogonTimestamp")))
-                .ToList();
-            summary.NeverLoggedIn = new ADUserAccountDetailSummary
-            {
-                TotalCount = neverLoggedIn.Count,
-                Items = neverLoggedIn.Select(i => new ADUserAccountDetailInfo
-                {
-                    Name = GetAttr(i, "name"),
-                    Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                    Dn = GetAttr(i, "distinguishedName"),
-                    Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                }).ToList()
-            };
-        }
-
-        // Derive StaleUsers (inactive accounts) from AD User Accounts data.
-        // Stale = enabled account whose last interactive logon (lastLogonTimestamp) is
-        // older than the inactivity threshold. Accounts that never logged on are excluded
-        // here (they are surfaced by the NeverLoggedIn KPI).
-        if (settings.IsKpiEnabled("ADUserAccountsCategory", "StaleUsers") && summary.ADUserAccounts.Error == null)
-        {
-            var staleThresholdDays = _configMonitor.CurrentValue.StaleAccountThresholdDays;
-            if (staleThresholdDays <= 0) staleThresholdDays = 90;
-            var staleCutoff = DateTime.UtcNow.AddDays(-staleThresholdDays);
-
-            bool IsStale(string raw, out DateTime lastLogon)
-            {
-                lastLogon = default;
-                if (string.IsNullOrEmpty(raw) || !long.TryParse(raw, out var val) || val <= 0)
-                    return false;
-                try
-                {
-                    lastLogon = DateTime.FromFileTimeUtc(val);
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    return false;
-                }
-                return lastLogon < staleCutoff;
-            }
-
-            var staleUsers = summary.ADUserAccounts.Items
-                .Where(i => !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                            && IsStale(GetAttr(i, "lastLogonTimestamp"), out _))
-                .ToList();
-
-            summary.StaleUsers = new ADUserAccountDetailSummary
-            {
-                TotalCount = staleUsers.Count,
-                Items = staleUsers.Select(i =>
-                {
-                    IsStale(GetAttr(i, "lastLogonTimestamp"), out var lastLogon);
-                    return new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Description = $"Last logon {lastLogon:yyyy-MM-dd}",
-                        Enabled = true
-                    };
-                }).ToList()
-            };
-        }
-
-        // Derive AdminCount from AD User Accounts data
-        if (settings.IsKpiEnabled("PrivilegedUsers", "AdminCount") && summary.ADUserAccounts.Error == null)
-        {
-            var adminCountUsers = summary.ADUserAccounts.Items
-                .Where(i => GetAttr(i, "adminCount") == "1")
-                .ToList();
-            summary.AdminCount = new ADUserAccountDetailSummary
-            {
-                TotalCount = adminCountUsers.Count,
-                Items = adminCountUsers.Select(i => new ADUserAccountDetailInfo
-                {
-                    Name = GetAttr(i, "name"),
-                    Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                    Dn = GetAttr(i, "distinguishedName"),
-                    Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                }).ToList()
-            };
-        }
-
-        // Resolve the effective "Exclude from Managed Scope" policy link DNs once. An AD/Entra user
+        // Resolve the effective "Exclude from Managed Scope"
         // is excluded from management (and therefore not licensed) when its edsvaAPOLinksEffective
         // contains one of these DNs. Only resolved when a consumer needs it.
         var needsManagedScope =
@@ -601,6 +304,7 @@ public class ActiveRolesService
             ? await GetExcludeFromManagedScopeLinkDnsAsync(token)
             : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         summary.ExcludeFromManagementLinkCount = excludeLinkDns.Count;
+        summary.ExcludeFromManagementLinkDns = excludeLinkDns.ToList();
 
         // Make the exclude-link set available to the Entra projections so managed status can be computed.
         if (summary.EntraTotals != null)
@@ -647,498 +351,8 @@ public class ActiveRolesService
                     }).ToList()
                 };
             }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "HybridUsers"))
-            {
-                var hybridUsers = summary.ADUserAccounts.Items
-                    .Where(i => !string.IsNullOrWhiteSpace(GetAttr(i, "msDS-ExternalDirectoryObjectId")))
-                    .ToList();
-                summary.HybridUsers = new ADUserAccountDetailSummary
-                {
-                    TotalCount = hybridUsers.Count,
-                    Items = hybridUsers.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl")),
-                        SyncedIdentity = GetAttr(i, "msDS-ExternalDirectoryObjectId")
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "OnPremOnlyUsers"))
-            {
-                var onPremOnlyUsers = summary.ADUserAccounts.Items
-                    .Where(i => string.IsNullOrWhiteSpace(GetAttr(i, "msDS-ExternalDirectoryObjectId")))
-                    .ToList();
-                summary.OnPremOnlyUsers = new ADUserAccountDetailSummary
-                {
-                    TotalCount = onPremOnlyUsers.Count,
-                    Items = onPremOnlyUsers.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "ExpiredUsers") || settings.IsKpiEnabled("ADGovernance", "ExpiredUsers"))
-            {
-                const long neverExpires = 9223372036854775807;
-                var now = DateTime.UtcNow;
-                var expiredUsers = summary.ADUserAccounts.Items
-                    .Where(i =>
-                    {
-                        var raw = GetAttr(i, "accountExpires");
-                        if (!long.TryParse(raw, out var val) || val == 0 || val == neverExpires)
-                            return false;
-                        var expiryDate = DateTime.FromFileTimeUtc(val);
-                        return expiryDate <= now;
-                    })
-                    .ToList();
-                summary.ExpiredUsers = new ADUserAccountDetailSummary
-                {
-                    TotalCount = expiredUsers.Count,
-                    Items = expiredUsers.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "ReversibleEncryption") || settings.IsKpiEnabled("ADGovernance", "ReversibleEncryption"))
-            {
-                // userAccountControl bit 0x0080 (128) = ENCRYPTED_TEXT_PWD_ALLOWED (reversible encryption).
-                const int reversibleEncryptionFlag = 0x0080;
-                var reversibleUsers = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & reversibleEncryptionFlag) != 0)
-                    .ToList();
-                summary.ReversibleEncryption = new GovernanceKpiSummary
-                {
-                    TotalCount = reversibleUsers.Count,
-                    Items = reversibleUsers.Select(i => new GovernanceKpiInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Guid = GetAttr(i, "objectGuid")
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "ExpiringUsers"))
-            {
-                const long neverExpires = 9223372036854775807;
-                var now = DateTime.UtcNow;
-                var expiringUsers = summary.ADUserAccounts.Items
-                    .Where(i =>
-                    {
-                        var raw = GetAttr(i, "accountExpires");
-                        if (!long.TryParse(raw, out var val) || val == 0 || val == neverExpires)
-                            return false;
-                        var expiryDate = DateTime.FromFileTimeUtc(val);
-                        return expiryDate > now;
-                    })
-                    .ToList();
-                summary.ExpiringUsers = new ExpiringUsersSummary
-                {
-                    TotalCount = expiringUsers.Count,
-                    Items = expiringUsers.Select(i =>
-                    {
-                        var raw = GetAttr(i, "accountExpires");
-                        long.TryParse(raw, out var ticks);
-                        var expiryDate = DateTime.FromFileTimeUtc(ticks);
-                        var daysUntil = (expiryDate.Date - DateTime.UtcNow.Date).Days;
-                        return new ExpiringUserInfo
-                        {
-                            Name = GetAttr(i, "name"),
-                            Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                            Dn = GetAttr(i, "distinguishedName"),
-                            ExpiryDate = expiryDate,
-                            DaysUntilExpiry = daysUntil
-                        };
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "PasswordNeverExpires"))
-            {
-                // userAccountControl bit 0x10000 = DONT_EXPIRE_PASSWORD.
-                const int dontExpirePasswordFlag = 0x10000;
-                var passwordNeverExpires = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & dontExpirePasswordFlag) != 0)
-                    .ToList();
-                summary.PasswordNeverExpires = new ADUserAccountDetailSummary
-                {
-                    TotalCount = passwordNeverExpires.Count,
-                    Items = passwordNeverExpires.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "DeprovisionedUsers"))
-            {
-                var deprovisionedUsers = summary.ADUserAccounts.Items
-                    .Where(i => GetAttr(i, "edsvaDeprovisionStatus") == "1")
-                    .ToList();
-                summary.DeprovisionedUsers = new ADUserAccountDetailSummary
-                {
-                    TotalCount = deprovisionedUsers.Count,
-                    Items = deprovisionedUsers.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl")),
-                        Description = GetAttr(i, "description")
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "StalePasswords"))
-            {
-                // Stale password = enabled account whose pwdLastSet is older than the threshold.
-                // pwdLastSet == 0 (must change at next logon) is reported by MustChangePassword instead.
-                var passwordAgeDays = _configMonitor.CurrentValue.PasswordAgeThresholdDays;
-                if (passwordAgeDays <= 0) passwordAgeDays = 365;
-                var passwordCutoff = DateTime.UtcNow.AddDays(-passwordAgeDays);
-                var stalePasswords = summary.ADUserAccounts.Items
-                    .Where(i =>
-                    {
-                        if (IsAccountDisabled(GetAttr(i, "userAccountControl"))) return false;
-                        if (!long.TryParse(GetAttr(i, "pwdLastSet"), out var val) || val <= 0) return false;
-                        try { return DateTime.FromFileTimeUtc(val) < passwordCutoff; }
-                        catch (ArgumentOutOfRangeException) { return false; }
-                    })
-                    .ToList();
-                summary.StalePasswords = new ADUserAccountDetailSummary
-                {
-                    TotalCount = stalePasswords.Count,
-                    Items = stalePasswords.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = true
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "MustChangePassword"))
-            {
-                // pwdLastSet == 0 means the user must change their password at next logon.
-                var mustChange = summary.ADUserAccounts.Items
-                    .Where(i => long.TryParse(GetAttr(i, "pwdLastSet"), out var val) && val == 0)
-                    .ToList();
-                summary.MustChangePassword = new ADUserAccountDetailSummary
-                {
-                    TotalCount = mustChange.Count,
-                    Items = mustChange.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "PasswordNotRequired"))
-            {
-                // userAccountControl bit 0x0020 (32) = PASSWD_NOTREQD.
-                const int passwordNotRequiredFlag = 0x0020;
-                var passwordNotRequired = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & passwordNotRequiredFlag) != 0)
-                    .ToList();
-                summary.PasswordNotRequired = new ADUserAccountDetailSummary
-                {
-                    TotalCount = passwordNotRequired.Count,
-                    Items = passwordNotRequired.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "SmartCardRequired"))
-            {
-                // userAccountControl bit 0x40000 (262144) = SMARTCARD_REQUIRED.
-                const int smartCardRequiredFlag = 0x40000;
-                var smartCardRequired = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & smartCardRequiredFlag) != 0)
-                    .ToList();
-                summary.SmartCardRequired = new ADUserAccountDetailSummary
-                {
-                    TotalCount = smartCardRequired.Count,
-                    Items = smartCardRequired.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "CannotChangePassword"))
-            {
-                // userAccountControl bit 0x0040 (64) = PASSWD_CANT_CHANGE.
-                const int cannotChangePasswordFlag = 0x0040;
-                var cannotChangePassword = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & cannotChangePasswordFlag) != 0)
-                    .ToList();
-                summary.CannotChangePassword = new ADUserAccountDetailSummary
-                {
-                    TotalCount = cannotChangePassword.Count,
-                    Items = cannotChangePassword.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "UserReversibleEncryption"))
-            {
-                // userAccountControl bit 0x0080 (128) = ENCRYPTED_TEXT_PWD_ALLOWED (reversible encryption).
-                const int reversibleEncryptionFlag = 0x0080;
-                var reversible = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & reversibleEncryptionFlag) != 0)
-                    .ToList();
-                summary.UserReversibleEncryption = new ADUserAccountDetailSummary
-                {
-                    TotalCount = reversible.Count,
-                    Items = reversible.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "TrustedForDelegation"))
-            {
-                // userAccountControl bit 0x80000 (524288) = TRUSTED_FOR_DELEGATION.
-                const int trustedForDelegationFlag = 0x80000;
-                var trusted = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & trustedForDelegationFlag) != 0)
-                    .ToList();
-                summary.TrustedForDelegation = new ADUserAccountDetailSummary
-                {
-                    TotalCount = trusted.Count,
-                    Items = trusted.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("NHIs", "SpnUserAccounts"))
-            {
-                // User accounts that expose a servicePrincipalName are Kerberoastable service accounts.
-                var spnUsers = summary.ADUserAccounts.Items
-                    .Where(i => !string.IsNullOrEmpty(GetAttr(i, "servicePrincipalName")))
-                    .ToList();
-                summary.SpnUserAccounts = new ADUserAccountDetailSummary
-                {
-                    TotalCount = spnUsers.Count,
-                    Items = spnUsers.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "SensitiveCannotDelegate"))
-            {
-                // userAccountControl bit 0x100000 (1048576) = NOT_DELEGATED (account is sensitive).
-                const int sensitiveCannotDelegateFlag = 0x100000;
-                var sensitive = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & sensitiveCannotDelegateFlag) != 0)
-                    .ToList();
-                summary.SensitiveCannotDelegate = new ADUserAccountDetailSummary
-                {
-                    TotalCount = sensitive.Count,
-                    Items = sensitive.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "UseDesEncryption"))
-            {
-                // userAccountControl bit 0x200000 (2097152) = USE_DES_KEY_ONLY.
-                const int useDesEncryptionFlag = 0x200000;
-                var useDes = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & useDesEncryptionFlag) != 0)
-                    .ToList();
-                summary.UseDesEncryption = new ADUserAccountDetailSummary
-                {
-                    TotalCount = useDes.Count,
-                    Items = useDes.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADUserAccountsCategory", "NoKerberosPreauth"))
-            {
-                // userAccountControl bit 0x400000 (4194304) = DONT_REQ_PREAUTH.
-                const int noKerberosPreauthFlag = 0x400000;
-                var noPreauth = summary.ADUserAccounts.Items
-                    .Where(i => int.TryParse(GetAttr(i, "userAccountControl"), out var uac) && (uac & noKerberosPreauthFlag) != 0)
-                    .ToList();
-                summary.NoKerberosPreauth = new ADUserAccountDetailSummary
-                {
-                    TotalCount = noPreauth.Count,
-                    Items = noPreauth.Select(i => new ADUserAccountDetailInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                        Dn = GetAttr(i, "distinguishedName"),
-                        Enabled = !IsAccountDisabled(GetAttr(i, "userAccountControl"))
-                    }).ToList()
-                };
-            }
         }
 
-        // Derive AD Group KPIs from AD Groups data (exclude Group Families)
-        if (summary.ADGroups.Error == null && summary.ADGroups.Items.Any())
-        {
-            var nonGroupFamilyItems = summary.ADGroups.Items
-                .Where(i => !string.Equals(GetAttr(i, "edsvaGFIsGroupFamily"), "TRUE", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (settings.IsKpiEnabled("ADGroupsCategory", "DistributionGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & unchecked((int)0x80000000)) == 0; })
-                    .ToList();
-                summary.DistributionGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "DomainLocalGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & 0x4) != 0; })
-                    .ToList();
-                summary.DomainLocalGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "GlobalGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & 0x2) != 0; })
-                    .ToList();
-                summary.GlobalGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "MailEnabledSecurityGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i =>
-                    {
-                        var gt = GetAttr(i, "groupType");
-                        if (!int.TryParse(gt, out var v)) return false;
-                        bool isSecurity = (v & unchecked((int)0x80000000)) != 0;
-                        bool hasMail = !string.IsNullOrEmpty(GetAttr(i, "mail"));
-                        return isSecurity && hasMail;
-                    })
-                    .ToList();
-                summary.MailEnabledSecurityGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "SecurityGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && v < 0; })
-                    .ToList();
-                summary.SecurityGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "UniversalGroups"))
-            {
-                var items = nonGroupFamilyItems
-                    .Where(i => { var gt = GetAttr(i, "groupType"); return int.TryParse(gt, out var v) && (v & 0x8) != 0; })
-                    .ToList();
-                summary.UniversalGroups = new ADGroupDetailSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => ToGroupDetail(i, summary.ADGroups)).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ADGroupsCategory", "CircularGroupNesting"))
-            {
-                summary.CircularGroupNesting = DetectCircularGroupNesting(summary.ADGroups.Items);
-            }
-            if (settings.IsKpiEnabled("ARConfiguration", "GroupFamilies"))
-            {
-                var items = summary.ADGroups.Items
-                    .Where(i => string.Equals(GetAttr(i, "edsvaGFIsGroupFamily"), "TRUE", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                summary.GroupFamilies = new GroupFamilySummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => new GroupFamilyInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Dn = GetAttr(i, "distinguishedName")
-                    }).ToList()
-                };
-            }
-            if (settings.IsKpiEnabled("ARConfiguration", "DynamicGroups"))
-            {
-                var items = summary.ADGroups.Items
-                    .Where(i => string.Equals(GetAttr(i, "edsaIsDynamicGroup"), "TRUE", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                summary.DynamicGroups = new DynamicGroupSummary
-                {
-                    TotalCount = items.Count,
-                    Items = items.Select(i => new DynamicGroupInfo
-                    {
-                        Name = GetAttr(i, "name"),
-                        Dn = GetAttr(i, "distinguishedName")
-                    }).ToList()
-                };
-            }
-        }
-
-        if (settings.IsKpiEnabled("ARConfiguration", "ActiveRolesAdmins"))
-        {
-            var baseDn = ResolveRoleGroupBaseDn();
-            var filter = BuildRoleGroupFilter(config.RoleGroups.ActiveRolesAdmins);
-            var t = GetActiveRolesAdminsAsync(token, baseDn, filter);
-            tasks.Add(("ActiveRolesAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ActiveRolesAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
         if (settings.IsKpiEnabled("ARConfiguration", "Domains"))
         {
             var t = GetDomainsAsync(token);
@@ -1151,131 +365,11 @@ public class ActiveRolesService
             tasks.Add(("Servers", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Servers = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
-        if (settings.IsKpiEnabled("ARConfiguration", "ManagedUnits"))
-        {
-            var t = GetManagedUnitsAsync(token);
-            tasks.Add(("ManagedUnits", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedUnits = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "Workflows"))
-        {
-            var t = GetWorkflowsAsync(token);
-            tasks.Add(("Workflows", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Workflows = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "VirtualAttributes"))
-        {
-            var t = GetVirtualAttributesAsync(token);
-            tasks.Add(("VirtualAttributes", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.VirtualAttributes = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
         if (settings.IsKpiEnabled("ARConfiguration", "ConfigDatabases"))
         {
             var t = GetConfigDatabasesAsync(token);
             tasks.Add(("ConfigDatabases", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ConfigDatabases = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "HistoryDatabases"))
-        {
-            var t = GetHistoryDatabasesAsync(token);
-            tasks.Add(("HistoryDatabases", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.HistoryDatabases = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "ScheduledTasks"))
-        {
-            var t = GetScheduledTasksAsync(token);
-            tasks.Add(("ScheduledTasks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScheduledTasks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjects"))
-        {
-            var t = GetPolicyObjectsAsync(token);
-            tasks.Add(("PolicyObjects", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "AccessTemplates"))
-        {
-            var t = GetAccessTemplatesAsync(token);
-            tasks.Add(("AccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "EmptyAccessTemplates"))
-        {
-            var t = GetEmptyAccessTemplatesAsync(token);
-            tasks.Add(("EmptyAccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjectsNoRules"))
-        {
-            var t = GetPolicyObjectsNoRulesAsync(token);
-            tasks.Add(("PolicyObjectsNoRules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectsNoRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "UnlinkedAccessTemplates"))
-        {
-            var t = GetUnlinkedAccessTemplatesAsync(token);
-            tasks.Add(("UnlinkedAccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UnlinkedAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "DenyAccessTemplates"))
-        {
-            var t = GetDenyAccessTemplatesAsync(token);
-            tasks.Add(("DenyAccessTemplates", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DenyAccessTemplates = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "UnlinkedPolicyObjects"))
-        {
-            var t = GetUnlinkedPolicyObjectsAsync(token);
-            tasks.Add(("UnlinkedPolicyObjects", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UnlinkedPolicyObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "AccessTemplateLinks"))
-        {
-            var t = GetAccessTemplateLinksAsync(token);
-            tasks.Add(("AccessTemplateLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccessTemplateLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "PolicyObjectLinks"))
-        {
-            var t = GetPolicyObjectLinksAsync(token);
-            tasks.Add(("PolicyObjectLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.PolicyObjectLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "OrphanAccessTemplateLinks"))
-        {
-            var t = GetOrphanAccessTemplateLinksAsync(token);
-            tasks.Add(("OrphanAccessTemplateLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OrphanAccessTemplateLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "OrphanPolicyObjectLinks"))
-        {
-            var t = GetOrphanPolicyObjectLinksAsync(token);
-            tasks.Add(("OrphanPolicyObjectLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OrphanPolicyObjectLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "DynamicGroupsBrokenRules"))
-        {
-            var t = GetDynamicGroupsBrokenRulesAsync(token);
-            tasks.Add(("DynamicGroupsBrokenRules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DynamicGroupsBrokenRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "ManagedUnitsBrokenRules"))
-        {
-            var t = GetManagedUnitsBrokenRulesAsync(token);
-            tasks.Add(("ManagedUnitsBrokenRules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedUnitsBrokenRules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "ScriptModules"))
-        {
-            var t = GetScriptModulesAsync(token);
-            tasks.Add(("ScriptModules", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ScriptModules = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ARConfiguration", "EntraManagedTenants"))
-        {
-            var t = GetEntraManagedTenantsAsync(token);
-            tasks.Add(("EntraManagedTenants", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EntraManagedTenants = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
         if (settings.IsKpiEnabled("Licensing", "ManagedObjects"))
         {
@@ -1283,136 +377,6 @@ public class ActiveRolesService
             tasks.Add(("ManagedObjects", t));
             _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ManagedObjects = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
         }
-        if (settings.IsKpiEnabled("ADGroupsCategory", "NoGroupOwner") || settings.IsKpiEnabled("ADGovernance", "NoGroupOwner"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.NoGroupOwner;
-            var t = GetNoGroupOwnerAsync(token, baseDn, filter);
-            tasks.Add(("NoGroupOwner", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoGroupOwner = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "NoManagerServiceAccount") || settings.IsKpiEnabled("ADGovernance", "NoManagerServiceAccount"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = ResolveValue(config.CustomNoManagerServiceAccountFilter, config.DefaultFilters.NoManagerServiceAccount);
-            var t = GetNoManagerServiceAccountAsync(token, baseDn, filter);
-            tasks.Add(("NoManagerServiceAccount", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.NoManagerServiceAccount = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "ServiceAccounts"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.ServiceAccounts;
-            var t = GetServiceAccountsAsync(token, baseDn, filter);
-            tasks.Add(("ServiceAccounts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "GmsaServiceAccounts"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.GmsaServiceAccounts;
-            var t = GetGmsaServiceAccountsAsync(token, baseDn, filter);
-            tasks.Add(("GmsaServiceAccounts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.GmsaServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("NHIs", "SmsaServiceAccounts"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.SmsaServiceAccounts;
-            var t = GetSmsaServiceAccountsAsync(token, baseDn, filter);
-            tasks.Add(("SmsaServiceAccounts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SmsaServiceAccounts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        if (settings.IsKpiEnabled("ADUserAccountsCategory", "UserAccountLockedOut") || settings.IsKpiEnabled("ADGovernance", "UserAccountLockedOut"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.UserAccountLockedOut;
-            var t = GetUserAccountLockedOutAsync(token, baseDn, filter);
-            tasks.Add(("UserAccountLockedOut", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.UserAccountLockedOut = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("ADGroupsCategory", "EmptyGroups") || settings.IsKpiEnabled("ADGovernance", "EmptyGroups"))
-        {
-            var baseDn = config.DefaultActiveDirectoryDN;
-            var filter = config.DefaultFilters.EmptyGroups;
-            var t = GetEmptyGroupsAsync(token, baseDn, filter);
-            tasks.Add(("EmptyGroups", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EmptyGroups = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "AccountOperators"))
-        {
-            var t = GetAccountOperatorsAsync(token);
-            tasks.Add(("AccountOperators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.AccountOperators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "Administrators"))
-        {
-            var t = GetAdministratorsAsync(token);
-            tasks.Add(("Administrators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Administrators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "BackupOperators"))
-        {
-            var t = GetBackupOperatorsAsync(token);
-            tasks.Add(("BackupOperators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.BackupOperators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "DomainAdmins"))
-        {
-            var t = GetDomainAdminsAsync(token);
-            tasks.Add(("DomainAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.DomainAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "ServerOperators"))
-        {
-            var t = GetServerOperatorsAsync(token);
-            tasks.Add(("ServerOperators", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.ServerOperators = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "EnterpriseAdmins"))
-        {
-            var t = GetEnterpriseAdminsAsync(token);
-            tasks.Add(("EnterpriseAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.EnterpriseAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("PrivilegedGroups", "SchemaAdmins"))
-        {
-            var t = GetSchemaAdminsAsync(token);
-            tasks.Add(("SchemaAdmins", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SchemaAdmins = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "Sites"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.Sites);
-            tasks.Add(("Sites", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Sites = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "SiteLinks"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.SiteLinks);
-            tasks.Add(("SiteLinks", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.SiteLinks = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "Subnets"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.Subnets);
-            tasks.Add(("Subnets", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Subnets = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "Trusts"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.Trusts);
-            tasks.Add(("Trusts", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.Trusts = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-        if (settings.IsKpiEnabled("Infrastructure", "OUs"))
-        {
-            var t = GetInfrastructureKpiAsync(token, KpiInfo.OUs);
-            tasks.Add(("OUs", t));
-            _ = t.ContinueWith(r => { if (r.IsCompletedSuccessfully) summary.OUs = r.Result; }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-
         // Exchange (on-prem) KPIs. Every Exchange KPI shares the generic count + drilldown shape and
         // is resolved through GetInfrastructureKpiAsync (which honours the KPI's config-driven filter,
         // base DN, attributes and captures the AD domain for per-domain segmentation). Results are keyed
@@ -1423,6 +387,9 @@ public class ActiveRolesService
             // KPIs with no Searches are not simple LDAP counts (e.g. Send As, which is resolved from
             // each mailbox's security descriptor by a dedicated collector below). Skip them here.
             if (exKpi.Searches.Count == 0) continue;
+            // Send on Behalf declares its search for the definition dataset, but its drilldown
+            // (resolved delegate names) comes from the dedicated collector below.
+            if (exKpi.Key == KpiInfo.ExchangeSendOnBehalfKpi.Key) continue;
 
             var key = exKpi.Key;
             var t = GetInfrastructureKpiAsync(token, exKpi);
@@ -1495,19 +462,43 @@ public class ActiveRolesService
 
         await Task.WhenAll(tasks.Select(t => t.Task));
 
-        // Tier 2 security-health signals (krbtgt password age, weak domain password policy,
-        // orphaned adminCount accounts). These are lightweight targeted reads against the
-        // default AD naming context and are best-effort: failures are captured per-summary
-        // and never abort the overall risk summary.
-        await PopulateSecurityHealthAsync(token, summary);
-
         // Stamp per-object permission-scope (effective AT-Link GUIDs + object class) onto the typed
-        // user drilldown lists so the shared superset can be filtered per viewer. The typed items are
+        // user
         // Stamp per-object permission-scope (effective AT-Link GUIDs + object class) onto the typed
         // drilldown lists so the shared superset can be filtered per viewer. Typed items are derived
         // from raw JsonElement sources that carry edsvaATLinksEffective/objectClass (requested
         // centrally in BuildAttributesQuery); we build a global DN->scope map and copy it across.
         StampObjectScopes(summary);
+
+        // Collect the datasets read by definition KPIs that the hand-written code does not already
+        // provide, then evaluate definition-driven KPIs into summary.KpiResults (the displayed values)
+        // and compare them with the legacy values.
+        if (_kpiCalculator != null)
+        {
+            try
+            {
+                if (_datasetCollector != null)
+                {
+                    var required = _kpiCalculator.RequiredDatasetIds(settings);
+                    try
+                    {
+                        if (required.Count > 0)
+                            summary.CollectedDatasets = new(await CollectDatasetsAsync(token, _datasetCollector, required, summary));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Definition dataset collection failed");
+                        summary.CollectedDatasets = required.ToDictionary(id => id, _ => Models.Definitions.DatasetResult.Failed($"Dataset collection failed: {ex.Message}"));
+                    }
+                }
+
+                _kpiCalculator.Populate(summary, settings, Definitions.DefinitionKpiCalculator.CreateContext(config, DateTimeOffset.UtcNow, summary.ExcludeFromManagementLinkDns));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Definition KPI evaluation failed");
+            }
+        }
 
         return summary;
     }
@@ -1576,12 +567,6 @@ public class ActiveRolesService
         Stamp(summary.ExpiringUsers?.Items);
 
         // Group detail drilldowns (derived from ADGroups).
-        Stamp(summary.DistributionGroups?.Items);
-        Stamp(summary.DomainLocalGroups?.Items);
-        Stamp(summary.GlobalGroups?.Items);
-        Stamp(summary.MailEnabledSecurityGroups?.Items);
-        Stamp(summary.SecurityGroups?.Items);
-        Stamp(summary.UniversalGroups?.Items);
 
         // Computer breakdown drilldowns (derived from Computers).
         Stamp(summary.ComputerClients?.Items);
@@ -1609,31 +594,11 @@ public class ActiveRolesService
         Stamp(summary.DomainControllers?.Items);
 
         // Privileged group members.
-        Stamp(summary.AccountOperators?.Items);
-        Stamp(summary.Administrators?.Items);
-        Stamp(summary.BackupOperators?.Items);
-        Stamp(summary.DomainAdmins?.Items);
-        Stamp(summary.ServerOperators?.Items);
-        Stamp(summary.EnterpriseAdmins?.Items);
-        Stamp(summary.SchemaAdmins?.Items);
-        Stamp(summary.ActiveRolesAdmins?.Items);
 
         // Governance KPI drilldowns.
         Stamp(summary.NoManagerUser?.Items);
-        Stamp(summary.NoManagerServiceAccount?.Items);
-        Stamp(summary.ServiceAccounts?.Items);
-        Stamp(summary.GmsaServiceAccounts?.Items);
-        Stamp(summary.SmsaServiceAccounts?.Items);
-        Stamp(summary.UserAccountLockedOut?.Items);
         Stamp(summary.ReversibleEncryption?.Items);
-        Stamp(summary.EmptyGroups?.Items);
         Stamp(summary.CircularGroupNesting?.Items);
-        Stamp(summary.Sites?.Items);
-        Stamp(summary.SiteLinks?.Items);
-        Stamp(summary.Subnets?.Items);
-        Stamp(summary.Trusts?.Items);
-        Stamp(summary.OUs?.Items);
-        Stamp(summary.NoGroupOwner?.Items);
 
         // Domain / server infra objects.
         Stamp(summary.Domains?.Items);
@@ -1645,11 +610,8 @@ public class ActiveRolesService
     {
         ADUserAccountDetailInfo u => u.Dn,
         ExpiringUserInfo e => e.Dn,
-        ADGroupDetailInfo g => g.Dn,
         ComputerBreakdownInfo c => c.Dn,
-        PrivilegedGroupMemberInfo p => p.Dn,
         GovernanceKpiInfo k => k.Dn,
-        NoGroupOwnerInfo n => n.Dn,
         DomainInfo d => d.Dn,
         ServerInfo => string.Empty, // ServerInfo has no DN; scope stays empty (admin-only visibility)
         DomainControllerInfo dc => dc.Dn,
@@ -1663,115 +625,11 @@ public class ActiveRolesService
         {
             case ADUserAccountDetailInfo u: u.EffectiveLinkGuids = links; u.ObjectClass = objectClass; break;
             case ExpiringUserInfo e: e.EffectiveLinkGuids = links; e.ObjectClass = objectClass; break;
-            case ADGroupDetailInfo g: g.EffectiveLinkGuids = links; g.ObjectClass = objectClass; break;
             case ComputerBreakdownInfo c: c.EffectiveLinkGuids = links; c.ObjectClass = objectClass; break;
-            case PrivilegedGroupMemberInfo p: p.EffectiveLinkGuids = links; p.ObjectClass = objectClass; break;
             case GovernanceKpiInfo k: k.EffectiveLinkGuids = links; k.ObjectClass = objectClass; break;
-            case NoGroupOwnerInfo n: n.EffectiveLinkGuids = links; n.ObjectClass = objectClass; break;
             case DomainInfo d: d.EffectiveLinkGuids = links; d.ObjectClass = objectClass; break;
             case ServerInfo s: s.EffectiveLinkGuids = links; s.ObjectClass = objectClass; break;
             case DomainControllerInfo dc: dc.EffectiveLinkGuids = links; dc.ObjectClass = objectClass; break;
-        }
-    }
-
-    private static string ResolveValue(string userValue, string defaultValue)
-    {
-        return string.IsNullOrWhiteSpace(userValue) ? defaultValue : userValue;
-    }
-
-    /// <summary>
-    /// Populates Tier 2 security-health signals on the risk summary. Each signal is
-    /// collected best-effort so a failure in one does not affect the others or the
-    /// overall summary. Reads target the default Active Directory naming context.
-    /// </summary>
-    private async Task PopulateSecurityHealthAsync(string token, DashboardSummary summary)
-    {
-        var config = _configMonitor.CurrentValue;
-        var baseDn = config.DefaultActiveDirectoryDN;
-
-        // --- krbtgt password age ---------------------------------------------
-        // A rarely-rotated krbtgt password increases exposure to Golden Ticket attacks.
-        try
-        {
-            var items = await SearchObjectsAsync(token, baseDn, "(sAMAccountName=krbtgt)", "sub", "pwdLastSet,distinguishedName,edsaDomainNetbiosName");
-            var krbtgtItem = items.FirstOrDefault(i => !string.IsNullOrEmpty(GetAttr(i, "pwdLastSet")) && GetAttr(i, "pwdLastSet") != "0");
-            var krbtgtDomain = items.Select(i => GetAttr(i, "edsaDomainNetbiosName")).FirstOrDefault(d => !string.IsNullOrEmpty(d)) ?? string.Empty;
-            var raw = krbtgtItem.ValueKind == JsonValueKind.Object ? GetAttr(krbtgtItem, "pwdLastSet") : null;
-            if (raw != null && long.TryParse(raw, out var val) && val > 0)
-            {
-                var lastSet = DateTime.FromFileTimeUtc(val);
-                var ageDays = (int)Math.Max(0, (DateTime.UtcNow - lastSet).TotalDays);
-                summary.KrbtgtPasswordAge = new SecurityHealthSummary { Value = ageDays, Domain = krbtgtDomain };
-            }
-            else
-            {
-                summary.KrbtgtPasswordAge = new SecurityHealthSummary { Error = "krbtgt pwdLastSet unavailable" };
-            }
-        }
-        catch (Exception ex)
-        {
-            summary.KrbtgtPasswordAge = new SecurityHealthSummary { Error = $"No data ({ex.GetType().Name}: {ex.Message})" };
-        }
-
-        // --- Domain password policy ------------------------------------------
-        // Reads the default domain policy from the domain root object. Weaknesses are
-        // encoded as small counts so the assessment engine's threshold comparison works:
-        // a value of 1 means "weak" (fails a warn/fail threshold of 1), 0 means "adequate".
-        try
-        {
-            // Subtree search for the domain root (domainDNS) object so the default password
-            // policy is found regardless of whether DefaultActiveDirectoryDN points at the domain
-            // root, an OU, or a container. A base-scope read only works when the configured DN is
-            // exactly the domain root, which caused the policy checks to report as unavailable.
-            var items = await SearchObjectsAsync(token, baseDn,
-                "(objectClass=domainDNS)", "sub",
-                "minPwdLength,maxPwdAge,pwdProperties,lockoutThreshold,edsaDomainNetbiosName");
-            var domainItem = items.FirstOrDefault(i =>
-                i.ValueKind == JsonValueKind.Object && !string.IsNullOrEmpty(GetAttr(i, "minPwdLength")));
-            if (domainItem.ValueKind == JsonValueKind.Object)
-            {
-                var domain = domainItem;
-                var domainName = GetAttr(domain, "edsaDomainNetbiosName");
-                var minLen = int.TryParse(GetAttr(domain, "minPwdLength"), out var ml) ? ml : -1;
-                var pwdProps = long.TryParse(GetAttr(domain, "pwdProperties"), out var pp) ? pp : 0;
-                var lockoutThreshold = int.TryParse(GetAttr(domain, "lockoutThreshold"), out var lt) ? lt : -1;
-
-                // DOMAIN_PASSWORD_COMPLEX = 0x1
-                bool complexityEnabled = (pwdProps & 0x1) != 0;
-
-                // maxPwdAge is a negative 100-ns interval; 0 or the "never" sentinel means no expiry.
-                int maxAgeDays = 0;
-                if (long.TryParse(GetAttr(domain, "maxPwdAge"), out var maxPwdAge) && maxPwdAge != 0
-                    && maxPwdAge != long.MinValue)
-                {
-                    maxAgeDays = (int)Math.Round(TimeSpan.FromTicks(Math.Abs(maxPwdAge)).TotalDays);
-                }
-
-                // Lockout is weak when disabled (threshold 0) or set too high. Cyber Essentials
-                // expects accounts to lock after no more than 10 unsuccessful attempts.
-                bool weakLockout = lockoutThreshold == 0 || lockoutThreshold > 10;
-
-                summary.WeakPasswordLength = new SecurityHealthSummary { Value = (minLen >= 0 && minLen < 12) ? 1 : 0, Domain = domainName };
-                summary.PasswordComplexityDisabled = new SecurityHealthSummary { Value = complexityEnabled ? 0 : 1, Domain = domainName };
-                summary.NoAccountLockout = new SecurityHealthSummary { Value = weakLockout ? 1 : 0, Domain = domainName };
-                summary.PasswordMaxAgeDays = new SecurityHealthSummary { Value = maxAgeDays, Domain = domainName };
-            }
-            else
-            {
-                var err = "Domain password policy unavailable";
-                summary.WeakPasswordLength = new SecurityHealthSummary { Error = err };
-                summary.PasswordComplexityDisabled = new SecurityHealthSummary { Error = err };
-                summary.NoAccountLockout = new SecurityHealthSummary { Error = err };
-                summary.PasswordMaxAgeDays = new SecurityHealthSummary { Error = err };
-            }
-        }
-        catch (Exception ex)
-        {
-            var err = $"No data ({ex.GetType().Name}: {ex.Message})";
-            summary.WeakPasswordLength = new SecurityHealthSummary { Error = err };
-            summary.PasswordComplexityDisabled = new SecurityHealthSummary { Error = err };
-            summary.NoAccountLockout = new SecurityHealthSummary { Error = err };
-            summary.PasswordMaxAgeDays = new SecurityHealthSummary { Error = err };
         }
     }
 
@@ -1835,7 +693,7 @@ public class ActiveRolesService
             // Request the native 'member' attribute instead of Active Roles' virtual
             // 'edsaMember'/'edsaMemberIndirect'. edsaMemberIndirect is server-computed, is the
             // dominant cost of this query, and fails (HTTP 400) on large directories. We compute
-            // indirect (transitive) membership locally below � once per collection � reproducing
+            // indirect (transitive) membership locally below ï¿½ once per collection ï¿½ reproducing
             // edsaMemberIndirect's semantics (validated against a live AR directory).
             var attributes = "name,distinguishedName,groupType,edsaIsDynamicGroup,member,mail,edsvaGFIsGroupFamily,edsaDomainNetbiosName";
             _logger.LogInformation("GetADGroupsAsync: querying base '{BaseDn}' with filter '{Filter}'", baseDn, filter);
@@ -1850,6 +708,10 @@ public class ActiveRolesService
                 (g, attr) => GetMultiValuedAttr(g, attr));
             result.DirectByDn = membership.DirectByDn;
             result.IndirectByDn = membership.IndirectByDn;
+            result.GroupMembersByDn = membership.DirectByDn
+                .Select(kv => (kv.Key, Groups: kv.Value.Where(membership.DirectByDn.ContainsKey).ToList()))
+                .Where(e => e.Groups.Count > 0)
+                .ToDictionary(e => e.Key, e => e.Groups, StringComparer.OrdinalIgnoreCase);
 
             // Compact, serializable per-DN counts so derived group-detail KPIs keep correct
             // member counts after the summary round-trips through the session store, where the
@@ -1881,7 +743,7 @@ public class ActiveRolesService
             var config = _configMonitor.CurrentValue;
             var baseDn = config.DefaultActiveDirectoryDN;
             var filter = "(objectClass=computer)";
-            var attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,msDS-isGC";
+            var attributes = "name,distinguishedName,userAccountControl,edsaDomainNetbiosName,operatingSystem,operatingSystemVersion,msDS-SiteName,msDS-isGC,lastLogonTimestamp";
             var items = await SearchObjectsAsync(token, baseDn, filter, "sub", attributes);
             result.Items = items;
             // Exclude domain controllers (SERVER_TRUST_ACCOUNT = 0x2000)
@@ -2302,140 +1164,6 @@ public class ActiveRolesService
         return string.Empty;
     }
 
-    private ADGroupDetailInfo ToGroupDetail(JsonElement i, ADGroupsSummary groups)
-    {
-        var dn = GetAttr(i, "distinguishedName");
-        // Member counts come from the locally-computed membership maps (native 'member' +
-        // transitive calculation) rather than AR's edsaMember/edsaMemberIndirect virtual attributes.
-        // Prefer the full DN-list maps (present on a fresh collection); fall back to the compact
-        // serialized counts when rendering from a session-cached summary (where the DN-list maps
-        // are not retained).
-        var directCount = groups.DirectByDn.TryGetValue(dn, out var direct)
-            ? direct.Count
-            : (groups.DirectCountByDn.TryGetValue(dn, out var directCached) ? directCached : 0);
-        var indirectCount = groups.IndirectByDn.TryGetValue(dn, out var indirect)
-            ? indirect.Count
-            : (groups.IndirectCountByDn.TryGetValue(dn, out var indirectCached) ? indirectCached : 0);
-        return new ADGroupDetailInfo
-        {
-            Name = GetAttr(i, "name"),
-            Dn = dn,
-            DirectMembers = directCount,
-            IndirectMembers = indirectCount
-        };
-    }
-
-    /// <summary>
-    /// Detects groups that participate in a circular nesting chain (e.g. C is a member of B,
-    /// B is a member of A, and A is a member of C). Builds a directed graph of group-to-group
-    /// membership edges (group -> the groups it is a member of) from the shared ADGroups dataset
-    /// and returns every group that lies on at least one cycle.
-    /// </summary>
-    private static GovernanceKpiSummary DetectCircularGroupNesting(List<JsonElement> groups)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            // Map every group DN (case-insensitive) to its element and its display info.
-            var byDn = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
-            foreach (var g in groups)
-            {
-                var dn = GetAttr(g, "distinguishedName");
-                if (!string.IsNullOrEmpty(dn) && !byDn.ContainsKey(dn))
-                    byDn[dn] = g;
-            }
-
-            // Build adjacency: for each group, the edge points to member DNs that are themselves
-            // groups in the dataset (i.e. child group -> parent group relationships are captured by
-            // walking each group's direct members and keeping only group members).
-            var adjacency = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var kvp in byDn)
-            {
-                var memberDns = GetMultiValuedAttr(kvp.Value, "member");
-                var groupMembers = memberDns
-                    .Where(m => !string.IsNullOrEmpty(m) && byDn.ContainsKey(m))
-                    .ToList();
-                adjacency[kvp.Key] = groupMembers;
-            }
-
-            // Iterative DFS with coloring (white/gray/black) to find all nodes that lie on a cycle.
-            const int White = 0, Gray = 1, Black = 2;
-            var color = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (var dn in adjacency.Keys) color[dn] = White;
-            var onCycle = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var start in adjacency.Keys)
-            {
-                if (color[start] != White) continue;
-
-                // stack holds (node, path-index of the node within the current DFS path)
-                var stack = new Stack<string>();
-                var path = new List<string>();
-                var pathIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-                stack.Push(start);
-
-                while (stack.Count > 0)
-                {
-                    var node = stack.Peek();
-                    if (color[node] == White)
-                    {
-                        color[node] = Gray;
-                        pathIndex[node] = path.Count;
-                        path.Add(node);
-                    }
-
-                    bool advanced = false;
-                    foreach (var next in adjacency[node])
-                    {
-                        if (color[next] == White)
-                        {
-                            stack.Push(next);
-                            advanced = true;
-                            break;
-                        }
-                        if (color[next] == Gray)
-                        {
-                            // Back edge: everything from 'next' to 'node' on the current path is on a cycle.
-                            if (pathIndex.TryGetValue(next, out var startIdx))
-                            {
-                                for (int k = startIdx; k < path.Count; k++)
-                                    onCycle.Add(path[k]);
-                            }
-                        }
-                    }
-
-                    if (!advanced)
-                    {
-                        color[node] = Black;
-                        if (path.Count > 0 && string.Equals(path[^1], node, StringComparison.OrdinalIgnoreCase))
-                        {
-                            pathIndex.Remove(node);
-                            path.RemoveAt(path.Count - 1);
-                        }
-                        stack.Pop();
-                    }
-                }
-            }
-
-            var items = onCycle
-                .Select(dn => byDn[dn])
-                .Select(g => new GovernanceKpiInfo
-                {
-                    Name = GetAttr(g, "name"),
-                    Domain = GetAttr(g, "edsaDomainNetbiosName"),
-                    Dn = GetAttr(g, "distinguishedName"),
-                    Guid = GetAttr(g, "objectGuid")
-                })
-                .OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            result.TotalCount = items.Count;
-            result.Items = items;
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
     public async Task<DomainSummary> GetDomainsAsync(string token)
     {
         var result = new DomainSummary();
@@ -2520,7 +1248,7 @@ public class ActiveRolesService
         return result;
     }
 
-    private static int CountMembershipRules(string conditionsList)
+    internal static int CountMembershipRules(string conditionsList)
     {
         if (string.IsNullOrEmpty(conditionsList)) return 0;
         // Each rule is enclosed in [...], so count the opening brackets
@@ -2583,7 +1311,7 @@ public class ActiveRolesService
     // Parses an AR time attribute that may be either an ISO 8601 timestamp
     // (e.g. "2026-09-06T06:42:22Z", as returned for scheduled-task times) or a
     // Windows FILETIME tick value. Returns a UTC DateTime, or null if unparseable.
-    private static DateTime? ParseArTime(string raw)
+    internal static DateTime? ParseArTime(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw)) return null;
         if (DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture,
@@ -2626,23 +1354,7 @@ public class ActiveRolesService
         return result;
     }
 
-    public async Task<HistoryDatabaseSummary> GetHistoryDatabasesAsync(string token)
-    {
-        var result = new HistoryDatabaseSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.HistoryDatabases.Searches[0]);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new DatabaseInfo { SqlAlias = GetAttr(i, "edsaSQLAlias"),
-                                                                DatabaseName = GetAttr(i, "edsaDatabaseName"),
-                                                                DatabaseType = GetAttr(i, "edsaDatabaseType"),
-                                                                ReplicationRole = ParseReplicationRole(GetAttr(i, "edsaReplicationRole")) }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    private static ReplicationRole ParseReplicationRole(string? value) =>
+    internal static ReplicationRole ParseReplicationRole(string? value) =>
         int.TryParse(value, out var n) && Enum.IsDefined(typeof(ReplicationRole), n)
             ? (ReplicationRole)n
             : ReplicationRole.Undefined;
@@ -2879,83 +1591,6 @@ public class ActiveRolesService
     }
 
 
-    public async Task<AccessTemplateLinkSummary> GetAccessTemplateLinksAsync(string token)
-    {
-        var result = new AccessTemplateLinkSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.AccessTemplateLinks.Searches[0]);
-            result.TotalCount = items.Count;
-            result.Items = new List<AccessTemplateLinkInfo>();
-            var trusteeIsUserCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            var rootScopeCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            foreach (var i in items)
-            {
-                var link = new AccessTemplateLinkInfo
-                {
-                    Name = GetAttr(i, "name"),
-                    Dn = GetAttr(i, "distinguishedName"),
-                    IsPredefined = string.Equals(GetAttr(i, "edsaIsPredefined"), "TRUE", StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(GetAttr(i, "edsaSystemObject"), "TRUE", StringComparison.OrdinalIgnoreCase)
-                };
-
-                // Resolve Trustee SID to name
-                var sid = GetAttr(i, "edsaTrusteeSID");
-                if (!string.IsNullOrEmpty(sid))
-                {
-                    link.Trustee = await ResolveSidToNameAsync(token, sid);
-                    if (!trusteeIsUserCache.TryGetValue(sid, out var isUser))
-                    {
-                        isUser = await IsUserTrusteeAsync(token, sid);
-                        trusteeIsUserCache[sid] = isUser;
-                    }
-                    link.IsUserTrustee = isUser;
-                }
-
-                // Resolve Directory Object GUID to name
-                var secObjGuid = GetAttr(i, "edsaSecObjectGUID");
-                if (!string.IsNullOrEmpty(secObjGuid))
-                {
-                    link.DirectoryObject = await ResolveGuidToNameAsync(token, secObjGuid);
-                    if (!rootScopeCache.TryGetValue(secObjGuid, out var isRoot))
-                    {
-                        isRoot = await IsRootScopeAsync(token, secObjGuid);
-                        rootScopeCache[secObjGuid] = isRoot;
-                    }
-                    link.IsRootScope = isRoot;
-                }
-
-                // Resolve Access Template GUID to name
-                var atGuid = GetAttr(i, "edsaAccessTemplateGUID");
-                if (!string.IsNullOrEmpty(atGuid))
-                {
-                    link.AccessTemplate = await ResolveAccessTemplateGuidAsync(token, atGuid);
-                }
-
-                result.Items.Add(link);
-            }
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<PolicyObjectLinkSummary> GetPolicyObjectLinksAsync(string token)
-    {
-        var result = new PolicyObjectLinkSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.PolicyObjectLinks.Searches[0]);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new PolicyObjectLinkInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
     // Orphaned Access Template Links: an edsACE link is orphaned when any of its key reference
     // attributes (edsaAccessTemplateGUID, edsaSecObjectGUID, edsaTrusteeSID) is missing.
     public async Task<AccessTemplateLinkSummary> GetOrphanAccessTemplateLinksAsync(string token)
@@ -3049,7 +1684,7 @@ public class ActiveRolesService
 
     // Maps the edsaScriptType enum value to a human-readable script type name.
     // Enum order: PolicyScript=0, ScheduledTaskScript=1, LibraryScript=2.
-    private static string MapScriptType(string scriptType)
+    internal static string MapScriptType(string scriptType)
     {
         if (string.IsNullOrWhiteSpace(scriptType)) return "Unknown";
         return scriptType.Trim() switch
@@ -3063,7 +1698,7 @@ public class ActiveRolesService
 
     // Tolerant boolean parser for Active Roles attribute values, which the REST API may return
     // as "TRUE"/"FALSE" strings, JSON true/false (rendered "true"/"false"), or 1/0.
-    private static bool ParseArBool(string value)
+    internal static bool ParseArBool(string value)
     {
         if (string.IsNullOrWhiteSpace(value)) return false;
         var v = value.Trim();
@@ -3209,7 +1844,7 @@ public class ActiveRolesService
                         return GetAttr(item, "displayName") is { Length: > 0 } dn ? dn : GetAttr(item, "name");
                     }
 
-                    // The stored objectSid may also be Base64 � decode and compare
+                    // The stored objectSid may also be Base64 ï¿½ decode and compare
                     try
                     {
                         var itemSidBytes = Convert.FromBase64String(itemSid);
@@ -3357,203 +1992,6 @@ public class ActiveRolesService
         }
         catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
         return result;
-    }
-
-    public async Task<NoGroupOwnerSummary> GetNoGroupOwnerAsync(string token, string baseDn, string filter)
-    {
-        var result = new NoGroupOwnerSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.NoGroupOwner.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new NoGroupOwnerInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetNoManagerUserAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await SearchObjectsAsync(token, baseDn, filter, "sub", "name,distinguishedName");
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetNoManagerServiceAccountAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.NoManagerServiceAccount.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetServiceAccountsAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.ServiceAccounts.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetGmsaServiceAccountsAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.GmsaServiceAccounts.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetSmsaServiceAccountsAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.SmsaServiceAccounts.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetUserAccountExpiredAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.ExpiredUsers.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetUserAccountLockedOutAsync(string token, string baseDn, string filter)
-    {        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.UserAccountLockedOut.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<GovernanceKpiSummary> GetEmptyGroupsAsync(string token, string baseDn, string filter)
-    {
-        var result = new GovernanceKpiSummary();
-        try
-        {
-            var items = await ExecuteKpiSearchAsync(token, KpiInfo.EmptyGroups.Searches[0], baseDn, filter);
-            result.TotalCount = items.Count;
-            result.Items = items.Select(i => new GovernanceKpiInfo
-            {
-                Name = GetAttr(i, "name"),
-                Domain = GetAttr(i, "edsaDomainNetbiosName"),
-                Dn = GetAttr(i, "distinguishedName"),
-                Guid = GetAttr(i, "objectGuid")
-            }).ToList();
-        }
-        catch (Exception ex) { result.Error = $"No data ({ex.GetType().Name}: {ex.Message})"; }
-        return result;
-    }
-
-    public async Task<PrivilegedGroupSummary> GetAccountOperatorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Account Operators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetAdministratorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Administrators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetBackupOperatorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Backup Operators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetDomainAdminsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Domain Admins");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetServerOperatorsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Server Operators");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetEnterpriseAdminsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Enterprise Admins");
-    }
-
-    public async Task<PrivilegedGroupSummary> GetSchemaAdminsAsync(string token)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, "Schema Admins");
     }
 
     public async Task<GovernanceKpiSummary> GetInfrastructureKpiAsync(string token, KpiInfo kpi)
@@ -3887,12 +2325,12 @@ public class ActiveRolesService
     }
 
     /// <summary>Extracts the first CN component from a distinguished name, falling back to the raw value.</summary>
-    private static string GetCnFromDn(string dn)
+    internal static string GetCnFromDn(string dn)
     {
         if (string.IsNullOrEmpty(dn))
             return dn;
-        var match = System.Text.RegularExpressions.Regex.Match(dn, @"^CN=([^,]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        return match.Success ? match.Groups[1].Value.Replace("\\,", ",") : dn;
+        var match = System.Text.RegularExpressions.Regex.Match(dn, @"^CN=((?:\\.|[^,\\])+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return match.Success ? System.Text.RegularExpressions.Regex.Replace(match.Groups[1].Value, @"\\(.)", "$1") : dn;
     }
 
     /// <summary>
@@ -3935,7 +2373,7 @@ public class ActiveRolesService
     private static bool TryDecodeBase64(string value, out byte[] bytes)
     {
         bytes = [];
-        // SDDL always starts with an owner/DACL token like "O:" or "D:" � never valid SD base64.
+        // SDDL always starts with an owner/DACL token like "O:" or "D:" ï¿½ never valid SD base64.
         if (value.StartsWith("O:", StringComparison.Ordinal) || value.StartsWith("D:", StringComparison.Ordinal))
             return false;
         var buffer = new byte[((value.Length + 3) / 4) * 3];
@@ -3971,11 +2409,6 @@ public class ActiveRolesService
             return true;
 
         return false;
-    }
-
-    public async Task<PrivilegedGroupSummary> GetActiveRolesAdminsAsync(string token, string baseDn, string filter)
-    {
-        return await GetPrivilegedGroupMembersAsync(token, baseDn, filter);
     }
 
     public async Task<bool> IsUserActiveRolesAdminAsync(string token, string username)
@@ -4292,7 +2725,7 @@ public class ActiveRolesService
     {
         if (string.IsNullOrEmpty(dn)) return dn;
 
-        // Find the first ",CN=" segment after a "DC=" segment � that indicates
+        // Find the first ",CN=" segment after a "DC=" segment ï¿½ that indicates
         // the start of the Active Roles virtual tree namespace suffix.
         var dcIndex = dn.IndexOf(",DC=", StringComparison.OrdinalIgnoreCase);
         if (dcIndex < 0) return dn;
@@ -4312,7 +2745,7 @@ public class ActiveRolesService
             }
             else if (nextSegment.StartsWith("CN=", StringComparison.OrdinalIgnoreCase))
             {
-                // Non-DC component after DCs � this is the virtual tree suffix
+                // Non-DC component after DCs ï¿½ this is the virtual tree suffix
                 return dn[..nextComma];
             }
             else
@@ -4322,12 +2755,6 @@ public class ActiveRolesService
         }
 
         return dn;
-    }
-
-    private async Task<PrivilegedGroupSummary> GetPrivilegedGroupMembersAsync(string token, string groupName)
-    {
-        var config = _configMonitor.CurrentValue;
-        return await GetPrivilegedGroupMembersAsync(token, config.DefaultActiveDirectoryDN, $"(&(objectClass=group)(name={groupName}))");
     }
 
     private async Task<PrivilegedGroupSummary> GetPrivilegedGroupMembersAsync(string token, string baseDn, string filter)
@@ -4443,7 +2870,7 @@ public class ActiveRolesService
         return dn;
     }
 
-    private static ManagedObjectDataPoint? ParseStatisticsRun(string xml)
+    internal static ManagedObjectDataPoint? ParseStatisticsRun(string xml)
     {
         if (string.IsNullOrWhiteSpace(xml))
             return null;
@@ -4839,6 +3266,80 @@ public class ActiveRolesService
         return allItems;
     }
 
+    /// <summary>
+    /// Collects definition datasets through the same paged REST search used by the hand-written
+    /// collection methods, so generic and legacy retrieval share paging, logging and scoping.
+    /// When <paramref name="summary"/> is supplied, its raw user and computer items provide the
+    /// permission-scope attributes of non-group members in fixed-object datasets.
+    /// </summary>
+    public Task<IReadOnlyDictionary<string, Models.Definitions.DatasetResult>> CollectDatasetsAsync(
+        string token, Definitions.DatasetCollector collector, IEnumerable<string> datasetIds, DashboardSummary? summary = null) =>
+        collector.CollectAsync(datasetIds, _configMonitor.CurrentValue, async r =>
+        {
+            var items = await SearchObjectsAsync(token, r.Base, r.Filter, r.Scope, string.Join(",", r.Attributes), $"Dataset:{r.DatasetId}");
+            if (!r.ExpandMembers)
+                return items;
+
+            // Fixed-object datasets: expand the located groups into direct and indirect members,
+            // matching the legacy privileged group collection.
+            var groups = await GetADGroupsForMembershipAsync(token);
+            if (groups.Error != null)
+                throw new InvalidOperationException(groups.Error);
+            var byDn = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
+            foreach (var g in groups.Items
+                .Concat(summary?.ADUserAccounts?.Items ?? [])
+                .Concat(summary?.Computers?.Items ?? []))
+            {
+                var dn = GetAttr(g, "distinguishedName");
+                if (!string.IsNullOrEmpty(dn)) byDn.TryAdd(dn, g);
+            }
+
+            return Definitions.MembershipExpander.Expand(items,
+                dn => groups.IndirectByDn.TryGetValue(dn, out var m) ? m : null,
+                dn => byDn.TryGetValue(dn, out var raw) ? raw : null);
+        }, new DirectoryLookup(this, token));
+
+    /// <summary>Directory lookups for dataset enrichments, reusing the legacy collectors' helpers.</summary>
+    private sealed class DirectoryLookup(ActiveRolesService service, string token) : Definitions.IDirectoryLookup
+    {
+        public Task<bool> GuidExistsAsync(string guid) => service.GuidExistsAsync(token, guid);
+        public Task<string> ResolveSidAsync(string sid) => service.ResolveSidToNameAsync(token, sid);
+        public Task<bool> IsUserSidAsync(string sid) => service.IsUserTrusteeAsync(token, sid);
+        public Task<bool> IsRootScopeAsync(string guid) => service.IsRootScopeAsync(token, guid);
+        public Task<string> ResolveGuidNameAsync(string guid) => service.ResolveGuidToNameAsync(token, guid);
+
+        public async Task<int> CountDescendantsAsync(string dn)
+        {
+            var children = await service.SearchObjectsAsync(token, dn, "(objectClass=*)", "sub", "name,distinguishedName");
+            return children.Count(i => !string.Equals(GetAttr(i, "distinguishedName"), dn, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // One GET per mailbox returns both descriptors; the Send As and Full Access datasets share it.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<Task<MailboxDescriptors?>>> _mailboxes = new(StringComparer.OrdinalIgnoreCase);
+
+        public async Task<IReadOnlyList<string>?> MailboxGranteesAsync(string objectGuid, string? ownerSid, string right)
+        {
+            // Lazy ensures concurrent callers (both datasets run in parallel) share a single GET.
+            var descriptors = await _mailboxes.GetOrAdd(objectGuid, g => new Lazy<Task<MailboxDescriptors?>>(() => LoadMailboxAsync(g))).Value;
+            if (string.Equals(right, "FullAccess", StringComparison.OrdinalIgnoreCase))
+                return descriptors?.Mailbox is { } mailbox ? service.GetExplicitNonSystemFullAccessSids(mailbox, ownerSid) : null;
+            return descriptors?.Object is { } obj ? service.GetExplicitNonSystemSendAsSids(obj, ownerSid) : null;
+        }
+
+        private async Task<MailboxDescriptors?> LoadMailboxAsync(string objectGuid)
+        {
+            using var doc = await service.GetObjectDetailsAsync(token, objectGuid, "nTSecurityDescriptor,msExchMailboxSecurityDescriptor");
+            if (doc == null) return null;
+            return new MailboxDescriptors(
+                service.TryBuildSecurityDescriptor(doc.RootElement, "nTSecurityDescriptor"),
+                service.TryBuildSecurityDescriptor(doc.RootElement, "msExchMailboxSecurityDescriptor"));
+        }
+
+        private sealed record MailboxDescriptors(
+            System.Security.AccessControl.RawSecurityDescriptor? Object,
+            System.Security.AccessControl.RawSecurityDescriptor? Mailbox);
+    }
+
     private static string BuildAttributesQuery(string attributes)
     {
         var attrs = attributes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -4878,7 +3379,7 @@ public class ActiveRolesService
         return false;
     }
 
-    private static int CountApeRules(string xml)
+    internal static int CountApeRules(string xml)
     {
         if (string.IsNullOrWhiteSpace(xml))
             return 0;
@@ -4893,7 +3394,7 @@ public class ActiveRolesService
         }
     }
 
-    private static string GetFriendlyOSName(string operatingSystem, string operatingSystemVersion)
+    internal static string GetFriendlyOSName(string operatingSystem, string operatingSystemVersion)
     {
         bool isServer = operatingSystem.Contains("server", StringComparison.OrdinalIgnoreCase);
 

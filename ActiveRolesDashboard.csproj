@@ -96,4 +96,12 @@
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- KPI and category definitions are compiled in as embedded resources; edits are made
+         through the App_Data override layer, not by changing the published files. -->
+    <Content Remove="Definitions\**" />
+    <EmbeddedResource Include="Definitions\*.definitions.json" LogicalName="ActiveRolesDashboard.Definitions.%(Filename)%(Extension)" />
+    <None Include="Definitions\definitions.schema.json" />
+  </ItemGroup>
+
 </Project>

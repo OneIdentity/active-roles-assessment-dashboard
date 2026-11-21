@@ -99,9 +99,6 @@ public class PermissionFilteringTests
                 ],
                 TotalCount = 2
             },
-            KrbtgtPasswordAge = new SecurityHealthSummary { Value = 400, Domain = "PROD" },
-            WeakPasswordLength = new SecurityHealthSummary { Value = 6, Domain = "DEV" },
-            PasswordComplexityDisabled = new SecurityHealthSummary { Value = 1 },
             ExchangeKpis = { ["mailboxes"] = new GovernanceKpiSummary { Items = [], TotalCount = 0 } }
         };
     }
@@ -157,7 +154,6 @@ public class PermissionFilteringTests
         Assert.Empty(s.ADUserAccounts.Items);
         Assert.Equal(0, s.ADUserAccounts.TotalCount);
         Assert.Empty(s.Domains.Items);
-        Assert.Equal(0, s.KrbtgtPasswordAge.Value);
         Assert.False(s.LicensingVisible);
         Assert.False(s.ExchangeVisible);
     }
@@ -216,19 +212,6 @@ public class PermissionFilteringTests
         var s = Filter.Filter(Superset(), Viewer(ViewerSid), StandardModel());
 
         Assert.Equal("collection failed", s.DisabledUsers.Error);
-    }
-
-    [Fact]
-    public void Security_health_signals_follow_domain_visibility()
-    {
-        var s = Filter.Filter(Superset(), Viewer(ViewerSid), StandardModel());
-
-        Assert.Equal(["PROD"], s.Domains.Items.Select(d => d.Name));
-        Assert.Equal(400, s.KrbtgtPasswordAge.Value);
-        Assert.Null(s.KrbtgtPasswordAge.Error);
-        Assert.NotNull(s.WeakPasswordLength.Error);           // DEV is hidden
-        Assert.Equal(0, s.WeakPasswordLength.Value);
-        Assert.NotNull(s.PasswordComplexityDisabled.Error);   // no domain context
     }
 
     [Fact]
@@ -303,5 +286,42 @@ public class PermissionFilteringTests
     public void Licensing_is_hidden_when_no_probe_was_captured()
     {
         Assert.False(StandardModel().GrantsLicensingVisibility(Viewer(ViewerSid)));
+    }
+
+    [Fact]
+    public void Definition_datasets_are_filtered_and_kpi_results_recomputed_per_viewer()
+    {
+        var registry = new ActiveRolesDashboard.Models.Definitions.DefinitionRegistry(new ActiveRolesDashboard.Models.Definitions.DefinitionSet
+        {
+            Categories = [new ActiveRolesDashboard.Models.Definitions.CategoryDefinition { Id = "Cat", DashboardId = "Main" }],
+            Kpis =
+            [
+                new ActiveRolesDashboard.Models.Definitions.DerivedKpi
+                {
+                    Id = "AllExtra", CategoryId = "Cat", SourceDatasetId = "Extra",
+                    Evaluation = new ActiveRolesDashboard.Models.Definitions.EvaluationDefinition()
+                },
+                new ActiveRolesDashboard.Models.Definitions.DerivedKpi
+                {
+                    Id = "AllUsers", CategoryId = "Cat", SourceDatasetId = "ADUserAccounts",
+                    Evaluation = new ActiveRolesDashboard.Models.Definitions.EvaluationDefinition()
+                }
+            ]
+        });
+        var calculator = new ActiveRolesDashboard.Services.Definitions.DefinitionKpiCalculator(registry,
+            new ActiveRolesDashboard.Models.Definitions.Evaluation.KpiEvaluator(new ActiveRolesDashboard.Models.Definitions.Evaluation.KpiFunctionRegistry()));
+        var superset = Superset();
+        superset.CollectedDatasets["Extra"] = new([Raw("visible-user", "user", UsersLink), Raw("hidden", "user", OtherTrusteeLink)], null);
+        calculator.Populate(superset, new KpiSettings(), new() { Now = DateTimeOffset.UtcNow });
+        Assert.Equal(2, superset.KpiResults["AllExtra"].Value);
+
+        var s = new PerUserDashboardFilter(calculator).Filter(superset, Viewer(ViewerSid), StandardModel());
+
+        Assert.Single(s.CollectedDatasets["Extra"].Items);
+        Assert.Equal(1, s.KpiResults["AllExtra"].Value);
+        Assert.Equal(s.ADUserAccounts.Items.Count, s.KpiResults["AllUsers"].Value);
+
+        var zeroed = new PerUserDashboardFilter(calculator).Filter(superset, Viewer("S-1-5-21-1-5555"), StandardModel());
+        Assert.Equal(0, zeroed.KpiResults["AllUsers"].Value);
     }
 }
