@@ -15,16 +15,18 @@ public static class DefinitionCatalog
     public static void Apply(DefinitionRegistry registry)
     {
         var legacyKpis = LegacyKpis.ToDictionary(k => k.Key, StringComparer.OrdinalIgnoreCase);
+        var hidden = registry.Set.Categories.Where(c => c.Kind == CategoryKind.Hidden)
+            .Select(c => c.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var visible = registry.Set.Categories.Where(c => c.Enabled && !hidden.Contains(c.Id)).ToList();
 
         CategoryInfo.Replace(InLegacyOrder(
-            registry.Set.Categories.Where(c => c.Enabled).Select(ToCategory), c => c.Key, LegacyCategories.Select(c => c.Key)));
+            visible.Select(ToCategory), c => c.Key, LegacyCategories.Select(c => c.Key)));
 
-        ChartInfo.All = InLegacyOrder(registry.Set.Categories
-            .Where(c => c.Enabled)
+        ChartInfo.All = InLegacyOrder(visible
             .SelectMany(c => c.Charts.Where(ch => ch.Enabled).Select(ch => ToChart(ch, c.Id))), c => c.Key, LegacyCharts.Select(c => c.Key));
 
         KpiInfo.All = InLegacyOrder(registry.Set.Kpis
-            .Where(k => k.Enabled)
+            .Where(k => k.Enabled && !hidden.Contains(k.CategoryId))
             .Select(k => ToKpi(k, legacyKpis.GetValueOrDefault(k.Id))), k => k.Key, LegacyKpis.Select(k => k.Key));
     }
 

@@ -78,7 +78,7 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             }
         }
 
-        PopulateComposites(summary, results, include);
+        PopulateComposites(results, include);
         summary.KpiResults = results;
         summary.DefinitionDetailTables = tables;
     }
@@ -157,21 +157,15 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
 
     /// <summary>
     /// Combines the results of other KPIs. A composite is only produced once every source has a
-    /// definition result; failed sources are skipped unless all of them failed. Sources still
-    /// computed by legacy code contribute the legacy value until they are migrated.
+    /// definition result; failed sources are skipped unless all of them failed.
     /// </summary>
-    private void PopulateComposites(DashboardSummary summary, Dictionary<string, KpiResult> results, Func<KpiDefinition, bool> include)
+    private void PopulateComposites(Dictionary<string, KpiResult> results, Func<KpiDefinition, bool> include)
     {
         var pending = registry.Set.Kpis.OfType<CompositeKpi>()
             .Where(k => k.Enabled && include(k) && k.Sources.Count > 0)
             .ToList();
 
         var available = new Dictionary<string, KpiResult>(results, StringComparer.OrdinalIgnoreCase);
-        foreach (var source in pending.SelectMany(k => k.Sources).Distinct(StringComparer.OrdinalIgnoreCase).Where(IsLegacyKpi))
-        {
-            var (count, error) = summary.GetLegacyKpiResult(source);
-            available.TryAdd(source, error is null ? new KpiResult(count, null) : KpiResult.Failed(error));
-        }
 
         bool progressed;
         do
@@ -238,15 +232,6 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
         && v.ValueKind == System.Text.Json.JsonValueKind.String
             ? v.GetString()
             : null;
-
-    private bool IsLegacyKpi(string id) =>
-        registry.Kpis.TryGetValue(id, out var kpi) && IsLegacy(kpi switch
-        {
-            DerivedKpi d => d.Evaluation,
-            SearchKpi s => s.Evaluation,
-            ObjectKpi o => o.Evaluation,
-            _ => new EvaluationDefinition { Type = EvaluationType.Expression }
-        });
 
     private static bool IsLegacy(EvaluationDefinition? evaluation) =>
         evaluation is null

@@ -111,18 +111,6 @@ public sealed class PerUserDashboardFilter(
         s.Domains = FilterDomains(superset.Domains, user, model);
         s.Servers = FilterServers(superset.Servers, user, model);
 
-        // --- Scalar security-health signals: scope by visible domains --------
-        var visibleDomains = s.Domains.Items
-            .Select(d => d.Name)
-            .Where(n => !string.IsNullOrEmpty(n))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        s.KrbtgtPasswordAge = ScopeSecurityHealth(superset.KrbtgtPasswordAge, visibleDomains);
-        s.WeakPasswordLength = ScopeSecurityHealth(superset.WeakPasswordLength, visibleDomains);
-        s.PasswordComplexityDisabled = ScopeSecurityHealth(superset.PasswordComplexityDisabled, visibleDomains);
-        s.NoAccountLockout = ScopeSecurityHealth(superset.NoAccountLockout, visibleDomains);
-        s.PasswordMaxAgeDays = ScopeSecurityHealth(superset.PasswordMaxAgeDays, visibleDomains);
-
         // --- Exchange KPIs ---------------------------------------------------
         // Each Exchange KPI is a GovernanceKpiSummary of IPermissionScoped drilldown items, so it is
         // filtered with the same per-object visibility walk as the other governance families and the
@@ -242,20 +230,6 @@ public sealed class PerUserDashboardFilter(
         if (src.Error != null) return src;
         var items = PermissionScope.VisibleItems(src.Items, u, m);
         return new ServerSummary { Items = items, TotalCount = items.Count };
-    }
-
-    /// <summary>
-    /// Keeps a scalar security-health signal only when its measured domain is visible to the viewer.
-    /// Signals with no domain context (or measured against a hidden domain) are suppressed for
-    /// non-admins by returning an empty (no-value) summary.
-    /// </summary>
-    private static SecurityHealthSummary ScopeSecurityHealth(SecurityHealthSummary? src, ISet<string> visibleDomains)
-    {
-        if (src == null) return new SecurityHealthSummary();
-        if (src.Error != null) return src;
-        if (!string.IsNullOrEmpty(src.Domain) && visibleDomains.Contains(src.Domain))
-            return src;
-        return new SecurityHealthSummary { Error = "Not visible", Domain = src.Domain };
     }
 
     // ----- reflection-free accessors for the raw JsonElement summaries -------

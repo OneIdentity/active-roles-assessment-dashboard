@@ -99,9 +99,6 @@ public class PermissionFilteringTests
                 ],
                 TotalCount = 2
             },
-            KrbtgtPasswordAge = new SecurityHealthSummary { Value = 400, Domain = "PROD" },
-            WeakPasswordLength = new SecurityHealthSummary { Value = 6, Domain = "DEV" },
-            PasswordComplexityDisabled = new SecurityHealthSummary { Value = 1 },
             ExchangeKpis = { ["mailboxes"] = new GovernanceKpiSummary { Items = [], TotalCount = 0 } }
         };
     }
@@ -157,7 +154,6 @@ public class PermissionFilteringTests
         Assert.Empty(s.ADUserAccounts.Items);
         Assert.Equal(0, s.ADUserAccounts.TotalCount);
         Assert.Empty(s.Domains.Items);
-        Assert.Equal(0, s.KrbtgtPasswordAge.Value);
         Assert.False(s.LicensingVisible);
         Assert.False(s.ExchangeVisible);
     }
@@ -216,19 +212,6 @@ public class PermissionFilteringTests
         var s = Filter.Filter(Superset(), Viewer(ViewerSid), StandardModel());
 
         Assert.Equal("collection failed", s.DisabledUsers.Error);
-    }
-
-    [Fact]
-    public void Security_health_signals_follow_domain_visibility()
-    {
-        var s = Filter.Filter(Superset(), Viewer(ViewerSid), StandardModel());
-
-        Assert.Equal(["PROD"], s.Domains.Items.Select(d => d.Name));
-        Assert.Equal(400, s.KrbtgtPasswordAge.Value);
-        Assert.Null(s.KrbtgtPasswordAge.Error);
-        Assert.NotNull(s.WeakPasswordLength.Error);           // DEV is hidden
-        Assert.Equal(0, s.WeakPasswordLength.Value);
-        Assert.NotNull(s.PasswordComplexityDisabled.Error);   // no domain context
     }
 
     [Fact]

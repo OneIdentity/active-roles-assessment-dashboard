@@ -87,6 +87,8 @@ internal static class BuiltInFunctions
         ["friendlyOsName"] = (2, 2, (a, _) => Services.ActiveRolesService.GetFriendlyOSName(ExprValue.Text(a[0]), ExprValue.Text(a[1]))),
         ["homeTenant"] = (1, 1, (a, _) => EntraTotalsSummary.HomeTenantOfUpn(ExprValue.Text(a[0]))),
         ["iif"] = (3, 3, (a, _) => ExprValue.Truthy(a[0]) ? a[1] : a[2]),
+        ["abs"] = (1, 1, (a, _) => ExprValue.Number(a[0]) is { } n ? Math.Abs(n) : null),
+        ["round"] = (1, 1, (a, _) => ExprValue.Number(a[0]) is { } n ? Math.Round(n) : null),
         // cnList(dns): distinct common names of DN values, comma-separated.
         ["cnList"] = (1, 1, (a, _) => string.Join(", ", ExprValue.List(a[0]).Select(Services.ActiveRolesService.GetCnFromDn)
             .Where(n => !string.IsNullOrEmpty(n)).Distinct(StringComparer.OrdinalIgnoreCase))),

@@ -26,6 +26,7 @@ public class KpiExclusionServiceTests
             TotalCount = totalCount,
             Items = names.Select(n => new ADUserAccountDetailInfo { Name = n, Domain = "test.local", Dn = $"CN={n},OU=Users,DC=test,DC=local" }).ToList()
         };
+        summary.KpiResults[Kpi] = new Models.Definitions.KpiResult(totalCount, null);
         return summary;
     }
 
@@ -105,7 +106,7 @@ public class KpiExclusionServiceTests
     {
         var service = Create(["*"]);
         var summary = Summary(2, "a", "b");
-        summary.PasswordNotRequired.Error = "boom";
+        summary.KpiResults[Kpi] = new Models.Definitions.KpiResult(2, "boom");
         Assert.Equal((2, "boom", false), service.Evaluate(summary, Kpi));
     }
 

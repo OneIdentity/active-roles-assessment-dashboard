@@ -11,49 +11,15 @@ public class EmbeddedDefinitionFileTests
 
     private static readonly Assembly AppAssembly = typeof(DefinitionSet).Assembly;
 
-    /// <summary>
-    /// Regenerates <c>Definitions/*.definitions.json</c> from the compiled-in instances.
-    /// Runs only when <c>AR_REGENERATE_DEFINITIONS=1</c>; otherwise it is a no-op.
-    /// </summary>
-    [Fact]
-    public void Regenerate_definition_files_when_requested()
-    {
-        if (Environment.GetEnvironmentVariable("AR_REGENERATE_DEFINITIONS") != "1")
-        {
-            return;
-        }
-
-        var folder = Path.Combine(FindRepoRoot(), "Definitions");
-        Directory.CreateDirectory(folder);
-        foreach (var (dashboard, set) in LegacyDefinitionExporter.ExportByDashboard())
-        {
-            File.WriteAllText(Path.Combine(folder, dashboard + ResourceSuffix), DefinitionJson.Serialize(set) + Environment.NewLine);
-        }
-    }
-
-    [Fact]
-    public void Embedded_files_match_compiled_in_definitions()
-    {
-        var expected = LegacyDefinitionExporter.ExportByDashboard();
-        var embedded = LoadEmbedded();
-
-        Assert.Equal(expected.Keys.Order(StringComparer.OrdinalIgnoreCase), embedded.Keys.Order(StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase);
-        foreach (var (dashboard, set) in expected)
-        {
-            Assert.True(
-                DefinitionJson.Serialize(set) == DefinitionJson.Serialize(embedded[dashboard]),
-                $"Definitions/{dashboard}{ResourceSuffix} is out of date. Regenerate with AR_REGENERATE_DEFINITIONS=1.");
-        }
-    }
-
     [Fact]
     public void Embedded_files_contain_every_kpi_category_and_chart()
     {
         var sets = LoadEmbedded().Values.ToList();
+        var hidden = sets.SelectMany(s => s.Categories).Where(c => c.Kind == CategoryKind.Hidden).Select(c => c.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var kpis = sets.SelectMany(s => s.Kpis).ToList();
-        var categories = sets.SelectMany(s => s.Categories).ToList();
+        var categories = sets.SelectMany(s => s.Categories).Where(c => !hidden.Contains(c.Id)).ToList();
 
-        Assert.Equal(Models.KpiInfo.All.Count, kpis.Count);
+        Assert.Equal(Models.KpiInfo.All.Count, kpis.Count(k => !hidden.Contains(k.CategoryId)));
         Assert.Equal(Models.CategoryInfo.All.Count, categories.Count);
         Assert.Equal(Models.ChartInfo.All.Count, categories.SelectMany(c => c.Charts).Count());
         Assert.Equal(kpis.Count, kpis.Select(k => k.Id).Distinct(StringComparer.OrdinalIgnoreCase).Count());

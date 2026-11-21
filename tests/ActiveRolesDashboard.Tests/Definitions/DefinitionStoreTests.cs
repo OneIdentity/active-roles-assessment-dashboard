@@ -20,8 +20,9 @@ public sealed class DefinitionStoreTests : IDisposable
         var store = new DefinitionStore(sets, null);
 
         Assert.Empty(DefinitionValidator.Validate(store.Registry.Set));
-        Assert.Equal(Models.KpiInfo.All.Count, store.Registry.Kpis.Count);
-        Assert.Equal(Models.CategoryInfo.All.Count, store.Registry.Categories.Count);
+        var hidden = store.Registry.Set.Categories.Where(c => c.Kind == CategoryKind.Hidden).Select(c => c.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(Models.KpiInfo.All.Count, store.Registry.Kpis.Values.Count(k => !hidden.Contains(k.CategoryId)));
+        Assert.Equal(Models.CategoryInfo.All.Count, store.Registry.Categories.Values.Count(c => !hidden.Contains(c.Id)));
         Assert.False(store.OverridesApplied);
         Assert.False(store.HasPendingChanges);
     }

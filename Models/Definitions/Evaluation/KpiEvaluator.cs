@@ -67,6 +67,12 @@ public sealed class KpiEvaluator(KpiFunctionRegistry functions)
 
         if (evaluation.Aggregate == AggregateFunction.Count) return selected.Count;
 
+        if (!string.IsNullOrWhiteSpace(evaluation.AggregateExpression) && evaluation.Aggregate != AggregateFunction.DistinctCount)
+        {
+            var expr = Parse(evaluation.AggregateExpression);
+            return Aggregate(evaluation.Aggregate, selected.Select(i => ExprValue.Number(ExpressionEvaluator.Evaluate(expr, i, context))));
+        }
+
         var attr = evaluation.AggregateAttribute
             ?? throw new ExpressionException($"Aggregate {evaluation.Aggregate} requires aggregateAttribute.");
         var values = selected.Select(i => ExpressionEvaluator.ReadAttribute(i, attr));
@@ -74,9 +80,14 @@ public sealed class KpiEvaluator(KpiFunctionRegistry functions)
         if (evaluation.Aggregate == AggregateFunction.DistinctCount)
             return values.SelectMany(ExprValue.List).Distinct(StringComparer.OrdinalIgnoreCase).Count();
 
-        var numbers = values.Select(ExprValue.Number).Where(n => n.HasValue).Select(n => n!.Value).ToList();
+        return Aggregate(evaluation.Aggregate, values.Select(ExprValue.Number));
+    }
+
+    private static long Aggregate(AggregateFunction aggregate, IEnumerable<double?> values)
+    {
+        var numbers = values.Where(n => n.HasValue).Select(n => n!.Value).ToList();
         if (numbers.Count == 0) return 0;
-        return (long)(evaluation.Aggregate switch
+        return (long)(aggregate switch
         {
             AggregateFunction.Sum => numbers.Sum(),
             AggregateFunction.Min => numbers.Min(),

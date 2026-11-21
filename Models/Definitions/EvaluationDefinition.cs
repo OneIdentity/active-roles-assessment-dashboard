@@ -18,6 +18,9 @@ public sealed class EvaluationDefinition
     /// <summary>Attribute used by DistinctCount/Sum/Min/Max.</summary>
     public string? AggregateAttribute { get; init; }
 
+    /// <summary>Expression computing the per-item value aggregated by Sum/Min/Max (alternative to AggregateAttribute).</summary>
+    public string? AggregateExpression { get; init; }
+
     /// <summary>Registered transform function name (Function type).</summary>
     public string? Function { get; init; }
 

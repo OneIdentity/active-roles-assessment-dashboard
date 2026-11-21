@@ -43,7 +43,8 @@ public class AssessmentServiceTests : IDisposable
 
     private static DashboardSummary WithPasswordNotRequired(int count, string? error = null) => new()
     {
-        PasswordNotRequired = new ADUserAccountDetailSummary { TotalCount = count, Error = error }
+        PasswordNotRequired = new ADUserAccountDetailSummary { TotalCount = count, Error = error },
+        KpiResults = { ["PasswordNotRequired"] = new Models.Definitions.KpiResult(count, error) }
     };
 
     // --- Rule library -----------------------------------------------------------
@@ -120,7 +121,7 @@ public class AssessmentServiceTests : IDisposable
     [Fact]
     public void Errored_kpi_is_not_applicable_and_excluded_from_score()
     {
-        var baseline = _service.Evaluate(new DashboardSummary(), AssessmentType.ActiveDirectory);
+        var baseline = _service.Evaluate(WithPasswordNotRequired(0), AssessmentType.ActiveDirectory);
         var result = _service.Evaluate(WithPasswordNotRequired(50, "LDAP timeout"), AssessmentType.ActiveDirectory);
         var check = Check(result, "SEC-PasswordNotRequired");
 
@@ -133,7 +134,7 @@ public class AssessmentServiceTests : IDisposable
     [Fact]
     public void Failing_critical_rule_lowers_score()
     {
-        var clean = _service.Evaluate(new DashboardSummary(), AssessmentType.ActiveDirectory);
+        var clean = _service.Evaluate(WithPasswordNotRequired(0), AssessmentType.ActiveDirectory);
         var failing = _service.Evaluate(WithPasswordNotRequired(3), AssessmentType.ActiveDirectory);
 
         Assert.True(failing.Score < clean.Score);
@@ -146,7 +147,8 @@ public class AssessmentServiceTests : IDisposable
         _config.KpiExclusions.Global = ["svc_*"];
         var summary = new DashboardSummary
         {
-            PasswordNotRequired = new ADUserAccountDetailSummary { TotalCount = 1, Items = [new() { Name = "svc_x", Dn = "CN=svc_x" }] }
+            PasswordNotRequired = new ADUserAccountDetailSummary { TotalCount = 1, Items = [new() { Name = "svc_x", Dn = "CN=svc_x" }] },
+            KpiResults = { ["PasswordNotRequired"] = new Models.Definitions.KpiResult(1, null) }
         };
 
         Assert.Equal(AssessmentStatus.Pass, Check(_service.Evaluate(summary, AssessmentType.ActiveDirectory), "SEC-PasswordNotRequired").Status);
@@ -251,7 +253,7 @@ public class AssessmentServiceTests : IDisposable
     public void Compare_classifies_improved_worsened_unchanged()
     {
         var bad = _service.Evaluate(WithPasswordNotRequired(3), AssessmentType.ActiveDirectory);
-        var good = _service.Evaluate(new DashboardSummary(), AssessmentType.ActiveDirectory);
+        var good = _service.Evaluate(WithPasswordNotRequired(0), AssessmentType.ActiveDirectory);
 
         var improved = _service.Compare(bad, good, toIsCurrent: true);
         var row = improved.Categories.SelectMany(c => c.Rows).Single(r => r.RuleId == "SEC-PasswordNotRequired");

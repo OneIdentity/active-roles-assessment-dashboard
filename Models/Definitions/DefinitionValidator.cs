@@ -93,8 +93,15 @@ public static class DefinitionValidator
             catch (Evaluation.ExpressionException ex) { errors.Add($"{name} filter is invalid: {ex.Message}"); }
         }
 
-        if (e.Aggregate != AggregateFunction.Count && string.IsNullOrWhiteSpace(e.AggregateAttribute))
-            errors.Add($"{name} aggregate {e.Aggregate} requires aggregateAttribute.");
+        if (!string.IsNullOrWhiteSpace(e.AggregateExpression))
+        {
+            if (e.Aggregate is AggregateFunction.Count or AggregateFunction.DistinctCount)
+                errors.Add($"{name} aggregateExpression is not supported with aggregate {e.Aggregate}.");
+            try { Evaluation.ExpressionParser.Parse(e.AggregateExpression); }
+            catch (Evaluation.ExpressionException ex) { errors.Add($"{name} aggregateExpression is invalid: {ex.Message}"); }
+        }
+        else if (e.Aggregate != AggregateFunction.Count && string.IsNullOrWhiteSpace(e.AggregateAttribute))
+            errors.Add($"{name} aggregate {e.Aggregate} requires aggregateAttribute or aggregateExpression.");
     }
 
     private static void ValidateDrilldown(DrilldownDefinition d, string name, List<string> errors)

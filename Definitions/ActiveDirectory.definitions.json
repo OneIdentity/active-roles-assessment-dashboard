@@ -335,9 +335,45 @@
       "kpiSortOrder": "AtoZ",
       "sortOrder": 7,
       "fallbackText": "NHIs"
+    },
+    {
+      "id": "Assessment",
+      "dashboardId": "ActiveDirectory",
+      "kind": "Hidden",
+      "sortOrder": 99,
+      "fallbackText": "Assessment Signals"
     }
   ],
   "datasets": [
+    {
+      "id": "KrbtgtAccounts",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(sAMAccountName=krbtgt)"
+      },
+      "attributes": [
+        "pwdLastSet",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
+    {
+      "id": "DomainPolicies",
+      "dataSource": "ActiveDirectory",
+      "retrieval": {
+        "base": "{DefaultADDN}",
+        "filter": "(objectClass=domainDNS)"
+      },
+      "attributes": [
+        "minPwdLength",
+        "maxPwdAge",
+        "pwdProperties",
+        "lockoutThreshold",
+        "distinguishedName",
+        "edsaDomainNetbiosName"
+      ]
+    },
     {
       "id": "NoGroupOwner",
       "dataSource": "ActiveDirectory",
@@ -609,6 +645,92 @@
     }
   ],
   "kpis": [
+    {
+      "kind": "Search",
+      "id": "KrbtgtPasswordAgeDays",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "KrbtgtAccounts",
+      "evaluation": {
+        "filter": "exists(pwdLastSet) && pwdLastSet != 0",
+        "aggregate": "Max",
+        "aggregateExpression": "daysSince(pwdLastSet)"
+      },
+      "fallbackText": "krbtgt Password Age (days)"
+    },
+    {
+      "kind": "Search",
+      "id": "WeakPasswordLength",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(minPwdLength) && minPwdLength < 12"
+      },
+      "fallbackText": "Domains with Weak Minimum Password Length"
+    },
+    {
+      "kind": "Search",
+      "id": "PasswordComplexityDisabled",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(minPwdLength) && !hasFlag(pwdProperties, 1)"
+      },
+      "fallbackText": "Domains with Password Complexity Disabled"
+    },
+    {
+      "kind": "Search",
+      "id": "NoAccountLockout",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(lockoutThreshold) && (lockoutThreshold == 0 || lockoutThreshold > 10)"
+      },
+      "fallbackText": "Domains with Weak Account Lockout"
+    },
+    {
+      "kind": "Search",
+      "id": "PasswordMaxAgeDays",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "datasetId": "DomainPolicies",
+      "evaluation": {
+        "filter": "exists(maxPwdAge) && maxPwdAge != 0 && maxPwdAge != -9223372036854775808",
+        "aggregate": "Max",
+        "aggregateExpression": "round(abs(maxPwdAge) / 864000000000)"
+      },
+      "fallbackText": "Maximum Password Age (days)"
+    },
+    {
+      "kind": "Composite",
+      "id": "UnsupportedServerOs",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "sources": [ "WinServer2008R2", "WinServer2012R2" ],
+      "aggregate": "Sum",
+      "fallbackText": "Unsupported Server Operating Systems"
+    },
+    {
+      "kind": "Composite",
+      "id": "UnsupportedClientOs",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "sources": [ "Win7", "Win81", "Win10_22H2" ],
+      "aggregate": "Sum",
+      "fallbackText": "Unsupported Client Operating Systems"
+    },
+    {
+      "kind": "Composite",
+      "id": "UnsupportedOs",
+      "categoryId": "Assessment",
+      "dataSource": "ActiveDirectory",
+      "sources": [ "UnsupportedServerOs", "UnsupportedClientOs" ],
+      "aggregate": "Sum",
+      "fallbackText": "Unsupported Operating Systems"
+    },
     {
       "kind": "Derived",
       "id": "AdOverviewUsers",

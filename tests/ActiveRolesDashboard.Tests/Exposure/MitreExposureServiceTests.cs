@@ -163,7 +163,8 @@ public class MitreExposureServiceTests
             {
                 TotalCount = 1,
                 Items = [new() { Name = "svc_legacy", Dn = "CN=svc_legacy" }]
-            }
+            },
+            KpiResults = { ["PasswordNotRequired"] = new Models.Definitions.KpiResult(1, null) }
         };
 
         Assert.Equal(ExposureLevel.None, Technique(_service.Build(summary), "T1110").Level);

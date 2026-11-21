@@ -66,7 +66,8 @@ public class SnapshotServiceTests : IDisposable
             {
                 TotalCount = 2,
                 Items = [new() { Name = "svc_a", Dn = "CN=svc_a" }, new() { Name = "bob", Dn = "CN=bob" }]
-            }
+            },
+            KpiResults = { ["PasswordNotRequired"] = new Models.Definitions.KpiResult(2, null) }
         };
 
         var kpi = _service.Capture(summary, null, null, null).Dashboards

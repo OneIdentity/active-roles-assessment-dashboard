@@ -34,7 +34,9 @@ public enum CategoryKind
 {
     Standard,
     Overview,
-    Risk
+    Risk,
+    /// <summary>Evaluated (e.g. for assessment rules) but never rendered.</summary>
+    Hidden
 }
 
 /// <summary>Ordering applied to the KPIs of a category.</summary>

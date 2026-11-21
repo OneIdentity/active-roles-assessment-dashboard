@@ -2476,13 +2476,6 @@ public class DashboardSummary
     public GovernanceKpiSummary ExchangeKpi(string key) =>
         ExchangeKpis.TryGetValue(key, out var s) ? s : new GovernanceKpiSummary();
 
-    // Tier 2 security-health scalar signals.
-    public SecurityHealthSummary KrbtgtPasswordAge { get; set; } = new();
-    public SecurityHealthSummary WeakPasswordLength { get; set; } = new();
-    public SecurityHealthSummary PasswordComplexityDisabled { get; set; } = new();
-    public SecurityHealthSummary NoAccountLockout { get; set; } = new();
-    public SecurityHealthSummary PasswordMaxAgeDays { get; set; } = new();
-
     /// <summary>
     /// Aggregated count of Entra group-like objects (Security, Microsoft 365,
     /// Distribution, and Dynamic Distribution groups) across all tenants.
@@ -2659,136 +2652,16 @@ public class DashboardSummary
 
     public const string StaleKpiResultError = "Definition result was not re-evaluated after the segment filter was applied";
 
+    public const string KpiNotEvaluatedError = "KPI not evaluated";
+
     /// <summary>
-    /// Returns the count and error for any KPI by key, enabling generic tile rendering. Values come
-    /// from the definition evaluation (<see cref="KpiResults"/>); the hand-written calculation is only
-    /// used when the KPI was not evaluated from a definition at all.
+    /// Returns the count and error for any KPI by key from the definition evaluation
+    /// (<see cref="KpiResults"/>). KPIs that were not evaluated report <see cref="KpiNotEvaluatedError"/>.
     /// </summary>
     public (int Count, string? Error) GetKpiResult(string kpiKey) =>
         KpiResults.TryGetValue(kpiKey, out var result)
             ? ((int)result.Value, result.Error)
-            : GetLegacyKpiResult(kpiKey);
-
-    /// <summary>KPI value computed by the hand-written typed summaries (used for parity checks).</summary>
-    public (int Count, string? Error) GetLegacyKpiResult(string kpiKey) => kpiKey switch
-    {
-        "ADUserAccounts" => GetCombinedResult(ADUserAccounts.TotalCount, ADUserAccounts.Error, EntraTotals.CountFor(EntraObjectType.User), EntraTotals.Error),
-        "ADGroups" => GetCombinedResult(ADGroups.TotalCount, ADGroups.Error, EntraGroupsTotal, EntraTotals.Error),
-        "Computers" => (Computers.TotalCount, Computers.Error),
-        // Main Overview mailbox total: sourced from the already-computed Exchange result.
-        "MainTotalMailboxes" => ExchangeKpis.TryGetValue("ExchangeTotalMailboxes", out var mbx) ? (mbx.TotalCount, mbx.Error) : (0, null),
-
-        // Single-source Overview KPIs (AD-only) for the Active Directory dashboard Overview.
-        "AdOverviewUsers" => (ADUserAccounts.TotalCount, ADUserAccounts.Error),
-        "AdOverviewGroups" => (ADGroups.TotalCount, ADGroups.Error),
-        "AdOverviewComputers" => (Computers.TotalCount, Computers.Error),
-
-        // Single-source Overview KPIs (Entra-only) for the Entra ID dashboard Overview.
-        "EntraOverviewUsers" => (EntraTotals.CountFor(EntraObjectType.User), EntraTotals.Error),
-        "EntraOverviewGroups" => (EntraGroupsTotal, EntraTotals.Error),
-
-        // Entra User Accounts KPIs (derived from the Entra user objects).
-        "EntraEnabledUsers" => (EntraTotals.EntraUsers(enabled: true).TotalCount, EntraTotals.Error),
-        "EntraDisabledUsers" => (EntraTotals.EntraUsers(enabled: false).TotalCount, EntraTotals.Error),
-        "EntraNoManagerUser" => (EntraTotals.EntraUsers(noManager: true).TotalCount, EntraTotals.Error),
-        "EntraGuestUsers" => (EntraTotals.CountFor(EntraObjectType.GuestUser), EntraTotals.Error),
-        "EntraInternalUsers" => (EntraTotals.EntraUsersByOrigin(external: false).TotalCount, EntraTotals.Error),
-        "EntraExternalUsers" => (EntraTotals.EntraUsersByOrigin(external: true).TotalCount, EntraTotals.Error),
-        "EntraHybridUsers" => (EntraTotals.EntraUsers(onPremSynced: true).TotalCount, EntraTotals.Error),
-        "EntraCloudOnlyUsers" => (EntraTotals.EntraUsers(onPremSynced: false).TotalCount, EntraTotals.Error),
-        "EntraManagedUsers" => (EntraTotals.EntraUsers(enabled: true).Items.Count(i => i.IsManaged), EntraTotals.Error),
-        "EntraDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DistributionGroup), EntraTotals.Error),
-        "EntraDynamicDistributionGroups" => (EntraTotals.CountFor(EntraObjectType.DynamicDistributionGroup), EntraTotals.Error),
-        "EntraMicrosoft365Groups" => (EntraTotals.CountFor(EntraObjectType.Microsoft365Group), EntraTotals.Error),
-        "EntraSecurityGroups" => (EntraTotals.CountFor(EntraObjectType.SecurityGroup), EntraTotals.Error),
-        "EntraEmptyGroups" => (EntraTotals.EntraEmptyGroups().TotalCount, EntraTotals.Error),
-        "EntraNoGroupOwner" => (EntraTotals.EntraNoGroupOwnerGroups().TotalCount, EntraTotals.Error),
-        "EntraGuestContainingGroups" => (EntraTotals.EntraGuestContainingGroups().TotalCount, EntraTotals.Error),
-        "EntraPublicGroups" => (EntraTotals.EntraPublicGroups().TotalCount, EntraTotals.Error),
-        "EntraOnPremSyncedGroups" => (EntraTotals.EntraOnPremSyncedGroups().TotalCount, EntraTotals.Error),
-        "EntraSingleOwnerGroups" => (EntraTotals.EntraSingleOwnerGroups().TotalCount, EntraTotals.Error),
-        "EntraLargeGroups" => (EntraTotals.EntraLargeGroups(EntraLargeGroupMemberThreshold).TotalCount, EntraTotals.Error),
-
-        "Servers" => (Servers.TotalCount, Servers.Error),
-        "Domains" => (Domains.TotalCount, Domains.Error),
-        "DynamicGroups" => (DynamicGroups.TotalCount, DynamicGroups.Error),
-        "GroupFamilies" => (GroupFamilies.TotalCount, GroupFamilies.Error),
-        "ConfigDatabases" => (ConfigDatabases.TotalCount, ConfigDatabases.Error),
-        "NoManagerUser" => (NoManagerUser.TotalCount, NoManagerUser.Error),
-        "CircularGroupNesting" => (CircularGroupNesting.TotalCount, CircularGroupNesting.Error),
-        "NeverLoggedIn" => (NeverLoggedIn.TotalCount, NeverLoggedIn.Error),
-        "ExpiredUsers" => (ExpiredUsers.TotalCount, ExpiredUsers.Error),
-        "ReversibleEncryption" => (ReversibleEncryption.TotalCount, ReversibleEncryption.Error),
-        "AdminCount" => (AdminCount.TotalCount, AdminCount.Error),
-        "EnabledUsers" => (EnabledUsers.TotalCount, EnabledUsers.Error),
-        "DisabledUsers" => (DisabledUsers.TotalCount, DisabledUsers.Error),
-        "HybridUsers" => (HybridUsers.TotalCount, HybridUsers.Error),
-        "OnPremOnlyUsers" => (OnPremOnlyUsers.TotalCount, OnPremOnlyUsers.Error),
-        "ManagedEnabledUsers" => (EnabledUsers.Items.Count(i => i.IsManaged), EnabledUsers.Error),
-        "ExpiringUsers" => (ExpiringUsers.TotalCount, ExpiringUsers.Error),
-        "PasswordNeverExpires" => (PasswordNeverExpires.TotalCount, PasswordNeverExpires.Error),
-        "MustChangePassword" => (MustChangePassword.TotalCount, MustChangePassword.Error),
-        "StalePasswords" => (StalePasswords.TotalCount, StalePasswords.Error),
-        "PasswordNotRequired" => (PasswordNotRequired.TotalCount, PasswordNotRequired.Error),
-        "SmartCardRequired" => (SmartCardRequired.TotalCount, SmartCardRequired.Error),
-        "CannotChangePassword" => (CannotChangePassword.TotalCount, CannotChangePassword.Error),
-        "NoKerberosPreauth" => (NoKerberosPreauth.TotalCount, NoKerberosPreauth.Error),
-        "UserReversibleEncryption" => (UserReversibleEncryption.TotalCount, UserReversibleEncryption.Error),
-        "SensitiveCannotDelegate" => (SensitiveCannotDelegate.TotalCount, SensitiveCannotDelegate.Error),
-        "TrustedForDelegation" => (TrustedForDelegation.TotalCount, TrustedForDelegation.Error),
-        "UseDesEncryption" => (UseDesEncryption.TotalCount, UseDesEncryption.Error),
-        "DeprovisionedUsers" => (DeprovisionedUsers.TotalCount, DeprovisionedUsers.Error),
-        "SpnUserAccounts" => (SpnUserAccounts.TotalCount, SpnUserAccounts.Error),
-        "StaleUsers" => (StaleUsers.TotalCount, StaleUsers.Error),
-        "DomainControllers" => (DomainControllers.TotalCount, DomainControllers.Error),
-        "UnconstrainedComputers" => (UnconstrainedComputers.TotalCount, UnconstrainedComputers.Error),
-        "ComputerClients" => (ComputerClients.TotalCount, ComputerClients.Error),
-        "ComputerServers" => (ComputerServers.TotalCount, ComputerServers.Error),
-        "WinServer2008R2" => (WinServer2008R2.TotalCount, WinServer2008R2.Error),
-        "WinServer2012R2" => (WinServer2012R2.TotalCount, WinServer2012R2.Error),
-        "WinServer2016" => (WinServer2016.TotalCount, WinServer2016.Error),
-        "WinServer2019" => (WinServer2019.TotalCount, WinServer2019.Error),
-        "WinServer2022" => (WinServer2022.TotalCount, WinServer2022.Error),
-        "WinServer2025" => (WinServer2025.TotalCount, WinServer2025.Error),
-        "ServerOther" => (ServerOther.TotalCount, ServerOther.Error),
-        "Win7" => (Win7.TotalCount, Win7.Error),
-        "Win81" => (Win81.TotalCount, Win81.Error),
-        "Win10_22H2" => (Win10_22H2.TotalCount, Win10_22H2.Error),
-        "Win11_22H2" => (Win11_22H2.TotalCount, Win11_22H2.Error),
-        "Win11_23H2" => (Win11_23H2.TotalCount, Win11_23H2.Error),
-        "Win11Enterprise" => (Win11Enterprise.TotalCount, Win11Enterprise.Error),
-        "Win11Pro" => (Win11Pro.TotalCount, Win11Pro.Error),
-        "ClientsOther" => (ClientsOther.TotalCount, ClientsOther.Error),
-        "StaleComputers" => (StaleComputers.TotalCount, StaleComputers.Error),
-        "EnabledComputers" => (EnabledComputers.TotalCount, EnabledComputers.Error),
-        "DisabledComputers" => (DisabledComputers.TotalCount, DisabledComputers.Error),
-        "NeverLoggedOnComputers" => (NeverLoggedOnComputers.TotalCount, NeverLoggedOnComputers.Error),
-        "KrbtgtPasswordAgeDays" => (KrbtgtPasswordAge.Value, KrbtgtPasswordAge.Error),
-        "WeakPasswordLength" => (WeakPasswordLength.Value, WeakPasswordLength.Error),
-        "PasswordComplexityDisabled" => (PasswordComplexityDisabled.Value, PasswordComplexityDisabled.Error),
-        "NoAccountLockout" => (NoAccountLockout.Value, NoAccountLockout.Error),
-        "PasswordMaxAgeDays" => (PasswordMaxAgeDays.Value, PasswordMaxAgeDays.Error),
-        "ManagedObjects" => (ManagedObjects.Error != null ? 0 : (ManagedObjects.DataPoints.Any() ? ManagedObjects.DataPoints.Last().Items.Sum(i => i.Count) : 0), ManagedObjects.Error),
-        // Unsupported / end-of-life operating system KPIs aggregated from the OS-breakdown summaries.
-        "UnsupportedServerOs" => GetCombinedResult(WinServer2008R2.TotalCount, WinServer2008R2.Error, WinServer2012R2.TotalCount, WinServer2012R2.Error),
-        "UnsupportedClientOs" => (
-            (Win7.Error ?? Win81.Error ?? Win10_22H2.Error) != null ? 0 : Win7.TotalCount + Win81.TotalCount + Win10_22H2.TotalCount,
-            Win7.Error ?? Win81.Error ?? Win10_22H2.Error),
-        "UnsupportedOs" => (
-            (WinServer2008R2.Error ?? WinServer2012R2.Error ?? Win7.Error ?? Win81.Error ?? Win10_22H2.Error) != null ? 0
-                : WinServer2008R2.TotalCount + WinServer2012R2.TotalCount + Win7.TotalCount + Win81.TotalCount + Win10_22H2.TotalCount,
-            WinServer2008R2.Error ?? WinServer2012R2.Error ?? Win7.Error ?? Win81.Error ?? Win10_22H2.Error),
-        // Exchange KPIs are stored generically keyed by KpiInfo.Key; resolve them from the dictionary.
-        _ => ExchangeKpis.TryGetValue(kpiKey, out var ex) ? (ex.TotalCount, ex.Error) : (0, null)
-    };
-
-    private static (int Count, string? Error) GetCombinedResult(int adCount, string? adError, int entraCount, string? entraError)
-    {
-        // If both fail, show error; if one succeeds, show partial count
-        if (adError != null && entraError != null)
-            return (0, adError);
-        return (adCount + entraCount, null);
-    }
+            : (0, KpiNotEvaluatedError);
 
     /// <summary>
     /// Returns the Active Directory vs Entra ID breakdown for a combined Overview KPI.
@@ -4781,21 +4654,4 @@ public class ComputerBreakdownInfo : IPermissionScoped
 
     [JsonIgnore] public IReadOnlyCollection<string> EffectiveLinkGuids { get; set; } = System.Array.Empty<string>();
     [JsonIgnore] public string ObjectClass { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// A single scalar security-health signal (e.g. krbtgt password age in days, or a
-/// weak-policy indicator encoded as a count). <see cref="Value"/> carries the measured
-/// number consumed by assessment rules via RiskSummary.GetKpiResult.
-/// </summary>
-public class SecurityHealthSummary
-{
-    public int Value { get; set; }
-    public string? Error { get; set; }
-
-    /// <summary>
-    /// The NetBIOS domain this signal was measured against (e.g. krbtgt / password policy live
-    /// per domain). Used to scope the signal by domain visibility for non-admin viewers.
-    /// </summary>
-    public string Domain { get; set; } = string.Empty;
 }

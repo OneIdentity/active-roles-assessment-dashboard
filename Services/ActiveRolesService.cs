@@ -462,14 +462,8 @@ public class ActiveRolesService
 
         await Task.WhenAll(tasks.Select(t => t.Task));
 
-        // Tier 2 security-health signals (krbtgt password age, weak domain password policy,
-        // orphaned adminCount accounts). These are lightweight targeted reads against the
-        // default AD naming context and are best-effort: failures are captured per-summary
-        // and never abort the overall risk summary.
-        await PopulateSecurityHealthAsync(token, summary);
-
         // Stamp per-object permission-scope (effective AT-Link GUIDs + object class) onto the typed
-        // user drilldown lists so the shared superset can be filtered per viewer. The typed items are
+        // user
         // Stamp per-object permission-scope (effective AT-Link GUIDs + object class) onto the typed
         // drilldown lists so the shared superset can be filtered per viewer. Typed items are derived
         // from raw JsonElement sources that carry edsvaATLinksEffective/objectClass (requested
@@ -636,102 +630,6 @@ public class ActiveRolesService
             case DomainInfo d: d.EffectiveLinkGuids = links; d.ObjectClass = objectClass; break;
             case ServerInfo s: s.EffectiveLinkGuids = links; s.ObjectClass = objectClass; break;
             case DomainControllerInfo dc: dc.EffectiveLinkGuids = links; dc.ObjectClass = objectClass; break;
-        }
-    }
-
-    /// <summary>
-    /// Populates Tier 2 security-health signals on the risk summary. Each signal is
-    /// collected best-effort so a failure in one does not affect the others or the
-    /// overall summary. Reads target the default Active Directory naming context.
-    /// </summary>
-    private async Task PopulateSecurityHealthAsync(string token, DashboardSummary summary)
-    {
-        var config = _configMonitor.CurrentValue;
-        var baseDn = config.DefaultActiveDirectoryDN;
-
-        // --- krbtgt password age ---------------------------------------------
-        // A rarely-rotated krbtgt password increases exposure to Golden Ticket attacks.
-        try
-        {
-            var items = await SearchObjectsAsync(token, baseDn, "(sAMAccountName=krbtgt)", "sub", "pwdLastSet,distinguishedName,edsaDomainNetbiosName");
-            var krbtgtItem = items.FirstOrDefault(i => !string.IsNullOrEmpty(GetAttr(i, "pwdLastSet")) && GetAttr(i, "pwdLastSet") != "0");
-            var krbtgtDomain = items.Select(i => GetAttr(i, "edsaDomainNetbiosName")).FirstOrDefault(d => !string.IsNullOrEmpty(d)) ?? string.Empty;
-            var raw = krbtgtItem.ValueKind == JsonValueKind.Object ? GetAttr(krbtgtItem, "pwdLastSet") : null;
-            if (raw != null && long.TryParse(raw, out var val) && val > 0)
-            {
-                var lastSet = DateTime.FromFileTimeUtc(val);
-                var ageDays = (int)Math.Max(0, (DateTime.UtcNow - lastSet).TotalDays);
-                summary.KrbtgtPasswordAge = new SecurityHealthSummary { Value = ageDays, Domain = krbtgtDomain };
-            }
-            else
-            {
-                summary.KrbtgtPasswordAge = new SecurityHealthSummary { Error = "krbtgt pwdLastSet unavailable" };
-            }
-        }
-        catch (Exception ex)
-        {
-            summary.KrbtgtPasswordAge = new SecurityHealthSummary { Error = $"No data ({ex.GetType().Name}: {ex.Message})" };
-        }
-
-        // --- Domain password policy ------------------------------------------
-        // Reads the default domain policy from the domain root object. Weaknesses are
-        // encoded as small counts so the assessment engine's threshold comparison works:
-        // a value of 1 means "weak" (fails a warn/fail threshold of 1), 0 means "adequate".
-        try
-        {
-            // Subtree search for the domain root (domainDNS) object so the default password
-            // policy is found regardless of whether DefaultActiveDirectoryDN points at the domain
-            // root, an OU, or a container. A base-scope read only works when the configured DN is
-            // exactly the domain root, which caused the policy checks to report as unavailable.
-            var items = await SearchObjectsAsync(token, baseDn,
-                "(objectClass=domainDNS)", "sub",
-                "minPwdLength,maxPwdAge,pwdProperties,lockoutThreshold,edsaDomainNetbiosName");
-            var domainItem = items.FirstOrDefault(i =>
-                i.ValueKind == JsonValueKind.Object && !string.IsNullOrEmpty(GetAttr(i, "minPwdLength")));
-            if (domainItem.ValueKind == JsonValueKind.Object)
-            {
-                var domain = domainItem;
-                var domainName = GetAttr(domain, "edsaDomainNetbiosName");
-                var minLen = int.TryParse(GetAttr(domain, "minPwdLength"), out var ml) ? ml : -1;
-                var pwdProps = long.TryParse(GetAttr(domain, "pwdProperties"), out var pp) ? pp : 0;
-                var lockoutThreshold = int.TryParse(GetAttr(domain, "lockoutThreshold"), out var lt) ? lt : -1;
-
-                // DOMAIN_PASSWORD_COMPLEX = 0x1
-                bool complexityEnabled = (pwdProps & 0x1) != 0;
-
-                // maxPwdAge is a negative 100-ns interval; 0 or the "never" sentinel means no expiry.
-                int maxAgeDays = 0;
-                if (long.TryParse(GetAttr(domain, "maxPwdAge"), out var maxPwdAge) && maxPwdAge != 0
-                    && maxPwdAge != long.MinValue)
-                {
-                    maxAgeDays = (int)Math.Round(TimeSpan.FromTicks(Math.Abs(maxPwdAge)).TotalDays);
-                }
-
-                // Lockout is weak when disabled (threshold 0) or set too high. Cyber Essentials
-                // expects accounts to lock after no more than 10 unsuccessful attempts.
-                bool weakLockout = lockoutThreshold == 0 || lockoutThreshold > 10;
-
-                summary.WeakPasswordLength = new SecurityHealthSummary { Value = (minLen >= 0 && minLen < 12) ? 1 : 0, Domain = domainName };
-                summary.PasswordComplexityDisabled = new SecurityHealthSummary { Value = complexityEnabled ? 0 : 1, Domain = domainName };
-                summary.NoAccountLockout = new SecurityHealthSummary { Value = weakLockout ? 1 : 0, Domain = domainName };
-                summary.PasswordMaxAgeDays = new SecurityHealthSummary { Value = maxAgeDays, Domain = domainName };
-            }
-            else
-            {
-                var err = "Domain password policy unavailable";
-                summary.WeakPasswordLength = new SecurityHealthSummary { Error = err };
-                summary.PasswordComplexityDisabled = new SecurityHealthSummary { Error = err };
-                summary.NoAccountLockout = new SecurityHealthSummary { Error = err };
-                summary.PasswordMaxAgeDays = new SecurityHealthSummary { Error = err };
-            }
-        }
-        catch (Exception ex)
-        {
-            var err = $"No data ({ex.GetType().Name}: {ex.Message})";
-            summary.WeakPasswordLength = new SecurityHealthSummary { Error = err };
-            summary.PasswordComplexityDisabled = new SecurityHealthSummary { Error = err };
-            summary.NoAccountLockout = new SecurityHealthSummary { Error = err };
-            summary.PasswordMaxAgeDays = new SecurityHealthSummary { Error = err };
         }
     }
 
