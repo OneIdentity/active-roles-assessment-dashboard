@@ -69,6 +69,17 @@ public sealed class DefinitionStoreTests : IDisposable
     }
 
     [Fact]
+    public void Override_with_unsupported_schema_version_is_ignored()
+    {
+        File.WriteAllText(Path.Combine(_dir, "future.definitions.json"), "{ \"schemaVersion\": 99 }");
+
+        var store = new DefinitionStore(Embedded(), _dir);
+
+        Assert.False(store.OverridesApplied);
+        Assert.Contains(store.OverrideErrors, e => e.Contains("schemaVersion 99"));
+    }
+
+    [Fact]
     public void Override_changes_after_load_are_pending()
     {
         var store = new DefinitionStore(Embedded(), _dir);

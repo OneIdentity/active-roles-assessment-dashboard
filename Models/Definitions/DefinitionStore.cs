@@ -14,6 +14,9 @@ public sealed class DefinitionStore
     private const string ResourcePrefix = "ActiveRolesDashboard.Definitions.";
     private const string FileSuffix = ".definitions.json";
 
+    /// <summary>Highest definition file schema version this build understands.</summary>
+    public const int SupportedSchemaVersion = 1;
+
     private readonly string? _overrideDirectory;
     private readonly IReadOnlyList<DefinitionSet> _embedded;
 
@@ -134,7 +137,11 @@ public sealed class DefinitionStore
         {
             try
             {
-                sets.Add(DefinitionJson.Deserialize(File.ReadAllText(file)));
+                var set = DefinitionJson.Deserialize(File.ReadAllText(file));
+                if (set.SchemaVersion < 1 || set.SchemaVersion > SupportedSchemaVersion)
+                    errors.Add($"{Path.GetFileName(file)}: schemaVersion {set.SchemaVersion} is not supported (supported: 1-{SupportedSchemaVersion}).");
+                else
+                    sets.Add(set);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or NotSupportedException)
             {
