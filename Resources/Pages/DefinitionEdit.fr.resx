@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Label_KpiKind" xml:space="preserve">
+    <value>Type de KPI</value>
+  </data>
+  <data name="KpiKind_Search" xml:space="preserve">
+    <value>Recherche</value>
+  </data>
+  <data name="KpiKind_Objects" xml:space="preserve">
+    <value>Objets</value>
+  </data>
+  <data name="KpiKind_Derived" xml:space="preserve">
+    <value>Dérivé</value>
+  </data>
+  <data name="KpiKind_Composite" xml:space="preserve">
+    <value>Composite</value>
+  </data>
+  <data name="Hint_KpiKind_Search" xml:space="preserve">
+    <value>Compte les objets renvoyés par une recherche (jeu de données partagé ou recherche propre au KPI).</value>
+  </data>
+  <data name="Hint_KpiKind_Objects" xml:space="preserve">
+    <value>Lit des objets spécifiques, comme des objets de statistiques.</value>
+  </data>
+  <data name="Hint_KpiKind_Derived" xml:space="preserve">
+    <value>Évalue un jeu de données existant ou réutilise le résultat d&apos;un autre KPI sans nouvelle recherche.</value>
+  </data>
+  <data name="Hint_KpiKind_Composite" xml:space="preserve">
+    <value>Combine les valeurs d&apos;autres KPI (par exemple les totaux AD et Entra).</value>
+  </data>
+  <data name="Section_General" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="Section_Retrieval" xml:space="preserve">
+    <value>Récupération</value>
+  </data>
+  <data name="Section_Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="Section_Evaluation" xml:space="preserve">
+    <value>Évaluation</value>
+  </data>
+  <data name="Section_Json" xml:space="preserve">
+    <value>JSON de la définition</value>
+  </data>
+  <data name="Hint_Json" xml:space="preserve">
+    <value>Les champs ci-dessus sont appliqués à ce JSON lors de l&apos;enregistrement. Modifiez-le directement pour les propriétés avancées comme les graphiques, les colonnes d&apos;exploration, les enrichissements et les arguments de fonction.</value>
+  </data>
+  <data name="Label_Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Hint_Id" xml:space="preserve">
+    <value>Lettres, chiffres et traits de soulignement ; doit commencer par une lettre.</value>
+  </data>
+  <data name="Hint_IdClone" xml:space="preserve">
+    <value>Conservez l&apos;id pour remplacer l&apos;élément intégré, ou modifiez-le pour ajouter un nouvel élément.</value>
+  </data>
+  <data name="Label_DisplayName" xml:space="preserve">
+    <value>Nom d&apos;affichage</value>
+  </data>
+  <data name="Label_Enabled" xml:space="preserve">
+    <value>Activé</value>
+  </data>
+  <data name="Label_SortOrder" xml:space="preserve">
+    <value>Ordre de tri</value>
+  </data>
+  <data name="Label_Dashboard" xml:space="preserve">
+    <value>Tableau de bord</value>
+  </data>
+  <data name="Label_CategoryKind" xml:space="preserve">
+    <value>Nature de catégorie</value>
+  </data>
+  <data name="Label_KpiSortOrder" xml:space="preserve">
+    <value>Ordre de tri des KPI</value>
+  </data>
+  <data name="Label_DataSource" xml:space="preserve">
+    <value>Source de données</value>
+  </data>
+  <data name="Label_Category" xml:space="preserve">
+    <value>Catégorie</value>
+  </data>
+  <data name="Hint_Category" xml:space="preserve">
+    <value>Un id de catégorie intégrée ou personnalisée.</value>
+  </data>
+  <data name="Label_Severity" xml:space="preserve">
+    <value>Gravité</value>
+  </data>
+  <data name="Label_IsRiskKpi" xml:space="preserve">
+    <value>Afficher aussi sous Gouvernance et risques</value>
+  </data>
+  <data name="Label_TileText" xml:space="preserve">
+    <value>Libellé de la vignette</value>
+  </data>
+  <data name="Label_Color" xml:space="preserve">
+    <value>Couleur</value>
+  </data>
+  <data name="Label_Dataset" xml:space="preserve">
+    <value>Jeu de données partagé</value>
+  </data>
+  <data name="Hint_Dataset" xml:space="preserve">
+    <value>Utilisez un jeu de données partagé, ou laissez vide et définissez la recherche ci-dessous.</value>
+  </data>
+  <data name="Label_Base" xml:space="preserve">
+    <value>Base de recherche</value>
+  </data>
+  <data name="Label_LdapFilter" xml:space="preserve">
+    <value>Filtre LDAP</value>
+  </data>
+  <data name="Label_Scope" xml:space="preserve">
+    <value>Étendue</value>
+  </data>
+  <data name="Label_Objects" xml:space="preserve">
+    <value>Objets</value>
+  </data>
+  <data name="Hint_Objects" xml:space="preserve">
+    <value>Un DN, GUID ou jeton par ligne (récupération d&apos;objets uniquement).</value>
+  </data>
+  <data name="Label_Attributes" xml:space="preserve">
+    <value>Attributs</value>
+  </data>
+  <data name="Hint_Attributes" xml:space="preserve">
+    <value>Attributs à récupérer, séparés par des virgules.</value>
+  </data>
+  <data name="Label_SourceDataset" xml:space="preserve">
+    <value>Jeu de données source</value>
+  </data>
+  <data name="Label_SourceKpi" xml:space="preserve">
+    <value>KPI source</value>
+  </data>
+  <data name="Hint_DerivedSource" xml:space="preserve">
+    <value>Définissez exactement l&apos;un des deux : jeu de données source ou KPI source.</value>
+  </data>
+  <data name="Label_Sources" xml:space="preserve">
+    <value>KPI sources</value>
+  </data>
+  <data name="Hint_Sources" xml:space="preserve">
+    <value>Id de KPI séparés par des virgules.</value>
+  </data>
+  <data name="Label_Aggregate" xml:space="preserve">
+    <value>Agrégat</value>
+  </data>
+  <data name="Label_EvaluationType" xml:space="preserve">
+    <value>Type d&apos;évaluation</value>
+  </data>
+  <data name="Label_EvaluationFilter" xml:space="preserve">
+    <value>Expression de filtre</value>
+  </data>
+  <data name="Hint_EvaluationFilter" xml:space="preserve">
+    <value>Sélectionne les éléments comptés. Laissez vide pour compter tous les éléments.</value>
+  </data>
+  <data name="Label_AggregateAttribute" xml:space="preserve">
+    <value>Attribut d&apos;agrégat</value>
+  </data>
+  <data name="Label_Function" xml:space="preserve">
+    <value>Fonction</value>
+  </data>
+  <data name="Hint_Function" xml:space="preserve">
+    <value>Nom de fonction enregistrée (type d&apos;évaluation Fonction). Les arguments se modifient dans le JSON.</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+</root>

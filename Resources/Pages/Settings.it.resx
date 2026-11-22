@@ -332,4 +332,67 @@
   <data name="Definitions_Restarting" xml:space="preserve">
     <value>L'applicazione è in fase di riavvio. Ricaricare questa pagina tra qualche istante.</value>
   </data>
+  <data name="Definitions_Custom" xml:space="preserve">
+    <value>Definizioni personalizzate</value>
+  </data>
+  <data name="Definitions_System" xml:space="preserve">
+    <value>Definizioni di sistema</value>
+  </data>
+  <data name="Hint_DefinitionsSystem" xml:space="preserve">
+    <value>Le definizioni integrate sono di sola lettura. Clonane una per creare una copia personalizzata modificabile; una copia con lo stesso id sostituisce l&apos;elemento integrato.</value>
+  </data>
+  <data name="Definitions_AddKpi" xml:space="preserve">
+    <value>Aggiungi KPI</value>
+  </data>
+  <data name="Definitions_AddCategory" xml:space="preserve">
+    <value>Aggiungi categoria</value>
+  </data>
+  <data name="Definitions_AddDataset" xml:space="preserve">
+    <value>Aggiungi set di dati</value>
+  </data>
+  <data name="Definitions_NoCustom" xml:space="preserve">
+    <value>Nessuna definizione personalizzata.</value>
+  </data>
+  <data name="Definitions_ColKind" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Definitions_ColId" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Definitions_ColType" xml:space="preserve">
+    <value>Natura</value>
+  </data>
+  <data name="Definitions_ColCategory" xml:space="preserve">
+    <value>Categoria</value>
+  </data>
+  <data name="Definitions_ColOrigin" xml:space="preserve">
+    <value>Origine</value>
+  </data>
+  <data name="Definitions_ColFile" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Definitions_Origin_Custom" xml:space="preserve">
+    <value>Personalizzato</value>
+  </data>
+  <data name="Definitions_Origin_Override" xml:space="preserve">
+    <value>Sostituisce l&apos;integrato</value>
+  </data>
+  <data name="Definitions_Origin_System" xml:space="preserve">
+    <value>Integrato</value>
+  </data>
+  <data name="Definitions_Edit" xml:space="preserve">
+    <value>Modifica</value>
+  </data>
+  <data name="Definitions_Remove" xml:space="preserve">
+    <value>Rimuovi</value>
+  </data>
+  <data name="Definitions_Clone" xml:space="preserve">
+    <value>Clona</value>
+  </data>
+  <data name="Definitions_ConfirmRemove" xml:space="preserve">
+    <value>Rimuovere la definizione personalizzata &apos;{0}&apos;?</value>
+  </data>
+  <data name="Definitions_Filter" xml:space="preserve">
+    <value>Filtra definizioni</value>
+  </data>
 </root>

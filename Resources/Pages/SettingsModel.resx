@@ -19,4 +19,7 @@
   <data name="Error_PageSizeRange" xml:space="preserve">
     <value>Page size was not saved: it must be a whole number between 1 and {0}.</value>
   </data>
+  <data name="Definitions_Removed" xml:space="preserve">
+    <value>Custom definition &apos;{0}&apos; removed. Apply and restart to use the change.</value>
+  </data>
 </root>

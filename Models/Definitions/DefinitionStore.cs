@@ -40,6 +40,7 @@ public sealed class DefinitionStore
         var baseErrors = DefinitionValidator.Validate(baseSet);
         if (baseErrors.Count > 0)
             throw new InvalidOperationException("Embedded definitions are invalid: " + string.Join(" ", baseErrors));
+        Embedded = baseSet;
 
         LoadedFingerprint = ComputeFingerprint(overrideDirectory);
 
@@ -69,6 +70,28 @@ public sealed class DefinitionStore
     }
 
     public DefinitionRegistry Registry { get; }
+
+    /// <summary>The built-in (embedded) definitions, merged across files.</summary>
+    public DefinitionSet Embedded { get; }
+
+    /// <summary>Directory holding the override files, or null when overrides are disabled.</summary>
+    public string? OverrideDirectory => _overrideDirectory;
+
+    /// <summary>Reads one override file; throws on unreadable or malformed content.</summary>
+    public static DefinitionSet ReadFile(string path) => DefinitionJson.Deserialize(File.ReadAllText(path));
+
+    /// <summary>Validates the embedded definitions merged with <paramref name="overrides"/> in order.</summary>
+    public IReadOnlyList<string> ValidateWith(IEnumerable<DefinitionSet> overrides)
+    {
+        var errors = new List<string>();
+        foreach (var set in overrides)
+        {
+            if (set.SchemaVersion < 1 || set.SchemaVersion > SupportedSchemaVersion)
+                errors.Add($"schemaVersion {set.SchemaVersion} is not supported (supported: 1-{SupportedSchemaVersion}).");
+        }
+        if (errors.Count > 0) return errors;
+        return DefinitionValidator.Validate(Merge([Embedded, .. overrides]));
+    }
 
     /// <summary>True when valid override files were merged into the effective definitions.</summary>
     public bool OverridesApplied { get; }
