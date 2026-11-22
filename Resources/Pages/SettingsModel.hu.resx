@@ -19,4 +19,7 @@
   <data name="Error_PageSizeRange" xml:space="preserve">
     <value>A lapméret nem lett mentve: 1 és {0} közötti egész számnak kell lennie.</value>
   </data>
+  <data name="Definitions_Removed" xml:space="preserve">
+    <value>A(z) „{0}” egyéni definíció eltávolítva. Alkalmazza és indítsa újra a módosítás használatához.</value>
+  </data>
 </root>

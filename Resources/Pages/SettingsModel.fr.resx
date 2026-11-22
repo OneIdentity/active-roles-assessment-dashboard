@@ -19,4 +19,7 @@
   <data name="Error_PageSizeRange" xml:space="preserve">
     <value>La taille de page n&apos;a pas été enregistrée : elle doit être un nombre entier compris entre 1 et {0}.</value>
   </data>
+  <data name="Definitions_Removed" xml:space="preserve">
+    <value>Définition personnalisée « {0} » supprimée. Appliquez et redémarrez pour utiliser la modification.</value>
+  </data>
 </root>

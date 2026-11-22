@@ -19,4 +19,7 @@
   <data name="Error_PageSizeRange" xml:space="preserve">
     <value>El tamaño de página no se guardó: debe ser un número entero entre 1 y {0}.</value>
   </data>
+  <data name="Definitions_Removed" xml:space="preserve">
+    <value>Definición personalizada &apos;{0}&apos; quitada. Aplique y reinicie para usar el cambio.</value>
+  </data>
 </root>

@@ -19,4 +19,7 @@
   <data name="Error_PageSizeRange" xml:space="preserve">
     <value>Die Seitengröße wurde nicht gespeichert: Sie muss eine ganze Zahl zwischen 1 und {0} sein.</value>
   </data>
+  <data name="Definitions_Removed" xml:space="preserve">
+    <value>Benutzerdefinierte Definition „{0}“ entfernt. Übernehmen und neu starten, um die Änderung zu verwenden.</value>
+  </data>
 </root>

@@ -333,4 +333,67 @@
   <data name="Definitions_Restarting" xml:space="preserve">
     <value>Die Anwendung wird neu gestartet. Laden Sie diese Seite in wenigen Augenblicken neu.</value>
   </data>
+  <data name="Definitions_Custom" xml:space="preserve">
+    <value>Benutzerdefinierte Definitionen</value>
+  </data>
+  <data name="Definitions_System" xml:space="preserve">
+    <value>Systemdefinitionen</value>
+  </data>
+  <data name="Hint_DefinitionsSystem" xml:space="preserve">
+    <value>Integrierte Definitionen sind schreibgeschützt. Klonen Sie eine Definition, um eine bearbeitbare Kopie zu erstellen; eine Kopie mit derselben ID ersetzt das integrierte Element.</value>
+  </data>
+  <data name="Definitions_AddKpi" xml:space="preserve">
+    <value>KPI hinzufügen</value>
+  </data>
+  <data name="Definitions_AddCategory" xml:space="preserve">
+    <value>Kategorie hinzufügen</value>
+  </data>
+  <data name="Definitions_AddDataset" xml:space="preserve">
+    <value>Datensatz hinzufügen</value>
+  </data>
+  <data name="Definitions_NoCustom" xml:space="preserve">
+    <value>Keine benutzerdefinierten Definitionen.</value>
+  </data>
+  <data name="Definitions_ColKind" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="Definitions_ColId" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Definitions_ColType" xml:space="preserve">
+    <value>Art</value>
+  </data>
+  <data name="Definitions_ColCategory" xml:space="preserve">
+    <value>Kategorie</value>
+  </data>
+  <data name="Definitions_ColOrigin" xml:space="preserve">
+    <value>Herkunft</value>
+  </data>
+  <data name="Definitions_ColFile" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="Definitions_Origin_Custom" xml:space="preserve">
+    <value>Benutzerdefiniert</value>
+  </data>
+  <data name="Definitions_Origin_Override" xml:space="preserve">
+    <value>Ersetzt integriertes Element</value>
+  </data>
+  <data name="Definitions_Origin_System" xml:space="preserve">
+    <value>Integriert</value>
+  </data>
+  <data name="Definitions_Edit" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="Definitions_Remove" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="Definitions_Clone" xml:space="preserve">
+    <value>Klonen</value>
+  </data>
+  <data name="Definitions_ConfirmRemove" xml:space="preserve">
+    <value>Benutzerdefinierte Definition „{0}“ entfernen?</value>
+  </data>
+  <data name="Definitions_Filter" xml:space="preserve">
+    <value>Definitionen filtern</value>
+  </data>
 </root>

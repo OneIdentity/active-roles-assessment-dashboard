@@ -19,4 +19,7 @@
   <data name="Error_PageSizeRange" xml:space="preserve">
     <value>La dimensione pagina non è stata salvata: deve essere un numero intero compreso tra 1 e {0}.</value>
   </data>
+  <data name="Definitions_Removed" xml:space="preserve">
+    <value>Definizione personalizzata &apos;{0}&apos; rimossa. Applica e riavvia per usare la modifica.</value>
+  </data>
 </root>

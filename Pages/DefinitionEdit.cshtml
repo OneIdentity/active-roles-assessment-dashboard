@@ -1,0 +1,290 @@
+@page
+@model ActiveRolesDashboard.Pages.DefinitionEditModel
+@using ActiveRolesDashboard.Models.Definitions
+@using ActiveRolesDashboard.Services.Definitions
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    Layout = null;
+    var isKpi = Model.Kind == DefinitionKind.Kpi;
+    var kpiKind = Model.Fields.KpiKind ?? Model.KpiKind;
+    var usesRetrieval = Model.Kind == DefinitionKind.Dataset || (isKpi && kpiKind is "Search" or "Objects");
+    var usesEvaluation = isKpi && kpiKind is "Search" or "Objects" or "Derived";
+}
+@functions {
+    static IEnumerable<string> Names<T>() where T : struct, Enum => Enum.GetNames<T>();
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" asp-append-version="true" />
+    <title>Active Roles Dashboard - @Model.Title</title>
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-tokens.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-auth.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-shell.css")" asp-append-version="true" />
+    <link rel="stylesheet" href="@Url.Content("~/css/iris-settings.css")" asp-append-version="true" />
+</head>
+<body class="iris-shell iris-settings def-edit">
+<div class="page iris-shell-page">
+    @{
+        ViewData["IrisActive"] = "settings";
+        ViewData["IrisCrumb"] = Model.Title;
+    }
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    <div class="iris-title-row">
+        <h1>@Model.Title</h1>
+    </div>
+
+    @if (!Model.IsEdit && Model.Id is null && isKpi)
+    {
+        <div class="settings-card">
+            <form method="get">
+                <input type="hidden" name="kind" value="Kpi" />
+                <div class="form-group">
+                    <label for="KpiKind">@Localizer["Label_KpiKind"]</label>
+                    <select id="KpiKind" name="KpiKind" onchange="this.form.submit()">
+                        @foreach (var k in DefinitionEditModel.KpiKinds)
+                        {
+                            <option value="@k" selected="@(k == kpiKind)">@Localizer["KpiKind_" + k]</option>
+                        }
+                    </select>
+                    <p class="hint">@Localizer["Hint_KpiKind_" + kpiKind]</p>
+                </div>
+            </form>
+        </div>
+    }
+
+    <form method="post">
+        <input type="hidden" asp-for="Kind" />
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Clone" />
+        <input type="hidden" asp-for="KpiKind" />
+        <input type="hidden" asp-for="Fields.KpiKind" />
+
+        @if (Model.Errors.Count > 0)
+        {
+            <div class="settings-card"><div class="msg msg-warn"><ul>@foreach (var e in Model.Errors) { <li>@e</li> }</ul></div></div>
+        }
+
+        <div class="settings-card">
+            <h2>@Localizer["Section_General"]</h2>
+            <div class="form-group">
+                <label asp-for="Fields.Id">@Localizer["Label_Id"]</label>
+                <input asp-for="Fields.Id" required pattern="[A-Za-z][A-Za-z0-9_]*" />
+                <p class="hint">@Localizer[Model.Clone ? "Hint_IdClone" : "Hint_Id"]</p>
+            </div>
+            @if (Model.Kind != DefinitionKind.Dataset)
+            {
+                <div class="form-group">
+                    <label asp-for="Fields.FallbackText">@Localizer["Label_DisplayName"]</label>
+                    <input asp-for="Fields.FallbackText" />
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" asp-for="Fields.Enabled" /> @Localizer["Label_Enabled"]</label>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.SortOrder">@Localizer["Label_SortOrder"]</label>
+                    <input asp-for="Fields.SortOrder" type="number" />
+                </div>
+            }
+
+            @if (Model.Kind == DefinitionKind.Category)
+            {
+                <div class="form-group">
+                    <label asp-for="Fields.DashboardId">@Localizer["Label_Dashboard"]</label>
+                    <select asp-for="Fields.DashboardId">
+                        @foreach (var d in Model.Dashboards) { <option value="@d.Key">@d.Title</option> }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.CategoryKind">@Localizer["Label_CategoryKind"]</label>
+                    <select asp-for="Fields.CategoryKind">
+                        <option value=""></option>
+                        @foreach (var n in Names<CategoryKind>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.KpiSortOrder">@Localizer["Label_KpiSortOrder"]</label>
+                    <select asp-for="Fields.KpiSortOrder">
+                        <option value=""></option>
+                        @foreach (var n in Names<DefinitionSortOrder>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+            }
+
+            @if (Model.Kind != DefinitionKind.Category)
+            {
+                <div class="form-group">
+                    <label asp-for="Fields.DataSource">@Localizer["Label_DataSource"]</label>
+                    <select asp-for="Fields.DataSource">
+                        @foreach (var n in Names<DataSource>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+            }
+
+            @if (isKpi)
+            {
+                <div class="form-group">
+                    <label asp-for="Fields.CategoryId">@Localizer["Label_Category"]</label>
+                    <input asp-for="Fields.CategoryId" list="categoryIds" required />
+                    <datalist id="categoryIds">@foreach (var c in Model.CategoryIds) { <option value="@c"></option> }</datalist>
+                    <p class="hint">@Localizer["Hint_Category"]</p>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.Severity">@Localizer["Label_Severity"]</label>
+                    <select asp-for="Fields.Severity">
+                        <option value=""></option>
+                        @foreach (var n in Names<KpiSeverity>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" asp-for="Fields.IsRiskKpi" /> @Localizer["Label_IsRiskKpi"]</label>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.TileText">@Localizer["Label_TileText"]</label>
+                    <input asp-for="Fields.TileText" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.Color">@Localizer["Label_Color"]</label>
+                    <input asp-for="Fields.Color" placeholder="#1f77b4" />
+                </div>
+            }
+        </div>
+
+        @if (usesRetrieval)
+        {
+            <div class="settings-card">
+                <h2>@Localizer["Section_Retrieval"]</h2>
+                @if (isKpi)
+                {
+                    <div class="form-group">
+                        <label asp-for="Fields.DatasetId">@Localizer["Label_Dataset"]</label>
+                        <input asp-for="Fields.DatasetId" list="datasetIds" />
+                        <p class="hint">@Localizer["Hint_Dataset"]</p>
+                    </div>
+                }
+                <div class="form-group">
+                    <label asp-for="Fields.RetrievalBase">@Localizer["Label_Base"]</label>
+                    <input asp-for="Fields.RetrievalBase" placeholder="{DefaultADDN}" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.RetrievalFilter">@Localizer["Label_LdapFilter"]</label>
+                    <input asp-for="Fields.RetrievalFilter" placeholder="(objectClass=user)" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.RetrievalScope">@Localizer["Label_Scope"]</label>
+                    <select asp-for="Fields.RetrievalScope">
+                        <option value=""></option><option value="base">base</option><option value="one">one</option><option value="sub">sub</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.RetrievalObjects">@Localizer["Label_Objects"]</label>
+                    <textarea asp-for="Fields.RetrievalObjects" rows="3"></textarea>
+                    <p class="hint">@Localizer["Hint_Objects"]</p>
+                </div>
+            </div>
+        }
+
+        @if (Model.Kind != DefinitionKind.Category)
+        {
+            <div class="settings-card">
+                <div class="form-group">
+                    <label asp-for="Fields.Attributes">@Localizer["Label_Attributes"]</label>
+                    <input asp-for="Fields.Attributes" />
+                    <p class="hint">@Localizer["Hint_Attributes"]</p>
+                </div>
+            </div>
+        }
+
+        @if (isKpi && kpiKind == "Derived")
+        {
+            <div class="settings-card">
+                <h2>@Localizer["Section_Source"]</h2>
+                <div class="form-group">
+                    <label asp-for="Fields.SourceDatasetId">@Localizer["Label_SourceDataset"]</label>
+                    <input asp-for="Fields.SourceDatasetId" list="datasetIds" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.SourceKpiId">@Localizer["Label_SourceKpi"]</label>
+                    <input asp-for="Fields.SourceKpiId" list="kpiIds" />
+                    <p class="hint">@Localizer["Hint_DerivedSource"]</p>
+                </div>
+            </div>
+        }
+
+        @if (isKpi && kpiKind == "Composite")
+        {
+            <div class="settings-card">
+                <h2>@Localizer["Section_Source"]</h2>
+                <div class="form-group">
+                    <label asp-for="Fields.Sources">@Localizer["Label_Sources"]</label>
+                    <input asp-for="Fields.Sources" list="kpiIds" />
+                    <p class="hint">@Localizer["Hint_Sources"]</p>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.CompositeAggregate">@Localizer["Label_Aggregate"]</label>
+                    <select asp-for="Fields.CompositeAggregate">
+                        @foreach (var n in Names<CompositeAggregate>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+            </div>
+        }
+
+        @if (usesEvaluation)
+        {
+            <div class="settings-card">
+                <h2>@Localizer["Section_Evaluation"]</h2>
+                <div class="form-group">
+                    <label asp-for="Fields.EvaluationType">@Localizer["Label_EvaluationType"]</label>
+                    <select asp-for="Fields.EvaluationType">
+                        <option value=""></option>
+                        @foreach (var n in Names<EvaluationType>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.EvaluationFilter">@Localizer["Label_EvaluationFilter"]</label>
+                    <input asp-for="Fields.EvaluationFilter" />
+                    <p class="hint">@Localizer["Hint_EvaluationFilter"]</p>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.EvaluationAggregate">@Localizer["Label_Aggregate"]</label>
+                    <select asp-for="Fields.EvaluationAggregate">
+                        <option value=""></option>
+                        @foreach (var n in Names<AggregateFunction>()) { <option value="@n">@n</option> }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.EvaluationAggregateAttribute">@Localizer["Label_AggregateAttribute"]</label>
+                    <input asp-for="Fields.EvaluationAggregateAttribute" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Fields.EvaluationFunction">@Localizer["Label_Function"]</label>
+                    <input asp-for="Fields.EvaluationFunction" />
+                    <p class="hint">@Localizer["Hint_Function"]</p>
+                </div>
+            </div>
+        }
+
+        <datalist id="datasetIds">@foreach (var d in Model.DatasetIds) { <option value="@d"></option> }</datalist>
+        <datalist id="kpiIds">@foreach (var k in Model.KpiIds) { <option value="@k"></option> }</datalist>
+
+        <div class="settings-card">
+            <h2>@Localizer["Section_Json"]</h2>
+            <div class="form-group">
+                <textarea asp-for="Json" rows="24" spellcheck="false" class="def-json"></textarea>
+                <p class="hint">@Localizer["Hint_Json"]</p>
+            </div>
+        </div>
+
+        <div class="settings-card def-actions">
+            <button type="submit" class="btn-save">@Localizer["Button_Save"]</button>
+            <a class="btn-secondary" href="@Url.Page("/Settings")#definitions">@Localizer["Button_Cancel"]</a>
+        </div>
+    </form>
+    </main>
+</div>
+@await Html.PartialAsync("_AppBaseScript")
+</body>
+</html>

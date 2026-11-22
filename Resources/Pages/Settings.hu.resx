@@ -333,4 +333,67 @@
   <data name="Definitions_Restarting" xml:space="preserve">
     <value>Az alkalmazás újraindul. Néhány pillanat múlva töltse újra ezt az oldalt.</value>
   </data>
+  <data name="Definitions_Custom" xml:space="preserve">
+    <value>Egyéni definíciók</value>
+  </data>
+  <data name="Definitions_System" xml:space="preserve">
+    <value>Rendszerdefiníciók</value>
+  </data>
+  <data name="Hint_DefinitionsSystem" xml:space="preserve">
+    <value>A beépített definíciók csak olvashatók. Klónozzon egyet szerkeszthető egyéni másolat létrehozásához; az azonos azonosítójú másolat felváltja a beépített elemet.</value>
+  </data>
+  <data name="Definitions_AddKpi" xml:space="preserve">
+    <value>KPI hozzáadása</value>
+  </data>
+  <data name="Definitions_AddCategory" xml:space="preserve">
+    <value>Kategória hozzáadása</value>
+  </data>
+  <data name="Definitions_AddDataset" xml:space="preserve">
+    <value>Adatkészlet hozzáadása</value>
+  </data>
+  <data name="Definitions_NoCustom" xml:space="preserve">
+    <value>Nincsenek egyéni definíciók.</value>
+  </data>
+  <data name="Definitions_ColKind" xml:space="preserve">
+    <value>Típus</value>
+  </data>
+  <data name="Definitions_ColId" xml:space="preserve">
+    <value>Azonosító</value>
+  </data>
+  <data name="Definitions_ColType" xml:space="preserve">
+    <value>Fajta</value>
+  </data>
+  <data name="Definitions_ColCategory" xml:space="preserve">
+    <value>Kategória</value>
+  </data>
+  <data name="Definitions_ColOrigin" xml:space="preserve">
+    <value>Eredet</value>
+  </data>
+  <data name="Definitions_ColFile" xml:space="preserve">
+    <value>Fájl</value>
+  </data>
+  <data name="Definitions_Origin_Custom" xml:space="preserve">
+    <value>Egyéni</value>
+  </data>
+  <data name="Definitions_Origin_Override" xml:space="preserve">
+    <value>Felváltja a beépítettet</value>
+  </data>
+  <data name="Definitions_Origin_System" xml:space="preserve">
+    <value>Beépített</value>
+  </data>
+  <data name="Definitions_Edit" xml:space="preserve">
+    <value>Szerkesztés</value>
+  </data>
+  <data name="Definitions_Remove" xml:space="preserve">
+    <value>Eltávolítás</value>
+  </data>
+  <data name="Definitions_Clone" xml:space="preserve">
+    <value>Klónozás</value>
+  </data>
+  <data name="Definitions_ConfirmRemove" xml:space="preserve">
+    <value>Eltávolítja a(z) „{0}” egyéni definíciót?</value>
+  </data>
+  <data name="Definitions_Filter" xml:space="preserve">
+    <value>Definíciók szűrése</value>
+  </data>
 </root>

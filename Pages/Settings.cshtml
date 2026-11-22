@@ -832,6 +832,122 @@
             </div>
         </div>
 
+		@if (Model.Definitions is { } defs)
+		{
+			var customDefs = Model.DefinitionEntries.Where(e => e.Origin != ActiveRolesDashboard.Services.Definitions.DefinitionOrigin.System).ToList();
+			var systemDefs = Model.DefinitionEntries.Where(e => e.Origin == ActiveRolesDashboard.Services.Definitions.DefinitionOrigin.System).ToList();
+			<div class="settings-card" id="definitions">
+				<div class="section-header @(Model.DefinitionMessage is null && Model.DefinitionErrors.Count == 0 ? "collapsed" : "")" onclick="toggleSection(this)">
+					<h2>@Localizer["Card_Definitions"]</h2>
+					<button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+				</div>
+				<div class="section-body @(Model.DefinitionMessage is null && Model.DefinitionErrors.Count == 0 ? "collapsed" : "")">
+					<p class="hint">@Localizer["Hint_Definitions"] @(defs.OverridesApplied ? Localizer["Definitions_OverridesActive"] : Localizer["Definitions_EmbeddedActive"])</p>
+					@if (defs.LoadedErrors.Count > 0)
+					{
+						<div class="msg msg-warn">
+							@Localizer["Definitions_LoadedErrors"]
+							<ul>@foreach (var e in defs.LoadedErrors) { <li>@e</li> }</ul>
+						</div>
+					}
+					@if (Model.DefinitionMessage is { } dmsg)
+					{
+						<div class="msg">@dmsg</div>
+					}
+					@if (Model.DefinitionErrors.Count > 0)
+					{
+						<div class="msg msg-warn"><ul>@foreach (var e in Model.DefinitionErrors) { <li>@e</li> }</ul></div>
+					}
+
+					<div class="form-group">
+						<div class="def-subheader">
+							<label>@Localizer["Definitions_Custom"]</label>
+							<div class="def-actions">
+								<a class="btn-secondary" href="@Url.Page("/DefinitionEdit", new { kind = "Kpi" })">@Localizer["Definitions_AddKpi"]</a>
+								<a class="btn-secondary" href="@Url.Page("/DefinitionEdit", new { kind = "Category" })">@Localizer["Definitions_AddCategory"]</a>
+								<a class="btn-secondary" href="@Url.Page("/DefinitionEdit", new { kind = "Dataset" })">@Localizer["Definitions_AddDataset"]</a>
+							</div>
+						</div>
+						@if (customDefs.Count == 0)
+						{
+							<p class="muted">@Localizer["Definitions_NoCustom"]</p>
+						}
+						else
+						{
+							<div class="kpi-exclusion-scroll">
+								<table class="role-matrix-table kpi-threshold-table def-table">
+									<thead><tr><th>@Localizer["Definitions_ColId"]</th><th>@Localizer["Definitions_ColKind"]</th><th>@Localizer["Definitions_ColCategory"]</th><th>@Localizer["Definitions_ColOrigin"]</th><th></th></tr></thead>
+									<tbody>
+									@foreach (var e in customDefs)
+									{
+										<tr>
+											<td>@e.Id@if (!e.Enabled) { <span class="muted"> (disabled)</span> }@if (!e.Editable) { <div class="hint">@e.File</div> }</td>
+											<td>@e.Kind · @e.Type</td>
+											<td>@e.CategoryId</td>
+											<td>@Localizer["Definitions_Origin_" + e.Origin]</td>
+											<td class="def-row-actions">
+												@if (e.Editable)
+												{
+													<a class="btn-secondary" href="@Url.Page("/DefinitionEdit", new { kind = e.Kind.ToString(), id = e.Id })">@Localizer["Definitions_Edit"]</a>
+													<button type="submit" class="btn-secondary btn-danger" form="definitionsForm" formaction="@Url.Page("/Settings", "RemoveDefinition", new { kind = e.Kind.ToString(), id = e.Id })" data-confirm="@Localizer["Definitions_ConfirmRemove", e.Id]" onclick="return confirm(this.dataset.confirm);">@Localizer["Definitions_Remove"]</button>
+												}
+											</td>
+										</tr>
+									}
+									</tbody>
+								</table>
+							</div>
+						}
+					</div>
+
+					<div class="form-group">
+						<label for="definitionFilter">@Localizer["Definitions_System"]</label>
+						<p class="hint">@Localizer["Hint_DefinitionsSystem"]</p>
+						<input type="search" id="definitionFilter" placeholder="@Localizer["Definitions_Filter"]" oninput="filterDefinitions(this.value)" />
+					</div>
+					<div class="kpi-exclusion-scroll">
+						<table class="role-matrix-table kpi-threshold-table def-table">
+							<thead><tr><th>@Localizer["Definitions_ColId"]</th><th>@Localizer["Definitions_ColKind"]</th><th>@Localizer["Definitions_ColCategory"]</th><th></th></tr></thead>
+							<tbody>
+							@foreach (var e in systemDefs)
+							{
+								<tr class="definition-row" data-name="@($"{e.Kind} {e.Id} {e.Type} {e.CategoryId}".ToLowerInvariant())">
+									<td>@e.Id</td>
+									<td>@e.Kind · @e.Type</td>
+									<td>@e.CategoryId</td>
+									<td class="def-row-actions"><a class="btn-secondary" href="@Url.Page("/DefinitionEdit", new { kind = e.Kind.ToString(), id = e.Id, clone = true })">@Localizer["Definitions_Clone"]</a></td>
+								</tr>
+							}
+							</tbody>
+						</table>
+					</div>
+
+					@if (Model.DefinitionsRestarting)
+					{
+						<div class="msg">@Localizer["Definitions_Restarting"]</div>
+					}
+					else if (defs.PendingErrors.Count > 0)
+					{
+						<div class="msg msg-warn">
+							@Localizer["Definitions_PendingErrors"]
+							<ul>@foreach (var e in defs.PendingErrors) { <li>@e</li> }</ul>
+						</div>
+					}
+					else if (defs.HasPendingChanges)
+					{
+						<div class="msg msg-warn def-pending">
+							<span>@Localizer["Definitions_Pending"]</span>
+							<button type="submit" form="definitionsForm" formaction="@Url.Page("/Settings", "ApplyDefinitions")" class="btn-secondary" data-confirm="@Localizer["Definitions_ConfirmRestart"]" onclick="return confirm(this.dataset.confirm);">@Localizer["Button_ApplyDefinitions"]</button>
+						</div>
+					}
+					else
+					{
+						<p class="hint">@Localizer["Definitions_NoPending"]</p>
+					}
+				</div>
+			</div>
+		}
+
         <div class="settings-card">
             <div class="section-header collapsed" onclick="toggleSection(this)">
                 <h2>@Localizer["Card_DataRefresh"]</h2>
@@ -1295,51 +1411,9 @@
             }
         </div>
     </form>
-    @if (Model.Definitions is { } defs)
+    @if (Model.Definitions is not null)
     {
-        <form method="post" asp-page-handler="ApplyDefinitions">
-            <div class="settings-card">
-                <div class="section-header collapsed" onclick="toggleSection(this)">
-                    <h2>@Localizer["Card_Definitions"]</h2>
-                    <button type="button" class="section-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-                </div>
-                <div class="section-body collapsed">
-                    <p class="hint">@Localizer["Hint_Definitions"]</p>
-                    <p>@(defs.OverridesApplied ? Localizer["Definitions_OverridesActive"] : Localizer["Definitions_EmbeddedActive"])</p>
-                    @if (defs.LoadedErrors.Count > 0)
-                    {
-                        <div class="msg msg-warn">
-                            @Localizer["Definitions_LoadedErrors"]
-                            <ul>@foreach (var e in defs.LoadedErrors) { <li>@e</li> }</ul>
-                        </div>
-                    }
-                    @if (defs.Files.Count > 0)
-                    {
-                        <ul>@foreach (var f in defs.Files) { <li><code>@f</code></li> }</ul>
-                    }
-                    @if (Model.DefinitionsRestarting)
-                    {
-                        <div class="msg">@Localizer["Definitions_Restarting"]</div>
-                    }
-                    else if (!defs.HasPendingChanges)
-                    {
-                        <p>@Localizer["Definitions_NoPending"]</p>
-                    }
-                    else if (defs.PendingErrors.Count > 0)
-                    {
-                        <div class="msg msg-warn">
-                            @Localizer["Definitions_PendingErrors"]
-                            <ul>@foreach (var e in defs.PendingErrors) { <li>@e</li> }</ul>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="msg msg-warn">@Localizer["Definitions_Pending"]</div>
-                        <button type="submit" class="btn-save" data-confirm="@Localizer["Definitions_ConfirmRestart"]" onclick="return confirm(this.dataset.confirm);">@Localizer["Button_ApplyDefinitions"]</button>
-                    }
-                </div>
-            </div>
-        </form>
+        <form method="post" id="definitionsForm"></form>
     }
     </main>
 </div>
@@ -1351,6 +1425,16 @@
 </div>
 @await Html.PartialAsync("_AppBaseScript")
 <script>
+    (function () {
+        var target = location.hash ? document.getElementById(location.hash.substring(1)) : null;
+        if (!target) return;
+        var category = target.closest('.settings-category');
+        [category && category.querySelector('.category-header'), target.querySelector('.section-header')].forEach(function (h) {
+            if (h && h.classList.contains('collapsed')) { h.classList.remove('collapsed'); h.nextElementSibling.classList.remove('collapsed'); }
+        });
+        target.scrollIntoView({ block: 'start' });
+    })();
+
     function toggleSection(header) {
         header.classList.toggle('collapsed');
         var body = header.nextElementSibling;
@@ -1360,6 +1444,13 @@
     function filterKpiThresholds(text) {
         var q = (text || '').toLowerCase();
         document.querySelectorAll('.kpi-threshold-row').forEach(function (r) {
+            r.style.display = r.getAttribute('data-name').indexOf(q) >= 0 ? '' : 'none';
+        });
+    }
+
+    function filterDefinitions(text) {
+        var q = (text || '').toLowerCase();
+        document.querySelectorAll('.definition-row').forEach(function (r) {
             r.style.display = r.getAttribute('data-name').indexOf(q) >= 0 ? '' : 'none';
         });
     }

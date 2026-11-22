@@ -333,4 +333,67 @@
   <data name="Definitions_Restarting" xml:space="preserve">
     <value>The application is restarting. Reload this page in a few moments.</value>
   </data>
+  <data name="Definitions_Custom" xml:space="preserve">
+    <value>Custom definitions</value>
+  </data>
+  <data name="Definitions_System" xml:space="preserve">
+    <value>System definitions</value>
+  </data>
+  <data name="Hint_DefinitionsSystem" xml:space="preserve">
+    <value>Built-in definitions are read-only. Clone one to create an editable custom copy; a copy with the same id replaces the built-in item.</value>
+  </data>
+  <data name="Definitions_AddKpi" xml:space="preserve">
+    <value>Add KPI</value>
+  </data>
+  <data name="Definitions_AddCategory" xml:space="preserve">
+    <value>Add category</value>
+  </data>
+  <data name="Definitions_AddDataset" xml:space="preserve">
+    <value>Add dataset</value>
+  </data>
+  <data name="Definitions_NoCustom" xml:space="preserve">
+    <value>No custom definitions.</value>
+  </data>
+  <data name="Definitions_ColKind" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Definitions_ColId" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Definitions_ColType" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Definitions_ColCategory" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Definitions_ColOrigin" xml:space="preserve">
+    <value>Origin</value>
+  </data>
+  <data name="Definitions_ColFile" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Definitions_Origin_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="Definitions_Origin_Override" xml:space="preserve">
+    <value>Replaces built-in</value>
+  </data>
+  <data name="Definitions_Origin_System" xml:space="preserve">
+    <value>Built-in</value>
+  </data>
+  <data name="Definitions_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Definitions_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Definitions_Clone" xml:space="preserve">
+    <value>Clone</value>
+  </data>
+  <data name="Definitions_ConfirmRemove" xml:space="preserve">
+    <value>Remove custom definition &apos;{0}&apos;?</value>
+  </data>
+  <data name="Definitions_Filter" xml:space="preserve">
+    <value>Filter definitions</value>
+  </data>
 </root>

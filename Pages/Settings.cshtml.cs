@@ -22,8 +22,10 @@ public class SettingsModel : PageModel
     private readonly ServiceAccountSecretProtector _secretProtector;
 
     public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector, RoleService roleService, DirectoryFactsResolver directoryFacts,
-        ActiveRolesDashboard.Models.Definitions.DefinitionStore definitionStore, IHostApplicationLifetime lifetime)
+        ActiveRolesDashboard.Models.Definitions.DefinitionStore definitionStore, IHostApplicationLifetime lifetime,
+        ActiveRolesDashboard.Services.Definitions.DefinitionAdminService definitionAdmin)
     {
+        _definitionAdmin = definitionAdmin;
         _definitionStore = definitionStore;
         _lifetime = lifetime;
         _arConfig = arConfig;
@@ -40,6 +42,27 @@ public class SettingsModel : PageModel
     private readonly DirectoryFactsResolver _directoryFacts;
     private readonly ActiveRolesDashboard.Models.Definitions.DefinitionStore _definitionStore;
     private readonly IHostApplicationLifetime _lifetime;
+    private readonly ActiveRolesDashboard.Services.Definitions.DefinitionAdminService _definitionAdmin;
+
+    /// <summary>Custom and built-in definitions shown in the admin list.</summary>
+    public IReadOnlyList<ActiveRolesDashboard.Services.Definitions.DefinitionEntry> DefinitionEntries { get; private set; } = [];
+
+    public string? DefinitionMessage { get; private set; }
+
+    public IReadOnlyList<string> DefinitionErrors { get; private set; } = [];
+
+    public async Task<IActionResult> OnPostRemoveDefinitionAsync(ActiveRolesDashboard.Services.Definitions.DefinitionKind kind, string id)
+    {
+        await ResolvePermissionsAsync();
+        if (!IsActiveRolesAdmin)
+            return Forbid();
+
+        DefinitionErrors = _definitionAdmin.Remove(kind, id);
+        if (DefinitionErrors.Count == 0)
+            DefinitionMessage = _localizer["Definitions_Removed", id];
+        await OnGet();
+        return Page();
+    }
 
     /// <summary>State of the KPI definition override files (Active Roles administrators only).</summary>
     public DefinitionOverrideStatus? Definitions { get; private set; }
@@ -64,6 +87,9 @@ public class SettingsModel : PageModel
             pending,
             _definitionStore.CurrentOverrideFiles,
             pending ? _definitionStore.ValidateCurrentOverrides() : []);
+        DefinitionEntries = _definitionAdmin.List();
+        if (TempData["DefinitionMessage"] is string saved)
+            DefinitionMessage ??= saved;
     }
 
     /// <summary>

@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Label_KpiKind" xml:space="preserve">
+    <value>KPI type</value>
+  </data>
+  <data name="KpiKind_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="KpiKind_Objects" xml:space="preserve">
+    <value>Objects</value>
+  </data>
+  <data name="KpiKind_Derived" xml:space="preserve">
+    <value>Derived</value>
+  </data>
+  <data name="KpiKind_Composite" xml:space="preserve">
+    <value>Composite</value>
+  </data>
+  <data name="Hint_KpiKind_Search" xml:space="preserve">
+    <value>Counts objects returned by a search (a shared dataset or the KPI's own search).</value>
+  </data>
+  <data name="Hint_KpiKind_Objects" xml:space="preserve">
+    <value>Reads specific objects, such as statistics objects.</value>
+  </data>
+  <data name="Hint_KpiKind_Derived" xml:space="preserve">
+    <value>Evaluates an existing dataset or reuses another KPI's result without a new search.</value>
+  </data>
+  <data name="Hint_KpiKind_Composite" xml:space="preserve">
+    <value>Combines the values of other KPIs (for example AD plus Entra totals).</value>
+  </data>
+  <data name="Section_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Section_Retrieval" xml:space="preserve">
+    <value>Retrieval</value>
+  </data>
+  <data name="Section_Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="Section_Evaluation" xml:space="preserve">
+    <value>Evaluation</value>
+  </data>
+  <data name="Section_Json" xml:space="preserve">
+    <value>Definition JSON</value>
+  </data>
+  <data name="Hint_Json" xml:space="preserve">
+    <value>Fields above are applied to this JSON when saving. Edit it directly for advanced properties such as charts, drilldown columns, enrichments and function arguments.</value>
+  </data>
+  <data name="Label_Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Hint_Id" xml:space="preserve">
+    <value>Letters, digits and underscores; must start with a letter.</value>
+  </data>
+  <data name="Hint_IdClone" xml:space="preserve">
+    <value>Keep the id to replace the built-in item, or change it to add a new item.</value>
+  </data>
+  <data name="Label_DisplayName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="Label_Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Label_SortOrder" xml:space="preserve">
+    <value>Sort order</value>
+  </data>
+  <data name="Label_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Label_CategoryKind" xml:space="preserve">
+    <value>Category kind</value>
+  </data>
+  <data name="Label_KpiSortOrder" xml:space="preserve">
+    <value>KPI sort order</value>
+  </data>
+  <data name="Label_DataSource" xml:space="preserve">
+    <value>Data source</value>
+  </data>
+  <data name="Label_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Hint_Category" xml:space="preserve">
+    <value>A built-in or custom category id.</value>
+  </data>
+  <data name="Label_Severity" xml:space="preserve">
+    <value>Severity</value>
+  </data>
+  <data name="Label_IsRiskKpi" xml:space="preserve">
+    <value>Also show under Governance and Risk</value>
+  </data>
+  <data name="Label_TileText" xml:space="preserve">
+    <value>Tile label</value>
+  </data>
+  <data name="Label_Color" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="Label_Dataset" xml:space="preserve">
+    <value>Shared dataset</value>
+  </data>
+  <data name="Hint_Dataset" xml:space="preserve">
+    <value>Use a shared dataset, or leave blank and define the search below.</value>
+  </data>
+  <data name="Label_Base" xml:space="preserve">
+    <value>Search base</value>
+  </data>
+  <data name="Label_LdapFilter" xml:space="preserve">
+    <value>LDAP filter</value>
+  </data>
+  <data name="Label_Scope" xml:space="preserve">
+    <value>Scope</value>
+  </data>
+  <data name="Label_Objects" xml:space="preserve">
+    <value>Objects</value>
+  </data>
+  <data name="Hint_Objects" xml:space="preserve">
+    <value>One DN, GUID or token per line (Objects retrieval only).</value>
+  </data>
+  <data name="Label_Attributes" xml:space="preserve">
+    <value>Attributes</value>
+  </data>
+  <data name="Hint_Attributes" xml:space="preserve">
+    <value>Comma-separated attributes to retrieve.</value>
+  </data>
+  <data name="Label_SourceDataset" xml:space="preserve">
+    <value>Source dataset</value>
+  </data>
+  <data name="Label_SourceKpi" xml:space="preserve">
+    <value>Source KPI</value>
+  </data>
+  <data name="Hint_DerivedSource" xml:space="preserve">
+    <value>Set exactly one of source dataset or source KPI.</value>
+  </data>
+  <data name="Label_Sources" xml:space="preserve">
+    <value>Source KPIs</value>
+  </data>
+  <data name="Hint_Sources" xml:space="preserve">
+    <value>Comma-separated KPI ids.</value>
+  </data>
+  <data name="Label_Aggregate" xml:space="preserve">
+    <value>Aggregate</value>
+  </data>
+  <data name="Label_EvaluationType" xml:space="preserve">
+    <value>Evaluation type</value>
+  </data>
+  <data name="Label_EvaluationFilter" xml:space="preserve">
+    <value>Filter expression</value>
+  </data>
+  <data name="Hint_EvaluationFilter" xml:space="preserve">
+    <value>Selects the items counted. Leave blank to count all items.</value>
+  </data>
+  <data name="Label_AggregateAttribute" xml:space="preserve">
+    <value>Aggregate attribute</value>
+  </data>
+  <data name="Label_Function" xml:space="preserve">
+    <value>Function</value>
+  </data>
+  <data name="Hint_Function" xml:space="preserve">
+    <value>Registered function name (Function evaluation type). Arguments are edited in the JSON.</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+</root>

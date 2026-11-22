@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Label_KpiKind" xml:space="preserve">
+    <value>KPI típusa</value>
+  </data>
+  <data name="KpiKind_Search" xml:space="preserve">
+    <value>Keresés</value>
+  </data>
+  <data name="KpiKind_Objects" xml:space="preserve">
+    <value>Objektumok</value>
+  </data>
+  <data name="KpiKind_Derived" xml:space="preserve">
+    <value>Származtatott</value>
+  </data>
+  <data name="KpiKind_Composite" xml:space="preserve">
+    <value>Összetett</value>
+  </data>
+  <data name="Hint_KpiKind_Search" xml:space="preserve">
+    <value>Egy keresés által visszaadott objektumokat számolja (megosztott adatkészlet vagy a KPI saját keresése).</value>
+  </data>
+  <data name="Hint_KpiKind_Objects" xml:space="preserve">
+    <value>Konkrét objektumokat olvas, például statisztikai objektumokat.</value>
+  </data>
+  <data name="Hint_KpiKind_Derived" xml:space="preserve">
+    <value>Meglévő adatkészletet értékel ki, vagy egy másik KPI eredményét használja új keresés nélkül.</value>
+  </data>
+  <data name="Hint_KpiKind_Composite" xml:space="preserve">
+    <value>Más KPI-k értékeit kombinálja (például AD és Entra összesítések).</value>
+  </data>
+  <data name="Section_General" xml:space="preserve">
+    <value>Általános</value>
+  </data>
+  <data name="Section_Retrieval" xml:space="preserve">
+    <value>Lekérés</value>
+  </data>
+  <data name="Section_Source" xml:space="preserve">
+    <value>Forrás</value>
+  </data>
+  <data name="Section_Evaluation" xml:space="preserve">
+    <value>Kiértékelés</value>
+  </data>
+  <data name="Section_Json" xml:space="preserve">
+    <value>Definíció JSON</value>
+  </data>
+  <data name="Hint_Json" xml:space="preserve">
+    <value>A fenti mezők mentéskor erre a JSON-ra kerülnek. Speciális tulajdonságokhoz (diagramok, részletező oszlopok, bővítések, függvényargumentumok) szerkessze közvetlenül.</value>
+  </data>
+  <data name="Label_Id" xml:space="preserve">
+    <value>Azonosító</value>
+  </data>
+  <data name="Hint_Id" xml:space="preserve">
+    <value>Betűk, számjegyek és aláhúzásjelek; betűvel kell kezdődnie.</value>
+  </data>
+  <data name="Hint_IdClone" xml:space="preserve">
+    <value>Tartsa meg az azonosítót a beépített elem felváltásához, vagy módosítsa új elem hozzáadásához.</value>
+  </data>
+  <data name="Label_DisplayName" xml:space="preserve">
+    <value>Megjelenítendő név</value>
+  </data>
+  <data name="Label_Enabled" xml:space="preserve">
+    <value>Engedélyezve</value>
+  </data>
+  <data name="Label_SortOrder" xml:space="preserve">
+    <value>Rendezési sorrend</value>
+  </data>
+  <data name="Label_Dashboard" xml:space="preserve">
+    <value>Irányítópult</value>
+  </data>
+  <data name="Label_CategoryKind" xml:space="preserve">
+    <value>Kategória fajtája</value>
+  </data>
+  <data name="Label_KpiSortOrder" xml:space="preserve">
+    <value>KPI-k rendezési sorrendje</value>
+  </data>
+  <data name="Label_DataSource" xml:space="preserve">
+    <value>Adatforrás</value>
+  </data>
+  <data name="Label_Category" xml:space="preserve">
+    <value>Kategória</value>
+  </data>
+  <data name="Hint_Category" xml:space="preserve">
+    <value>Beépített vagy egyéni kategóriaazonosító.</value>
+  </data>
+  <data name="Label_Severity" xml:space="preserve">
+    <value>Súlyosság</value>
+  </data>
+  <data name="Label_IsRiskKpi" xml:space="preserve">
+    <value>Megjelenítés az Irányítás és kockázat alatt is</value>
+  </data>
+  <data name="Label_TileText" xml:space="preserve">
+    <value>Csempe felirata</value>
+  </data>
+  <data name="Label_Color" xml:space="preserve">
+    <value>Szín</value>
+  </data>
+  <data name="Label_Dataset" xml:space="preserve">
+    <value>Megosztott adatkészlet</value>
+  </data>
+  <data name="Hint_Dataset" xml:space="preserve">
+    <value>Használjon megosztott adatkészletet, vagy hagyja üresen, és adja meg alább a keresést.</value>
+  </data>
+  <data name="Label_Base" xml:space="preserve">
+    <value>Keresési alap</value>
+  </data>
+  <data name="Label_LdapFilter" xml:space="preserve">
+    <value>LDAP-szűrő</value>
+  </data>
+  <data name="Label_Scope" xml:space="preserve">
+    <value>Hatókör</value>
+  </data>
+  <data name="Label_Objects" xml:space="preserve">
+    <value>Objektumok</value>
+  </data>
+  <data name="Hint_Objects" xml:space="preserve">
+    <value>Soronként egy DN, GUID vagy token (csak objektumlekérésnél).</value>
+  </data>
+  <data name="Label_Attributes" xml:space="preserve">
+    <value>Attribútumok</value>
+  </data>
+  <data name="Hint_Attributes" xml:space="preserve">
+    <value>Lekérendő attribútumok vesszővel elválasztva.</value>
+  </data>
+  <data name="Label_SourceDataset" xml:space="preserve">
+    <value>Forrás adatkészlet</value>
+  </data>
+  <data name="Label_SourceKpi" xml:space="preserve">
+    <value>Forrás KPI</value>
+  </data>
+  <data name="Hint_DerivedSource" xml:space="preserve">
+    <value>Pontosan az egyiket adja meg: forrás adatkészlet vagy forrás KPI.</value>
+  </data>
+  <data name="Label_Sources" xml:space="preserve">
+    <value>Forrás KPI-k</value>
+  </data>
+  <data name="Hint_Sources" xml:space="preserve">
+    <value>KPI-azonosítók vesszővel elválasztva.</value>
+  </data>
+  <data name="Label_Aggregate" xml:space="preserve">
+    <value>Összesítés</value>
+  </data>
+  <data name="Label_EvaluationType" xml:space="preserve">
+    <value>Kiértékelés típusa</value>
+  </data>
+  <data name="Label_EvaluationFilter" xml:space="preserve">
+    <value>Szűrőkifejezés</value>
+  </data>
+  <data name="Hint_EvaluationFilter" xml:space="preserve">
+    <value>Kiválasztja a megszámolt elemeket. Hagyja üresen az összes elem számolásához.</value>
+  </data>
+  <data name="Label_AggregateAttribute" xml:space="preserve">
+    <value>Összesítési attribútum</value>
+  </data>
+  <data name="Label_Function" xml:space="preserve">
+    <value>Függvény</value>
+  </data>
+  <data name="Hint_Function" xml:space="preserve">
+    <value>Regisztrált függvény neve (Függvény kiértékelési típus). Az argumentumok a JSON-ban szerkeszthetők.</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Mégse</value>
+  </data>
+</root>
