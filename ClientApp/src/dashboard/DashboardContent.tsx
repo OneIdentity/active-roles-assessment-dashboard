@@ -13,6 +13,9 @@ const SUMMARY_KEYS: Record<string, { icon: string; capacity: string }> = {
   AdOverviewComputers: { icon: 'computers', capacity: '68.2%' },
 };
 
+/** Key of the main dashboard view; its single Risk & Governance category is expanded by default. */
+const OVERVIEW = 'Overview';
+
 const RISK_GROUPS = [
   ['EmptyGroups', 'NoGroupOwner', 'NoManagerServiceAccount', 'NoManagerUser', 'SpnUserAccounts', 'UserAccountLockedOut'],
   ['CircularGroupNesting', 'ExpiredUsers', 'NeverLoggedIn', 'ReversibleEncryption', 'StaleUsers', 'UnconstrainedComputers'],
@@ -96,7 +99,7 @@ function SourceDistribution({ category, view }: { category: ViewCategory; view: 
   );
 }
 
-function Governance({ category, onKpi }: { category: ViewCategory; onKpi: (kpi: ViewKpi) => void }) {
+function Governance({ category, onKpi, defaultOpen }: { category: ViewCategory; onKpi: (kpi: ViewKpi) => void; defaultOpen: boolean }) {
   const byKey = new Map(category.kpis.map((k) => [k.key, k]));
   const known = new Set(RISK_GROUPS.flat());
   // KPIs without a fixed UX slot are appended to the shorter column so nothing is dropped.
@@ -106,7 +109,7 @@ function Governance({ category, onKpi }: { category: ViewCategory; onKpi: (kpi: 
   const actionRequired = category.kpis.filter(hasRisk).length;
 
   return (
-    <details className="iris-accordion ad-governance-card" open>
+    <details className="iris-accordion ad-governance-card" open={defaultOpen}>
       <summary className="iris-accordion-header ad-governance-header" aria-labelledby={`gov-${category.key}`}>
         <span className="iris-accordion-caret" aria-hidden="true" />
         <span className="ad-governance-heading">
@@ -201,7 +204,7 @@ export function DashboardContent({ view, onKpi, perfDashboards = [] }: Props) {
     <div className="ad-sections">
       {overview && <SummaryMetrics category={overview} />}
       {overview && <SourceDistribution category={overview} view={view} />}
-      {risk.map((c) => <Governance key={c.key} category={c} onKpi={onKpi} />)}
+      {risk.map((c) => <Governance key={`${view.key}:${c.key}`} category={c} onKpi={onKpi} defaultOpen={view.key === OVERVIEW} />)}
       {view.licensing && <LicensingDonuts view={view.licensing} />}
       {view.licensing && <LicensingThresholds view={view.licensing} />}
       {additional.map((c) => <CategoryAccordion key={c.key} category={c} onKpi={onKpi} />)}
