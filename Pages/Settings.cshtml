@@ -29,7 +29,7 @@
         <h1>@Localizer["PageTitle"]</h1>
     </div>
 
-    <form method="post">
+    <form method="post" id="settingsForm">
         @if (!Model.CanAccessSettings)
         {
             <div class="settings-card">
@@ -1396,21 +1396,7 @@
         </div>
         }
 
-        <div class="settings-card">
-            @if (Model.CanManageUserSettings || Model.CanManageSystemSettings)
-            {
-                <button type="submit" class="btn-save">@Localizer["SaveSettings"]</button>
-            }
-            @if (Model.Message != null)
-            {
-                <div class="msg">@Model.Message</div>
-            }
-            @if (Model.RestartRequired)
-            {
-                <div class="msg msg-warn">@Localizer["Msg_RestartRequired"]</div>
-            }
-        </div>
-    </form>
+        </form>
     @if (Model.CanViewUpdates)
     {
     <div class="settings-category" id="updatesCategory">
@@ -1493,6 +1479,23 @@
         }
         </div>
     </div>
+    }
+    @if (Model.CanAccessSettings)
+    {
+        <div class="settings-card">
+            @if (Model.CanManageUserSettings || Model.CanManageSystemSettings)
+            {
+                <button type="submit" form="settingsForm" class="btn-save">@Localizer["SaveSettings"]</button>
+            }
+            @if (Model.Message != null)
+            {
+                <div class="msg">@Model.Message</div>
+            }
+            @if (Model.RestartRequired)
+            {
+                <div class="msg msg-warn">@Localizer["Msg_RestartRequired"]</div>
+            }
+        </div>
     }
     @if (Model.Definitions is not null)
     {
