@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ActiveRolesDashboard.Models;
@@ -137,6 +137,24 @@ public class AccessControlTests : IDisposable
         Assert.Contains("\"User\"", body);
         Assert.DoesNotContain("\"ActiveRolesAdmin\"", body);
         Assert.Contains("\"isActiveRolesAdmin\":false", body);
+    }
+
+    [Fact]
+    public async Task Kpi_search_index_only_lists_kpis_on_permitted_tabs()
+    {
+        using var client = await SignedIn(App(DashboardPermission.ManageUserSettings));
+
+        using var doc = JsonDocument.Parse(await client.GetStringAsync("/api/dashboard"));
+        var tabs = doc.RootElement.GetProperty("tabs").EnumerateArray()
+            .Select(t => t.GetProperty("key").GetString()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var index = doc.RootElement.GetProperty("kpiIndex").EnumerateArray().ToList();
+
+        Assert.NotEmpty(index);
+        Assert.All(index, item =>
+        {
+            Assert.Contains(item.GetProperty("dashboardKey").GetString(), tabs);
+            Assert.False(string.IsNullOrEmpty(item.GetProperty("kpi").GetProperty("label").GetString()));
+        });
     }
 
     [Fact]

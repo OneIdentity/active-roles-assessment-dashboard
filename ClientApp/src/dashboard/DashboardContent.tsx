@@ -128,7 +128,7 @@ function Governance({ category, onKpi, defaultOpen }: { category: ViewCategory; 
                   const risk = hasRisk(kpi);
                   return (
                     <button type="button" key={kpi.key} className={`kpi ad-risk-row ${risk ? 'has-risk' : 'is-clear'} ${severityClass(kpi)}`}
-                      data-section={kpi.sectionId} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}${exclusionSuffix(kpi)}. ${t.viewDetails}`}
+                      data-section={kpi.sectionId} data-kpi-key={kpi.key} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}${exclusionSuffix(kpi)}. ${t.viewDetails}`}
                       title={kpiTitle(kpi)}
                       onClick={() => onKpi(kpi)}>
                       <span className={`ad-risk-icon ${risk ? 'has-risk' : ''} ${severityClass(kpi)}`} aria-hidden="true" />
@@ -173,7 +173,7 @@ function CategoryAccordion({ category, onKpi }: { category: ViewCategory; onKpi:
         <CategoryCharts category={category} />
         <div className="kpi-grid">
           {category.kpis.map((kpi) => (
-            <button type="button" key={kpi.key} data-section={kpi.sectionId} onClick={() => onKpi(kpi)}
+            <button type="button" key={kpi.key} data-section={kpi.sectionId} data-kpi-key={kpi.key} onClick={() => onKpi(kpi)}
               title={kpiTitle(kpi)} aria-label={`${kpi.label}: ${kpiValue(kpi)}${severitySuffix(kpi)}${exclusionSuffix(kpi)}`}
               className={`kpi ${kpi.colorToken} iris-kpi-row ${kpi.isRisk ? 'is-risk' : ''} ${kpi.isRisk && hasRisk(kpi) ? 'has-risk' : ''} ${kpi.isRisk ? severityClass(kpi) : ''}`}>
               <span className="lbl">{kpi.label}</span>
