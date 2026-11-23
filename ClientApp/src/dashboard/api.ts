@@ -30,7 +30,16 @@ export interface DashboardPayload {
   capabilities: DashboardCapabilities;
   segmentFilter: SegmentFilterView;
   tabs: DashboardTab[];
+  kpiIndex: SearchKpi[];
   generatedAtUtc: string;
+}
+
+export interface SearchKpi {
+  dashboardKey: string;
+  dashboardTitle: string;
+  categoryKey: string;
+  categoryTitle: string;
+  kpi: ViewKpi;
 }
 
 export interface ChartDataset {

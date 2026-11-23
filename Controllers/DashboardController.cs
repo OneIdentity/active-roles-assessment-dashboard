@@ -1,4 +1,4 @@
-﻿using ActiveRolesDashboard.Models;
+using ActiveRolesDashboard.Models;
 using ActiveRolesDashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -139,7 +139,19 @@ public class DashboardController : ControllerBase
         public List<NavigationTile> Tiles { get; set; } = new();
         /// <summary>Tabs visible to the caller: "Overview" followed by each permitted dashboard.</summary>
         public List<DashboardTab> Tabs { get; set; } = new();
+        /// <summary>Every KPI visible to the caller across all permitted dashboards, for the header KPI search.</summary>
+        public List<SearchKpi> KpiIndex { get; set; } = new();
         public DateTime GeneratedAtUtc { get; set; }
+    }
+
+    /// <summary>One KPI search entry: where the KPI lives (dashboard tab and category) plus its current value.</summary>
+    public sealed class SearchKpi
+    {
+        public string DashboardKey { get; set; } = string.Empty;
+        public string DashboardTitle { get; set; } = string.Empty;
+        public string CategoryKey { get; set; } = string.Empty;
+        public string CategoryTitle { get; set; } = string.Empty;
+        public ViewKpi Kpi { get; set; } = new();
     }
 
     public sealed class SourceSplitItem
@@ -291,8 +303,54 @@ public class DashboardController : ControllerBase
         };
         payload.Tabs.Add(new DashboardTab { Key = OverviewKey, Title = CategoryInfo.Get("Overview").DisplayName });
         payload.Tabs.AddRange(payload.Tiles.Select(t => new DashboardTab { Key = t.Key, Title = t.Title }));
+        payload.KpiIndex = BuildKpiIndex(payload.Tabs, summary, kpiSettings);
 
         return Ok(payload);
+    }
+
+    /// <summary>Categories shown on a dashboard tab, or null when the key is not a known dashboard.</summary>
+    private static IEnumerable<CategoryInfo>? CategoriesForTab(string key)
+    {
+        if (string.Equals(key, OverviewKey, StringComparison.OrdinalIgnoreCase))
+            return [CategoryInfo.Get("Overview"), CategoryInfo.Get("ADGovernance")];
+        var dashboard = DashboardInfo.All.FirstOrDefault(d => string.Equals(d.Key, key, StringComparison.OrdinalIgnoreCase));
+        return dashboard is null ? null : CategoryInfo.ForDashboard(dashboard);
+    }
+
+    /// <summary>Visible KPIs of a category, using the same filtering as <see cref="GetView"/>.</summary>
+    private static IEnumerable<KpiInfo> VisibleKpis(CategoryInfo category, DashboardSummary summary, KpiSettings kpiSettings) =>
+        KpiInfo.ForCategory(category)
+            .Where(kpi => kpiSettings.IsKpiEnabled(kpi.CategoryKey, kpi.Key))
+            .Where(kpi => kpi.Key != "MainTotalMailboxes" || summary.ExchangeVisible);
+
+    /// <summary>
+    /// Builds the header search index from the caller's permitted tabs only, so the search can never
+    /// reveal a KPI on a dashboard the caller cannot open.
+    /// </summary>
+    private List<SearchKpi> BuildKpiIndex(IEnumerable<DashboardTab> tabs, DashboardSummary summary, KpiSettings kpiSettings)
+    {
+        var index = new List<SearchKpi>();
+        foreach (var tab in tabs)
+        {
+            var categories = CategoriesForTab(tab.Key);
+            if (categories is null) continue;
+            foreach (var category in categories)
+            {
+                if (!kpiSettings.IsCategoryEnabled(category.Key)) continue;
+                foreach (var kpi in VisibleKpis(category, summary, kpiSettings))
+                {
+                    index.Add(new SearchKpi
+                    {
+                        DashboardKey = tab.Key,
+                        DashboardTitle = tab.Title,
+                        CategoryKey = category.Key,
+                        CategoryTitle = category.DisplayName,
+                        Kpi = ToViewKpi(kpi, summary)
+                    });
+                }
+            }
+        }
+        return index;
     }
 
     /// <summary>

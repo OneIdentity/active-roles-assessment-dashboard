@@ -133,8 +133,110 @@
 }
 
 .ad-app-bar > .hdr-right {
-    margin-left: auto;
     gap: 8px;
+}
+
+.ad-kpi-search {
+    position: relative;
+    margin-left: auto;
+    width: min(360px, 40vw);
+}
+
+.ad-kpi-search-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--oi-content-color-secondary);
+    pointer-events: none;
+}
+
+.ad-kpi-search input {
+    width: 100%;
+    height: 30px;
+    padding: 0 56px 0 32px;
+    border: 1px solid var(--oi-border-color-muted);
+    border-radius: var(--oi-border-radius-default);
+    background: var(--oi-background-color-primary);
+    color: var(--oi-content-color-primary);
+    font-size: 13px;
+}
+
+.ad-kpi-search input:focus-visible {
+    outline: 2px solid var(--oi-border-color-focus);
+    outline-offset: 0;
+}
+
+.ad-kpi-search-hint {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--oi-content-color-secondary);
+    pointer-events: none;
+}
+
+.ad-kpi-search input:focus ~ .ad-kpi-search-hint {
+    display: none;
+}
+
+.ad-kpi-search-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 420px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: var(--oi-background-color-primary);
+    border: 1px solid var(--oi-border-color-muted);
+    border-radius: var(--oi-border-radius-default);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.ad-kpi-search-results li[role="option"] {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 12px;
+    padding: 6px 8px;
+    border-radius: var(--oi-border-radius-default);
+    cursor: pointer;
+}
+
+.ad-kpi-search-results li.is-active {
+    background: var(--oi-background-color-tertiary);
+}
+
+.ad-kpi-search-label {
+    color: var(--oi-content-color-primary);
+    font-size: 13px;
+}
+
+.ad-kpi-search-value {
+    font-weight: 600;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.ad-kpi-search-path {
+    grid-column: 1 / -1;
+    color: var(--oi-content-color-secondary);
+    font-size: 12px;
+}
+
+.ad-kpi-search-empty,
+.ad-kpi-search-more {
+    padding: 8px;
+    color: var(--oi-content-color-secondary);
+    font-size: 12px;
+}
+
+.kpi.is-search-hit {
+    outline: 2px solid var(--oi-border-color-focus);
+    outline-offset: 2px;
 }
 
 .ad-app-bar .membership-indicator {

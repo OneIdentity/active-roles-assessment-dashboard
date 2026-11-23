@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   getDashboard, getDashboardView, getRefreshStatus, HttpError, rebuildCache, setSegments,
-  type DashboardPayload, type DashboardView, type ViewKpi,
+  type DashboardPayload, type DashboardView, type SearchKpi, type ViewKpi,
   withBase,
 } from './api';
 import { DashboardContent } from './DashboardContent';
 import { ExportDialog } from './ExportDialog';
 import { KpiDetailModal } from './KpiDetailModal';
+import { KpiSearch } from './KpiSearch';
 import { SegmentFilter } from './SegmentFilter';
 import { Sidebar } from './Sidebar';
 import { t } from './strings';
@@ -61,6 +62,7 @@ export function DashboardFrame() {
   const [detailKpi, setDetailKpi] = useState<ViewKpi | null>(null);
   const [exportState, setExportState] = useState<{ kpi?: string } | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [pendingKpi, setPendingKpi] = useState<SearchKpi | null>(null);
   const tabsRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -196,6 +198,33 @@ export function DashboardFrame() {
   };
 
   const onKpi = useCallback((kpi: ViewKpi) => setDetailKpi(kpi), []);
+
+  /** Search result chosen: switch to its dashboard (if needed); the effect below reveals it once loaded. */
+  const onSearchSelect = (item: SearchKpi) => {
+    setPendingKpi(item);
+    if (item.dashboardKey.toLowerCase() !== tabKey.toLowerCase()) {
+      const url = new URL(window.location.pathname, window.location.origin);
+      if (item.dashboardKey !== OVERVIEW) url.searchParams.set('dashboard', item.dashboardKey);
+      history.pushState({ dashboard: item.dashboardKey }, '', url);
+      setTabKey(item.dashboardKey);
+    }
+  };
+
+  useEffect(() => {
+    if (!pendingKpi || viewState.status !== 'ready') return;
+    if (viewState.view.key.toLowerCase() !== pendingKpi.dashboardKey.toLowerCase()) return;
+    setPendingKpi(null);
+    const button = scrollRef.current?.querySelector<HTMLElement>(`[data-kpi-key="${CSS.escape(pendingKpi.kpi.key)}"]`);
+    const details = button?.closest('details');
+    if (details) details.open = true;
+    if (button) {
+      button.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      button.classList.add('is-search-hit');
+      window.setTimeout(() => button.classList.remove('is-search-hit'), 2000);
+    }
+    const fresh = viewState.view.categories.flatMap((c) => c.kpis).find((k) => k.key === pendingKpi.kpi.key);
+    setDetailKpi(fresh ?? pendingKpi.kpi);
+  }, [pendingKpi, viewState]);
   const closeDetail = useCallback(() => setDetailKpi(null), []);
   const closeExport = useCallback(() => setExportState(null), []);
   const onExportResult = useCallback((ok: boolean) => { if (!ok) showToast('error', t.exportFailed); }, [showToast]);
@@ -246,6 +275,7 @@ export function DashboardFrame() {
               <nav className="ad-breadcrumb" aria-label={t.breadcrumb}>
                 <span>{t.activeRoles}</span><span aria-hidden="true">/</span><span aria-current="page">{t.dashboard}</span>
               </nav>
+              <KpiSearch index={payload.kpiIndex ?? []} onSelect={onSearchSelect} />
               {payload.userName && (
                 <div className="hdr-right">
                   <span className="iris-avatar iris-avatar-default" role="img"
