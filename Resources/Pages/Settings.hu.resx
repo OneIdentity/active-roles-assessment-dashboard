@@ -396,4 +396,19 @@
   <data name="Definitions_Filter" xml:space="preserve">
     <value>Definíciók szűrése</value>
   </data>
+  <data name="Dialog_ConfirmTitle" xml:space="preserve">
+    <value>Megerősítés</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Mégse</value>
+  </data>
+  <data name="Dialog_CannotRemoveTitle" xml:space="preserve">
+    <value>A definíció nem távolítható el</value>
+  </data>
+  <data name="Dialog_CannotRemove" xml:space="preserve">
+    <value>A(z) &apos;{0}&apos; nem távolítható el, mert a következő definíciók függnek tőle. Először módosítsa vagy távolítsa el ezeket:</value>
+  </data>
+  <data name="Dialog_Close" xml:space="preserve">
+    <value>Bezárás</value>
+  </data>
 </root>

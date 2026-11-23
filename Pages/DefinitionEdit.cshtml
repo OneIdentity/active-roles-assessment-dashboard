@@ -128,8 +128,17 @@
             {
                 <div class="form-group">
                     <label asp-for="Fields.CategoryId">@Localizer["Label_Category"]</label>
-                    <input asp-for="Fields.CategoryId" list="categoryIds" required />
-                    <datalist id="categoryIds">@foreach (var c in Model.CategoryIds) { <option value="@c"></option> }</datalist>
+                    <select asp-for="Fields.CategoryId" required>
+                        <option value=""></option>
+                        @if (!string.IsNullOrEmpty(Model.Fields.CategoryId) && !Model.CategoryIds.Contains(Model.Fields.CategoryId, StringComparer.OrdinalIgnoreCase))
+                        {
+                            <option value="@Model.Fields.CategoryId" selected>@Model.Fields.CategoryId</option>
+                        }
+                        @foreach (var c in Model.CategoryIds)
+                        {
+                            <option value="@c" selected="@(string.Equals(c, Model.Fields.CategoryId, StringComparison.OrdinalIgnoreCase))">@c</option>
+                        }
+                    </select>
                     <p class="hint">@Localizer["Hint_Category"]</p>
                 </div>
                 <div class="form-group">

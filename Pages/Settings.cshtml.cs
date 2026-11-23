@@ -49,6 +49,9 @@ public class SettingsModel : PageModel
 
     public string? DefinitionMessage { get; private set; }
 
+    /// <summary>Items that reference each editable custom definition, keyed by "Kind:Id"; removal is blocked while any exist.</summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>> DefinitionDependents { get; private set; } = new Dictionary<string, IReadOnlyList<string>>();
+
     public IReadOnlyList<string> DefinitionErrors { get; private set; } = [];
 
     public async Task<IActionResult> OnPostRemoveDefinitionAsync(ActiveRolesDashboard.Services.Definitions.DefinitionKind kind, string id)
@@ -88,6 +91,9 @@ public class SettingsModel : PageModel
             _definitionStore.CurrentOverrideFiles,
             pending ? _definitionStore.ValidateCurrentOverrides() : []);
         DefinitionEntries = _definitionAdmin.List();
+        DefinitionDependents = DefinitionEntries.Where(e => e.Editable)
+            .GroupBy(e => $"{e.Kind}:{e.Id}", StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => _definitionAdmin.Dependents(g.First().Kind, g.First().Id), StringComparer.OrdinalIgnoreCase);
         if (TempData["DefinitionMessage"] is string saved)
             DefinitionMessage ??= saved;
     }

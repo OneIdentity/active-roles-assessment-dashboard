@@ -396,4 +396,19 @@
   <data name="Definitions_Filter" xml:space="preserve">
     <value>Filtrar definiciones</value>
   </data>
+  <data name="Dialog_ConfirmTitle" xml:space="preserve">
+    <value>Confirme</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Dialog_CannotRemoveTitle" xml:space="preserve">
+    <value>No se puede quitar la definición</value>
+  </data>
+  <data name="Dialog_CannotRemove" xml:space="preserve">
+    <value>&apos;{0}&apos; no se puede quitar porque las siguientes definiciones dependen de ella. Modifíquelas o quítelas primero:</value>
+  </data>
+  <data name="Dialog_Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
 </root>
