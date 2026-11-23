@@ -83,4 +83,6 @@
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Supprimer l&apos;évaluation</value></data>
   <data name="Cancel" xml:space="preserve"><value>Annuler</value></data>
   <data name="Delete" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="AppliedUpdates" xml:space="preserve"><value>Mises à jour d'évaluation appliquées :</value></data>
+  <data name="RuleSetChanged" xml:space="preserve"><value>Les jeux de règles diffèrent entre ces exécutions (mises à jour d'évaluation modifiées) ; certaines différences peuvent provenir de changements de règles plutôt que de l'environnement.</value></data>
 </root>

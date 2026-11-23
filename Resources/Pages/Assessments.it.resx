@@ -83,4 +83,6 @@
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Elimina valutazione</value></data>
   <data name="Cancel" xml:space="preserve"><value>Annulla</value></data>
   <data name="Delete" xml:space="preserve"><value>Elimina</value></data>
+  <data name="AppliedUpdates" xml:space="preserve"><value>Aggiornamenti di valutazione applicati:</value></data>
+  <data name="RuleSetChanged" xml:space="preserve"><value>I set di regole differiscono tra queste esecuzioni (aggiornamenti di valutazione modificati); alcune differenze potrebbero derivare da modifiche alle regole e non all'ambiente.</value></data>
 </root>

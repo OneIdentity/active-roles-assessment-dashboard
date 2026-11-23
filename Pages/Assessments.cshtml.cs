@@ -135,7 +135,7 @@ public class AssessmentsModel : DashboardPageModel
         {
             // Don't score a membership-dependent type against provisional data while Entra
             // group membership is still loading; mirror the guard used when running an assessment.
-            if (AssessmentRuleLibrary.DependsOnEntraGroupMembership(from.Type) && Summary.EntraMembershipDataPending)
+            if (_assessments.Rules.DependsOnEntraGroupMembership(from.Type) && Summary.EntraMembershipDataPending)
             {
                 StatusMessage = $"The {AssessmentTypeInfo.DisplayName(from.Type)} assessment depends on Entra group " +
                     "membership, which is still loading. Wait until membership loading completes before comparing " +
@@ -193,7 +193,7 @@ public class AssessmentsModel : DashboardPageModel
         // Block assessments that depend on accurate Entra group membership until lazy
         // membership loading has completed. Independent assessments (Active Roles, Active
         // Directory, etc.) are unaffected and continue to run.
-        if (AssessmentRuleLibrary.DependsOnEntraGroupMembership(Type) && Summary.EntraMembershipDataPending)
+        if (_assessments.Rules.DependsOnEntraGroupMembership(Type) && Summary.EntraMembershipDataPending)
         {
             StatusMessage = $"The {AssessmentTypeInfo.DisplayName(Type)} assessment depends on Entra group " +
                 "membership, which is still loading. Wait until membership loading completes, then run it " +

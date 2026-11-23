@@ -218,4 +218,7 @@
   <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve">
     <value>Postfachberechtigungen (Senden als)</value>
   </data>
+  <data name="SettingsCat_Updates" xml:space="preserve">
+    <value>Aktualisierungen</value>
+  </data>
 </root>

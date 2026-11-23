@@ -267,4 +267,7 @@
   <data name="Kpi_BroadDelegationLinks" xml:space="preserve"><value>Delegated to Broad Principals</value></data>
   <data name="Kpi_UserDelegationLinks" xml:space="preserve"><value>Delegated Directly to Users</value></data>
   <data name="Kpi_RootDelegationLinks" xml:space="preserve"><value>Delegated at Domain Root</value></data>
+  <data name="SettingsCat_Updates" xml:space="preserve">
+    <value>Updates</value>
+  </data>
 </root>

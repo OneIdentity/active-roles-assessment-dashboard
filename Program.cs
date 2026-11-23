@@ -123,6 +123,8 @@ builder.Services.AddSingleton<UserSettingsService>();
 builder.Services.AddSingleton<SnapshotService>();
 builder.Services.AddSingleton<KpiThresholdService>();
 builder.Services.AddSingleton<KpiExclusionService>();
+builder.Services.AddSingleton<AssessmentUpdateStore>(sp => new AssessmentUpdateStore(sp.GetRequiredService<IWebHostEnvironment>()));
+builder.Services.AddSingleton<IAssessmentRuleProvider, AssessmentRuleProvider>();
 builder.Services.AddSingleton<AssessmentService>();
 builder.Services.AddSingleton<MitreExposureService>();
 

@@ -72,11 +72,11 @@ public class AssessmentReportBuilder
                 var count = check.Error != null ? "\u2014" : check.Count.ToString();
                 var note = check.Error != null
                     ? check.Error
-                    : (check.Status == AssessmentStatus.Pass ? "No action required" : AssessmentLocalizer.Recommendation(check.RuleId, check.Recommendation));
+                    : (check.Status == AssessmentStatus.Pass ? "No action required" : AssessmentLocalizer.Recommendation(check));
 
                 table.Rows.Add(new List<string>
                 {
-                    AssessmentLocalizer.Title(check.RuleId, check.Title),
+                    AssessmentLocalizer.Title(check),
                     check.Severity.ToString(),
                     count,
                     status,

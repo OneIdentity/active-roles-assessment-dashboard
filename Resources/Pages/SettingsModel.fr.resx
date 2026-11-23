@@ -22,4 +22,25 @@
   <data name="Definitions_Removed" xml:space="preserve">
     <value>Définition personnalisée « {0} » supprimée. Appliquez et redémarrez pour utiliser la modification.</value>
   </data>
+  <data name="Updates_Disabled" xml:space="preserve">
+    <value>Mise à jour d&apos;évaluation {0} désactivée.</value>
+  </data>
+  <data name="Updates_Enabled" xml:space="preserve">
+    <value>Mise à jour d&apos;évaluation {0} activée.</value>
+  </data>
+  <data name="Updates_Installed" xml:space="preserve">
+    <value>Mise à jour d&apos;évaluation {0} version {1} installée.</value>
+  </data>
+  <data name="Updates_NoFile" xml:space="preserve">
+    <value>Sélectionnez un fichier de pack de mise à jour.</value>
+  </data>
+  <data name="Updates_Removed" xml:space="preserve">
+    <value>Mise à jour d&apos;évaluation {0} supprimée.</value>
+  </data>
+  <data name="Updates_Reverted" xml:space="preserve">
+    <value>Toutes les mises à jour d&apos;évaluation sont désactivées ; règles intégrées restaurées.</value>
+  </data>
+  <data name="Updates_TooLarge" xml:space="preserve">
+    <value>Le pack de mise à jour dépasse la limite de 1 Mo.</value>
+  </data>
 </root>

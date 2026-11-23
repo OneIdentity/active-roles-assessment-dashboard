@@ -283,6 +283,44 @@ public class RoleResolutionTests : IDisposable
         Assert.NotEmpty(reloaded.GetPermissions(DashboardRole.DashboardAdministrator));
     }
 
+    // ---------------------------------------------------------------- assessment update permission
+
+    [Theory]
+    [InlineData(DashboardRole.DashboardAdministrator, true)]
+    [InlineData(DashboardRole.Auditor, true)]
+    [InlineData(DashboardRole.PowerUser, false)]
+    [InlineData(DashboardRole.User, false)]
+    public void ManageAssessmentUpdates_default_grants(DashboardRole role, bool expected)
+    {
+        Assert.Equal(expected, CreateRoleService().GetPermissions(role).Contains(DashboardPermission.ManageAssessmentUpdates));
+    }
+
+    [Fact]
+    public void Legacy_persisted_matrix_receives_new_auditor_default()
+    {
+        _config.Roles.ProtectedMatrix = _protector.Protect(JsonSerializer.Serialize(new Dictionary<string, List<string>>
+        {
+            ["Auditor"] = ["ViewAssessments"]
+        }));
+
+        var perms = CreateRoleService().GetPermissions(DashboardRole.Auditor);
+
+        Assert.Contains(DashboardPermission.ViewAssessments, perms);
+        Assert.Contains(DashboardPermission.ManageAssessmentUpdates, perms);
+    }
+
+    [Fact]
+    public void Revoked_update_permission_stays_revoked_after_save()
+    {
+        var svc = CreateRoleService();
+        var edited = svc.GetMatrix().ToDictionary(k => k.Key, v => v.Value);
+        edited[DashboardRole.Auditor] = edited[DashboardRole.Auditor].Where(p => p != DashboardPermission.ManageAssessmentUpdates).ToHashSet();
+
+        _config.Roles.ProtectedMatrix = svc.ProtectMatrix(edited);
+
+        Assert.DoesNotContain(DashboardPermission.ManageAssessmentUpdates, CreateRoleService().GetPermissions(DashboardRole.Auditor));
+    }
+
     // ---------------------------------------------------------------- directory facts cache
 
     private int RoleGroupQueries() => _server.Requests.Count(r =>

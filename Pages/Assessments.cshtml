@@ -231,6 +231,11 @@
                 @if (cmp.AddedCount > 0) { <span class="snap-pill">@cmp.AddedCount @Localizer["Added"]</span> }
                 @if (cmp.RemovedCount > 0) { <span class="snap-pill">@cmp.RemovedCount @Localizer["Removed"]</span> }
             </div>
+            @if (!string.Equals(cmp.From.RuleSetFingerprint, cmp.To.RuleSetFingerprint, StringComparison.Ordinal)
+                 && (cmp.From.RuleSetFingerprint != null || cmp.To.RuleSetFingerprint != null))
+            {
+                <p class="snap-hint">@Localizer["RuleSetChanged"]</p>
+            }
 
             @foreach (var category in cmp.Categories)
             {
@@ -249,7 +254,7 @@
                         @foreach (var row in category.Rows)
                         {
                             <tr class="@AssessmentsModel_RowClass(row.Sentiment)">
-                                <td>@Services.AssessmentLocalizer.Title(row.RuleId, row.Title)</td>
+                                <td>@Services.AssessmentLocalizer.Title(row.Source, row.RuleId, row.Title)</td>
                                 <td><span class="asmt-status-badge @AssessmentsModel_StatusClass(row.FromStatus)">@AssessmentsModel_StatusText(row.FromStatus, Localizer)</span></td>
                                 <td><span class="asmt-status-badge @AssessmentsModel_StatusClass(row.ToStatus)">@AssessmentsModel_StatusText(row.ToStatus, Localizer)</span></td>
                                 <td class="snap-num">
@@ -291,6 +296,10 @@
                     <span class="snap-pill snap-pill-bad">@a.FailCount @Localizer["Failed"]</span>
                     @if (a.NotApplicableCount > 0) { <span class="snap-pill">@a.NotApplicableCount @Localizer["NotApplicableShort"]</span> }
                 </div>
+                @if (a.AppliedUpdates is { Count: > 0 })
+                {
+                    <div class="snap-hint">@Localizer["AppliedUpdates"] @string.Join(", ", a.AppliedUpdates.Select(u => $"{u.Id} v{u.Version}"))</div>
+                }
             </div>
             @if (Model.CanExportAssessments)
             {
@@ -349,7 +358,7 @@
                         @foreach (var c in category.Checks)
                         {
                             <tr class="asmt-row asmt-row-@c.Status.ToString().ToLowerInvariant()">
-                                <td>@Services.AssessmentLocalizer.Title(c.RuleId, c.Title)</td>
+                                <td>@Services.AssessmentLocalizer.Title(c)</td>
                                 <td><span class="asmt-sev asmt-sev-@c.Severity.ToString().ToLowerInvariant()">@c.Severity</span></td>
                                 <td class="snap-num">@(c.Error != null ? "—" : c.Count.ToString())</td>
                                 <td>
@@ -364,7 +373,7 @@
                                     }
                                     else if (c.Status != Models.AssessmentStatus.Pass)
                                     {
-                                        @Services.AssessmentLocalizer.Recommendation(c.RuleId, c.Recommendation)
+                                        @Services.AssessmentLocalizer.Recommendation(c)
                                     }
                                     else
                                     {

@@ -218,4 +218,7 @@
   <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve">
     <value>Permisos de buzón (Enviar como)</value>
   </data>
+  <data name="SettingsCat_Updates" xml:space="preserve">
+    <value>Actualizaciones</value>
+  </data>
 </root>

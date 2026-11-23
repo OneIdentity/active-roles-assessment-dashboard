@@ -278,4 +278,7 @@
   <data name="Kpi_ExchangeSendAsKpi" xml:space="preserve">
     <value>Postafiók-engedélyek (Küldés másként)</value>
   </data>
+  <data name="SettingsCat_Updates" xml:space="preserve">
+    <value>Frissítések</value>
+  </data>
 </root>

@@ -410,4 +410,73 @@
   <data name="Dialog_Close" xml:space="preserve">
     <value>Fermer</value>
   </data>
+  <data name="Card_AssessmentUpdates" xml:space="preserve">
+    <value>Évaluations</value>
+  </data>
+  <data name="Hint_AssessmentUpdates" xml:space="preserve">
+    <value>Importez des packs signés de mise à jour des évaluations pour modifier, retirer ou ajouter des règles sans mettre à niveau le tableau de bord. Chaque pack est vérifié par son hachage SHA-256 et peut être désactivé ou supprimé à tout moment.</value>
+  </data>
+  <data name="Label_UpdatePackFile" xml:space="preserve">
+    <value>Pack de mise à jour (.json)</value>
+  </data>
+  <data name="Updates_ColId" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Updates_ColImported" xml:space="preserve">
+    <value>Importé</value>
+  </data>
+  <data name="Updates_ColStatus" xml:space="preserve">
+    <value>État</value>
+  </data>
+  <data name="Updates_ColTitle" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="Updates_ColVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Updates_ConfirmRemove" xml:space="preserve">
+    <value>Supprimer cette mise à jour d&apos;évaluation ?</value>
+  </data>
+  <data name="Updates_ConfirmRevert" xml:space="preserve">
+    <value>Désactiver toutes les mises à jour d&apos;évaluation ?</value>
+  </data>
+  <data name="Updates_Disable" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="Updates_Enable" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="Updates_Install" xml:space="preserve">
+    <value>Installer</value>
+  </data>
+  <data name="Updates_Invalid" xml:space="preserve">
+    <value>Le pack de mise à jour a été rejeté :</value>
+  </data>
+  <data name="Updates_None" xml:space="preserve">
+    <value>Aucune mise à jour d&apos;évaluation installée ; les règles intégrées sont utilisées.</value>
+  </data>
+  <data name="Updates_Preview" xml:space="preserve">
+    <value>Valider</value>
+  </data>
+  <data name="Updates_PreviewValid" xml:space="preserve">
+    <value>Le pack {0} version {1} est valide ({2} opérations). Il n&apos;a pas été installé.</value>
+  </data>
+  <data name="Updates_Remove" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Updates_RevertAll" xml:space="preserve">
+    <value>Revenir aux règles intégrées</value>
+  </data>
+  <data name="Updates_Status_Active" xml:space="preserve">
+    <value>Actif</value>
+  </data>
+  <data name="Updates_Status_Disabled" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="Updates_Status_Invalid" xml:space="preserve">
+    <value>Non valide</value>
+  </data>
+  <data name="Updates_Valid" xml:space="preserve">
+    <value>Le pack {0} version {1} est valide.</value>
+  </data>
 </root>

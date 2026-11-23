@@ -93,4 +93,6 @@
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Értékelés törlése</value></data>
   <data name="Cancel" xml:space="preserve"><value>Mégse</value></data>
   <data name="Delete" xml:space="preserve"><value>Törlés</value></data>
+  <data name="AppliedUpdates" xml:space="preserve"><value>Alkalmazott értékelési frissítések:</value></data>
+  <data name="RuleSetChanged" xml:space="preserve"><value>A futtatások szabálykészletei eltérnek (értékelési frissítések változtak); egyes különbségek a szabályok, nem a környezet változásából adódhatnak.</value></data>
 </root>

@@ -1411,6 +1411,89 @@
             }
         </div>
     </form>
+    @if (Model.CanViewUpdates)
+    {
+    <div class="settings-category" id="updatesCategory">
+        <div class="category-header collapsed" onclick="toggleSection(this)">
+            <h2>@SettingsCategoryInfo.Updates.DisplayName</h2>
+            <button type="button" class="category-toggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+        </div>
+        <div class="category-body collapsed">
+        @if (Model.CanManageAssessmentUpdates)
+        {
+        <div class="settings-card">
+            <h2>@Localizer["Card_AssessmentUpdates"]</h2>
+            <p class="hint">@Localizer["Hint_AssessmentUpdates"]</p>
+            @if (Model.AssessmentUpdateMessage != null)
+            {
+                <div class="msg">@Model.AssessmentUpdateMessage</div>
+            }
+            @if (Model.AssessmentUpdateResult is { } r)
+            {
+                @if (r.IsValid)
+                {
+                    <div class="msg">@(Model.AssessmentUpdatePreviewOnly ? Localizer["Updates_PreviewValid", r.Pack!.Id, r.Pack.Version, r.Pack.Operations.Count] : Localizer["Updates_Valid", r.Pack!.Id, r.Pack.Version])</div>
+                    <p class="hint">SHA-256: <code>@r.ComputedSha256</code></p>
+                }
+                else
+                {
+                    <div class="msg msg-warn">@Localizer["Updates_Invalid"]</div>
+                    <ul>@foreach (var e in r.Errors) { <li>@e</li> }</ul>
+                }
+                @foreach (var w in r.Warnings) { <p class="hint">@w</p> }
+            }
+            <form method="post" enctype="multipart/form-data" asp-page-handler="AssessmentUpdateUpload">
+                <div class="form-group">
+                    <label for="packFile">@Localizer["Label_UpdatePackFile"]</label>
+                    <input type="file" id="packFile" name="packFile" accept=".json,application/json" required />
+                </div>
+                <button type="submit" name="install" value="false" class="btn-save">@Localizer["Updates_Preview"]</button>
+                <button type="submit" name="install" value="true" class="btn-save">@Localizer["Updates_Install"]</button>
+            </form>
+
+            @if (Model.AssessmentUpdatePacks.Count == 0)
+            {
+                <p class="hint">@Localizer["Updates_None"]</p>
+            }
+            else
+            {
+                <table class="settings-table">
+                    <thead><tr><th>@Localizer["Updates_ColId"]</th><th>@Localizer["Updates_ColVersion"]</th><th>@Localizer["Updates_ColTitle"]</th><th>@Localizer["Updates_ColStatus"]</th><th>@Localizer["Updates_ColImported"]</th><th>SHA-256</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var p in Model.AssessmentUpdatePacks)
+                    {
+                        <tr>
+                            <td>@p.State.Id</td>
+                            <td>@p.Pack?.Version</td>
+                            <td>@p.Pack?.Title</td>
+                            <td>@Localizer["Updates_Status_" + p.Status]
+                                @foreach (var e in p.Errors) { <div class="hint">@e</div> }</td>
+                            <td>@p.State.ImportedUtc.ToString("yyyy-MM-dd HH:mm") @p.State.ImportedBy</td>
+                            <td><code title="@p.State.Sha256">@(p.State.Sha256.Length > 12 ? p.State.Sha256[..12] + "…" : p.State.Sha256)</code></td>
+                            <td>
+                                <form method="post" asp-page-handler="AssessmentUpdateToggle" style="display:inline">
+                                    <input type="hidden" name="id" value="@p.State.Id" />
+                                    <input type="hidden" name="enabled" value="@((!p.State.Enabled).ToString().ToLowerInvariant())" />
+                                    <button type="submit">@(p.State.Enabled ? Localizer["Updates_Disable"] : Localizer["Updates_Enable"])</button>
+                                </form>
+                                <form method="post" asp-page-handler="AssessmentUpdateRemove" style="display:inline" onsubmit="return confirm('@Localizer["Updates_ConfirmRemove"]');">
+                                    <input type="hidden" name="id" value="@p.State.Id" />
+                                    <button type="submit">@Localizer["Updates_Remove"]</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <form method="post" asp-page-handler="AssessmentUpdateRevertAll" onsubmit="return confirm('@Localizer["Updates_ConfirmRevert"]');">
+                    <button type="submit" class="btn-save">@Localizer["Updates_RevertAll"]</button>
+                </form>
+            }
+        </div>
+        }
+        </div>
+    </div>
+    }
     @if (Model.Definitions is not null)
     {
         <form method="post" id="definitionsForm"></form>
