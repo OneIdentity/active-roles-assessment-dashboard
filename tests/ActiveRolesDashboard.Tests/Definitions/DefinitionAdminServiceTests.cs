@@ -67,6 +67,24 @@ public sealed class DefinitionAdminServiceTests : IDisposable
     }
 
     [Fact]
+    public void Dependents_lists_every_referencing_kpi()
+    {
+        var admin = Create();
+        admin.Save(DefinitionKind.Category, CustomCategory(), null);
+        admin.Save(DefinitionKind.Kpi, CompositeKpi("Custom_A", "Custom_Cat", admin.KpiIds()[0]), null);
+        admin.Save(DefinitionKind.Kpi, CompositeKpi("Custom_B", "Custom_Cat", "Custom_A"), null);
+
+        Assert.Equal(["KPI 'Custom_A'", "KPI 'Custom_B'"], admin.Dependents(DefinitionKind.Category, "Custom_Cat").Order());
+        Assert.Equal(["KPI 'Custom_B'"], admin.Dependents(DefinitionKind.Kpi, "Custom_A"));
+        Assert.Empty(admin.Dependents(DefinitionKind.Kpi, "Custom_B"));
+
+        var error = Assert.Single(admin.Remove(DefinitionKind.Category, "Custom_Cat"));
+        Assert.Contains("Custom_A", error);
+        Assert.Contains("Custom_B", error);
+        Assert.DoesNotContain("unknown", error);
+    }
+
+    [Fact]
     public void Cloned_system_kpi_with_same_id_is_an_override()
     {
         var admin = Create();

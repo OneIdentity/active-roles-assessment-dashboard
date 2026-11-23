@@ -85,6 +85,68 @@ public sealed partial class DefinitionAdminService(DefinitionStore store)
     /// <summary>Ids of KPIs available as sources (built-in plus custom).</summary>
     public IReadOnlyList<string> KpiIds() => AllIds(DefinitionKind.Kpi);
 
+    /// <summary>
+    /// Items in the effective definitions (built-in plus all override files) that reference the given
+    /// custom item, as "Kind 'Id'" labels. Empty when the item can be removed. Removing a custom item
+    /// that replaces a built-in one restores the built-in item, so it never has blocking dependents.
+    /// </summary>
+    public IReadOnlyList<string> Dependents(DefinitionKind kind, string id)
+    {
+        var embedded = store.Embedded;
+        var restoresBuiltIn = kind switch
+        {
+            DefinitionKind.Category => embedded.Categories.Any(c => Same(c.Id, id)),
+            DefinitionKind.Dataset => embedded.Datasets.Any(d => Same(d.Id, id)),
+            _ => embedded.Kpis.Any(k => Same(k.Id, id)),
+        };
+        if (restoresBuiltIn) return [];
+
+        var merged = DefinitionStore.Merge([embedded, .. ReadOverrideFiles().Select(f => f.Set)]);
+        var result = new List<string>();
+
+        void Charts(IEnumerable<ChartDefinition> charts, string owner)
+        {
+            foreach (var chart in charts)
+            {
+                var uses = kind switch
+                {
+                    DefinitionKind.Kpi => Same(chart.SourceSplitKpiId, id) || chart.Series.Any(s => Same(s.KpiId, id)),
+                    DefinitionKind.Dataset => chart.Series.Any(s => s.KpiId is null && Same(s.DatasetId, id)),
+                    _ => false
+                };
+                if (uses) result.Add($"Chart '{chart.Id}' on {owner}");
+            }
+        }
+
+        foreach (var c in merged.Categories)
+            Charts(c.Charts, $"category '{c.Id}'");
+
+        foreach (var k in merged.Kpis)
+        {
+            if (kind == DefinitionKind.Kpi && Same(k.Id, id)) continue;
+            var uses = kind switch
+            {
+                DefinitionKind.Category => Same(k.CategoryId, id),
+                DefinitionKind.Dataset => k switch
+                {
+                    SearchKpi s => s.Retrieval is null && Same(s.DatasetId, id),
+                    ObjectKpi o => o.Retrieval is null && Same(o.DatasetId, id),
+                    DerivedKpi d => Same(d.SourceDatasetId, id),
+                    _ => false
+                },
+                _ => k switch
+                {
+                    DerivedKpi d => Same(d.SourceKpiId, id),
+                    CompositeKpi c => c.Sources.Any(s => Same(s, id)),
+                    _ => false
+                }
+            };
+            if (uses) result.Add($"KPI '{k.Id}'");
+            Charts(k.Charts, $"KPI '{k.Id}'");
+        }
+        return result.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
     private IReadOnlyList<string> AllIds(DefinitionKind kind) =>
         List().Where(e => e.Kind == kind).Select(e => e.Id)
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -166,6 +228,9 @@ public sealed partial class DefinitionAdminService(DefinitionStore store)
             var current = ReadCustom();
             if (!Contains(current, kind, id))
                 return [$"Custom {kind.ToString().ToLowerInvariant()} '{id}' was not found."];
+            var dependents = Dependents(kind, id);
+            if (dependents.Count > 0)
+                return [$"'{id}' cannot be removed because it is used by: {string.Join(", ", dependents)}."];
             return ValidateAndWrite(Replace(current, kind, id, null));
         }
     }

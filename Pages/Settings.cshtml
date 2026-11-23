@@ -889,7 +889,7 @@
 												@if (e.Editable)
 												{
 													<a class="btn-secondary" href="@Url.Page("/DefinitionEdit", new { kind = e.Kind.ToString(), id = e.Id })">@Localizer["Definitions_Edit"]</a>
-													<button type="submit" class="btn-secondary btn-danger" form="definitionsForm" formaction="@Url.Page("/Settings", "RemoveDefinition", new { kind = e.Kind.ToString(), id = e.Id })" data-confirm="@Localizer["Definitions_ConfirmRemove", e.Id]" onclick="return confirm(this.dataset.confirm);">@Localizer["Definitions_Remove"]</button>
+													<button type="submit" class="btn-secondary btn-danger" form="definitionsForm" formaction="@Url.Page("/Settings", "RemoveDefinition", new { kind = e.Kind.ToString(), id = e.Id })#definitions" data-blocked-by="@string.Join("|", Model.DefinitionDependents.GetValueOrDefault($"{e.Kind}:{e.Id}") ?? [])" data-confirm="@Localizer["Definitions_ConfirmRemove", e.Id]" data-confirm-ok="@Localizer["Definitions_Remove"]" data-confirm-danger="1">@Localizer["Definitions_Remove"]</button>
 												}
 											</td>
 										</tr>
@@ -937,7 +937,7 @@
 					{
 						<div class="msg msg-warn def-pending">
 							<span>@Localizer["Definitions_Pending"]</span>
-							<button type="submit" form="definitionsForm" formaction="@Url.Page("/Settings", "ApplyDefinitions")" class="btn-secondary" data-confirm="@Localizer["Definitions_ConfirmRestart"]" onclick="return confirm(this.dataset.confirm);">@Localizer["Button_ApplyDefinitions"]</button>
+							<button type="submit" form="definitionsForm" formaction="@Url.Page("/Settings", "ApplyDefinitions")#definitions" class="btn-secondary" data-confirm="@Localizer["Definitions_ConfirmRestart"]" data-confirm-ok="@Localizer["Button_ApplyDefinitions"]">@Localizer["Button_ApplyDefinitions"]</button>
 						</div>
 					}
 					else
@@ -1423,6 +1423,29 @@
         <p>@Localizer["LoadingDashboardData"]</p>
     </div>
 </div>
+@if (Model.Definitions is not null)
+{
+<div class="iris-dialog-backdrop" id="defConfirmDialog" hidden>
+    <div class="iris-dialog" role="alertdialog" aria-modal="true" aria-labelledby="defConfirmTitle" aria-describedby="defConfirmText">
+        <h2 id="defConfirmTitle">@Localizer["Dialog_ConfirmTitle"]</h2>
+        <p id="defConfirmText"></p>
+        <div class="iris-dialog-actions">
+            <button type="button" class="btn-secondary" id="defConfirmCancel">@Localizer["Dialog_Cancel"]</button>
+            <button type="button" class="btn-secondary" id="defConfirmOk" data-default="OK">OK</button>
+        </div>
+    </div>
+</div>
+<div class="iris-dialog-backdrop" id="defBlockedDialog" hidden>
+    <div class="iris-dialog" role="alertdialog" aria-modal="true" aria-labelledby="defBlockedTitle" aria-describedby="defBlockedText">
+        <h2 id="defBlockedTitle">@Localizer["Dialog_CannotRemoveTitle"]</h2>
+        <p id="defBlockedText" data-template="@Localizer["Dialog_CannotRemove", "{0}"]"></p>
+        <ul id="defBlockedList" class="def-blocked-list"></ul>
+        <div class="iris-dialog-actions">
+            <button type="button" class="btn-secondary" id="defBlockedClose">@Localizer["Dialog_Close"]</button>
+        </div>
+    </div>
+</div>
+}
 @await Html.PartialAsync("_AppBaseScript")
 <script>
     (function () {
@@ -1433,6 +1456,60 @@
             if (h && h.classList.contains('collapsed')) { h.classList.remove('collapsed'); h.nextElementSibling.classList.remove('collapsed'); }
         });
         target.scrollIntoView({ block: 'start' });
+    })();
+
+    (function () {
+        var dialog = document.getElementById('defConfirmDialog');
+        if (!dialog) return;
+        var text = document.getElementById('defConfirmText');
+        var okBtn = document.getElementById('defConfirmOk');
+        var cancelBtn = document.getElementById('defConfirmCancel');
+        var pending = null, opener = null;
+        var blocked = document.getElementById('defBlockedDialog');
+        var blockedText = document.getElementById('defBlockedText');
+        var blockedList = document.getElementById('defBlockedList');
+        var blockedClose = document.getElementById('defBlockedClose');
+        function backToDefinitions() {
+            var card = document.getElementById('definitions');
+            if (location.hash !== '#definitions') history.replaceState(null, '', location.pathname + location.search + '#definitions');
+            if (card) card.scrollIntoView({ block: 'start' });
+        }
+        function closeBlocked() { blocked.hidden = true; if (opener) opener.focus(); backToDefinitions(); }
+        blockedClose.addEventListener('click', closeBlocked);
+        blocked.addEventListener('mousedown', function (e) { if (e.target === blocked) closeBlocked(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !blocked.hidden) closeBlocked(); });
+        function close() { dialog.hidden = true; pending = null; if (opener) opener.focus(); backToDefinitions(); }
+        document.querySelectorAll('button[data-confirm]').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                opener = btn;
+                if (btn.dataset.blockedBy) {
+                    blockedText.textContent = blockedText.dataset.template.replace('{0}', btn.closest('tr').querySelector('td').textContent.trim());
+                    blockedList.innerHTML = '';
+                    btn.dataset.blockedBy.split('|').forEach(function (d) { var li = document.createElement('li'); li.textContent = d; blockedList.appendChild(li); });
+                    blocked.hidden = false;
+                    blockedClose.focus();
+                    return;
+                }
+                pending = btn;
+                text.textContent = btn.dataset.confirm;
+                okBtn.textContent = btn.dataset.confirmOk || okBtn.dataset.default;
+                okBtn.classList.toggle('btn-danger', btn.dataset.confirmDanger === '1');
+                dialog.hidden = false;
+                cancelBtn.focus();
+            });
+        });
+        okBtn.addEventListener('click', function () {
+            if (!pending) return;
+            var btn = pending;
+            var form = btn.form || document.getElementById(btn.getAttribute('form'));
+            dialog.hidden = true;
+            pending = null;
+            if (form) form.requestSubmit ? form.requestSubmit(btn) : (form.action = btn.formAction, form.submit());
+        });
+        cancelBtn.addEventListener('click', close);
+        dialog.addEventListener('mousedown', function (e) { if (e.target === dialog) close(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !dialog.hidden) close(); });
     })();
 
     function toggleSection(header) {
