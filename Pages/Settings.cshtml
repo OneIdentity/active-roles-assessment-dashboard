@@ -1407,7 +1407,7 @@
         <div class="category-body collapsed">
         @if (Model.CanManageAssessmentUpdates)
         {
-        <div class="settings-card">
+        <div class="settings-card upd-card">
             <h2>@Localizer["Card_AssessmentUpdates"]</h2>
             <p class="hint">@Localizer["Hint_AssessmentUpdates"]</p>
             @if (Model.AssessmentUpdateMessage != null)
@@ -1424,26 +1424,28 @@
                 else
                 {
                     <div class="msg msg-warn">@Localizer["Updates_Invalid"]</div>
-                    <ul>@foreach (var e in r.Errors) { <li>@e</li> }</ul>
+                    <ul class="upd-errors">@foreach (var e in r.Errors) { <li>@e</li> }</ul>
                 }
                 @foreach (var w in r.Warnings) { <p class="hint">@w</p> }
             }
-            <form method="post" enctype="multipart/form-data" asp-page-handler="AssessmentUpdateUpload">
+            <form method="post" enctype="multipart/form-data" asp-page-handler="AssessmentUpdateUpload" class="upd-upload">
                 <div class="form-group">
                     <label for="packFile">@Localizer["Label_UpdatePackFile"]</label>
                     <input type="file" id="packFile" name="packFile" accept=".json,application/json" required />
                 </div>
-                <button type="submit" name="install" value="false" class="btn-save">@Localizer["Updates_Preview"]</button>
-                <button type="submit" name="install" value="true" class="btn-save">@Localizer["Updates_Install"]</button>
+                <div class="upd-actions">
+                    <button type="submit" name="install" value="false" class="btn-secondary">@Localizer["Updates_Preview"]</button>
+                    <button type="submit" name="install" value="true" class="btn-save">@Localizer["Updates_Install"]</button>
+                </div>
             </form>
 
             @if (Model.AssessmentUpdatePacks.Count == 0)
             {
-                <p class="hint">@Localizer["Updates_None"]</p>
+                <p class="upd-empty">@Localizer["Updates_None"]</p>
             }
             else
             {
-                <table class="settings-table">
+                <table class="upd-table">
                     <thead><tr><th>@Localizer["Updates_ColId"]</th><th>@Localizer["Updates_ColVersion"]</th><th>@Localizer["Updates_ColTitle"]</th><th>@Localizer["Updates_ColStatus"]</th><th>@Localizer["Updates_ColImported"]</th><th>SHA-256</th><th></th></tr></thead>
                     <tbody>
                     @foreach (var p in Model.AssessmentUpdatePacks)
@@ -1460,19 +1462,19 @@
                                 <form method="post" asp-page-handler="AssessmentUpdateToggle" style="display:inline">
                                     <input type="hidden" name="id" value="@p.State.Id" />
                                     <input type="hidden" name="enabled" value="@((!p.State.Enabled).ToString().ToLowerInvariant())" />
-                                    <button type="submit">@(p.State.Enabled ? Localizer["Updates_Disable"] : Localizer["Updates_Enable"])</button>
+                                    <button type="submit" class="btn-secondary">@(p.State.Enabled ? Localizer["Updates_Disable"] : Localizer["Updates_Enable"])</button>
                                 </form>
                                 <form method="post" asp-page-handler="AssessmentUpdateRemove" style="display:inline" onsubmit="return confirm('@Localizer["Updates_ConfirmRemove"]');">
                                     <input type="hidden" name="id" value="@p.State.Id" />
-                                    <button type="submit">@Localizer["Updates_Remove"]</button>
+                                    <button type="submit" class="btn-secondary btn-danger">@Localizer["Updates_Remove"]</button>
                                 </form>
                             </td>
                         </tr>
                     }
                     </tbody>
                 </table>
-                <form method="post" asp-page-handler="AssessmentUpdateRevertAll" onsubmit="return confirm('@Localizer["Updates_ConfirmRevert"]');">
-                    <button type="submit" class="btn-save">@Localizer["Updates_RevertAll"]</button>
+                <form method="post" asp-page-handler="AssessmentUpdateRevertAll" class="upd-footer" onsubmit="return confirm('@Localizer["Updates_ConfirmRevert"]');">
+                    <button type="submit" class="btn-secondary btn-danger">@Localizer["Updates_RevertAll"]</button>
                 </form>
             }
         </div>
