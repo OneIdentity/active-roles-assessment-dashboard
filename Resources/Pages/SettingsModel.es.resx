@@ -22,4 +22,25 @@
   <data name="Definitions_Removed" xml:space="preserve">
     <value>Definición personalizada &apos;{0}&apos; quitada. Aplique y reinicie para usar el cambio.</value>
   </data>
+  <data name="Updates_Disabled" xml:space="preserve">
+    <value>Actualización de evaluación {0} deshabilitada.</value>
+  </data>
+  <data name="Updates_Enabled" xml:space="preserve">
+    <value>Actualización de evaluación {0} habilitada.</value>
+  </data>
+  <data name="Updates_Installed" xml:space="preserve">
+    <value>Actualización de evaluación {0} versión {1} instalada.</value>
+  </data>
+  <data name="Updates_NoFile" xml:space="preserve">
+    <value>Seleccione un archivo de paquete de actualización.</value>
+  </data>
+  <data name="Updates_Removed" xml:space="preserve">
+    <value>Actualización de evaluación {0} eliminada.</value>
+  </data>
+  <data name="Updates_Reverted" xml:space="preserve">
+    <value>Todas las actualizaciones de evaluación deshabilitadas; reglas integradas restauradas.</value>
+  </data>
+  <data name="Updates_TooLarge" xml:space="preserve">
+    <value>El paquete de actualización supera el límite de 1 MB.</value>
+  </data>
 </root>

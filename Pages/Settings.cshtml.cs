@@ -23,8 +23,10 @@ public class SettingsModel : PageModel
 
     public SettingsModel(IOptionsMonitor<ActiveRolesConfig> arConfig, UserSettingsService userSettingsService, IWebHostEnvironment env, IStringLocalizer<SettingsModel> localizer, PerUserSummaryCache summaryCache, ServiceAccountSecretProtector secretProtector, RoleService roleService, DirectoryFactsResolver directoryFacts,
         ActiveRolesDashboard.Models.Definitions.DefinitionStore definitionStore, IHostApplicationLifetime lifetime,
-        ActiveRolesDashboard.Services.Definitions.DefinitionAdminService definitionAdmin)
+        ActiveRolesDashboard.Services.Definitions.DefinitionAdminService definitionAdmin,
+        AssessmentUpdateStore assessmentUpdates)
     {
+        _assessmentUpdates = assessmentUpdates;
         _definitionAdmin = definitionAdmin;
         _definitionStore = definitionStore;
         _lifetime = lifetime;
@@ -43,6 +45,84 @@ public class SettingsModel : PageModel
     private readonly ActiveRolesDashboard.Models.Definitions.DefinitionStore _definitionStore;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly ActiveRolesDashboard.Services.Definitions.DefinitionAdminService _definitionAdmin;
+    private readonly AssessmentUpdateStore _assessmentUpdates;
+
+    /// <summary>Installed assessment update packs (Settings &gt; Updates &gt; Assessments).</summary>
+    public IReadOnlyList<AssessmentUpdatePackInfo> AssessmentUpdatePacks { get; private set; } = [];
+
+    /// <summary>Validation result of the last uploaded pack (preview or import).</summary>
+    public ActiveRolesDashboard.Models.AssessmentUpdates.AssessmentUpdateValidationResult? AssessmentUpdateResult { get; private set; }
+
+    /// <summary>True when the last upload was only previewed (not installed).</summary>
+    public bool AssessmentUpdatePreviewOnly { get; private set; }
+
+    public string? AssessmentUpdateMessage { get; private set; }
+
+    private void LoadAssessmentUpdates()
+    {
+        if (!CanManageAssessmentUpdates) return;
+        AssessmentUpdatePacks = _assessmentUpdates.BuildRuleSet().Packs;
+    }
+
+    public async Task<IActionResult> OnPostAssessmentUpdateUploadAsync(IFormFile? packFile, bool install)
+    {
+        await ResolvePermissionsAsync();
+        if (!CanManageAssessmentUpdates)
+            return Forbid();
+
+        if (packFile == null || packFile.Length == 0)
+        {
+            AssessmentUpdateMessage = _localizer["Updates_NoFile"];
+        }
+        else if (packFile.Length > ActiveRolesDashboard.Models.AssessmentUpdates.AssessmentUpdateValidator.MaxPackBytes)
+        {
+            AssessmentUpdateMessage = _localizer["Updates_TooLarge"];
+        }
+        else
+        {
+            using var reader = new StreamReader(packFile.OpenReadStream());
+            var json = await reader.ReadToEndAsync();
+            AssessmentUpdateResult = _assessmentUpdates.Import(json, User.Identity?.Name, commit: install);
+            AssessmentUpdatePreviewOnly = !install;
+            if (install && AssessmentUpdateResult.IsValid)
+                AssessmentUpdateMessage = _localizer["Updates_Installed", AssessmentUpdateResult.Pack!.Id, AssessmentUpdateResult.Pack.Version];
+        }
+        await OnGet();
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAssessmentUpdateToggleAsync(string id, bool enabled)
+    {
+        await ResolvePermissionsAsync();
+        if (!CanManageAssessmentUpdates)
+            return Forbid();
+        if (_assessmentUpdates.SetEnabled(id, enabled, User.Identity?.Name))
+            AssessmentUpdateMessage = _localizer[enabled ? "Updates_Enabled" : "Updates_Disabled", id];
+        await OnGet();
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAssessmentUpdateRemoveAsync(string id)
+    {
+        await ResolvePermissionsAsync();
+        if (!CanManageAssessmentUpdates)
+            return Forbid();
+        if (_assessmentUpdates.Remove(id))
+            AssessmentUpdateMessage = _localizer["Updates_Removed", id];
+        await OnGet();
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAssessmentUpdateRevertAllAsync()
+    {
+        await ResolvePermissionsAsync();
+        if (!CanManageAssessmentUpdates)
+            return Forbid();
+        _assessmentUpdates.RevertAll(User.Identity?.Name);
+        AssessmentUpdateMessage = _localizer["Updates_Reverted"];
+        await OnGet();
+        return Page();
+    }
 
     /// <summary>Custom and built-in definitions shown in the admin list.</summary>
     public IReadOnlyList<ActiveRolesDashboard.Services.Definitions.DefinitionEntry> DefinitionEntries { get; private set; } = [];
@@ -479,6 +559,15 @@ public class SettingsModel : PageModel
     /// <summary>True when the user may modify the System settings category.</summary>
     public bool CanManageSystemSettings => RolePermissionRegistry.CanManageSystemSettings(Permissions);
 
+    /// <summary>The current user's resolved dashboard role.</summary>
+    public DashboardRole CurrentRole { get; private set; } = DashboardRole.User;
+
+    /// <summary>True when the Settings &gt; Updates category is visible to the user.</summary>
+    public bool CanViewUpdates => RolePermissionRegistry.CanViewUpdates(Permissions, IsActiveRolesAdmin, CurrentRole);
+
+    /// <summary>True when the user may manage assessment update packs.</summary>
+    public bool CanManageAssessmentUpdates => RolePermissionRegistry.CanManageAssessmentUpdates(Permissions, IsActiveRolesAdmin);
+
     /// <summary>
     /// Resolves the current user's Active Roles admin flag, dashboard role, and effective
     /// permission set, populating <see cref="IsActiveRolesAdmin"/> and <see cref="Permissions"/>.
@@ -521,6 +610,7 @@ public class SettingsModel : PageModel
             role = DashboardRole.User;
         }
 
+        CurrentRole = role;
         Permissions = _roleService.GetPermissions(role);
     }
 
@@ -532,6 +622,7 @@ public class SettingsModel : PageModel
         var config = _arConfig.CurrentValue;
         WebInterfaceUrl = config.WebInterfaceUrl;
         RoleMatrix = _roleService.GetMatrix();
+        LoadAssessmentUpdates();
         var username = User.Identity?.Name ?? "";
         var userSettings = _userSettingsService.Load(username);
 

@@ -19,14 +19,25 @@ public class AssessmentService
     private readonly Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> _config;
     private readonly KpiThresholdService _thresholds;
     private readonly KpiExclusionService _exclusions;
+    private readonly IAssessmentRuleProvider _rules;
 
     public AssessmentService(IWebHostEnvironment env, Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> config, KpiThresholdService thresholds, KpiExclusionService exclusions)
+        : this(env, config, thresholds, exclusions, BuiltInAssessmentRuleProvider.Instance)
+    {
+    }
+
+    [Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructor]
+    public AssessmentService(IWebHostEnvironment env, Microsoft.Extensions.Options.IOptionsMonitor<ActiveRolesConfig> config, KpiThresholdService thresholds, KpiExclusionService exclusions, IAssessmentRuleProvider rules)
     {
         _env = env;
         _config = config;
         _thresholds = thresholds;
         _exclusions = exclusions;
+        _rules = rules;
     }
+
+    /// <summary>The effective rule provider used for evaluation.</summary>
+    public IAssessmentRuleProvider Rules => _rules;
 
     private string AssessmentFolder
     {
@@ -43,12 +54,22 @@ public class AssessmentService
 
     public AssessmentResult Evaluate(DashboardSummary summary, AssessmentType type, string? label = null, string? generatedBy = null)
     {
+        var ruleSet = _rules.Current;
         var result = new AssessmentResult
         {
             Type = type,
             Label = string.IsNullOrWhiteSpace(label) ? null : label.Trim(),
-            GeneratedBy = generatedBy
+            GeneratedBy = generatedBy,
+            RuleSetFingerprint = ruleSet.Fingerprint,
+            AppliedUpdates = ruleSet.ActivePacks.Select(p => new AppliedAssessmentUpdate
+            {
+                Id = p.State.Id,
+                Version = p.Pack?.Version ?? string.Empty,
+                Title = p.Pack?.Title ?? string.Empty,
+                Sha256 = p.State.Sha256
+            }).ToList()
         };
+        var builtIn = AssessmentRuleLibrary.All.ToDictionary(r => r.Id, StringComparer.OrdinalIgnoreCase);
 
         var categories = new Dictionary<string, AssessmentCategory>(StringComparer.OrdinalIgnoreCase);
 
@@ -60,9 +81,11 @@ public class AssessmentService
         double maxPenalty = 0;
         var kpiLookup = _exclusions.LookupFor(summary);
 
-        foreach (var rule in AssessmentRuleLibrary.ForType(type))
+        foreach (var rule in ruleSet.Rules.Where(r => r.Types.Contains(type)))
         {
             var (count, error) = kpiLookup(rule.KpiKey);
+            builtIn.TryGetValue(rule.Id, out var original);
+            ruleSet.LocalizedText.TryGetValue(rule.Id, out var packText);
             var check = new AssessmentCheck
             {
                 RuleId = rule.Id,
@@ -71,7 +94,16 @@ public class AssessmentService
                 Severity = rule.Severity,
                 Count = count,
                 Error = error,
-                Recommendation = rule.Recommendation.Replace("{StaleThresholdDays}", staleThresholdDays.ToString())
+                Recommendation = rule.Recommendation.Replace("{StaleThresholdDays}", staleThresholdDays.ToString()),
+                TitleFromUpdate = original == null || original.Title != rule.Title,
+                RecommendationFromUpdate = original == null || original.Recommendation != rule.Recommendation,
+                LocalizedText = packText is { Count: > 0 }
+                    ? packText.ToDictionary(k => k.Key, v => new Models.AssessmentUpdates.AssessmentRuleText
+                    {
+                        Title = v.Value.Title,
+                        Recommendation = v.Value.Recommendation?.Replace("{StaleThresholdDays}", staleThresholdDays.ToString())
+                    }, StringComparer.OrdinalIgnoreCase)
+                    : null
             };
 
             if (error != null)
@@ -218,7 +250,8 @@ public class AssessmentService
                     Grade = result.Grade,
                     FailCount = result.FailCount,
                     WarnCount = result.WarnCount,
-                    PassCount = result.PassCount
+                    PassCount = result.PassCount,
+                    RuleSetFingerprint = result.RuleSetFingerprint
                 });
             }
             catch
@@ -318,6 +351,7 @@ public class AssessmentService
             {
                 RuleId = ruleId,
                 Title = reference.Title,
+                Source = reference,
                 Severity = reference.Severity,
                 FromStatus = f?.Status,
                 ToStatus = t?.Status,
@@ -402,7 +436,8 @@ public class AssessmentService
         Grade = result.Grade,
         FailCount = result.FailCount,
         WarnCount = result.WarnCount,
-        PassCount = result.PassCount
+        PassCount = result.PassCount,
+        RuleSetFingerprint = result.RuleSetFingerprint
     };
 
     /// <summary>Resolves an assessment file path from an id, guarding against path traversal.</summary>

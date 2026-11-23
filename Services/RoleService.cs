@@ -51,6 +51,9 @@ public class RoleService
     /// any unknown roles/permissions ignored. Falls back to the default matrix when nothing is
     /// persisted or decryption fails.
     /// </summary>
+    /// <summary>Reserved key in the persisted matrix listing the permissions that existed when it was saved.</summary>
+    private const string KnownPermissionsKey = "_knownPermissions";
+
     public IReadOnlyDictionary<DashboardRole, IReadOnlySet<DashboardPermission>> GetMatrix()
     {
         var matrix = RolePermissionRegistry.AllRoles.ToDictionary(
@@ -67,6 +70,12 @@ public class RoleService
                 var stored = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
                 if (stored != null)
                 {
+                    // Permissions the persisted matrix knew about when saved; newer ones keep their role default.
+                    var known = stored.TryGetValue(KnownPermissionsKey, out var knownKeys)
+                        ? knownKeys.Select(k => Enum.TryParse<DashboardPermission>(k, true, out var p) ? (DashboardPermission?)p : null)
+                            .OfType<DashboardPermission>().ToHashSet()
+                        : RolePermissionRegistry.AllPermissions.Except(RolePermissionRegistry.PermissionsAddedAfterMatrixV1).ToHashSet();
+
                     foreach (var (roleKey, permKeys) in stored)
                     {
                         if (!Enum.TryParse<DashboardRole>(roleKey, ignoreCase: true, out var role))
@@ -82,6 +91,7 @@ public class RoleService
                             if (Enum.TryParse<DashboardPermission>(permKey, ignoreCase: true, out var perm))
                                 perms.Add(perm); // unknown/removed permission - ignore
                         }
+                        perms.UnionWith(RolePermissionRegistry.GetDefaultPermissions(role).Where(p => !known.Contains(p)));
                         matrix[role] = perms;
                     }
                 }
@@ -117,6 +127,8 @@ public class RoleService
                 .Select(p => p.ToString())
                 .ToList();
         }
+
+        toStore[KnownPermissionsKey] = RolePermissionRegistry.AllPermissions.Select(p => p.ToString()).ToList();
 
         var json = JsonSerializer.Serialize(toStore, JsonOptions);
         return _protector.Protect(json);

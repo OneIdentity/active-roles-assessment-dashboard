@@ -467,7 +467,15 @@ public class SettingsCategoryInfo
         DefaultExpanded = false
     };
 
-    public static readonly IReadOnlyList<SettingsCategoryInfo> All = [User, System];
+    public static readonly SettingsCategoryInfo Updates = new()
+    {
+        Key = "Updates",
+        DisplayName = "Updates",
+        SortOrder = 2,
+        DefaultExpanded = false
+    };
+
+    public static readonly IReadOnlyList<SettingsCategoryInfo> All = [User, System, Updates];
 
     /// <summary>
     /// Returns the categories in display order. Mirrors <see cref="CategoryInfo.ForDashboard"/>

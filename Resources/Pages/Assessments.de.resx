@@ -83,4 +83,6 @@
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Bewertung löschen</value></data>
   <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="AppliedUpdates" xml:space="preserve"><value>Angewendete Bewertungsupdates:</value></data>
+  <data name="RuleSetChanged" xml:space="preserve"><value>Die Regelsätze dieser Läufe unterscheiden sich (Bewertungsupdates geändert); einige Unterschiede können auf Regeländerungen statt auf Umgebungsänderungen zurückgehen.</value></data>
 </root>

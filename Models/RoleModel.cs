@@ -54,7 +54,8 @@ public enum DashboardPermission
     RunActiveRolesPerformanceTests = 22,
     RunActiveDirectoryPerformanceTests = 23,
     RunEntraIdPerformanceTests = 24,
-    RunExchangePerformanceTests = 25
+    RunExchangePerformanceTests = 25,
+    ManageAssessmentUpdates = 26
 }
 
 /// <summary>
@@ -140,7 +141,8 @@ public static class RolePermissionRegistry
                 DashboardPermission.DeleteAssessments,
                 DashboardPermission.ExportAssessments,
                 DashboardPermission.ExportDashboardData,
-                DashboardPermission.RebuildCache
+                DashboardPermission.RebuildCache,
+                DashboardPermission.ManageAssessmentUpdates
             },
             [DashboardRole.PowerUser] = new HashSet<DashboardPermission>
             {
@@ -155,6 +157,32 @@ public static class RolePermissionRegistry
                 DashboardPermission.UseDelegatedPermissionsForVisibility
             }
         };
+
+    /// <summary>
+    /// Permissions that manage content updates (Settings &gt; Updates). Holding any of these makes the
+    /// Updates settings category visible; add future update-type permissions here.
+    /// </summary>
+    public static readonly IReadOnlySet<DashboardPermission> UpdatePermissions = new HashSet<DashboardPermission>
+    {
+        DashboardPermission.ManageAssessmentUpdates
+    };
+
+    /// <summary>
+    /// Permissions added after role matrices were first persisted. A persisted matrix saved before a
+    /// permission existed does not record it, so such permissions fall back to the role default.
+    /// </summary>
+    public static readonly IReadOnlySet<DashboardPermission> PermissionsAddedAfterMatrixV1 = new HashSet<DashboardPermission>
+    {
+        DashboardPermission.ManageAssessmentUpdates
+    };
+
+    /// <summary>True when the user can see the Settings &gt; Updates category.</summary>
+    public static bool CanViewUpdates(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin, DashboardRole role) =>
+        isActiveRolesAdmin || role == DashboardRole.DashboardAdministrator || permissions.Overlaps(UpdatePermissions);
+
+    /// <summary>True when the user can import, enable, disable or remove assessment update packs.</summary>
+    public static bool CanManageAssessmentUpdates(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
+        isActiveRolesAdmin || permissions.Contains(DashboardPermission.ManageAssessmentUpdates);
 
     /// <summary>Display/localization metadata per role.</summary>
     public static readonly IReadOnlyDictionary<DashboardRole, RoleModelDisplay> RoleDisplay =
@@ -195,7 +223,8 @@ public static class RolePermissionRegistry
             [DashboardPermission.RunActiveRolesPerformanceTests] = new("Perm_RunActiveRolesPerformanceTests", "Run Active Roles performance tests"),
             [DashboardPermission.RunActiveDirectoryPerformanceTests] = new("Perm_RunActiveDirectoryPerformanceTests", "Run Active Directory performance tests"),
             [DashboardPermission.RunEntraIdPerformanceTests] = new("Perm_RunEntraIdPerformanceTests", "Run Entra Id performance tests"),
-            [DashboardPermission.RunExchangePerformanceTests] = new("Perm_RunExchangePerformanceTests", "Run Exchange performance tests")
+            [DashboardPermission.RunExchangePerformanceTests] = new("Perm_RunExchangePerformanceTests", "Run Exchange performance tests"),
+            [DashboardPermission.ManageAssessmentUpdates] = new("Perm_ManageAssessmentUpdates", "Manage assessment updates")
         };
 
     /// <summary>
@@ -207,7 +236,8 @@ public static class RolePermissionRegistry
     public static bool CanAccessSettings(IReadOnlySet<DashboardPermission> permissions) =>
         permissions.Contains(DashboardPermission.ManageUserSettings)
         || permissions.Contains(DashboardPermission.ViewSystemSettings)
-        || permissions.Contains(DashboardPermission.ManageSystemSettings);
+        || permissions.Contains(DashboardPermission.ManageSystemSettings)
+        || permissions.Overlaps(UpdatePermissions);
 
     /// <summary>True when the user may view and change the User settings category.</summary>
     public static bool CanManageUserSettings(IReadOnlySet<DashboardPermission> permissions) =>

@@ -57,6 +57,36 @@ public static class AssessmentLocalizer
     public static string Recommendation(string ruleId, string fallback) =>
         Localize($"RuleRec_{ruleId}", fallback);
 
+    /// <summary>
+    /// Title for a check, honouring update-pack text: pack text for the current culture (or its
+    /// parent) wins; when a pack changed the title but has no text for the culture, the persisted
+    /// title is used instead of a resource translation that may describe the old rule.
+    /// </summary>
+    public static string Title(ActiveRolesDashboard.Models.AssessmentCheck? check, string ruleId, string fallback) =>
+        check == null ? Title(ruleId, fallback)
+        : PackText(check, t => t.Title) ?? (check.TitleFromUpdate ? fallback : Title(ruleId, fallback));
+
+    /// <summary>Title for a check (see <see cref="Title(ActiveRolesDashboard.Models.AssessmentCheck?, string, string)"/>).</summary>
+    public static string Title(ActiveRolesDashboard.Models.AssessmentCheck check) => Title(check, check.RuleId, check.Title);
+
+    /// <summary>Recommendation for a check, with the same update-pack precedence as titles.</summary>
+    public static string Recommendation(ActiveRolesDashboard.Models.AssessmentCheck check) =>
+        PackText(check, t => t.Recommendation)
+        ?? (check.RecommendationFromUpdate ? check.Recommendation : Recommendation(check.RuleId, check.Recommendation));
+
+    private static string? PackText(ActiveRolesDashboard.Models.AssessmentCheck check, Func<ActiveRolesDashboard.Models.AssessmentUpdates.AssessmentRuleText, string?> pick)
+    {
+        if (check.LocalizedText is not { Count: > 0 } texts)
+            return null;
+        for (var culture = CultureInfo.CurrentUICulture; !string.IsNullOrEmpty(culture.Name); culture = culture.Parent)
+        {
+            var match = texts.FirstOrDefault(kv => string.Equals(kv.Key, culture.Name, StringComparison.OrdinalIgnoreCase));
+            if (match.Value != null && !string.IsNullOrWhiteSpace(pick(match.Value)))
+                return pick(match.Value);
+        }
+        return null;
+    }
+
     /// <summary>Localized category display name, falling back to the original <paramref name="categoryName"/>.</summary>
     public static string Category(string categoryName) =>
         Localize($"Cat_{NormalizeCategoryKey(categoryName)}", categoryName);

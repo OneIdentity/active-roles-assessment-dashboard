@@ -22,4 +22,25 @@
   <data name="Definitions_Removed" xml:space="preserve">
     <value>A(z) „{0}” egyéni definíció eltávolítva. Alkalmazza és indítsa újra a módosítás használatához.</value>
   </data>
+  <data name="Updates_Disabled" xml:space="preserve">
+    <value>A(z) {0} értékelési frissítés letiltva.</value>
+  </data>
+  <data name="Updates_Enabled" xml:space="preserve">
+    <value>A(z) {0} értékelési frissítés engedélyezve.</value>
+  </data>
+  <data name="Updates_Installed" xml:space="preserve">
+    <value>A(z) {0} értékelési frissítés {1} verziója telepítve.</value>
+  </data>
+  <data name="Updates_NoFile" xml:space="preserve">
+    <value>Válasszon frissítőcsomag-fájlt.</value>
+  </data>
+  <data name="Updates_Removed" xml:space="preserve">
+    <value>A(z) {0} értékelési frissítés eltávolítva.</value>
+  </data>
+  <data name="Updates_Reverted" xml:space="preserve">
+    <value>Minden értékelési frissítés letiltva; a beépített szabályok visszaállítva.</value>
+  </data>
+  <data name="Updates_TooLarge" xml:space="preserve">
+    <value>A frissítőcsomag meghaladja az 1 MB-os méretkorlátot.</value>
+  </data>
 </root>

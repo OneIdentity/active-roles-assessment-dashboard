@@ -22,4 +22,25 @@
   <data name="Definitions_Removed" xml:space="preserve">
     <value>Custom definition &apos;{0}&apos; removed. Apply and restart to use the change.</value>
   </data>
+  <data name="Updates_Disabled" xml:space="preserve">
+    <value>Assessment update {0} disabled.</value>
+  </data>
+  <data name="Updates_Enabled" xml:space="preserve">
+    <value>Assessment update {0} enabled.</value>
+  </data>
+  <data name="Updates_Installed" xml:space="preserve">
+    <value>Assessment update {0} version {1} installed.</value>
+  </data>
+  <data name="Updates_NoFile" xml:space="preserve">
+    <value>Select an update pack file.</value>
+  </data>
+  <data name="Updates_Removed" xml:space="preserve">
+    <value>Assessment update {0} removed.</value>
+  </data>
+  <data name="Updates_Reverted" xml:space="preserve">
+    <value>All assessment updates disabled; built-in rules restored.</value>
+  </data>
+  <data name="Updates_TooLarge" xml:space="preserve">
+    <value>The update pack exceeds the 1 MB size limit.</value>
+  </data>
 </root>

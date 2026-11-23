@@ -93,4 +93,6 @@
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Delete assessment</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="AppliedUpdates" xml:space="preserve"><value>Assessment updates applied:</value></data>
+  <data name="RuleSetChanged" xml:space="preserve"><value>Rule sets differ between these runs (assessment updates changed); some differences may reflect rule changes rather than environment changes.</value></data>
 </root>

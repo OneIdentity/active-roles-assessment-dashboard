@@ -22,4 +22,25 @@
   <data name="Definitions_Removed" xml:space="preserve">
     <value>Benutzerdefinierte Definition „{0}“ entfernt. Übernehmen und neu starten, um die Änderung zu verwenden.</value>
   </data>
+  <data name="Updates_Disabled" xml:space="preserve">
+    <value>Bewertungsaktualisierung {0} deaktiviert.</value>
+  </data>
+  <data name="Updates_Enabled" xml:space="preserve">
+    <value>Bewertungsaktualisierung {0} aktiviert.</value>
+  </data>
+  <data name="Updates_Installed" xml:space="preserve">
+    <value>Bewertungsaktualisierung {0} Version {1} installiert.</value>
+  </data>
+  <data name="Updates_NoFile" xml:space="preserve">
+    <value>Wählen Sie eine Aktualisierungspaketdatei aus.</value>
+  </data>
+  <data name="Updates_Removed" xml:space="preserve">
+    <value>Bewertungsaktualisierung {0} entfernt.</value>
+  </data>
+  <data name="Updates_Reverted" xml:space="preserve">
+    <value>Alle Bewertungsaktualisierungen deaktiviert; integrierte Regeln wiederhergestellt.</value>
+  </data>
+  <data name="Updates_TooLarge" xml:space="preserve">
+    <value>Das Aktualisierungspaket überschreitet die Größenbeschränkung von 1 MB.</value>
+  </data>
 </root>

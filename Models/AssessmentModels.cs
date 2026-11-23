@@ -1629,6 +1629,15 @@ public class AssessmentCheck
     public int Count { get; set; }
     public string? Error { get; set; }
     public string Recommendation { get; set; } = string.Empty;
+
+    /// <summary>True when an update pack changed the title, so stale resource translations must not be used.</summary>
+    public bool TitleFromUpdate { get; set; }
+
+    /// <summary>True when an update pack changed the recommendation.</summary>
+    public bool RecommendationFromUpdate { get; set; }
+
+    /// <summary>Per-culture text supplied by an update pack, persisted so historical runs render consistently.</summary>
+    public Dictionary<string, ActiveRolesDashboard.Models.AssessmentUpdates.AssessmentRuleText>? LocalizedText { get; set; }
 }
 
 public class AssessmentCategory
@@ -1643,13 +1652,20 @@ public class AssessmentCategory
 
 public class AssessmentResult
 {
-    public int SchemaVersion { get; set; } = 1;
+    /// <summary>2 = adds <see cref="RuleSetFingerprint"/> and <see cref="AppliedUpdates"/>.</summary>
+    public int SchemaVersion { get; set; } = 2;
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public AssessmentType Type { get; set; } = AssessmentType.ActiveDirectory;
     public string? Label { get; set; }
     public string? GeneratedBy { get; set; }
     public DateTime GeneratedUtc { get; set; } = DateTime.UtcNow;
     public List<AssessmentCategory> Categories { get; set; } = new();
+
+    /// <summary>SHA-256 fingerprint of the effective rule set used (null for runs saved before update packs).</summary>
+    public string? RuleSetFingerprint { get; set; }
+
+    /// <summary>Assessment update packs that were active when this run was evaluated.</summary>
+    public List<AppliedAssessmentUpdate> AppliedUpdates { get; set; } = new();
 
     public int TotalChecks { get; set; }
     public int PassCount { get; set; }
@@ -1662,6 +1678,15 @@ public class AssessmentResult
 
     /// <summary>Letter grade derived from <see cref="Score"/>.</summary>
     public string Grade { get; set; } = "-";
+}
+
+/// <summary>Record of an update pack that was active for a saved assessment run.</summary>
+public class AppliedAssessmentUpdate
+{
+    public string Id { get; set; } = string.Empty;
+    public string Version { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Sha256 { get; set; } = string.Empty;
 }
 
 /// <summary>Lightweight descriptor for listing stored assessments without loading the full body.</summary>
@@ -1677,10 +1702,11 @@ public class AssessmentHeader
     public int FailCount { get; set; }
     public int WarnCount { get; set; }
     public int PassCount { get; set; }
+    public string? RuleSetFingerprint { get; set; }
 }
 
 // ---------------------------------------------------------------------------
-// Comparison result types (compare two assessment runs of the same type)
+// Comparison result types
 // ---------------------------------------------------------------------------
 
 /// <summary>
@@ -1742,6 +1768,10 @@ public class AssessmentComparisonRow
 {
     public string RuleId { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
+
+    /// <summary>The check the row's title came from (used for update-pack text precedence).</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public AssessmentCheck? Source { get; set; }
     public AssessmentSeverity Severity { get; set; }
 
     public AssessmentStatus? FromStatus { get; set; }
