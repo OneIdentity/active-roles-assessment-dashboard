@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Herramientas</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Herramientas de análisis bajo demanda. Se ejecutan sobre los datos actuales del directorio al iniciarlas y no forman parte de la actualización del panel.</value>
+  </data>
+  <data name="GroupAnalyzerTitle" xml:space="preserve">
+	<value>Analizador de grupos</value>
+  </data>
+  <data name="GroupAnalyzerDescription" xml:space="preserve">
+	<value>Explore el anidamiento de grupos: rutas de pertenencia, anidamiento circular y usuarios que llegan a un grupo por varias rutas.</value>
+  </data>
+</root>

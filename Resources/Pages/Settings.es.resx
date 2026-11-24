@@ -480,4 +480,31 @@
   <data name="Updates_Valid" xml:space="preserve">
     <value>El paquete {0} versión {1} es válido.</value>
   </data>
+  <data name="Card_GroupNesting" xml:space="preserve">
+	<value>Anidamiento de grupos</value>
+  </data>
+  <data name="Label_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Profundidad máxima de anidamiento de AD</value>
+  </data>
+  <data name="Hint_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Los grupos de Active Directory anidados a mayor profundidad se notifican en el KPI Anidamiento profundo de grupos.</value>
+  </data>
+  <data name="Label_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Profundidad máxima de anidamiento de Entra ID</value>
+  </data>
+  <data name="Hint_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Los grupos solo en la nube de Entra ID anidados a mayor profundidad se notifican en el KPI Anidamiento profundo de grupos de Entra.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>Límite de análisis multirruta (vínculos de pertenencia)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>El análisis de pertenencias multirruta se omite cuando el grafo de grupos tiene más vínculos de pertenencia directa. 0 lo desactiva.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Límite de trabajo del análisis multirruta (miembros alcanzables)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Limita el uso de memoria: el análisis multirruta se detiene y se omite cuando el total de miembros alcanzables a través de grupos anidados supera este valor (directorios con anidamiento profundo o denso). Predeterminado 10.000.000 (unos 300 MB).</value>
+  </data>
 </root>

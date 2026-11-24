@@ -277,6 +277,46 @@ public class AssessmentsAndSnapshotsPageTests : IDisposable
     }
 
     [Fact]
+    public async Task Tools_page_without_tool_permission_redirects_to_app()
+    {
+        using var client = await SignedIn(App());
+
+        AssertRedirectedToApp(await client.GetAsync("/Tools"));
+    }
+
+    [Fact]
+    public async Task Tools_page_with_group_analyzer_permission_lands_on_first_tool()
+    {
+        using var client = await SignedIn(App(DashboardPermission.UseGroupAnalyzer));
+
+        var response = await client.GetAsync("/Tools");
+
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, response.StatusCode);
+        Assert.EndsWith("/Tools/GroupAnalyzer", response.Headers.Location?.OriginalString);
+    }
+
+    [Fact]
+    public async Task Group_analyzer_without_permission_redirects_to_app()
+    {
+        using var client = await SignedIn(App());
+
+        AssertRedirectedToApp(await client.GetAsync("/Tools/GroupAnalyzer"));
+    }
+
+    [Fact]
+    public async Task Group_analyzer_with_permission_renders()
+    {
+        using var client = await SignedIn(App(DashboardPermission.UseGroupAnalyzer));
+
+        var response = await client.GetAsync("/Tools/GroupAnalyzer");
+
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("class=\"tools-tabs\"", html);
+        Assert.Contains("aria-current=\"page\"", html);
+    }
+
+    [Fact]
     public async Task Anonymous_posts_are_not_processed()
     {
         var app = App(DashboardPermission.ViewSnapshots, DashboardPermission.RunAndSaveSnapshots,

@@ -55,7 +55,8 @@ public enum DashboardPermission
     RunActiveDirectoryPerformanceTests = 23,
     RunEntraIdPerformanceTests = 24,
     RunExchangePerformanceTests = 25,
-    ManageAssessmentUpdates = 26
+    ManageAssessmentUpdates = 26,
+    UseGroupAnalyzer = 27
 }
 
 /// <summary>
@@ -142,7 +143,8 @@ public static class RolePermissionRegistry
                 DashboardPermission.ExportAssessments,
                 DashboardPermission.ExportDashboardData,
                 DashboardPermission.RebuildCache,
-                DashboardPermission.ManageAssessmentUpdates
+                DashboardPermission.ManageAssessmentUpdates,
+                DashboardPermission.UseGroupAnalyzer
             },
             [DashboardRole.PowerUser] = new HashSet<DashboardPermission>
             {
@@ -173,8 +175,26 @@ public static class RolePermissionRegistry
     /// </summary>
     public static readonly IReadOnlySet<DashboardPermission> PermissionsAddedAfterMatrixV1 = new HashSet<DashboardPermission>
     {
-        DashboardPermission.ManageAssessmentUpdates
+        DashboardPermission.ManageAssessmentUpdates,
+        DashboardPermission.UseGroupAnalyzer
     };
+
+    /// <summary>
+    /// Permissions that grant access to an on-demand tool (Tools menu). Holding any of these makes the
+    /// Tools menu visible; add future tool permissions here.
+    /// </summary>
+    public static readonly IReadOnlySet<DashboardPermission> ToolPermissions = new HashSet<DashboardPermission>
+    {
+        DashboardPermission.UseGroupAnalyzer
+    };
+
+    /// <summary>True when the user can see the Tools menu (holds at least one tool permission).</summary>
+    public static bool CanViewTools(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
+        isActiveRolesAdmin || permissions.Overlaps(ToolPermissions);
+
+    /// <summary>True when the user may run the on-demand Group Analyzer tool.</summary>
+    public static bool CanUseGroupAnalyzer(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
+        isActiveRolesAdmin || permissions.Contains(DashboardPermission.UseGroupAnalyzer);
 
     /// <summary>True when the user can see the Settings &gt; Updates category.</summary>
     public static bool CanViewUpdates(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin, DashboardRole role) =>
@@ -224,7 +244,8 @@ public static class RolePermissionRegistry
             [DashboardPermission.RunActiveDirectoryPerformanceTests] = new("Perm_RunActiveDirectoryPerformanceTests", "Run Active Directory performance tests"),
             [DashboardPermission.RunEntraIdPerformanceTests] = new("Perm_RunEntraIdPerformanceTests", "Run Entra Id performance tests"),
             [DashboardPermission.RunExchangePerformanceTests] = new("Perm_RunExchangePerformanceTests", "Run Exchange performance tests"),
-            [DashboardPermission.ManageAssessmentUpdates] = new("Perm_ManageAssessmentUpdates", "Manage assessment updates")
+            [DashboardPermission.ManageAssessmentUpdates] = new("Perm_ManageAssessmentUpdates", "Manage assessment updates"),
+            [DashboardPermission.UseGroupAnalyzer] = new("Perm_UseGroupAnalyzer", "Use Group Analyzer")
         };
 
     /// <summary>

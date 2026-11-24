@@ -101,8 +101,14 @@ internal static class LegacyDefinitionExporter
             ["EntraOnPremSyncedGroups"] = (Entra, EntraGroup + " && " + EntraSynced),
             ["EntraSingleOwnerGroups"] = (Entra, EntraGroup + " && count(edsaAzureGroupManagedBy) == 1"),
             ["EntraLargeGroups"] = (Entra, EntraGroup + " && count(member) >= $entraLargeGroupThreshold"),
+            ["EntraCircularGroupNesting"] = (Entra, EntraGroup + " && circularNesting == 'TRUE'"),
+            ["EntraDeepGroupNesting"] = (Entra, EntraGroup + " && nestingDepth > $entraGroupNestingMaxDepth"),
+            ["EntraMultiPathGroupMemberships"] = (Entra, EntraGroup + " && multiPathMemberCount > 0"),
             ["GroupFamilies"] = ("ADGroups", "edsvaGFIsGroupFamily == 'TRUE'"),
             ["DynamicGroups"] = ("ADGroups", "edsaIsDynamicGroup == 'TRUE'"),
+            ["CircularGroupNesting"] = ("ADGroups", "circularNesting == 'TRUE'"),
+            ["DeepGroupNesting"] = ("ADGroups", "nestingDepth > $adGroupNestingMaxDepth"),
+            ["MultiPathGroupMemberships"] = ("ADGroups", "multiPathMemberCount > 0"),
             ["BroadDelegationLinks"] = (DelegationLinks, NotPredefined + " && (contains(trustee, 'Everyone') || contains(trustee, 'Authenticated Users') || contains(trustee, 'Domain Users'))"),
             ["UserDelegationLinks"] = (DelegationLinks, NotPredefined + " && trusteeIsUser"),
             ["RootDelegationLinks"] = (DelegationLinks, NotPredefined + " && isRootScope"),
@@ -170,7 +176,6 @@ internal static class LegacyDefinitionExporter
     public static readonly IReadOnlyDictionary<string, (string Dataset, string Function)> MigratedFunctions =
         new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
         {
-            ["CircularGroupNesting"] = ("ADGroups", "circularNesting"),
             ["ManagedObjects"] = ("ManagedObjects", "managedObjectStatistics"),
             ["EntraGuestContainingGroups"] = (Entra, "guestContainingGroups"),
         };
@@ -459,7 +464,7 @@ internal static class LegacyDefinitionExporter
             "DynamicGroupsBrokenRules", "ManagedUnitsBrokenRules", "PolicyObjectLinks", "GroupFamilies", "DynamicGroups");
         Add(NameTenantDn, "EntraDistributionGroups", "EntraDynamicDistributionGroups", "EntraMicrosoft365Groups", "EntraSecurityGroups",
             "EntraEmptyGroups", "EntraNoGroupOwner", "EntraGuestContainingGroups", "EntraPublicGroups", "EntraOnPremSyncedGroups",
-            "EntraSingleOwnerGroups", "EntraLargeGroups");
+            "EntraSingleOwnerGroups", "EntraLargeGroups", "EntraCircularGroupNesting");
         Add(EntraUserColumns, "EntraNoManagerUser", "EntraGuestUsers", "EntraInternalUsers", "EntraCloudOnlyUsers");
         Add(NameDomainDn, "ExchangeServersKpi", "ExchangeTotalMailboxes", "ExchangeMailboxDatabasesKpi", "ExchangeAcceptedDomainsKpi",
             "ExchangeMailboxServersKpi", "ExchangeDAGsKpi", "ExchangeUserMailboxesKpi", "ExchangeSharedMailboxesKpi", "ExchangeRoomMailboxesKpi",

@@ -479,4 +479,31 @@
   <data name="Updates_Valid" xml:space="preserve">
     <value>Il pacchetto {0} versione {1} è valido.</value>
   </data>
+  <data name="Card_GroupNesting" xml:space="preserve">
+	<value>Annidamento dei gruppi</value>
+  </data>
+  <data name="Label_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Profondità massima di annidamento AD</value>
+  </data>
+  <data name="Hint_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>I gruppi di Active Directory annidati più in profondità vengono segnalati dal KPI Annidamento profondo dei gruppi.</value>
+  </data>
+  <data name="Label_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Profondità massima di annidamento Entra ID</value>
+  </data>
+  <data name="Hint_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>I gruppi Entra ID solo cloud annidati più in profondità vengono segnalati dal KPI Annidamento profondo dei gruppi Entra.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>Limite analisi multi-percorso (collegamenti di appartenenza)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>L&apos;analisi delle appartenenze multi-percorso viene saltata quando il grafo dei gruppi contiene più collegamenti di appartenenza diretta. 0 la disattiva.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Limite di lavoro analisi multi-percorso (membri raggiungibili)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Limita l&apos;uso di memoria: l&apos;analisi multi-percorso si interrompe e viene saltata quando il totale dei membri raggiungibili tramite gruppi annidati supera questo valore (directory con annidamento profondo o denso). Predefinito 10.000.000 (circa 300 MB).</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
@@ -221,4 +221,9 @@
   <data name="SettingsCat_Updates" xml:space="preserve">
     <value>Aggiornamenti</value>
   </data>
+  <data name="Kpi_DeepGroupNesting" xml:space="preserve"><value>Annidamento profondo di gruppi</value></data>
+  <data name="Kpi_MultiPathGroupMemberships" xml:space="preserve"><value>Appartenenze a percorsi multipli</value></data>
+  <data name="Kpi_EntraCircularGroupNesting" xml:space="preserve"><value>Annidamento circolare di gruppi</value></data>
+  <data name="Kpi_EntraDeepGroupNesting" xml:space="preserve"><value>Annidamento profondo di gruppi</value></data>
+  <data name="Kpi_EntraMultiPathGroupMemberships" xml:space="preserve"><value>Appartenenze a percorsi multipli</value></data>
 </root>

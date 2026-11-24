@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Group Analyzer</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Explore the nesting of a single group: the paths to the groups nested in it, the paths from its parent groups, circular nesting and nested groups reached through more than one path. Only groups visible to you are included.</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+	<value>Directory</value>
+  </data>
+  <data name="SourceAd" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="SourceEntra" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+	<value>Group name</value>
+  </data>
+  <data name="Analyze" xml:space="preserve">
+	<value>Analyze</value>
+  </data>
+  <data name="EntraMembershipMissing" xml:space="preserve">
+	<value>Entra ID group membership has not finished loading yet; nesting results may be incomplete.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+	<value>No matching group was found.</value>
+  </data>
+  <data name="SelectGroup" xml:space="preserve">
+	<value>Select a group</value>
+  </data>
+  <data name="MatchesTruncated" xml:space="preserve">
+	<value>Only the first {0} matches are shown. Refine the search.</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+	<value>Nesting depth</value>
+  </data>
+  <data name="Circular" xml:space="preserve">
+	<value>Circular nesting</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+	<value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+	<value>No</value>
+  </data>
+  <data name="CyclePeers" xml:space="preserve">
+	<value>Groups on the same cycle</value>
+  </data>
+  <data name="NestedPaths" xml:space="preserve">
+	<value>Nested group paths</value>
+  </data>
+  <data name="ParentPaths" xml:space="preserve">
+	<value>Parent group paths</value>
+  </data>
+  <data name="MultiPathGroups" xml:space="preserve">
+	<value>Nested groups reached through multiple paths</value>
+  </data>
+  <data name="None" xml:space="preserve">
+	<value>None</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+	<value>Group</value>
+  </data>
+  <data name="PathCount" xml:space="preserve">
+	<value>Paths</value>
+  </data>
+  <data name="PathsTruncated" xml:space="preserve">
+	<value>Path list truncated at {0} paths or the maximum depth.</value>
+  </data>
+</root>

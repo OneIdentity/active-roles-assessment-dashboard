@@ -230,6 +230,14 @@
             {
               "kpiId": "CircularGroupNesting",
               "color": "red"
+            },
+            {
+              "kpiId": "DeepGroupNesting",
+              "color": "amber"
+            },
+            {
+              "kpiId": "MultiPathGroupMemberships",
+              "color": "amber"
             }
           ],
           "allowTypeToggle": false,
@@ -2339,8 +2347,7 @@
       "dataSource": "ActiveDirectory",
       "sourceDatasetId": "ADGroups",
       "evaluation": {
-        "type": "Function",
-        "function": "circularNesting"
+        "filter": "circularNesting == 'TRUE'"
       },
       "display": {
         "color": "red",
@@ -2366,6 +2373,96 @@
       },
       "sortOrder": 8,
       "fallbackText": "Circular Group Nesting"
+    },
+    {
+      "kind": "Derived",
+      "id": "DeepGroupNesting",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "nestingDepth > $adGroupNestingMaxDepth"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "deepgroupnesting"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "nestingDepth",
+            "header": "Nesting Depth"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "distinguishedName"
+        }
+      },
+      "sortOrder": 9,
+      "fallbackText": "Deep Group Nesting"
+    },
+    {
+      "kind": "Derived",
+      "id": "MultiPathGroupMemberships",
+      "categoryId": "ADGroupsCategory",
+      "dataSource": "ActiveDirectory",
+      "sourceDatasetId": "ADGroups",
+      "evaluation": {
+        "filter": "multiPathMemberCount > 0"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "multipathgroupmemberships"
+      },
+      "isRiskKpi": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "edsaDomainNetbiosName",
+            "header": "Domain"
+          },
+          {
+            "attribute": "multiPathMemberCount",
+            "header": "Multi-Path Members"
+          },
+          {
+            "attribute": "indirectMemberCount",
+            "header": "Indirect Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ],
+        "groupTree": {
+          "target": "distinguishedName"
+        }
+      },
+      "sortOrder": 10,
+      "fallbackText": "Multi-Path Memberships"
     },
     {
       "kind": "Derived",

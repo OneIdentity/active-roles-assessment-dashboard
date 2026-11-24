@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Analizzatore di gruppi</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Esplora l&apos;annidamento di un gruppo: percorsi verso i gruppi annidati, percorsi dai gruppi padre, annidamento circolare e gruppi annidati raggiunti tramite più percorsi. Sono inclusi solo i gruppi visibili all&apos;utente.</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+	<value>Directory</value>
+  </data>
+  <data name="SourceAd" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="SourceEntra" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+	<value>Nome del gruppo</value>
+  </data>
+  <data name="Analyze" xml:space="preserve">
+	<value>Analizza</value>
+  </data>
+  <data name="EntraMembershipMissing" xml:space="preserve">
+	<value>L&apos;appartenenza ai gruppi Entra ID non è ancora stata caricata completamente; i risultati potrebbero essere incompleti.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+	<value>Nessun gruppo corrispondente trovato.</value>
+  </data>
+  <data name="SelectGroup" xml:space="preserve">
+	<value>Seleziona un gruppo</value>
+  </data>
+  <data name="MatchesTruncated" xml:space="preserve">
+	<value>Vengono mostrate solo le prime {0} corrispondenze. Affina la ricerca.</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+	<value>Profondità di annidamento</value>
+  </data>
+  <data name="Circular" xml:space="preserve">
+	<value>Annidamento circolare</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+	<value>Sì</value>
+  </data>
+  <data name="No" xml:space="preserve">
+	<value>No</value>
+  </data>
+  <data name="CyclePeers" xml:space="preserve">
+	<value>Gruppi nello stesso ciclo</value>
+  </data>
+  <data name="NestedPaths" xml:space="preserve">
+	<value>Percorsi dei gruppi annidati</value>
+  </data>
+  <data name="ParentPaths" xml:space="preserve">
+	<value>Percorsi dei gruppi padre</value>
+  </data>
+  <data name="MultiPathGroups" xml:space="preserve">
+	<value>Gruppi annidati raggiunti tramite più percorsi</value>
+  </data>
+  <data name="None" xml:space="preserve">
+	<value>Nessuno</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+	<value>Gruppo</value>
+  </data>
+  <data name="PathCount" xml:space="preserve">
+	<value>Percorsi</value>
+  </data>
+  <data name="PathsTruncated" xml:space="preserve">
+	<value>Elenco percorsi troncato a {0} percorsi o alla profondità massima.</value>
+  </data>
+</root>

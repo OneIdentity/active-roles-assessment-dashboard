@@ -897,6 +897,119 @@
       },
       "sortOrder": 10,
       "fallbackText": "Large Groups"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraCircularGroupNesting",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
+      "evaluation": {
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && circularNesting == 'TRUE'"
+      },
+      "display": {
+        "color": "red",
+        "sectionId": "entracirculargroupnesting"
+      },
+      "isRiskKpi": true,
+      "requiresEntraMembership": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 11,
+      "fallbackText": "Circular Group Nesting"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraDeepGroupNesting",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
+      "evaluation": {
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && nestingDepth > $entraGroupNestingMaxDepth"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "entradeepgroupnesting"
+      },
+      "isRiskKpi": true,
+      "requiresEntraMembership": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "nestingDepth",
+            "header": "Nesting Depth"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 12,
+      "fallbackText": "Deep Group Nesting"
+    },
+    {
+      "kind": "Derived",
+      "id": "EntraMultiPathGroupMemberships",
+      "categoryId": "EntraGroups",
+      "dataSource": "EntraId",
+      "sourceDatasetId": "EntraObjects",
+      "evaluation": {
+        "filter": "in(entraObjectType, 'DistributionGroup', 'DynamicDistributionGroup', 'Microsoft365Group', 'SecurityGroup') && multiPathMemberCount > 0"
+      },
+      "display": {
+        "color": "amber",
+        "sectionId": "entramultipathgroupmemberships"
+      },
+      "isRiskKpi": true,
+      "requiresEntraMembership": true,
+      "drilldown": {
+        "enabled": true,
+        "columns": [
+          {
+            "attribute": "name",
+            "header": "Name"
+          },
+          {
+            "attribute": "entraTenant",
+            "header": "Tenant"
+          },
+          {
+            "attribute": "multiPathMemberCount",
+            "header": "Multi-Path Members"
+          },
+          {
+            "attribute": "distinguishedName",
+            "header": "Distinguished Name"
+          }
+        ]
+      },
+      "sortOrder": 13,
+      "fallbackText": "Multi-Path Memberships"
     }
   ]
 }

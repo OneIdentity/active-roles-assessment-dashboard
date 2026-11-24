@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Outils</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Outils d&apos;analyse à la demande. Ils s&apos;exécutent sur les données actuelles de l&apos;annuaire lorsque vous les lancez et ne font pas partie de l&apos;actualisation du tableau de bord.</value>
+  </data>
+  <data name="GroupAnalyzerTitle" xml:space="preserve">
+	<value>Analyseur de groupes</value>
+  </data>
+  <data name="GroupAnalyzerDescription" xml:space="preserve">
+	<value>Explorez l&apos;imbrication des groupes : chemins d&apos;appartenance, imbrication circulaire et utilisateurs atteignant un groupe par plusieurs chemins.</value>
+  </data>
+</root>
