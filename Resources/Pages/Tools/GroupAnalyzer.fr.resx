@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Analyseur de groupes</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Explorez l'imbrication d'un groupe : chemins vers les groupes imbriqués, chemins depuis ses groupes parents, imbrication circulaire et groupes imbriqués atteints par plusieurs chemins. Seuls les groupes qui vous sont visibles sont inclus.</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+	<value>Annuaire</value>
+  </data>
+  <data name="SourceAd" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="SourceEntra" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+	<value>Nom du groupe</value>
+  </data>
+  <data name="Analyze" xml:space="preserve">
+	<value>Analyser</value>
+  </data>
+  <data name="EntraMembershipMissing" xml:space="preserve">
+	<value>L'appartenance aux groupes Entra ID n'est pas encore entièrement chargée ; les résultats peuvent être incomplets.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+	<value>Aucun groupe correspondant trouvé.</value>
+  </data>
+  <data name="SelectGroup" xml:space="preserve">
+	<value>Sélectionnez un groupe</value>
+  </data>
+  <data name="MatchesTruncated" xml:space="preserve">
+	<value>Seules les {0} premières correspondances sont affichées. Affinez la recherche.</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+	<value>Profondeur d'imbrication</value>
+  </data>
+  <data name="Circular" xml:space="preserve">
+	<value>Imbrication circulaire</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+	<value>Oui</value>
+  </data>
+  <data name="No" xml:space="preserve">
+	<value>Non</value>
+  </data>
+  <data name="CyclePeers" xml:space="preserve">
+	<value>Groupes du même cycle</value>
+  </data>
+  <data name="NestedPaths" xml:space="preserve">
+	<value>Chemins des groupes imbriqués</value>
+  </data>
+  <data name="ParentPaths" xml:space="preserve">
+	<value>Chemins des groupes parents</value>
+  </data>
+  <data name="MultiPathGroups" xml:space="preserve">
+	<value>Groupes imbriqués atteints par plusieurs chemins</value>
+  </data>
+  <data name="None" xml:space="preserve">
+	<value>Aucun</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+	<value>Groupe</value>
+  </data>
+  <data name="PathCount" xml:space="preserve">
+	<value>Chemins</value>
+  </data>
+  <data name="PathsTruncated" xml:space="preserve">
+	<value>Liste des chemins tronquée à {0} chemins ou à la profondeur maximale.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>Nom d'utilisateur ou DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>Aucun chemin multiple trouvé : l'utilisateur atteint ce groupe par un seul chemin au plus.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>L'utilisateur est membre de ce groupe par {0} chemin(s) :</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Utilisateur "{0}" introuvable parmi les membres des groupes visibles. Les groupes imbriqués atteints par plusieurs chemins sont affichés à la place.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>Aucun chemin multiple trouvé.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>Utilisateur (facultatif)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>"{0}" correspond à plusieurs utilisateurs. Saisissez le nom distinctif complet. Les groupes imbriqués atteints par plusieurs chemins sont affichés à la place.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>Non calculé pour les groupes à imbrication circulaire.</value>
+  </data>
+</root>

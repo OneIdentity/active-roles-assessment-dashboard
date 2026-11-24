@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Analizador de grupos</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Explore el anidamiento de un grupo: rutas a los grupos anidados, rutas desde sus grupos primarios, anidamiento circular y grupos anidados alcanzados por más de una ruta. Solo se incluyen los grupos visibles para usted.</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+	<value>Directorio</value>
+  </data>
+  <data name="SourceAd" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="SourceEntra" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+	<value>Nombre del grupo</value>
+  </data>
+  <data name="Analyze" xml:space="preserve">
+	<value>Analizar</value>
+  </data>
+  <data name="EntraMembershipMissing" xml:space="preserve">
+	<value>La pertenencia a grupos de Entra ID aún no se ha cargado por completo; los resultados pueden estar incompletos.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+	<value>No se encontró ningún grupo coincidente.</value>
+  </data>
+  <data name="SelectGroup" xml:space="preserve">
+	<value>Seleccione un grupo</value>
+  </data>
+  <data name="MatchesTruncated" xml:space="preserve">
+	<value>Solo se muestran las primeras {0} coincidencias. Refine la búsqueda.</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+	<value>Profundidad de anidamiento</value>
+  </data>
+  <data name="Circular" xml:space="preserve">
+	<value>Anidamiento circular</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+	<value>Sí</value>
+  </data>
+  <data name="No" xml:space="preserve">
+	<value>No</value>
+  </data>
+  <data name="CyclePeers" xml:space="preserve">
+	<value>Grupos en el mismo ciclo</value>
+  </data>
+  <data name="NestedPaths" xml:space="preserve">
+	<value>Rutas de grupos anidados</value>
+  </data>
+  <data name="ParentPaths" xml:space="preserve">
+	<value>Rutas de grupos primarios</value>
+  </data>
+  <data name="MultiPathGroups" xml:space="preserve">
+	<value>Grupos anidados alcanzados por varias rutas</value>
+  </data>
+  <data name="None" xml:space="preserve">
+	<value>Ninguno</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+	<value>Grupo</value>
+  </data>
+  <data name="PathCount" xml:space="preserve">
+	<value>Rutas</value>
+  </data>
+  <data name="PathsTruncated" xml:space="preserve">
+	<value>Lista de rutas truncada en {0} rutas o en la profundidad máxima.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>Nombre de usuario o DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>No se encontraron rutas múltiples: el usuario llega a este grupo por una ruta como máximo.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>El usuario es miembro de este grupo a través de {0} ruta(s):</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>No se encontró el usuario "{0}" entre los miembros de los grupos visibles. Se muestran en su lugar los grupos anidados alcanzados por varias rutas.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>No se encontraron rutas múltiples.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>Usuario (opcional)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>"{0}" coincide con más de un usuario. Escriba el nombre distintivo completo. Se muestran en su lugar los grupos anidados alcanzados por varias rutas.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>No se calcula para grupos con anidamiento circular.</value>
+  </data>
+</root>

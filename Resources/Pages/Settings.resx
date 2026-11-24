@@ -480,4 +480,31 @@
   <data name="Updates_Valid" xml:space="preserve">
     <value>Update pack {0} version {1} is valid.</value>
   </data>
+  <data name="Card_GroupNesting" xml:space="preserve">
+	<value>Group Nesting</value>
+  </data>
+  <data name="Label_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Maximum AD nesting depth</value>
+  </data>
+  <data name="Hint_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Active Directory groups nested deeper than this are reported by the Deep Group Nesting KPI.</value>
+  </data>
+  <data name="Label_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Maximum Entra ID nesting depth</value>
+  </data>
+  <data name="Hint_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Cloud-only Entra ID groups nested deeper than this are reported by the Entra Deep Group Nesting KPI.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>Multi-path analysis limit (membership links)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>Multi-path membership analysis is skipped when the group graph has more direct membership links than this. 0 disables it.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Multi-path analysis work limit (reachable members)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Bounds memory use: multi-path analysis stops and is skipped once the total of members reachable through nested groups exceeds this (deep or densely nested directories). Default 10,000,000 (about 300 MB).</value>
+  </data>
 </root>

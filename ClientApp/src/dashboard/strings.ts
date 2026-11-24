@@ -7,6 +7,7 @@ const en = {
   assessment: 'Assessment',
   attackExposure: 'Attack exposure',
   snapshots: 'Snapshots',
+  tools: 'Tools',
   other: 'Other',
   settings: 'Settings',
   helpWith: 'Help with', privacy: 'Privacy',
@@ -138,6 +139,7 @@ const merge = (o: Overrides): Strings => ({
 } as Strings);
 
 const de = merge({
+  tools: 'Werkzeuge',
   roles: { ActiveRolesAdmin: 'Active Roles-Administrator', DashboardAdministrator: 'Dashboard-Administrator', Auditor: 'Prüfer', PowerUser: 'Hauptbenutzer', User: 'Benutzer' },
   dashboard: 'Dashboard', assessment: 'Bewertung', attackExposure: 'Angriffsfläche', snapshots: 'Momentaufnahmen',
   other: 'Sonstiges', settings: 'Einstellungen', helpWith: 'Hilfe zu', privacy: 'Datenschutz', signOut: 'Abmelden', collapseNavigation: 'Navigation einklappen',
@@ -172,6 +174,7 @@ const de = merge({
 });
 
 const es = merge({
+  tools: 'Herramientas',
   roles: { ActiveRolesAdmin: 'Administrador de Active Roles', DashboardAdministrator: 'Administrador del panel', Auditor: 'Auditor', PowerUser: 'Usuario avanzado', User: 'Usuario' },
   assessment: 'Evaluación', attackExposure: 'Exposición a ataques', snapshots: 'Instantáneas', other: 'Otros',
   settings: 'Configuración', helpWith: 'Ayuda con', privacy: 'Privacidad', signOut: 'Cerrar sesión', collapseNavigation: 'Contraer navegación', expandNavigation: 'Expandir navegación',
@@ -205,6 +208,7 @@ const es = merge({
 });
 
 const fr = merge({
+  tools: 'Outils',
   roles: { ActiveRolesAdmin: 'Administrateur Active Roles', DashboardAdministrator: 'Administrateur du tableau de bord', Auditor: 'Auditeur', PowerUser: 'Utilisateur avancé', User: 'Utilisateur' },
   dashboard: 'Tableau de bord', assessment: 'Évaluation', attackExposure: 'Exposition aux attaques', snapshots: 'Instantanés',
   other: 'Autre', settings: 'Paramètres', helpWith: 'Aide sur', privacy: 'Confidentialité', signOut: 'Se déconnecter', collapseNavigation: 'Réduire la navigation',
@@ -237,6 +241,7 @@ const fr = merge({
 });
 
 const hu = merge({
+  tools: 'Eszközök',
   roles: { ActiveRolesAdmin: 'Active Roles-rendszergazda', DashboardAdministrator: 'Irányítópult-rendszergazda', Auditor: 'Auditor', PowerUser: 'Kiemelt felhasználó', User: 'Felhasználó' },
   dashboard: 'Irányítópult', assessment: 'Értékelés', attackExposure: 'Támadási kitettség', snapshots: 'Pillanatképek',
   other: 'Egyéb', settings: 'Beállítások', helpWith: 'Súgó ehhez', privacy: 'Adatvédelem', signOut: 'Kijelentkezés', collapseNavigation: 'Navigáció összecsukása',
@@ -268,6 +273,7 @@ const hu = merge({
 });
 
 const it = merge({
+  tools: 'Strumenti',
   roles: { ActiveRolesAdmin: 'Amministratore di Active Roles', DashboardAdministrator: 'Amministratore dashboard', Auditor: 'Revisore', PowerUser: 'Utente esperto', User: 'Utente' },
   assessment: 'Valutazione', attackExposure: 'Esposizione agli attacchi', snapshots: 'Snapshot', other: 'Altro',
   settings: 'Impostazioni', helpWith: 'Guida per', privacy: 'Privacy', signOut: 'Esci', collapseNavigation: 'Comprimi navigazione', expandNavigation: 'Espandi navigazione',

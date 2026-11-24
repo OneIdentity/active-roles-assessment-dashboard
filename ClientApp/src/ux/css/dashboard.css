@@ -19,6 +19,7 @@ body { font-family: var(--oi-font-family-default); background: var(--oi-backgrou
 .sidebar-nav-asset-exposure { mask-image: url('../images/figma-exposure.svg'); -webkit-mask-image: url('../images/figma-exposure.svg'); }
 .sidebar-nav-asset-snapshots { mask-image: url('../images/figma-snapshots.svg'); -webkit-mask-image: url('../images/figma-snapshots.svg'); }
 .sidebar-nav-asset-settings { mask-image: url('../images/figma-settings.svg'); -webkit-mask-image: url('../images/figma-settings.svg'); }
+.sidebar-nav-asset-tools { mask-image: url('../images/figma-groups.svg'); -webkit-mask-image: url('../images/figma-groups.svg'); }
 .sidebar-nav-asset-signout { mask-image: url('../images/figma-signout.svg'); -webkit-mask-image: url('../images/figma-signout.svg'); }
 .sidebar-nav-asset-help { mask-image: url('../images/figma-help.svg'); -webkit-mask-image: url('../images/figma-help.svg'); }
 .sidebar-nav-asset-privacy { mask-image: url('../images/figma-privacy.svg'); -webkit-mask-image: url('../images/figma-privacy.svg'); }

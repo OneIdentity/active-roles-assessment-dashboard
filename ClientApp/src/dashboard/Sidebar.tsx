@@ -55,6 +55,12 @@ export function Sidebar({ capabilities }: Props) {
             <span>{t.snapshots}</span>
           </a>
         )}
+        {capabilities.canViewTools && (
+          <a href={withBase('/Tools')} className="sidebar-nav-item">
+            <span className="sidebar-nav-asset sidebar-nav-asset-tools" aria-hidden="true" />
+            <span>{t.tools}</span>
+          </a>
+        )}
       </nav>
       <div className="sidebar-nav-group">
         <div className="sidebar-nav-group-header">

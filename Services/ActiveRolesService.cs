@@ -228,6 +228,8 @@ public class ActiveRolesService
             || settings.IsKpiEnabled("ADGroupsCategory", "UniversalGroups")
             || settings.IsKpiEnabled("ADGroupsCategory", "MailEnabledSecurityGroups")
             || settings.IsKpiEnabled("ADGroupsCategory", "CircularGroupNesting")
+            || settings.IsKpiEnabled("ADGroupsCategory", "DeepGroupNesting")
+            || settings.IsKpiEnabled("ADGroupsCategory", "MultiPathGroupMemberships")
             || settings.IsKpiEnabled("ARConfiguration", "GroupFamilies")
             || settings.IsKpiEnabled("ARConfiguration", "DynamicGroups");
 
@@ -682,6 +684,33 @@ public class ActiveRolesService
         return result;
     }
 
+    /// <summary>
+    /// Computes nesting depth, circular groups and multi-path member counts over the AD group graph
+    /// (already in memory; no extra directory queries) and stores the compact results on the summary.
+    /// </summary>
+    internal void ApplyNestingAnalysis(ADGroupsSummary result, IReadOnlyDictionary<string, List<string>> directByDn)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var nestingConfig = _configMonitor.CurrentValue.GroupNesting;
+        var limit = nestingConfig.MultiPathEdgeLimit;
+        var analysis = GroupNestingAnalyzer.Analyze(directByDn, new GroupNestingAnalyzer.Options
+        {
+            ComputeMultiPath = limit > 0,
+            MultiPathEdgeLimit = limit,
+            MultiPathWorkLimit = nestingConfig.MultiPathWorkLimit
+        });
+        result.NestingDepthByDn = analysis.DepthByGroup;
+        result.CircularGroupDns = analysis.CircularGroups;
+        result.MultiPathSkipped = analysis.MultiPathSkipped;
+        result.MultiPathCountByDn = analysis.MultiPath
+            .GroupBy(m => m.GroupId, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+        _logger.LogInformation("GetADGroupsAsync: nesting analysis of {GroupCount} groups / {EdgeCount} edges in {ElapsedMs} ms (circular {Circular}, max depth {MaxDepth}, multi-path groups {MultiPath}{Skipped})",
+            directByDn.Count, analysis.EdgeCount, sw.ElapsedMilliseconds, analysis.CircularGroups.Count,
+            analysis.DepthByGroup.Count == 0 ? 0 : analysis.DepthByGroup.Values.Max(), result.MultiPathCountByDn.Count,
+            MultiPathSkipNote(analysis, nestingConfig));
+    }
+
     public async Task<ADGroupsSummary> GetADGroupsAsync(string token)
     {
         var result = new ADGroupsSummary();
@@ -720,6 +749,8 @@ public class ActiveRolesService
                 kv => kv.Key, kv => kv.Value.Count, StringComparer.OrdinalIgnoreCase);
             result.IndirectCountByDn = membership.IndirectByDn.ToDictionary(
                 kv => kv.Key, kv => kv.Value.Count, StringComparer.OrdinalIgnoreCase);
+
+            ApplyNestingAnalysis(result, membership.DirectByDn);
 
             result.TotalCount = items.Count(i => !string.Equals(GetAttr(i, "edsvaGFIsGroupFamily"), "TRUE", StringComparison.OrdinalIgnoreCase));
             _logger.LogInformation("GetADGroupsAsync: collected {ItemCount} objects, {TotalCount} groups (excluding group families); computed indirect membership for {NestedCount} groups", items.Count, result.TotalCount, membership.IndirectByDn.Count(kv => kv.Value.Count > 0));
@@ -998,6 +1029,7 @@ public class ActiveRolesService
             if (reachedEnd)
             {
                 summary.MembershipLoadedCount = totalGroups;
+                ApplyEntraNestingAnalysis(summary);
                 summary.MembershipLoaded = true;
             }
             return totalGroups;
@@ -1073,10 +1105,67 @@ public class ActiveRolesService
         summary.MembershipLoadedCount = Math.Max(summary.MembershipLoadedCount, skip + groups.Count);
 
         if (reachedEnd)
+        {
+            ApplyEntraNestingAnalysis(summary);
             summary.MembershipLoaded = true;
+        }
 
         return totalGroups;
     }
+
+    /// <summary>
+    /// Whether an Entra group type can contain other groups. Microsoft 365 groups and dynamic
+    /// distribution groups cannot have nested groups as members.
+    /// </summary>
+    internal static bool CanEntraGroupNest(EntraObjectType type) =>
+        type is EntraObjectType.SecurityGroup or EntraObjectType.DistributionGroup;
+
+    /// <summary>
+    /// Builds the Entra group graph from the loaded 'member' attributes and stores depth, circular
+    /// and multi-path results on the summary. Only cloud-only groups are reported (synced groups
+    /// are already analysed on the AD side), but synced groups are still traversed as children.
+    /// </summary>
+    internal void ApplyEntraNestingAnalysis(EntraTotalsSummary summary)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var graph = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        var canNest = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var reported = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var g in summary.Items.Where(i => IsEntraGroupType(i.ObjectType) && !string.IsNullOrWhiteSpace(i.Dn)))
+        {
+            if (!graph.TryAdd(g.Dn, SegmentAttributes.MultiAttrOf(g.Raw, "member").ToList())) continue;
+            if (CanEntraGroupNest(g.ObjectType)) canNest.Add(g.Dn);
+            if (!string.Equals(GetAttr(g.Raw, "edsvaOnPremisesSyncEnabled"), "TRUE", StringComparison.OrdinalIgnoreCase))
+                reported.Add(g.Dn);
+        }
+
+        var nestingConfig = _configMonitor.CurrentValue.GroupNesting;
+        var limit = nestingConfig.MultiPathEdgeLimit;
+        var analysis = GroupNestingAnalyzer.Analyze(graph, new GroupNestingAnalyzer.Options
+        {
+            CanNest = canNest.Contains,
+            IsReported = reported.Contains,
+            ComputeMultiPath = limit > 0,
+            MultiPathEdgeLimit = limit,
+            MultiPathWorkLimit = nestingConfig.MultiPathWorkLimit
+        });
+        summary.NestingDepthByDn = analysis.DepthByGroup;
+        summary.CircularGroupDns = analysis.CircularGroups;
+        summary.MultiPathSkipped = analysis.MultiPathSkipped;
+        summary.MultiPathCountByDn = analysis.MultiPath
+            .GroupBy(m => m.GroupId, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+        _logger.LogInformation("Entra nesting analysis: {GroupCount} groups ({Reported} cloud-only) / {EdgeCount} edges in {ElapsedMs} ms (circular {Circular}, max depth {MaxDepth}, multi-path groups {MultiPath}{Skipped})",
+            graph.Count, reported.Count, analysis.EdgeCount, sw.ElapsedMilliseconds, analysis.CircularGroups.Count,
+            analysis.DepthByGroup.Count == 0 ? 0 : analysis.DepthByGroup.Values.Max(), summary.MultiPathCountByDn.Count,
+            MultiPathSkipNote(analysis, nestingConfig));
+    }
+
+    private static string MultiPathSkipNote(GroupNestingAnalyzer.Result analysis, GroupNestingConfig config) =>
+        !analysis.MultiPathSkipped ? string.Empty
+        : analysis.EdgeCount > config.MultiPathEdgeLimit
+            ? $", skipped: {analysis.EdgeCount} edges over edge limit {config.MultiPathEdgeLimit}"
+            : $", skipped: reachable members over work limit {config.MultiPathWorkLimit}";
 
     /// <summary>
     /// Produces a new <see cref="JsonElement"/> that is a copy of <paramref name="original"/>
@@ -2565,6 +2654,46 @@ public class ActiveRolesService
         if (string.IsNullOrEmpty(userDn))
             userDn = GetAttr(userSearch[0], "dn");
         return string.IsNullOrEmpty(userDn) ? null : NormalizeAdDn(userDn);
+    }
+
+    /// <summary>
+    /// Resolves a user for the Group Analyzer by DN, sAMAccountName/UPN or name (ANR, so "nguser2",
+    /// "NG User2" and DOMAIN\nguser2 all work) and returns the user's DN and direct group DNs from
+    /// <c>memberOf</c>. Returns Ambiguous when the input matches more than one user.
+    /// </summary>
+    public async Task<(string? Dn, List<string> MemberOf, bool Ambiguous)> ResolveUserMembershipAsync(string token, string input)
+    {
+        var config = _configMonitor.CurrentValue;
+        const string attrs = "objectGUID,objectClass,sAMAccountName,name,distinguishedName,memberOf";
+
+        var name = input.Trim();
+        List<JsonElement> hits;
+        if (name.Contains('=') && name.Contains(','))
+        {
+            hits = await SearchObjectsAsync(token, name, "(objectClass=user)", "base", attrs);
+        }
+        else
+        {
+            var slash = name.IndexOf('\\');
+            if (slash >= 0) name = name[(slash + 1)..];
+            var escaped = EscapeLdapFilterValue(name);
+            hits = await SearchObjectsAsync(token, config.DefaultActiveDirectoryDN,
+                $"(&(objectClass=user)(objectCategory=person)(anr={escaped}))", "sub", attrs);
+
+            // Prefer an exact match on sAMAccountName, UPN prefix or name when ANR is broader.
+            var exact = hits.Where(u =>
+                string.Equals(GetAttr(u, "sAMAccountName"), name, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(GetAttr(u, "samAccountName"), name, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(GetAttr(u, "name"), name, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (exact.Count > 0) hits = exact;
+        }
+
+        if (hits.Count != 1)
+            return (null, [], hits.Count > 1);
+
+        var dn = GetAttr(hits[0], "distinguishedName");
+        if (string.IsNullOrEmpty(dn)) return (null, [], false);
+        return (NormalizeAdDn(dn), GetMultiValuedAttr(hits[0], "memberOf").Select(NormalizeAdDn).ToList(), false);
     }
 
     /// <summary>

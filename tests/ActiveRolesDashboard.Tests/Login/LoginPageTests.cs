@@ -88,6 +88,7 @@ public class LoginPageTests : IDisposable
     [InlineData("/Settings")]
     [InlineData("/Snapshots")]
     [InlineData("/Assessments")]
+    [InlineData("/Tools")]
     public async Task Protected_pages_redirect_anonymous_users_to_login(string path)
     {
         using var client = _app.CreateNonRedirectingClient();

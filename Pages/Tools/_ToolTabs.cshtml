@@ -1,0 +1,19 @@
+@model ActiveRolesDashboard.Pages.DashboardPageModel
+@using ActiveRolesDashboard.Services
+@{
+    var activeKey = ViewData["ActiveTool"] as string;
+    var tools = ToolCatalog.Available(Model.DashboardPermissions, Model.IsActiveRolesAdmin);
+}
+<nav class="tools-tabs" aria-label="@ToolCatalog.Localize("TabsLabel", "Tools")">
+    @foreach (var tool in tools)
+    {
+        if (string.Equals(tool.Key, activeKey, StringComparison.OrdinalIgnoreCase))
+        {
+            <a href="@tool.Path" class="active" aria-current="page">@ToolCatalog.TitleOf(tool)</a>
+        }
+        else
+        {
+            <a href="@tool.Path">@ToolCatalog.TitleOf(tool)</a>
+        }
+    }
+</nav>

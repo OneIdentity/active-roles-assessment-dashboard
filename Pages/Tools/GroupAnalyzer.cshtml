@@ -1,0 +1,189 @@
+﻿@page
+@model ActiveRolesDashboard.Pages.Tools.GroupAnalyzerModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Group Analyzer";
+    Layout = null;
+    var report = Model.Report;
+    var source = Model.IsEntra ? "entra" : "ad";
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" asp-append-version="true" />
+    <title>Active Roles Dashboard - @Localizer["PageTitle"]</title>
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-group-tree.css" asp-append-version="true" />
+</head>
+<body class="iris-shell iris-tools">
+<div class="page iris-shell-page">
+    @{
+        ViewData["IrisActive"] = "tools";
+        ViewData["IrisCrumb"] = ActiveRolesDashboard.Services.ToolCatalog.Localize("Tools", "Tools");
+    }
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    @{ ViewData["ActiveTool"] = "groupanalyzer"; }
+    <partial name="_ToolTabs" />
+    <p class="snap-hint">@Localizer["Intro"]</p>
+
+    <section class="snap-card">
+    <form method="get" class="snap-compare-form ga-search">
+        <label>@Localizer["Source"]
+            <select name="source" class="snap-input">
+                <option value="ad" selected="@(!Model.IsEntra)">@Localizer["SourceAd"]</option>
+                <option value="entra" selected="@Model.IsEntra">@Localizer["SourceEntra"]</option>
+            </select>
+        </label>
+        <label class="ga-query">@Localizer["GroupName"]
+            <input type="search" name="query" value="@Model.Query" class="snap-input" required />
+        </label>
+        <label class="ga-query">@Localizer["UserOptional"]
+            <input type="search" name="user" value="@Model.UserQuery" class="snap-input" placeholder="@Localizer["UserPlaceholder"]" />
+        </label>
+        <button type="submit" class="snap-btn snap-btn-primary">@Localizer["Analyze"]</button>
+    </form>
+
+    @if (Model.IsEntra && Model.EntraMembershipMissing)
+    {
+        <div class="membership-warning" role="status">@Localizer["EntraMembershipMissing"]</div>
+    }
+    @if (Model.NotFound)
+    {
+        <p role="status">@Localizer["NotFound"]</p>
+    }
+
+    @if (Model.Matches.Count > 0)
+    {
+        <form method="get" class="ga-matches">
+            <input type="hidden" name="source" value="@source" />
+            <input type="hidden" name="query" value="@Model.Query" />
+            <input type="hidden" name="user" value="@Model.UserQuery" />
+            <label for="gaMatches"><strong>@Localizer["SelectGroup"]</strong></label>
+            <select id="gaMatches" name="dn" class="snap-input ga-listbox" size="@Math.Min(10, Math.Max(3, Model.Matches.Count))" required
+                    ondblclick="if (this.value) this.form.submit()">
+                @foreach (var (dn, name) in Model.Matches)
+                {
+                    <option value="@dn" title="@dn">@name</option>
+                }
+            </select>
+            <div>
+                <button type="submit" class="snap-btn snap-btn-primary">@Localizer["Analyze"]</button>
+            </div>
+        </form>
+        @if (Model.MatchesTruncated)
+        {
+            <p class="snap-hint">@Localizer["MatchesTruncated", ActiveRolesDashboard.Pages.Tools.GroupAnalyzerModel.MaxMatches]</p>
+        }
+    }
+    </section>
+
+    @if (report != null)
+    {
+        <section class="snap-card">
+        <h2 title="@report.GroupDn">@Model.NameOf(report.GroupDn)</h2>
+        <dl class="ga-facts">
+            <dt>@Localizer["Depth"]</dt><dd>@report.Depth</dd>
+            <dt>@Localizer["Circular"]</dt><dd>@(report.IsCircular ? Localizer["Yes"] : Localizer["No"])</dd>
+        </dl>
+
+        @if (report.IsCircular)
+        {
+            <h3>@Localizer["CyclePeers"]</h3>
+            <ul>
+                @foreach (var dn in report.CyclePeers)
+                {
+                    <li title="@dn">@Model.NameOf(dn)</li>
+                }
+            </ul>
+        }
+
+        @foreach (var (heading, set) in new[] { ("NestedPaths", report.Descendants), ("ParentPaths", report.Ancestors) })
+        {
+            <h3>@Localizer[heading]</h3>
+            @if (set.Paths.Count == 0)
+            {
+                <p>@Localizer["None"]</p>
+            }
+            else
+            {
+                ViewData["AnalyzerPage"] = Model;
+                var treePaths = heading == "NestedPaths"
+                    ? set.Paths
+                    : set.Paths.Select(p => Enumerable.Reverse(p).ToList()).ToList();
+                <div class="ga-tree">
+                    <partial name="_PathTreeNodes" model="Model.BuildTree(treePaths)" view-data="ViewData" />
+                </div>
+            }
+            @if (set.Truncated)
+            {
+                <p>@Localizer["PathsTruncated", ActiveRolesDashboard.Pages.Tools.GroupAnalyzerModel.MaxPaths]</p>
+            }
+        }
+
+        <h3>@Localizer["MultiPathGroups"]</h3>
+        @if (Model.UserNotFound)
+        {
+            <p class="snap-hint" role="status">@Localizer["UserNotFound", Model.UserQuery!]</p>
+        }
+        else if (Model.UserAmbiguous)
+        {
+            <p class="snap-hint" role="status">@Localizer["UserAmbiguous", Model.UserQuery!]</p>
+        }
+
+        @if (Model.UserPaths is { } userPaths)
+        {
+            <p title="@Model.UserDn">@Localizer["UserPathsIntro", userPaths.Paths.Count]</p>
+            @if (userPaths.Paths.Count <= 1)
+            {
+                <p>@Localizer["NoMultiPathUser"]</p>
+            }
+            else
+            {
+                ViewData["AnalyzerPage"] = Model;
+                <ol class="ga-user-paths">
+                @foreach (var userPath in userPaths.Paths)
+                {
+                    <li class="ga-tree">
+                        <partial name="_PathTreeNodes" model="Model.BuildTree(new[] { userPath.Prepend(string.Empty).ToList() })" view-data="ViewData" />
+                    </li>
+                }
+                </ol>
+            }
+            @if (userPaths.Truncated)
+            {
+                <p>@Localizer["PathsTruncated", ActiveRolesDashboard.Pages.Tools.GroupAnalyzerModel.MaxPaths]</p>
+            }
+        }
+        else if (report.IsCircular)
+        {
+            <p>@Localizer["MultiPathCircular"]</p>
+        }
+        else if (report.MultiPathGroups.Count == 0)
+        {
+            <p>@Localizer["NoMultiPath"]</p>
+        }
+        else
+        {
+            <table class="ga-table">
+                <thead><tr><th>@Localizer["Group"]</th><th>@Localizer["PathCount"]</th></tr></thead>
+                <tbody>
+                @foreach (var (dn, count) in report.MultiPathGroups)
+                {
+                    <tr><td title="@dn">@Model.NameOf(dn)</td><td>@count</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+        </section>
+    }
+    </main>
+</div>
+</body>
+</html>

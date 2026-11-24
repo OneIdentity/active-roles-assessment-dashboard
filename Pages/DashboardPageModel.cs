@@ -223,6 +223,14 @@ public abstract class DashboardPageModel : PageModel
     public bool CanExportDashboardData =>
         RolePermissionRegistry.CanExportDashboardData(DashboardPermissions, IsActiveRolesAdmin);
 
+    /// <summary>True when the user holds at least one tool permission (Tools menu visible).</summary>
+    public bool CanViewTools =>
+        RolePermissionRegistry.CanViewTools(DashboardPermissions, IsActiveRolesAdmin);
+
+    /// <summary>True when the user may run the on-demand Group Analyzer tool.</summary>
+    public bool CanUseGroupAnalyzer =>
+        RolePermissionRegistry.CanUseGroupAnalyzer(DashboardPermissions, IsActiveRolesAdmin);
+
     /// <summary>
     /// The set of dashboard keys the current user may export, computed from their view permissions
     /// and the loaded <see cref="Summary"/> visibility flags (so the export dialog only lists

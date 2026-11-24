@@ -281,4 +281,9 @@
   <data name="SettingsCat_Updates" xml:space="preserve">
     <value>Frissítések</value>
   </data>
+  <data name="Kpi_DeepGroupNesting" xml:space="preserve"><value>Mély csoportbeágyazás</value></data>
+  <data name="Kpi_MultiPathGroupMemberships" xml:space="preserve"><value>Többútvonalas tagságok</value></data>
+  <data name="Kpi_EntraCircularGroupNesting" xml:space="preserve"><value>Körkörös csoportbeágyazás</value></data>
+  <data name="Kpi_EntraDeepGroupNesting" xml:space="preserve"><value>Mély csoportbeágyazás</value></data>
+  <data name="Kpi_EntraMultiPathGroupMemberships" xml:space="preserve"><value>Többútvonalas tagságok</value></data>
 </root>

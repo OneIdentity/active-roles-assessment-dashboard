@@ -641,7 +641,9 @@ public class ChartInfo
         [
             new() { KpiKey = "EmptyGroups", CssColor = "slate" },
             new() { KpiKey = "NoGroupOwner", CssColor = "amber" },
-            new() { KpiKey = "CircularGroupNesting", CssColor = "red" }
+            new() { KpiKey = "CircularGroupNesting", CssColor = "red" },
+            new() { KpiKey = "DeepGroupNesting", CssColor = "amber" },
+            new() { KpiKey = "MultiPathGroupMemberships", CssColor = "amber" }
         ]
     };
 
@@ -1205,6 +1207,9 @@ public class ActiveRolesConfig
     // Collection reuses the service-account identity; samples are held in memory only.
     public PerformanceTrendingConfig PerformanceTrending { get; set; } = new();
 
+    // Thresholds and limits for the group nesting KPIs (AD and Entra ID).
+    public GroupNestingConfig GroupNesting { get; set; } = new();
+
     // Role/permission model. The per-role permission assignments are stored ENCRYPTED as a
     // single Data-Protection blob (see RoleService); the fixed roles/permissions themselves are
     // defined in code (RolePermissionRegistry) and cannot be added to or removed.
@@ -1308,6 +1313,26 @@ public class DataRefreshConfig
     /// Whether the superset should be (re)loaded automatically at application startup.
     /// </summary>
     public bool LoadOnStartup { get; set; } = true;
+}
+
+/// <summary>
+/// Options for the group nesting KPIs. Groups nested deeper than the maximum depth are reported
+/// by the Deep Group Nesting KPIs; multi-path analysis is skipped for graphs with more direct
+/// membership edges than <see cref="MultiPathEdgeLimit"/>.
+/// </summary>
+public class GroupNestingConfig
+{
+    /// <summary>Maximum acceptable AD nesting depth; deeper groups are reported.</summary>
+    public int ADMaxDepth { get; set; } = 5;
+
+    /// <summary>Maximum acceptable Entra ID nesting depth; deeper cloud-only groups are reported.</summary>
+    public int EntraMaxDepth { get; set; } = 3;
+
+    /// <summary>Upper bound on direct membership edges for which multi-path analysis runs.</summary>
+    public long MultiPathEdgeLimit { get; set; } = 2_000_000;
+
+    /// <summary>Upper bound on reachable-member entries built by multi-path analysis (bounds memory).</summary>
+    public long MultiPathWorkLimit { get; set; } = 10_000_000;
 }
 
 /// <summary>
@@ -1645,6 +1670,9 @@ public class KpiInfo
     public static readonly KpiInfo EntraOnPremSyncedGroups = new() { Key = "EntraOnPremSyncedGroups", DisplayName = "On-Premises Synced Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "teal", SectionId = "entraonpremsyncedgroups", SortOrder = 8, HasDrilldown = true };
     public static readonly KpiInfo EntraSingleOwnerGroups = new() { Key = "EntraSingleOwnerGroups", DisplayName = "Single-Owner Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entrasingleownergroups", SortOrder = 9, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
     public static readonly KpiInfo EntraLargeGroups = new() { Key = "EntraLargeGroups", DisplayName = "Large Groups", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "slate", SectionId = "entralargegroups", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraCircularGroupNesting = new() { Key = "EntraCircularGroupNesting", DisplayName = "Circular Group Nesting", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "red", SectionId = "entracirculargroupnesting", SortOrder = 11, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraDeepGroupNesting = new() { Key = "EntraDeepGroupNesting", DisplayName = "Deep Group Nesting", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entradeepgroupnesting", SortOrder = 12, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
+    public static readonly KpiInfo EntraMultiPathGroupMemberships = new() { Key = "EntraMultiPathGroupMemberships", DisplayName = "Multi-Path Memberships", CategoryKey = "EntraGroups", DataSource = Definitions.DataSource.EntraId, CssColor = "amber", SectionId = "entramultipathgroupmemberships", SortOrder = 13, HasDrilldown = true, IsRiskKpi = true, RequiresEntraMembership = true };
 
     // AR Configuration KPIs
     public static readonly KpiInfo ActiveRolesAdmins = new() { Key = "ActiveRolesAdmins", DisplayName = "Active Roles Admins", TileLabel = "AR Admins", CategoryKey = "ARInfrastructure", DataSource = Definitions.DataSource.ActiveRoles, CssColor = "red", SectionId = "aradmins", SortOrder = 0, HasDrilldown = true, Searches = [new() { BaseDn = "{DefaultADDN}", Filter = "{ConfigFilter:ActiveRolesAdmins}", GroupName = "APP-ACTIVEROLES-ADMINS" }] };
@@ -1744,6 +1772,8 @@ public class KpiInfo
     public static readonly KpiInfo SecurityGroups = new() { Key = "SecurityGroups", DisplayName = "Security Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "securitygroups", SortOrder = 4, HasDrilldown = true };
     public static readonly KpiInfo UniversalGroups = new() { Key = "UniversalGroups", DisplayName = "Universal Groups", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "universalgroups", SortOrder = 5, HasDrilldown = true };
     public static readonly KpiInfo CircularGroupNesting = new() { Key = "CircularGroupNesting", DisplayName = "Circular Group Nesting", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "red", SectionId = "circulargroupnesting", SortOrder = 8, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo DeepGroupNesting = new() { Key = "DeepGroupNesting", DisplayName = "Deep Group Nesting", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "deepgroupnesting", SortOrder = 9, HasDrilldown = true, IsRiskKpi = true };
+    public static readonly KpiInfo MultiPathGroupMemberships = new() { Key = "MultiPathGroupMemberships", DisplayName = "Multi-Path Memberships", CategoryKey = "ADGroupsCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "amber", SectionId = "multipathgroupmemberships", SortOrder = 10, HasDrilldown = true, IsRiskKpi = true };
 
     // Computers category KPIs (derived from Computers dataset)
     public static readonly KpiInfo ComputerClients = new() { Key = "ComputerClients", DisplayName = "Clients", CategoryKey = "ComputersCategory", DataSource = Definitions.DataSource.ActiveDirectory, CssColor = "blue", SectionId = "computerclients", SortOrder = 0, HasDrilldown = true };
@@ -1818,7 +1848,7 @@ public class KpiInfo
         AdOverviewUsers, AdOverviewGroups, AdOverviewComputers,
         EntraOverviewUsers, EntraOverviewGroups,
         EntraEnabledUsers, EntraDisabledUsers, EntraNoManagerUser, EntraGuestUsers, EntraInternalUsers, EntraExternalUsers, EntraHybridUsers, EntraCloudOnlyUsers, EntraManagedUsers,
-        EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups,
+        EntraDistributionGroups, EntraDynamicDistributionGroups, EntraMicrosoft365Groups, EntraSecurityGroups, EntraEmptyGroups, EntraNoGroupOwner, EntraGuestContainingGroups, EntraPublicGroups, EntraOnPremSyncedGroups, EntraSingleOwnerGroups, EntraLargeGroups, EntraCircularGroupNesting, EntraDeepGroupNesting, EntraMultiPathGroupMemberships,
         ActiveRolesAdmins, Servers, Domains, AccessTemplateLinks, AccessTemplates, DynamicGroups, GroupFamilies, ManagedUnits, PolicyObjectLinks, PolicyObjects, VirtualAttributes, Workflows, ConfigDatabases, HistoryDatabases, ScheduledTasks, EmptyAccessTemplates, PolicyObjectsNoRules, UnlinkedAccessTemplates, DenyAccessTemplates, UnlinkedPolicyObjects, OrphanAccessTemplateLinks, BroadDelegationLinks, UserDelegationLinks, RootDelegationLinks, OrphanPolicyObjectLinks, DynamicGroupsBrokenRules, ManagedUnitsBrokenRules, ScriptModules, EntraManagedTenants,
         NoGroupOwner, NoManagerUser, NoManagerServiceAccount, UserAccountLockedOut, EmptyGroups, NeverLoggedIn, ExpiredUsers, ReversibleEncryption,
         AccountOperators, Administrators, BackupOperators, DomainAdmins, ServerOperators, EnterpriseAdmins, SchemaAdmins,
@@ -1826,7 +1856,7 @@ public class KpiInfo
         MustChangePassword, PasswordNotRequired, SmartCardRequired, CannotChangePassword, StalePasswords,
         NoKerberosPreauth, UserReversibleEncryption, SensitiveCannotDelegate, TrustedForDelegation, UseDesEncryption,
         DeprovisionedUsers, SpnUserAccounts, StaleUsers, ServiceAccounts, GmsaServiceAccounts, SmsaServiceAccounts, HybridUsers, OnPremOnlyUsers, ManagedEnabledUsers,
-        DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting,
+        DistributionGroups, DomainLocalGroups, GlobalGroups, MailEnabledSecurityGroups, SecurityGroups, UniversalGroups, CircularGroupNesting, DeepGroupNesting, MultiPathGroupMemberships,
         AdminCount,
         Sites, SiteLinks, Subnets, OUs, DomainControllers, Trusts,
         ComputerClients, ComputerServers, WinServer2008R2, WinServer2012R2, WinServer2016, WinServer2019, WinServer2022, WinServer2025, ServerOther,
@@ -1988,6 +2018,8 @@ public class KpiSettings
     public bool UserAccountLockedOutEnabled { get; set; } = true;
     public bool EmptyGroupsEnabled { get; set; } = true;
     public bool CircularGroupNestingEnabled { get; set; } = true;
+    public bool DeepGroupNestingEnabled { get; set; } = true;
+    public bool MultiPathGroupMembershipsEnabled { get; set; } = true;
     public bool AccountOperatorsEnabled { get; set; } = true;
     public bool AdministratorsEnabled { get; set; } = true;
     public bool BackupOperatorsEnabled { get; set; } = true;
@@ -2061,6 +2093,9 @@ public class KpiSettings
     public bool EntraOnPremSyncedGroupsEnabled { get; set; } = true;
     public bool EntraSingleOwnerGroupsEnabled { get; set; } = true;
     public bool EntraLargeGroupsEnabled { get; set; } = true;
+    public bool EntraCircularGroupNestingEnabled { get; set; } = true;
+    public bool EntraDeepGroupNestingEnabled { get; set; } = true;
+    public bool EntraMultiPathGroupMembershipsEnabled { get; set; } = true;
 
     // Exchange category enable flags
     public bool ExchangeOverviewEnabled { get; set; } = true;
@@ -2168,6 +2203,8 @@ public class KpiSettings
             "UserAccountLockedOut" => UserAccountLockedOutEnabled,
             "EmptyGroups" => EmptyGroupsEnabled,
             "CircularGroupNesting" => CircularGroupNestingEnabled,
+            "DeepGroupNesting" => DeepGroupNestingEnabled,
+            "MultiPathGroupMemberships" => MultiPathGroupMembershipsEnabled,
             "AccountOperators" => AccountOperatorsEnabled,
             "Administrators" => AdministratorsEnabled,
             "BackupOperators" => BackupOperatorsEnabled,
@@ -2203,6 +2240,9 @@ public class KpiSettings
             "EntraOnPremSyncedGroups" => EntraOnPremSyncedGroupsEnabled,
             "EntraSingleOwnerGroups" => EntraSingleOwnerGroupsEnabled,
             "EntraLargeGroups" => EntraLargeGroupsEnabled,
+            "EntraCircularGroupNesting" => EntraCircularGroupNestingEnabled,
+            "EntraDeepGroupNesting" => EntraDeepGroupNestingEnabled,
+            "EntraMultiPathGroupMemberships" => EntraMultiPathGroupMembershipsEnabled,
             "ExpiringUsers" => ExpiringUsersEnabled,
             "PasswordNeverExpires" => PasswordNeverExpiresEnabled,
             "MustChangePassword" => MustChangePasswordEnabled,
@@ -3141,6 +3181,33 @@ public class ADGroupsSummary
     public Dictionary<string, List<string>> GroupMembersByDn { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Nesting depth per group DN (longest chain of nested groups; a cycle counts as one level),
+    /// computed by <see cref="Services.GroupNestingAnalyzer"/>. Serialized and compact.
+    /// </summary>
+    public Dictionary<string, int> NestingDepthByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Group DNs that lie on a membership cycle (exact, SCC-based).</summary>
+    public HashSet<string> CircularGroupDns { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Number of members reachable through more than one path, per group DN (only non-zero entries).</summary>
+    public Dictionary<string, int> MultiPathCountByDn { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>True when multi-path analysis was skipped because the graph exceeded the configured limit.</summary>
+    public bool MultiPathSkipped { get; set; }
+
+    /// <summary>Attribute carrying a group's nesting depth in the definition dataset.</summary>
+    public const string NestingDepthAttribute = "nestingDepth";
+
+    /// <summary>Attribute carrying a group's multi-path member count in the definition dataset.</summary>
+    public const string MultiPathMemberCountAttribute = "multiPathMemberCount";
+
+    /// <summary>Attribute flagging ('TRUE'/'FALSE') a group that sits on a nesting cycle.</summary>
+    public const string CircularNestingAttribute = "circularNesting";
+
     /// <summary>Attribute carrying a group's direct member count in the definition dataset.</summary>
     public const string DirectMemberCountAttribute = "directMemberCount";
 
@@ -3164,6 +3231,9 @@ public class ADGroupsSummary
             var dn = SegmentAttributes.AttrOf(i, "distinguishedName");
             node[DirectMemberCountAttribute] = DirectByDn.TryGetValue(dn, out var d) ? d.Count : DirectCountByDn.GetValueOrDefault(dn);
             node[IndirectMemberCountAttribute] = IndirectByDn.TryGetValue(dn, out var n) ? n.Count : IndirectCountByDn.GetValueOrDefault(dn);
+            node[NestingDepthAttribute] = NestingDepthByDn.GetValueOrDefault(dn);
+            node[MultiPathMemberCountAttribute] = MultiPathCountByDn.GetValueOrDefault(dn);
+            node[CircularNestingAttribute] = CircularGroupDns.Contains(dn) ? "TRUE" : "FALSE";
             if (!SegmentAttributes.MultiAttrOf(i, "member").Any() && GroupMembersByDn.TryGetValue(dn, out var nested) && nested.Count > 0)
                 node["member"] = new System.Text.Json.Nodes.JsonArray(nested.Select(m => (System.Text.Json.Nodes.JsonNode?)m).ToArray());
             return JsonSerializer.SerializeToElement(node);
@@ -3190,7 +3260,11 @@ public class ADGroupsSummary
             IndirectByDn = IndirectByDn,
             GroupMembersByDn = GroupMembersByDn,
             DirectCountByDn = DirectCountByDn,
-            IndirectCountByDn = IndirectCountByDn
+            IndirectCountByDn = IndirectCountByDn,
+            NestingDepthByDn = NestingDepthByDn,
+            CircularGroupDns = CircularGroupDns,
+            MultiPathCountByDn = MultiPathCountByDn,
+            MultiPathSkipped = MultiPathSkipped
         };
     }
 
@@ -3216,7 +3290,11 @@ public class ADGroupsSummary
             IndirectByDn = IndirectByDn,
             GroupMembersByDn = GroupMembersByDn,
             DirectCountByDn = DirectCountByDn,
-            IndirectCountByDn = IndirectCountByDn
+            IndirectCountByDn = IndirectCountByDn,
+            NestingDepthByDn = NestingDepthByDn,
+            CircularGroupDns = CircularGroupDns,
+            MultiPathCountByDn = MultiPathCountByDn,
+            MultiPathSkipped = MultiPathSkipped
         };
     }
 }
@@ -4151,6 +4229,21 @@ public class EntraTotalsSummary
     /// </summary>
     public int MembershipLoadedCount { get; set; }
 
+    /// <summary>
+    /// Nesting depth per cloud-only Entra group DN (a cycle counts as one level). Computed by
+    /// <see cref="Services.GroupNestingAnalyzer"/> once <see cref="MembershipLoaded"/> is true.
+    /// </summary>
+    public Dictionary<string, int> NestingDepthByDn { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Cloud-only Entra group DNs that lie on a membership cycle.</summary>
+    public HashSet<string> CircularGroupDns { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Number of members reachable through more than one path, per cloud-only group DN (non-zero only).</summary>
+    public Dictionary<string, int> MultiPathCountByDn { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>True when multi-path analysis was skipped because the graph exceeded the configured limit.</summary>
+    public bool MultiPathSkipped { get; set; }
+
     /// <summary>Definition dataset id exposing <see cref="Items"/> to generic KPI definitions.</summary>
     public const string DatasetId = "EntraObjects";
 
@@ -4177,12 +4270,18 @@ public class EntraTotalsSummary
                 {
                     foreach (var p in item.Raw.EnumerateObject())
                     {
-                        if (p.Name is DatasetObjectTypeAttribute or DatasetTenantAttribute) continue;
+                        if (p.Name is DatasetObjectTypeAttribute or DatasetTenantAttribute
+                            or ADGroupsSummary.NestingDepthAttribute or ADGroupsSummary.MultiPathMemberCountAttribute
+                            or ADGroupsSummary.CircularNestingAttribute) continue;
                         p.WriteTo(writer);
                     }
                 }
                 writer.WriteString(DatasetObjectTypeAttribute, item.ObjectType.ToString());
                 writer.WriteString(DatasetTenantAttribute, item.Tenant);
+                var dn = item.Dn ?? string.Empty;
+                writer.WriteNumber(ADGroupsSummary.NestingDepthAttribute, NestingDepthByDn.GetValueOrDefault(dn));
+                writer.WriteNumber(ADGroupsSummary.MultiPathMemberCountAttribute, MultiPathCountByDn.GetValueOrDefault(dn));
+                writer.WriteString(ADGroupsSummary.CircularNestingAttribute, CircularGroupDns.Contains(dn) ? "TRUE" : "FALSE");
                 writer.WriteEndObject();
             }
             using var doc = JsonDocument.Parse(stream.ToArray());
@@ -4639,7 +4738,11 @@ public class EntraTotalsSummary
             TotalCount = items.Count,
             Error = null,
             MembershipLoaded = MembershipLoaded,
-            MembershipLoadedCount = MembershipLoadedCount
+            MembershipLoadedCount = MembershipLoadedCount,
+            NestingDepthByDn = NestingDepthByDn,
+            CircularGroupDns = CircularGroupDns,
+            MultiPathCountByDn = MultiPathCountByDn,
+            MultiPathSkipped = MultiPathSkipped
         };
     }
 }

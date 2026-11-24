@@ -60,6 +60,14 @@
                 <span>@Localizer["Snapshots"]</span>
             </a>
         }
+        @if (perms != null && ActiveRolesDashboard.Models.RolePermissionRegistry.CanViewTools(perms,
+            page?.IsActiveRolesAdmin ?? string.Equals(Context.Session.GetString("IsActiveRolesAdmin"), "True", StringComparison.OrdinalIgnoreCase)))
+        {
+            <a href="@(appBase)/Tools" class="sidebar-nav-item" aria-current="@Current("tools")">
+                <span class="sidebar-nav-asset sidebar-nav-asset-tools" aria-hidden="true"></span>
+                <span>@Localizer["Tools"]</span>
+            </a>
+        }
     </nav>
     <div class="sidebar-nav-group">
         <div class="sidebar-nav-group-header">

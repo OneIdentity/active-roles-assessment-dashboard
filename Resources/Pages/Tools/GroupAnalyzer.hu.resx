@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+	<value>Csoportelemző</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+	<value>Egy csoport beágyazásának vizsgálata: útvonalak a beágyazott csoportokhoz, útvonalak a szülőcsoportokból, körkörös beágyazás és több útvonalon elért beágyazott csoportok. Csak az Ön számára látható csoportok szerepelnek.</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+	<value>Címtár</value>
+  </data>
+  <data name="SourceAd" xml:space="preserve">
+	<value>Active Directory</value>
+  </data>
+  <data name="SourceEntra" xml:space="preserve">
+	<value>Entra ID</value>
+  </data>
+  <data name="GroupName" xml:space="preserve">
+	<value>Csoportnév</value>
+  </data>
+  <data name="Analyze" xml:space="preserve">
+	<value>Elemzés</value>
+  </data>
+  <data name="EntraMembershipMissing" xml:space="preserve">
+	<value>Az Entra ID csoporttagság betöltése még nem fejeződött be; az eredmények hiányosak lehetnek.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+	<value>Nem található egyező csoport.</value>
+  </data>
+  <data name="SelectGroup" xml:space="preserve">
+	<value>Válasszon csoportot</value>
+  </data>
+  <data name="MatchesTruncated" xml:space="preserve">
+	<value>Csak az első {0} találat látható. Szűkítse a keresést.</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+	<value>Beágyazási mélység</value>
+  </data>
+  <data name="Circular" xml:space="preserve">
+	<value>Körkörös beágyazás</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+	<value>Igen</value>
+  </data>
+  <data name="No" xml:space="preserve">
+	<value>Nem</value>
+  </data>
+  <data name="CyclePeers" xml:space="preserve">
+	<value>Azonos körben lévő csoportok</value>
+  </data>
+  <data name="NestedPaths" xml:space="preserve">
+	<value>Beágyazott csoportok útvonalai</value>
+  </data>
+  <data name="ParentPaths" xml:space="preserve">
+	<value>Szülőcsoportok útvonalai</value>
+  </data>
+  <data name="MultiPathGroups" xml:space="preserve">
+	<value>Több útvonalon elért beágyazott csoportok</value>
+  </data>
+  <data name="None" xml:space="preserve">
+	<value>Nincs</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+	<value>Csoport</value>
+  </data>
+  <data name="PathCount" xml:space="preserve">
+	<value>Útvonalak</value>
+  </data>
+  <data name="PathsTruncated" xml:space="preserve">
+	<value>Az útvonallista {0} útvonalnál vagy a maximális mélységnél csonkolva.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>Felhasználónév vagy DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>Nem található több útvonal: a felhasználó legfeljebb egy útvonalon éri el ezt a csoportot.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>A felhasználó {0} útvonalon tagja ennek a csoportnak:</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>A(z) "{0}" felhasználó nem található a látható csoportok tagjai között. Helyette a több útvonalon elért beágyazott csoportok láthatók.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>Nem található több útvonal.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>Felhasználó (nem kötelező)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>A(z) "{0}" több felhasználóval egyezik. Adja meg a teljes megkülönböztető nevet. Helyette a több útvonalon elért beágyazott csoportok láthatók.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>Körkörös beágyazású csoportoknál nem kerül kiszámításra.</value>
+  </data>
+</root>

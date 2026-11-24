@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -270,4 +270,9 @@
   <data name="SettingsCat_Updates" xml:space="preserve">
     <value>Updates</value>
   </data>
+  <data name="Kpi_DeepGroupNesting" xml:space="preserve"><value>Deep Group Nesting</value></data>
+  <data name="Kpi_MultiPathGroupMemberships" xml:space="preserve"><value>Multi-Path Memberships</value></data>
+  <data name="Kpi_EntraCircularGroupNesting" xml:space="preserve"><value>Circular Group Nesting</value></data>
+  <data name="Kpi_EntraDeepGroupNesting" xml:space="preserve"><value>Deep Group Nesting</value></data>
+  <data name="Kpi_EntraMultiPathGroupMemberships" xml:space="preserve"><value>Multi-Path Memberships</value></data>
 </root>

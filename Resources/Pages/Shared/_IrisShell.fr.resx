@@ -56,4 +56,7 @@
 <data name="Role_Auditor" xml:space="preserve"><value>Auditeur</value></data>
 <data name="Role_PowerUser" xml:space="preserve"><value>Utilisateur avancé</value></data>
 <data name="Role_User" xml:space="preserve"><value>Utilisateur</value></data>
+  <data name="Tools" xml:space="preserve">
+	<value>Outils</value>
+  </data>
 </root>

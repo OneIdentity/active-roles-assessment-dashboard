@@ -480,4 +480,31 @@
   <data name="Updates_Valid" xml:space="preserve">
     <value>Aktualisierungspaket {0} Version {1} ist gültig.</value>
   </data>
+  <data name="Card_GroupNesting" xml:space="preserve">
+	<value>Gruppenverschachtelung</value>
+  </data>
+  <data name="Label_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Maximale AD-Verschachtelungstiefe</value>
+  </data>
+  <data name="Hint_GroupNestingADMaxDepth" xml:space="preserve">
+	<value>Active Directory-Gruppen, die tiefer verschachtelt sind, werden von der KPI &quot;Tiefe Gruppenverschachtelung&quot; gemeldet.</value>
+  </data>
+  <data name="Label_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Maximale Entra ID-Verschachtelungstiefe</value>
+  </data>
+  <data name="Hint_GroupNestingEntraMaxDepth" xml:space="preserve">
+	<value>Reine Cloud-Gruppen in Entra ID, die tiefer verschachtelt sind, werden von der KPI &quot;Tiefe Gruppenverschachtelung (Entra)&quot; gemeldet.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>Grenzwert für Mehrpfadanalyse (Mitgliedschaftsverknüpfungen)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathEdgeLimit" xml:space="preserve">
+	<value>Die Mehrpfad-Mitgliedschaftsanalyse wird übersprungen, wenn der Gruppengraph mehr direkte Mitgliedschaftsverknüpfungen enthält. 0 deaktiviert sie.</value>
+  </data>
+  <data name="Label_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Arbeitsgrenze für Mehrpfadanalyse (erreichbare Mitglieder)</value>
+  </data>
+  <data name="Hint_GroupNestingMultiPathWorkLimit" xml:space="preserve">
+	<value>Begrenzt den Speicherverbrauch: Die Mehrpfadanalyse wird abgebrochen und übersprungen, sobald die Summe der über verschachtelte Gruppen erreichbaren Mitglieder diesen Wert überschreitet (tief oder dicht verschachtelte Verzeichnisse). Standard 10.000.000 (ca. 300 MB).</value>
+  </data>
 </root>

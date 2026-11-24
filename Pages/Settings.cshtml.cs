@@ -503,6 +503,16 @@ public class SettingsModel : PageModel
     [BindProperty]
     public int PerfTrendingRetentionHours { get; set; }
 
+    // Group nesting KPI thresholds
+    [BindProperty]
+    public int GroupNestingADMaxDepth { get; set; }
+    [BindProperty]
+    public int GroupNestingEntraMaxDepth { get; set; }
+    [BindProperty]
+    public long GroupNestingMultiPathEdgeLimit { get; set; }
+    [BindProperty]
+    public long GroupNestingMultiPathWorkLimit { get; set; }
+
     /// <summary>Lowest sampling interval permitted, surfaced as the input minimum and hint.</summary>
     public int PerfTrendingMinimumInterval => PerformanceTrendingConfig.MinimumIntervalMinutes;
 
@@ -687,6 +697,11 @@ public class SettingsModel : PageModel
         PerfTrendingIntervalMinutes = config.PerformanceTrending.SnapshotIntervalMinutes;
         PerfTrendingRetentionHours = config.PerformanceTrending.RetentionHours;
 
+        GroupNestingADMaxDepth = config.GroupNesting.ADMaxDepth;
+        GroupNestingEntraMaxDepth = config.GroupNesting.EntraMaxDepth;
+        GroupNestingMultiPathEdgeLimit = config.GroupNesting.MultiPathEdgeLimit;
+        GroupNestingMultiPathWorkLimit = config.GroupNesting.MultiPathWorkLimit;
+
         // Licensing Thresholds
         LicensedDomainObjects = config.Licensing.DomainObjects;
         LicensedPartitionObjects = config.Licensing.PartitionObjects;
@@ -736,7 +751,12 @@ public class SettingsModel : PageModel
         PerfTrendingIntervalMinutes = Math.Max(PerformanceTrendingConfig.MinimumIntervalMinutes, PerfTrendingIntervalMinutes);
         PerfTrendingRetentionHours = Math.Max(1, PerfTrendingRetentionHours);
 
-        // Normalize the daily refresh time (HH:mm, 24-hour); fall back to the current value if invalid.
+        GroupNestingADMaxDepth = Math.Max(1, GroupNestingADMaxDepth);
+        GroupNestingEntraMaxDepth = Math.Max(1, GroupNestingEntraMaxDepth);
+        GroupNestingMultiPathEdgeLimit = Math.Max(0, GroupNestingMultiPathEdgeLimit);
+        GroupNestingMultiPathWorkLimit = Math.Max(1, GroupNestingMultiPathWorkLimit);
+
+        // Normalize the daily refresh time
         if (!TimeSpan.TryParseExact((DailyRefreshTime ?? "").Trim(),
                 new[] { @"hh\:mm", @"h\:mm" }, CultureInfo.InvariantCulture, out var refreshTime))
         {
@@ -1004,6 +1024,17 @@ public class SettingsModel : PageModel
                 perfTrending["Enabled"] = PerfTrendingEnabled;
                 perfTrending["SnapshotIntervalMinutes"] = Math.Max(PerformanceTrendingConfig.MinimumIntervalMinutes, PerfTrendingIntervalMinutes);
                 perfTrending["RetentionHours"] = Math.Max(1, PerfTrendingRetentionHours);
+
+                var groupNesting = activeRoles["GroupNesting"]?.AsObject();
+                if (groupNesting is null)
+                {
+                    groupNesting = new JsonObject();
+                    activeRoles["GroupNesting"] = groupNesting;
+                }
+                groupNesting["ADMaxDepth"] = GroupNestingADMaxDepth;
+                groupNesting["EntraMaxDepth"] = GroupNestingEntraMaxDepth;
+                groupNesting["MultiPathEdgeLimit"] = GroupNestingMultiPathEdgeLimit;
+                groupNesting["MultiPathWorkLimit"] = GroupNestingMultiPathWorkLimit;
 
                 // Service Account Credentials. The username is stored as-is; the password is
                 // encrypted via Data Protection and only overwritten when a new value is supplied

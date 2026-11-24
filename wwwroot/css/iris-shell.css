@@ -36,6 +36,23 @@ body.iris-shell {
 .sidebar-nav-asset-exposure { mask-image: url('../images/iris/figma-exposure.svg'); -webkit-mask-image: url('../images/iris/figma-exposure.svg'); }
 .sidebar-nav-asset-snapshots { mask-image: url('../images/iris/figma-snapshots.svg'); -webkit-mask-image: url('../images/iris/figma-snapshots.svg'); }
 .sidebar-nav-asset-settings { mask-image: url('../images/iris/figma-settings.svg'); -webkit-mask-image: url('../images/iris/figma-settings.svg'); }
+.sidebar-nav-asset-tools { mask-image: url('../images/iris/figma-groups.svg'); -webkit-mask-image: url('../images/iris/figma-groups.svg'); }
+.tools-list { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.tools-card { border: 1px solid var(--iris-border, #d9d9d9); border-radius: 8px; padding: 16px; }
+.tools-card h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.ga-search { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 16px 0; }
+.ga-search label { display: flex; flex-direction: column; gap: 4px; }
+.ga-search .ga-query { flex: 1 1 280px; max-width: 480px; }
+.ga-matches { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; max-width: 640px; }
+.snap-input.ga-listbox { height: auto; min-height: 96px; padding: 4px 0; }
+.ga-listbox option { padding: 6px 12px; cursor: pointer; }
+.ga-listbox option:checked { background: var(--oi-button-background-primary); color: var(--oi-content-color-constant); }
+.iris-tools .snap-card h3 { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+.ga-facts { display: grid; grid-template-columns: max-content auto; gap: 4px 16px; }
+.ga-facts dd { margin: 0; }
+.ga-paths li { margin: 2px 0; word-break: break-word; }
+.ga-table { border-collapse: collapse; }
+.ga-table th, .ga-table td { padding: 4px 12px; text-align: left; border-bottom: 1px solid var(--iris-border, #d9d9d9); }
 .sidebar-nav-asset-help { mask-image: url('../images/iris/figma-help.svg'); -webkit-mask-image: url('../images/iris/figma-help.svg'); }
 .sidebar-nav-asset-privacy { mask-image: url('../images/iris/figma-privacy.svg'); -webkit-mask-image: url('../images/iris/figma-privacy.svg'); }
 .sidebar-nav-asset-signout { mask-image: url('../images/iris/figma-signout.svg'); -webkit-mask-image: url('../images/iris/figma-signout.svg'); }
@@ -100,3 +117,46 @@ body.iris-shell {
 .iris-avatar-md { width: 28px; height: 28px; font-size: 12px; }
 .iris-avatar-default { width: 32px; height: 32px; font-size: 14px; }
 .iris-avatar-lg { width: 40px; height: 40px; font-size: 16px; }
+
+/* Tools tab strip (static equivalent of the dashboard .ad-tabs) */
+.tools-tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    min-height: 37px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--oi-border-color-default);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.tools-tabs a {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    height: 28px;
+    margin-bottom: -1px;
+    padding: 4px 8px;
+    border-bottom: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+    color: var(--oi-content-color-tertiary);
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.tools-tabs a:hover {
+    color: var(--oi-content-color-primary);
+}
+
+.tools-tabs a.active {
+    color: var(--oi-content-color-primary);
+    border-bottom: 2px solid var(--oi-border-color-focus);
+    background: var(--oi-background-color-tertiary);
+    box-shadow: 0 1px 0 var(--oi-border-color-focus);
+}
+
+.ga-user-paths { margin: .25rem 0 0; padding-left: 1.5rem; }
+.ga-user-paths > li { margin-bottom: .5rem; }
+

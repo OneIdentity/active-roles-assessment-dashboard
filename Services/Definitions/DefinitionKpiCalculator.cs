@@ -20,6 +20,8 @@ public sealed class DefinitionKpiCalculator(DefinitionRegistry registry, KpiEval
             ["staleDays"] = (double)(config.StaleAccountThresholdDays > 0 ? config.StaleAccountThresholdDays : 90),
             ["passwordAgeDays"] = (double)(config.PasswordAgeThresholdDays > 0 ? config.PasswordAgeThresholdDays : 365),
             ["entraLargeGroupThreshold"] = (double)Math.Max(1, config.Entra.LargeGroupMemberThreshold),
+            ["adGroupNestingMaxDepth"] = (double)Math.Max(1, config.GroupNesting.ADMaxDepth),
+            ["entraGroupNestingMaxDepth"] = (double)Math.Max(1, config.GroupNesting.EntraMaxDepth),
             // Effective "Exclude from Managed Scope" policy link DNs; objects carrying one are unmanaged.
             ["excludeLinkDns"] = (IReadOnlyList<string>)(excludeLinkDns?.ToList() ?? []),
         }
