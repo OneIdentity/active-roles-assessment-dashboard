@@ -76,6 +76,40 @@ public class GroupPathExplorerTests
     }
 
     [Fact]
+    public void PathsTo_lists_every_route_to_users_direct_groups()
+    {
+        var g = Graph(("A", "B"), ("A", "C"), ("B", "D"), ("C", "D"), ("A", "E"));
+        var direct = new HashSet<string>(["D", "E"], StringComparer.OrdinalIgnoreCase);
+
+        var r = GroupPathExplorer.PathsTo(g, "A", direct);
+
+        Assert.Equal(3, r.Paths.Count);
+        Assert.Contains(r.Paths, p => p.SequenceEqual(["A", "B", "D"]));
+        Assert.Contains(r.Paths, p => p.SequenceEqual(["A", "C", "D"]));
+        Assert.Contains(r.Paths, p => p.SequenceEqual(["A", "E"]));
+    }
+
+    [Fact]
+    public void PathsTo_single_route_and_direct_membership()
+    {
+        var g = Graph(("A", "B"));
+
+        Assert.Single(GroupPathExplorer.PathsTo(g, "A", new HashSet<string>(["B"])).Paths);
+        Assert.Equal(["A"], Assert.Single(GroupPathExplorer.PathsTo(g, "A", new HashSet<string>(["A"])).Paths));
+        Assert.Empty(GroupPathExplorer.PathsTo(g, "A", new HashSet<string>(["Z"])).Paths);
+    }
+
+    [Fact]
+    public void PathsTo_terminates_on_cycles()
+    {
+        var g = Graph(("A", "B"), ("B", "A"), ("B", "C"));
+
+        var r = GroupPathExplorer.PathsTo(g, "A", new HashSet<string>(["C"]));
+
+        Assert.Equal(["A", "B", "C"], Assert.Single(r.Paths));
+    }
+
+    [Fact]
     public void Restrict_drops_groups_outside_visibility()
     {
         var g = Graph(("A", "B"), ("A", "Hidden"), ("Hidden", "C"));

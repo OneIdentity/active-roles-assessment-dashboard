@@ -37,7 +37,9 @@ public static class GroupNestingAnalyzer
 
         /// <summary>
         /// Maximum number of direct membership edges for which multi-path is computed; above it
-        /// <see cref="Result.MultiPathSkipped"/> is set instead. Default 2,000,000.
+        /// <see cref="Result.MultiPathSkipped"/> is set instead. Default 2,000,000. Measured: a generated
+        /// 200k-group / 2.1M-edge directory skips in ~1 s / ~0.3 GB; raising the limit to 5M only lets
+        /// it hit MultiPathWorkLimit after ~3 s / ~1 GB, so the cheaper early skip is kept.
         /// </summary>
         public long MultiPathEdgeLimit { get; init; } = 2_000_000;
 

@@ -156,3 +156,7 @@ body.iris-shell {
     background: var(--oi-background-color-tertiary);
     box-shadow: 0 1px 0 var(--oi-border-color-focus);
 }
+
+.ga-user-paths { margin: .25rem 0 0; padding-left: 1.5rem; }
+.ga-user-paths > li { margin-bottom: .5rem; }
+

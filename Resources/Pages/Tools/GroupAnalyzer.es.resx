@@ -1,9 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
   <data name="PageTitle" xml:space="preserve">
 	<value>Analizador de grupos</value>
   </data>
@@ -72,5 +80,29 @@
   </data>
   <data name="PathsTruncated" xml:space="preserve">
 	<value>Lista de rutas truncada en {0} rutas o en la profundidad máxima.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>Nombre de usuario o DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>No se encontraron rutas múltiples: el usuario llega a este grupo por una ruta como máximo.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>El usuario es miembro de este grupo a través de {0} ruta(s):</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>No se encontró el usuario "{0}" entre los miembros de los grupos visibles. Se muestran en su lugar los grupos anidados alcanzados por varias rutas.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>No se encontraron rutas múltiples.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>Usuario (opcional)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>"{0}" coincide con más de un usuario. Escriba el nombre distintivo completo. Se muestran en su lugar los grupos anidados alcanzados por varias rutas.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>No se calcula para grupos con anidamiento circular.</value>
   </data>
 </root>

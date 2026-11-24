@@ -2657,6 +2657,46 @@ public class ActiveRolesService
     }
 
     /// <summary>
+    /// Resolves a user for the Group Analyzer by DN, sAMAccountName/UPN or name (ANR, so "nguser2",
+    /// "NG User2" and DOMAIN\nguser2 all work) and returns the user's DN and direct group DNs from
+    /// <c>memberOf</c>. Returns Ambiguous when the input matches more than one user.
+    /// </summary>
+    public async Task<(string? Dn, List<string> MemberOf, bool Ambiguous)> ResolveUserMembershipAsync(string token, string input)
+    {
+        var config = _configMonitor.CurrentValue;
+        const string attrs = "objectGUID,objectClass,sAMAccountName,name,distinguishedName,memberOf";
+
+        var name = input.Trim();
+        List<JsonElement> hits;
+        if (name.Contains('=') && name.Contains(','))
+        {
+            hits = await SearchObjectsAsync(token, name, "(objectClass=user)", "base", attrs);
+        }
+        else
+        {
+            var slash = name.IndexOf('\\');
+            if (slash >= 0) name = name[(slash + 1)..];
+            var escaped = EscapeLdapFilterValue(name);
+            hits = await SearchObjectsAsync(token, config.DefaultActiveDirectoryDN,
+                $"(&(objectClass=user)(objectCategory=person)(anr={escaped}))", "sub", attrs);
+
+            // Prefer an exact match on sAMAccountName, UPN prefix or name when ANR is broader.
+            var exact = hits.Where(u =>
+                string.Equals(GetAttr(u, "sAMAccountName"), name, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(GetAttr(u, "samAccountName"), name, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(GetAttr(u, "name"), name, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (exact.Count > 0) hits = exact;
+        }
+
+        if (hits.Count != 1)
+            return (null, [], hits.Count > 1);
+
+        var dn = GetAttr(hits[0], "distinguishedName");
+        if (string.IsNullOrEmpty(dn)) return (null, [], false);
+        return (NormalizeAdDn(dn), GetMultiValuedAttr(hits[0], "memberOf").Select(NormalizeAdDn).ToList(), false);
+    }
+
+    /// <summary>
     /// Returns true when the (already-resolved, normalized) <paramref name="userDn"/> is a member -
     /// direct or indirect - of the group resolved by <paramref name="filter"/> under
     /// <paramref name="baseDn"/>.

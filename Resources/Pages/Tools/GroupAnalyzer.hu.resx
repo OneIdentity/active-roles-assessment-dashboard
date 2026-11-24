@@ -1,9 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
   <data name="PageTitle" xml:space="preserve">
 	<value>Csoportelemző</value>
   </data>
@@ -72,5 +80,29 @@
   </data>
   <data name="PathsTruncated" xml:space="preserve">
 	<value>Az útvonallista {0} útvonalnál vagy a maximális mélységnél csonkolva.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>Felhasználónév vagy DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>Nem található több útvonal: a felhasználó legfeljebb egy útvonalon éri el ezt a csoportot.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>A felhasználó {0} útvonalon tagja ennek a csoportnak:</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>A(z) "{0}" felhasználó nem található a látható csoportok tagjai között. Helyette a több útvonalon elért beágyazott csoportok láthatók.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>Nem található több útvonal.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>Felhasználó (nem kötelező)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>A(z) "{0}" több felhasználóval egyezik. Adja meg a teljes megkülönböztető nevet. Helyette a több útvonalon elért beágyazott csoportok láthatók.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>Körkörös beágyazású csoportoknál nem kerül kiszámításra.</value>
   </data>
 </root>

@@ -44,6 +44,9 @@
         <label class="ga-query">@Localizer["GroupName"]
             <input type="search" name="query" value="@Model.Query" class="snap-input" required />
         </label>
+        <label class="ga-query">@Localizer["UserOptional"]
+            <input type="search" name="user" value="@Model.UserQuery" class="snap-input" placeholder="@Localizer["UserPlaceholder"]" />
+        </label>
         <button type="submit" class="snap-btn snap-btn-primary">@Localizer["Analyze"]</button>
     </form>
 
@@ -61,6 +64,7 @@
         <form method="get" class="ga-matches">
             <input type="hidden" name="source" value="@source" />
             <input type="hidden" name="query" value="@Model.Query" />
+            <input type="hidden" name="user" value="@Model.UserQuery" />
             <label for="gaMatches"><strong>@Localizer["SelectGroup"]</strong></label>
             <select id="gaMatches" name="dn" class="snap-input ga-listbox" size="@Math.Min(10, Math.Max(3, Model.Matches.Count))" required
                     ondblclick="if (this.value) this.form.submit()">
@@ -107,27 +111,15 @@
             {
                 <p>@Localizer["None"]</p>
             }
-            else if (heading == "NestedPaths")
-            {
-                ViewData["AnalyzerPage"] = Model;
-                <div class="ga-tree">
-                    <partial name="_PathTreeNodes" model="Model.BuildTree(set.Paths)" view-data="ViewData" />
-                </div>
-            }
             else
             {
-                <ol class="ga-paths">
-                    @foreach (var path in set.Paths)
-                    {
-                        <li>
-                            @for (var i = 0; i < path.Count; i++)
-                            {
-                                if (i > 0) { <text> &rarr; </text> }
-                                <span title="@path[i]">@Model.NameOf(path[i])</span>
-                            }
-                        </li>
-                    }
-                </ol>
+                ViewData["AnalyzerPage"] = Model;
+                var treePaths = heading == "NestedPaths"
+                    ? set.Paths
+                    : set.Paths.Select(p => Enumerable.Reverse(p).ToList()).ToList();
+                <div class="ga-tree">
+                    <partial name="_PathTreeNodes" model="Model.BuildTree(treePaths)" view-data="ViewData" />
+                </div>
             }
             @if (set.Truncated)
             {
@@ -135,25 +127,59 @@
             }
         }
 
-        @if (!report.IsCircular)
+        <h3>@Localizer["MultiPathGroups"]</h3>
+        @if (Model.UserNotFound)
         {
-            <h3>@Localizer["MultiPathGroups"]</h3>
-            @if (report.MultiPathGroups.Count == 0)
+            <p class="snap-hint" role="status">@Localizer["UserNotFound", Model.UserQuery!]</p>
+        }
+        else if (Model.UserAmbiguous)
+        {
+            <p class="snap-hint" role="status">@Localizer["UserAmbiguous", Model.UserQuery!]</p>
+        }
+
+        @if (Model.UserPaths is { } userPaths)
+        {
+            <p title="@Model.UserDn">@Localizer["UserPathsIntro", userPaths.Paths.Count]</p>
+            @if (userPaths.Paths.Count <= 1)
             {
-                <p>@Localizer["None"]</p>
+                <p>@Localizer["NoMultiPathUser"]</p>
             }
             else
             {
-                <table class="ga-table">
-                    <thead><tr><th>@Localizer["Group"]</th><th>@Localizer["PathCount"]</th></tr></thead>
-                    <tbody>
-                    @foreach (var (dn, count) in report.MultiPathGroups)
-                    {
-                        <tr><td title="@dn">@Model.NameOf(dn)</td><td>@count</td></tr>
-                    }
-                    </tbody>
-                </table>
+                ViewData["AnalyzerPage"] = Model;
+                <ol class="ga-user-paths">
+                @foreach (var userPath in userPaths.Paths)
+                {
+                    <li class="ga-tree">
+                        <partial name="_PathTreeNodes" model="Model.BuildTree(new[] { userPath.Prepend(string.Empty).ToList() })" view-data="ViewData" />
+                    </li>
+                }
+                </ol>
             }
+            @if (userPaths.Truncated)
+            {
+                <p>@Localizer["PathsTruncated", ActiveRolesDashboard.Pages.Tools.GroupAnalyzerModel.MaxPaths]</p>
+            }
+        }
+        else if (report.IsCircular)
+        {
+            <p>@Localizer["MultiPathCircular"]</p>
+        }
+        else if (report.MultiPathGroups.Count == 0)
+        {
+            <p>@Localizer["NoMultiPath"]</p>
+        }
+        else
+        {
+            <table class="ga-table">
+                <thead><tr><th>@Localizer["Group"]</th><th>@Localizer["PathCount"]</th></tr></thead>
+                <tbody>
+                @foreach (var (dn, count) in report.MultiPathGroups)
+                {
+                    <tr><td title="@dn">@Model.NameOf(dn)</td><td>@count</td></tr>
+                }
+                </tbody>
+            </table>
         }
         </section>
     }

@@ -1,14 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
   <data name="PageTitle" xml:space="preserve">
 	<value>Analizzatore di gruppi</value>
   </data>
   <data name="Intro" xml:space="preserve">
-	<value>Esplora l&apos;annidamento di un gruppo: percorsi verso i gruppi annidati, percorsi dai gruppi padre, annidamento circolare e gruppi annidati raggiunti tramite più percorsi. Sono inclusi solo i gruppi visibili all&apos;utente.</value>
+	<value>Esplora l'annidamento di un gruppo: percorsi verso i gruppi annidati, percorsi dai gruppi padre, annidamento circolare e gruppi annidati raggiunti tramite più percorsi. Sono inclusi solo i gruppi visibili all'utente.</value>
   </data>
   <data name="Source" xml:space="preserve">
 	<value>Directory</value>
@@ -26,7 +34,7 @@
 	<value>Analizza</value>
   </data>
   <data name="EntraMembershipMissing" xml:space="preserve">
-	<value>L&apos;appartenenza ai gruppi Entra ID non è ancora stata caricata completamente; i risultati potrebbero essere incompleti.</value>
+	<value>L'appartenenza ai gruppi Entra ID non è ancora stata caricata completamente; i risultati potrebbero essere incompleti.</value>
   </data>
   <data name="NotFound" xml:space="preserve">
 	<value>Nessun gruppo corrispondente trovato.</value>
@@ -72,5 +80,29 @@
   </data>
   <data name="PathsTruncated" xml:space="preserve">
 	<value>Elenco percorsi troncato a {0} percorsi o alla profondità massima.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>Nome utente o DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>Nessun percorso multiplo trovato: l'utente raggiunge questo gruppo tramite al massimo un percorso.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>L'utente è membro di questo gruppo tramite {0} percorso/i:</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Utente "{0}" non trovato tra i membri dei gruppi visibili. Vengono invece mostrati i gruppi annidati raggiunti tramite più percorsi.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>Nessun percorso multiplo trovato.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>Utente (facoltativo)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>"{0}" corrisponde a più utenti. Immettere il nome distinto completo. Vengono invece mostrati i gruppi annidati raggiunti tramite più percorsi.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>Non calcolato per i gruppi con annidamento circolare.</value>
   </data>
 </root>

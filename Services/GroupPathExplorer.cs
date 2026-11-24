@@ -127,6 +127,39 @@ public static class GroupPathExplorer
         return new PathSet(paths, truncated);
     }
 
+    /// <summary>
+    /// Enumerates nesting paths from <paramref name="root"/> (inclusive) to every group in
+    /// <paramref name="targets"/> (the groups a user is a direct member of). More than one path
+    /// means the user is granted membership of <paramref name="root"/> through multiple routes.
+    /// </summary>
+    public static PathSet PathsTo(
+        IReadOnlyDictionary<string, List<string>> edges, string root, ISet<string> targets,
+        int maxPaths = 200, int maxDepth = 50)
+    {
+        var paths = new List<List<string>>();
+        var path = new List<string>();
+        var onPath = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var truncated = false;
+        Visit(root);
+        return new PathSet(paths, truncated);
+
+        void Visit(string node)
+        {
+            if (truncated || !onPath.Add(node)) return;
+            path.Add(node);
+            if (targets.Contains(node))
+            {
+                if (paths.Count >= maxPaths) truncated = true;
+                else paths.Add([.. path]);
+            }
+            if (path.Count < maxDepth)
+                foreach (var c in Children(edges, node)) Visit(c);
+            else if (Children(edges, node).Any()) truncated = true;
+            path.RemoveAt(path.Count - 1);
+            onPath.Remove(node);
+        }
+    }
+
     private static IEnumerable<string> Children(IReadOnlyDictionary<string, List<string>> edges, string node) =>
         edges.TryGetValue(node, out var c) ? c : Enumerable.Empty<string>();
 

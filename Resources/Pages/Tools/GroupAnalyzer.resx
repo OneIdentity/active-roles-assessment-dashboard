@@ -1,9 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
   <data name="PageTitle" xml:space="preserve">
 	<value>Group Analyzer</value>
   </data>
@@ -72,5 +80,29 @@
   </data>
   <data name="PathsTruncated" xml:space="preserve">
 	<value>Path list truncated at {0} paths or the maximum depth.</value>
+  </data>
+  <data name="UserPlaceholder" xml:space="preserve">
+    <value>User name or DN</value>
+  </data>
+  <data name="NoMultiPathUser" xml:space="preserve">
+    <value>No multiple paths found: the user reaches this group through at most one path.</value>
+  </data>
+  <data name="UserPathsIntro" xml:space="preserve">
+    <value>The user is a member of this group through {0} path(s):</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User "{0}" was not found among the members of visible groups. Showing nested groups reached through multiple paths instead.</value>
+  </data>
+  <data name="NoMultiPath" xml:space="preserve">
+    <value>No multiple paths found.</value>
+  </data>
+  <data name="UserOptional" xml:space="preserve">
+    <value>User (optional)</value>
+  </data>
+  <data name="UserAmbiguous" xml:space="preserve">
+    <value>"{0}" matches more than one user. Enter the full distinguished name. Showing nested groups reached through multiple paths instead.</value>
+  </data>
+  <data name="MultiPathCircular" xml:space="preserve">
+    <value>Not calculated for groups in circular nesting.</value>
   </data>
 </root>
