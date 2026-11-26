@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Jogosultságkövető</value></data>
+  <data name="Intro" xml:space="preserve"><value>Vizsgálja meg a natív Active Directory-jogosultságokat és az Active Roles-delegálásokat, hogy lássa, ki mit és hol tehet meg. A magas kockázatú jogok – például teljes hozzáférés, jogosultság- és tulajdonosváltoztatás, jelszó-visszaállítás és replikáció – kiemelve jelennek meg.</value></data>
+  <data name="Sources" xml:space="preserve"><value>Jogosultságok</value></data>
+  <data name="SourceBoth" xml:space="preserve"><value>Active Directory és Active Roles</value></data>
+  <data name="SourceAd" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="SourceAr" xml:space="preserve"><value>Active Roles</value></data>
+  <data name="BaseDn" xml:space="preserve"><value>Hatókör (nem kötelező)</value></data>
+  <data name="BaseDnPlaceholder" xml:space="preserve"><value>OU=Ertekesites,DC=pelda,DC=hu</value></data>
+  <data name="AllObjects" xml:space="preserve"><value>Minden objektum bevonása</value></data>
+  <data name="StartScan" xml:space="preserve"><value>Vizsgálat indítása</value></data>
+  <data name="ScopeHint" xml:space="preserve"><value>Alapértelmezés szerint a vizsgálat a tartományokra, szervezeti egységekre, tárolókra, csoportházirend-objektumokra, tartományvezérlőkre, valamint a védett rendszergazdai fiókokra és csoportokra terjed ki. Az összes objektum bevonása jelentősen tovább tarthat.</value></data>
+  <data name="AlreadyRunning" xml:space="preserve"><value>Már fut egy vizsgálata. Várja meg, amíg befejeződik, vagy szakítsa meg, mielőtt újat indít.</value></data>
+  <data name="Status" xml:space="preserve"><value>Állapot</value></data>
+  <data name="Started" xml:space="preserve"><value>Indítva</value></data>
+  <data name="Objects" xml:space="preserve"><value>Beolvasott objektumok</value></data>
+  <data name="Status_Queued" xml:space="preserve"><value>Várakozik</value></data>
+  <data name="Status_Enumerating" xml:space="preserve"><value>Objektumok keresése</value></data>
+  <data name="Status_AwaitingConfirmation" xml:space="preserve"><value>Megerősítésre vár</value></data>
+  <data name="Status_Running" xml:space="preserve"><value>Fut</value></data>
+  <data name="Status_Completed" xml:space="preserve"><value>Befejeződött</value></data>
+  <data name="Status_Cancelled" xml:space="preserve"><value>Megszakítva</value></data>
+  <data name="Status_Failed" xml:space="preserve"><value>Sikertelen</value></data>
+  <data name="ConfirmLarge" xml:space="preserve"><value>Ez a vizsgálat {0} objektumot érint, és eltarthat egy ideig. Folytatja?</value></data>
+  <data name="Continue" xml:space="preserve"><value>Folytatás</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Vizsgálat megszakítása</value></data>
+  <data name="CancelledPartial" xml:space="preserve"><value>A vizsgálat megszakadt. Az eredmények részlegesek.</value></data>
+  <data name="ScanFailed" xml:space="preserve"><value>A vizsgálat sikertelen: {0}</value></data>
+  <data name="Truncated" xml:space="preserve"><value>Elérte az objektumkorlátot; a hatókörnek csak egy része lett megvizsgálva. A teljes eredményhez szűkítse a hatókört.</value></data>
+  <data name="HighRisk" xml:space="preserve"><value>Magas kockázat</value></data>
+  <data name="View" xml:space="preserve"><value>Nézet</value></data>
+  <data name="ViewTree" xml:space="preserve"><value>Fa</value></data>
+  <data name="ViewTable" xml:space="preserve"><value>Táblázat</value></data>
+  <data name="RiskOnly" xml:space="preserve"><value>Csak magas kockázat</value></data>
+  <data name="HideInherited" xml:space="preserve"><value>Örököltek elrejtése</value></data>
+  <data name="HideBuiltIn" xml:space="preserve"><value>Beépített fiókok elrejtése</value></data>
+  <data name="HideDefault" xml:space="preserve"><value>Alapértelmezett séma-engedélyek elrejtése</value></data>
+  <data name="HideDefaultHint" xml:space="preserve"><value>Elrejti az objektumosztály alapértelmezett biztonsági leírójából származó engedélyeket, így csak a kifejezetten beállítottak láthatók.</value></data>
+  <data name="Apply" xml:space="preserve"><value>Alkalmaz</value></data>
+  <data name="ArFailed" xml:space="preserve"><value>Az Active Roles-delegálások nem olvashatók be: {0}</value></data>
+  <data name="None" xml:space="preserve"><value>Egyetlen jogosultság sem felel meg a szűrőknek.</value></data>
+  <data name="Object" xml:space="preserve"><value>Objektum</value></data>
+  <data name="Trustee" xml:space="preserve"><value>Jogosult</value></data>
+  <data name="AccessTemplate" xml:space="preserve"><value>Hozzáférési sablon</value></data>
+  <data name="Type" xml:space="preserve"><value>Típus</value></data>
+  <data name="Rights" xml:space="preserve"><value>Jogok</value></data>
+  <data name="AppliesTo" xml:space="preserve"><value>Hatály</value></data>
+  <data name="Risk" xml:space="preserve"><value>Kockázat</value></data>
+  <data name="Allow" xml:space="preserve"><value>Engedélyezés</value></data>
+  <data name="Deny" xml:space="preserve"><value>Megtagadás</value></data>
+  <data name="Inherited" xml:space="preserve"><value>Örökölt</value></data>
+  <data name="Yes" xml:space="preserve"><value>Igen</value></data>
+  <data name="No" xml:space="preserve"><value>Nem</value></data>
+  <data name="RowsTruncated" xml:space="preserve"><value>Csak az első {0} sor látható. Az eredmények szűkítéséhez használja a szűrőket.</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>A jogosultságok nem olvashatók be</value></data>
+  <data name="Export" xml:space="preserve"><value>Szűrt eredmények exportálása:</value></data>
+  <data name="HideExchange" xml:space="preserve"><value>Exchange alapértelmezett engedélyek elrejtése</value></data>
+  <data name="NoMatches" xml:space="preserve"><value>Egy sor sem felel meg a szűrőknek</value></data>
+  <data name="ColumnFilter" xml:space="preserve"><value>Oszlop szűrése</value></data>
+  <data name="Clear" xml:space="preserve"><value>Törlés</value></data>
+  <data name="Search" xml:space="preserve"><value>Keresés...</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>(Összes kijelölése)</value></data>
+  <data name="Loading" xml:space="preserve"><value>Betöltés...</value></data>
+  <data name="HideExchangeHint" xml:space="preserve"><value>Elrejti az Exchange telepítő által létrehozott csoportoknak adott engedélyeket (pl. Exchange Trusted Subsystem, Exchange Windows Permissions, Organization Management).</value></data>
+<data name="Partition" xml:space="preserve"><value>Naming context</value></data><data name="PartitionDomain" xml:space="preserve"><value>Domain naming context</value></data><data name="PartitionConfig" xml:space="preserve"><value>Configuration partition</value></data><data name="ShowArDelegations" xml:space="preserve"><value>Active Roles delegálások megjelenítése</value></data><data name="ShowArDelegationsHint" xml:space="preserve"><value>Az Active Roles delegált engedélyeinek (Access Template hivatkozások) megjelenítése a natív AD-engedélyek mellett</value></data><data name="ArsVia" xml:space="preserve"><value>ezen keresztül:</value></data><data name="ArsDelegated" xml:space="preserve"><value>Active Roles delegált engedély</value></data></root>

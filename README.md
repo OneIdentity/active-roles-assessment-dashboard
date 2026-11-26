@@ -37,6 +37,7 @@ Beyond the live dashboards, it adds governance tooling.
 | **Assessments** | Run scored security/compliance assessments against KPI thresholds, producing a score and grade; save runs and compare them. | [docs/Assessments.md](docs/Assessments.md) |
 | **MITRE ATT&CK Exposure** | A visibility view mapping curated ATT&CK techniques to KPIs to highlight attack-surface exposure. | [docs/Exposure.md](docs/Exposure.md) |
 | **Group Tree** | Explore nested (direct and indirect) group membership as an expandable tree. | — |
+| **Permission Tracker** | Scan who has which rights: native Active Directory ACLs and Active Roles delegation, with tree/table views, risk filters and Excel/PDF/Word export. | [docs/PermissionTracker.md](docs/PermissionTracker.md) |
 
 These features are all computed from the same live dashboard KPIs.
 

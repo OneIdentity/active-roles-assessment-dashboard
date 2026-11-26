@@ -97,6 +97,10 @@ Matching rules:
 }
 ```
 
+## Permission Tracker
+
+The optional `PermissionTracker` section limits scan concurrency and size (`MaxConcurrentScans`, `ParallelReadsPerScan`, `ConfirmationThreshold`, `MaxObjects`, `ResultRetentionMinutes`). See [PermissionTracker.md](PermissionTracker.md#configuration).
+
 ## Hosting
 
 | Setting | Description |

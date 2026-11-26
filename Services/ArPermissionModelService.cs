@@ -239,6 +239,52 @@ public class ArPermissionModelService
         return new ArPermissionModel { LinksByGuid = linksByGuid, LicensingProbe = licensingProbe };
     }
 
+    /// <summary>
+    /// Loads every Access Template Link with its secured object, trustees and the linked template's raw
+    /// <c>edsaATEList</c> entries, for the Permission Tracker. Uses the SERVICE-ACCOUNT token because
+    /// end-user tokens cannot read the Active Roles configuration.
+    /// </summary>
+    public async Task<IReadOnlyList<ActiveRolesDashboard.Services.PermissionTracker.ArTemplateLinkRecord>> LoadAccessTemplateLinksAsync(string serviceToken, CancellationToken ct = default)
+    {
+        var linkItems = await SearchAsync(
+            serviceToken, ConfigDn, "(edsaTrusteeSID=*)", "sub",
+            new[] { "name", "objectGUID", "edsaTrusteeSID", "edsvaAccessTemplateDN", "edsvaSecObjectDN" }, ct);
+
+        var templates = new Dictionary<string, (string Name, IReadOnlyList<string> Aces)>(StringComparer.OrdinalIgnoreCase);
+        var records = new List<ActiveRolesDashboard.Services.PermissionTracker.ArTemplateLinkRecord>(linkItems.Count);
+
+        foreach (var item in linkItems)
+        {
+            ct.ThrowIfCancellationRequested();
+            var securedDn = GetAttr(item, "edsvaSecObjectDN");
+            var templateDn = GetAttr(item, "edsvaAccessTemplateDN");
+            if (string.IsNullOrEmpty(securedDn) || string.IsNullOrEmpty(templateDn)) continue;
+
+            if (!templates.TryGetValue(templateDn, out var template))
+            {
+                var items = await SearchAsync(serviceToken, templateDn, "(objectClass=*)", "base", new[] { "name", "edsaATEList" }, ct);
+                template = items.Count == 0
+                    ? (DnLeaf(templateDn), Array.Empty<string>())
+                    : (GetAttr(items[0], "name"), GetMulti(items[0], "edsaATEList").SelectMany(SplitAceTokens).ToList());
+                templates[templateDn] = template;
+            }
+
+            var trustees = GetMulti(item, "edsaTrusteeSID").Select(SidToString).Where(s => s.Length > 0).ToList();
+            records.Add(new ActiveRolesDashboard.Services.PermissionTracker.ArTemplateLinkRecord(
+                GetAttr(item, "name"), securedDn, templateDn, template.Name, trustees, template.Aces));
+        }
+
+        _logger.LogInformation("Permission Tracker: loaded {LinkCount} AT links across {TemplateCount} templates.", records.Count, templates.Count);
+        return records;
+    }
+
+    private static string DnLeaf(string dn)
+    {
+        var first = dn.Split(',', 2)[0];
+        var eq = first.IndexOf('=');
+        return eq >= 0 ? first[(eq + 1)..] : first;
+    }
+
     // Base DN under which Active Roles keeps the per-run managed-object-statistics data. The class
     // 'edsManagedObjectStatisticsData' is what a user must be able to read to see the Licensing
     // dashboard, so we probe a real instance and evaluate its effective AT Links per viewer.

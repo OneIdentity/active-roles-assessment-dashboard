@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
@@ -12,5 +12,8 @@
   </data>
   <data name="Tool_GroupAnalyzer" xml:space="preserve">
 	<value>Analizador de grupos</value>
+  </data>
+  <data name="Tool_PermissionTracker" xml:space="preserve">
+	<value>Rastreador de permisos</value>
   </data>
 </root>

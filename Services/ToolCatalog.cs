@@ -19,7 +19,8 @@ public static class ToolCatalog
 
     public static readonly IReadOnlyList<Tool> All =
     [
-        new("groupanalyzer", "Tools/GroupAnalyzer", "Tool_GroupAnalyzer", "Group Analyzer", RolePermissionRegistry.CanUseGroupAnalyzer)
+        new("groupanalyzer", "Tools/GroupAnalyzer", "Tool_GroupAnalyzer", "Group Analyzer", RolePermissionRegistry.CanUseGroupAnalyzer),
+        new("permissiontracker", "Tools/PermissionTracker", "Tool_PermissionTracker", "Permission Tracker", RolePermissionRegistry.CanUsePermissionTracker)
     ];
 
     private static readonly System.Resources.ResourceManager Resources = new(

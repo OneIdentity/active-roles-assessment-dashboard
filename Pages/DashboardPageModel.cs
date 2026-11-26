@@ -231,6 +231,10 @@ public abstract class DashboardPageModel : PageModel
     public bool CanUseGroupAnalyzer =>
         RolePermissionRegistry.CanUseGroupAnalyzer(DashboardPermissions, IsActiveRolesAdmin);
 
+    /// <summary>True when the user may run the on-demand Permission Tracker tool.</summary>
+    public bool CanUsePermissionTracker =>
+        RolePermissionRegistry.CanUsePermissionTracker(DashboardPermissions, IsActiveRolesAdmin);
+
     /// <summary>
     /// The set of dashboard keys the current user may export, computed from their view permissions
     /// and the loaded <see cref="Summary"/> visibility flags (so the export dialog only lists
