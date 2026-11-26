@@ -8,6 +8,7 @@ export interface DashboardCapabilities {
   canRebuildCache: boolean;
   canViewTools: boolean;
   canUseGroupAnalyzer: boolean;
+  canUsePermissionTracker: boolean;
   cacheRebuildInProgress: boolean;
   performanceTestDashboards: string[];
 }

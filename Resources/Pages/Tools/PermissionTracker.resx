@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Permission Tracker</value></data>
+  <data name="Intro" xml:space="preserve"><value>Scan native Active Directory permissions and Active Roles delegations to see who can do what, where. High-risk rights such as full control, permission changes, ownership changes, password resets and replication are highlighted.</value></data>
+  <data name="Sources" xml:space="preserve"><value>Permissions</value></data>
+  <data name="SourceBoth" xml:space="preserve"><value>Active Directory and Active Roles</value></data>
+  <data name="SourceAd" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="SourceAr" xml:space="preserve"><value>Active Roles</value></data>
+  <data name="BaseDn" xml:space="preserve"><value>Scope (optional)</value></data>
+  <data name="BaseDnPlaceholder" xml:space="preserve"><value>OU=Sales,DC=example,DC=com</value></data>
+  <data name="AllObjects" xml:space="preserve"><value>Include all objects</value></data>
+  <data name="StartScan" xml:space="preserve"><value>Start scan</value></data>
+  <data name="ScopeHint" xml:space="preserve"><value>By default the scan covers domains, OUs, containers, Group Policy objects, domain controllers and protected admin accounts and groups. Including all objects can take considerably longer.</value></data>
+  <data name="AlreadyRunning" xml:space="preserve"><value>You already have a scan in progress. Wait for it to finish or cancel it before starting another.</value></data>
+  <data name="Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Started" xml:space="preserve"><value>Started</value></data>
+  <data name="Objects" xml:space="preserve"><value>Objects read</value></data>
+  <data name="Status_Queued" xml:space="preserve"><value>Queued</value></data>
+  <data name="Status_Enumerating" xml:space="preserve"><value>Finding objects</value></data>
+  <data name="Status_AwaitingConfirmation" xml:space="preserve"><value>Waiting for confirmation</value></data>
+  <data name="Status_Running" xml:space="preserve"><value>Running</value></data>
+  <data name="Status_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="Status_Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Status_Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="ConfirmLarge" xml:space="preserve"><value>This scan covers {0} objects and may take a while. Continue?</value></data>
+  <data name="Continue" xml:space="preserve"><value>Continue</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel scan</value></data>
+  <data name="CancelledPartial" xml:space="preserve"><value>The scan was cancelled. Results below are partial.</value></data>
+  <data name="ScanFailed" xml:space="preserve"><value>The scan failed: {0}</value></data>
+  <data name="Truncated" xml:space="preserve"><value>The object limit was reached; only part of the scope was scanned. Narrow the scope for complete results.</value></data>
+  <data name="HighRisk" xml:space="preserve"><value>High risk</value></data>
+  <data name="View" xml:space="preserve"><value>View</value></data>
+  <data name="ViewTree" xml:space="preserve"><value>Tree</value></data>
+  <data name="ViewTable" xml:space="preserve"><value>Table</value></data>
+  <data name="RiskOnly" xml:space="preserve"><value>High risk only</value></data>
+  <data name="HideInherited" xml:space="preserve"><value>Hide inherited</value></data>
+  <data name="HideBuiltIn" xml:space="preserve"><value>Hide built-in accounts</value></data>
+  <data name="HideDefault" xml:space="preserve"><value>Hide default schema permissions</value></data>
+  <data name="HideDefaultHint" xml:space="preserve"><value>Hides permissions that come from the object class's default security descriptor, so only explicitly set permissions are shown.</value></data>
+  <data name="Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="ArFailed" xml:space="preserve"><value>Active Roles delegations could not be read: {0}</value></data>
+  <data name="None" xml:space="preserve"><value>No permissions match the current filters.</value></data>
+  <data name="Object" xml:space="preserve"><value>Object</value></data>
+  <data name="Trustee" xml:space="preserve"><value>Trustee</value></data>
+  <data name="AccessTemplate" xml:space="preserve"><value>Access Template</value></data>
+  <data name="Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Rights" xml:space="preserve"><value>Rights</value></data>
+  <data name="AppliesTo" xml:space="preserve"><value>Applies to</value></data>
+  <data name="Risk" xml:space="preserve"><value>Risk</value></data>
+  <data name="Allow" xml:space="preserve"><value>Allow</value></data>
+  <data name="Deny" xml:space="preserve"><value>Deny</value></data>
+  <data name="Inherited" xml:space="preserve"><value>Inherited</value></data>
+  <data name="Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="No" xml:space="preserve"><value>No</value></data>
+  <data name="RowsTruncated" xml:space="preserve"><value>Only the first {0} rows are shown. Use the filters to narrow the results.</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>Permissions could not be read</value></data>
+  <data name="Export" xml:space="preserve"><value>Export filtered results:</value></data>
+  <data name="HideExchange" xml:space="preserve"><value>Hide Exchange default permissions</value></data>
+  <data name="NoMatches" xml:space="preserve"><value>No rows match the current filters</value></data>
+  <data name="ColumnFilter" xml:space="preserve"><value>Filter column</value></data>
+  <data name="Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Search" xml:space="preserve"><value>Search...</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>(Select all)</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="HideExchangeHint" xml:space="preserve"><value>Hides permissions granted to the groups created by Exchange setup (e.g. Exchange Trusted Subsystem, Exchange Windows Permissions, Organization Management).</value></data>
+<data name="Partition" xml:space="preserve"><value>Naming context</value></data><data name="PartitionDomain" xml:space="preserve"><value>Domain naming context</value></data><data name="PartitionConfig" xml:space="preserve"><value>Configuration partition</value></data><data name="ShowArDelegations" xml:space="preserve"><value>Show Active Roles delegations</value></data><data name="ShowArDelegationsHint" xml:space="preserve"><value>Overlay Active Roles delegated permissions (Access Template links) on the native AD permissions</value></data><data name="ArsVia" xml:space="preserve"><value>via</value></data><data name="ArsDelegated" xml:space="preserve"><value>Active Roles delegated permission</value></data></root>

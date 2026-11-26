@@ -1,0 +1,74 @@
+@model List<ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.ObjectNode>
+@{
+    var tracker = (ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel)ViewData["TrackerPage"]!;
+}
+<ul class="group-tree">
+@foreach (var node in Model)
+{
+    var obj = node.Item.Object;
+    var entries = tracker.Filter(node.Item.Entries).ToList();
+    var arEntries = tracker.ArFor(obj.Dn).ToList();
+    var risky = entries.Any(e => e.IsHighRisk) || arEntries.Any(e => e.IsHighRisk);
+    <li class="group-tree-item">
+        <details open="@(node.Children.Count > 0 || risky)">
+            <summary class="group-tree-row">
+                <span class="pt-chevron" aria-hidden="true"></span>
+                <span class="pt-icon pt-icon-@ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.IconFor(obj.ObjectClass)" aria-hidden="true"></span>
+                <span class="tree-name">@obj.Name</span>
+                <span class="tree-note">@obj.ObjectClass</span>
+                @if (risky)
+                {
+                    <span class="pt-risk">@ViewData["LblHighRisk"]</span>
+                }
+                <span class="tree-dn" title="@obj.Dn">@obj.Dn</span>
+            </summary>
+            @if (node.Item.Error != null)
+            {
+                <p class="gt-message gt-error">@ViewData["LblReadFailed"]: @node.Item.Error</p>
+            }
+            @if (entries.Count > 0 || arEntries.Count > 0)
+            {
+                <ul class="group-tree pt-aces">
+                @foreach (var e in entries)
+                {
+                    <li class="group-tree-item">
+                        <div class="group-tree-row">
+                            <span class="pt-icon @(e.IsAllow ? "pt-icon-trustee" : "pt-icon-deny")" aria-hidden="true"></span>
+                            <span class="tree-name" title="@e.TrusteeSid">@tracker.TrusteeName(e.TrusteeSid)</span>
+                            <span class="tree-note">@(e.IsAllow ? "" : ViewData["LblDeny"] + ": ")@e.Rights@(e.ObjectTypeName is { } otn ? " (" + otn + ")" : "") &middot; @e.AppliesTo</span>
+                            @if (e.IsInherited)
+                            {
+                                <span class="tree-note">@ViewData["LblInherited"]</span>
+                            }
+                            @if (e.IsHighRisk)
+                            {
+                                <span class="pt-risk">@ViewData["LblHighRisk"]</span>
+                            }
+                        </div>
+                    </li>
+                }
+                @foreach (var a in arEntries)
+                {
+                    <li class="group-tree-item pt-ars-row">
+                        <div class="group-tree-row">
+                            <span class="pt-icon pt-icon-ars" title="@ViewData["LblArs"]" aria-label="@ViewData["LblArs"]"></span>
+                            <span class="tree-name" title="@a.TrusteeSid">@tracker.TrusteeName(a.TrusteeSid)</span>
+                            <span class="tree-note">@(a.IsAllow ? "" : ViewData["LblDeny"] + ": ")@a.Rights@(a.ObjectTypeName is { } aotn ? " (" + aotn + ")" : "") &middot; @a.AppliesTo</span>
+                            <span class="tree-note" title="@a.AccessTemplateDn">@ViewData["LblArsVia"] @a.AccessTemplateName</span>
+                            @if (a.IsHighRisk)
+                            {
+                                <span class="pt-risk">@ViewData["LblHighRisk"]</span>
+                            }
+                        </div>
+                    </li>
+                }
+                </ul>
+            }
+            @if (node.Children.Count > 0)
+            {
+                <partial name="_PermissionObjectNodes" model="node.Children" view-data="ViewData" />
+            }
+        </details>
+    </li>
+}
+</ul>

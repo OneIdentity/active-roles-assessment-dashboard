@@ -68,7 +68,8 @@ Permissions are a **closed enum set**. Each one gates a specific view or action 
 | **Export assessments** | Export a saved assessment as a document. | Export control + `OnPostExport`. |
 | **Rebuild cache** | Trigger a manual rebuild of the shared service-account cache. | Rebuild button + `OnPostRefresh`. Active Roles admins always may. |
 | **Export Dashboard Data** | Export dashboard/category/KPI data. Export options are further filtered to the dashboards the user may view. | Export button + `/Export` controller (403 on violation). |
-| **Use Group Analyzer** | Run the on-demand Group Analyzer tool (group nesting paths, cycles, multi-path memberships). Holding any tool permission makes the **Tools** menu visible. | Tools menu + Group Analyzer page guard. Active Roles admins always may. |
+Tools menu + Group Analyzer page guard. Active Roles admins always may. |
+| **Use Permission Tracker** | Run the on-demand Permission Tracker (Active Directory ACLs and Active Roles delegation) and export its results. See [PermissionTracker.md](PermissionTracker.md). | Tools menu + Permission Tracker page and export guard. Active Roles admins always may. |
 
 > **Refreshing a dashboard** (the header Refresh button) is a plain page reload and requires **no** dedicated permission — anyone who can view a dashboard may refresh it. This is distinct from **Rebuild cache**, which re-queries the whole environment.
 
@@ -105,6 +106,7 @@ Legend: ● = granted by default, — = not granted.
 | Rebuild cache | ● | ● | — | — |
 | Export Dashboard Data | ● | ● | ● | — |
 | Use Group Analyzer | ● | ● | — | — |
+| Use Permission Tracker | ● | ● | — | — |
 
 Notes:
 

@@ -68,6 +68,7 @@ public class DashboardController : ControllerBase
         public bool CanRebuildCache { get; set; }
         public bool CanViewTools { get; set; }
         public bool CanUseGroupAnalyzer { get; set; }
+        public bool CanUsePermissionTracker { get; set; }
         public bool CacheRebuildInProgress { get; set; }
         public List<string> PerformanceTestDashboards { get; set; } = new();
     }
@@ -723,6 +724,7 @@ public class DashboardController : ControllerBase
         CanRebuildCache = access.IsActiveRolesAdmin || access.HasPermission(DashboardPermission.RebuildCache),
         CanViewTools = RolePermissionRegistry.CanViewTools(access.Permissions, access.IsActiveRolesAdmin),
         CanUseGroupAnalyzer = RolePermissionRegistry.CanUseGroupAnalyzer(access.Permissions, access.IsActiveRolesAdmin),
+        CanUsePermissionTracker = RolePermissionRegistry.CanUsePermissionTracker(access.Permissions, access.IsActiveRolesAdmin),
         CacheRebuildInProgress = _cache.State == CacheState.Refreshing,
         PerformanceTestDashboards = Enum.GetValues<DiagnosticsDashboard>()
             .Where(d => RolePermissionRegistry.CanRunPerformanceTests(access.Permissions, access.IsActiveRolesAdmin, d))

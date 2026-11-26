@@ -1875,6 +1875,9 @@ public class ActiveRolesService
         return false;
     }
 
+    /// <summary>Resolves a trustee SID (S-1-... or base64) to a display name; returns the SID when unresolvable.</summary>
+    public Task<string> ResolveTrusteeNameAsync(string token, string sid) => ResolveSidToNameAsync(token, sid);
+
     private async Task<string> ResolveSidToNameAsync(string token, string sid)
     {
         try
@@ -3094,6 +3097,37 @@ public class ActiveRolesService
             return await JsonDocument.ParseAsync(stream);
         }
         catch { return null; }
+    }
+
+    /// <summary>
+    /// Enumerates the objects a Permission Tracker scan covers: a paged search under
+    /// <paramref name="baseDn"/> returning the requested attributes.
+    /// </summary>
+    public Task<List<JsonElement>> SearchPermissionScopeAsync(string token, string baseDn, string filter, string scope, string attributes) =>
+        SearchObjectsAsync(token, baseDn, filter, scope, attributes);
+
+    /// <summary>
+    /// Reads one object's nTSecurityDescriptor through a per-object GET (the /objects search projection
+    /// does not return it). The REST API returns it as a base64 self-relative binary descriptor.
+    /// Returns null when the object cannot be read or the descriptor is absent/unparseable.
+    /// </summary>
+    public async Task<System.Security.AccessControl.RawSecurityDescriptor?> GetSecurityDescriptorAsync(string token, string objectGuid)
+    {
+        using var doc = await GetObjectDetailsAsync(token, objectGuid, "nTSecurityDescriptor");
+        return doc == null ? null : TryBuildSecurityDescriptor(doc.RootElement);
+    }
+
+    /// <summary>Parses an nTSecurityDescriptor value as returned by the REST API (base64, SDDL or byte array).</summary>
+    public static System.Security.AccessControl.RawSecurityDescriptor? ParseSecurityDescriptor(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        try
+        {
+            return TryDecodeBase64(value, out var bytes)
+                ? new System.Security.AccessControl.RawSecurityDescriptor(bytes, 0)
+                : new System.Security.AccessControl.RawSecurityDescriptor(value);
+        }
+        catch (Exception) { return null; }
     }
 
     /// <summary>

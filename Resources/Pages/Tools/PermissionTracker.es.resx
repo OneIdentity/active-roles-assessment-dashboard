@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Rastreador de permisos</value></data>
+  <data name="Intro" xml:space="preserve"><value>Analice los permisos nativos de Active Directory y las delegaciones de Active Roles para ver quién puede hacer qué y dónde. Se resaltan los derechos de alto riesgo, como control total, cambios de permisos o de propietario, restablecimiento de contraseñas y replicación.</value></data>
+  <data name="Sources" xml:space="preserve"><value>Permisos</value></data>
+  <data name="SourceBoth" xml:space="preserve"><value>Active Directory y Active Roles</value></data>
+  <data name="SourceAd" xml:space="preserve"><value>Active Directory</value></data>
+  <data name="SourceAr" xml:space="preserve"><value>Active Roles</value></data>
+  <data name="BaseDn" xml:space="preserve"><value>Ámbito (opcional)</value></data>
+  <data name="BaseDnPlaceholder" xml:space="preserve"><value>OU=Ventas,DC=ejemplo,DC=com</value></data>
+  <data name="AllObjects" xml:space="preserve"><value>Incluir todos los objetos</value></data>
+  <data name="StartScan" xml:space="preserve"><value>Iniciar análisis</value></data>
+  <data name="ScopeHint" xml:space="preserve"><value>De forma predeterminada, el análisis abarca dominios, OU, contenedores, objetos de directiva de grupo, controladores de dominio y cuentas y grupos de administración protegidos. Incluir todos los objetos puede tardar bastante más.</value></data>
+  <data name="AlreadyRunning" xml:space="preserve"><value>Ya tiene un análisis en curso. Espere a que termine o cancélelo antes de iniciar otro.</value></data>
+  <data name="Status" xml:space="preserve"><value>Estado</value></data>
+  <data name="Started" xml:space="preserve"><value>Iniciado</value></data>
+  <data name="Objects" xml:space="preserve"><value>Objetos leídos</value></data>
+  <data name="Status_Queued" xml:space="preserve"><value>En cola</value></data>
+  <data name="Status_Enumerating" xml:space="preserve"><value>Buscando objetos</value></data>
+  <data name="Status_AwaitingConfirmation" xml:space="preserve"><value>Esperando confirmación</value></data>
+  <data name="Status_Running" xml:space="preserve"><value>En ejecución</value></data>
+  <data name="Status_Completed" xml:space="preserve"><value>Completado</value></data>
+  <data name="Status_Cancelled" xml:space="preserve"><value>Cancelado</value></data>
+  <data name="Status_Failed" xml:space="preserve"><value>Error</value></data>
+  <data name="ConfirmLarge" xml:space="preserve"><value>Este análisis abarca {0} objetos y puede tardar un rato. ¿Desea continuar?</value></data>
+  <data name="Continue" xml:space="preserve"><value>Continuar</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancelar análisis</value></data>
+  <data name="CancelledPartial" xml:space="preserve"><value>El análisis se canceló. Los resultados son parciales.</value></data>
+  <data name="ScanFailed" xml:space="preserve"><value>El análisis falló: {0}</value></data>
+  <data name="Truncated" xml:space="preserve"><value>Se alcanzó el límite de objetos; solo se analizó parte del ámbito. Reduzca el ámbito para obtener resultados completos.</value></data>
+  <data name="HighRisk" xml:space="preserve"><value>Alto riesgo</value></data>
+  <data name="View" xml:space="preserve"><value>Vista</value></data>
+  <data name="ViewTree" xml:space="preserve"><value>Árbol</value></data>
+  <data name="ViewTable" xml:space="preserve"><value>Tabla</value></data>
+  <data name="RiskOnly" xml:space="preserve"><value>Solo alto riesgo</value></data>
+  <data name="HideInherited" xml:space="preserve"><value>Ocultar heredados</value></data>
+  <data name="HideBuiltIn" xml:space="preserve"><value>Ocultar cuentas integradas</value></data>
+  <data name="HideDefault" xml:space="preserve"><value>Ocultar permisos predeterminados del esquema</value></data>
+  <data name="HideDefaultHint" xml:space="preserve"><value>Oculta los permisos procedentes del descriptor de seguridad predeterminado de la clase; solo se muestran los establecidos explícitamente.</value></data>
+  <data name="Apply" xml:space="preserve"><value>Aplicar</value></data>
+  <data name="ArFailed" xml:space="preserve"><value>No se pudieron leer las delegaciones de Active Roles: {0}</value></data>
+  <data name="None" xml:space="preserve"><value>Ningún permiso coincide con los filtros actuales.</value></data>
+  <data name="Object" xml:space="preserve"><value>Objeto</value></data>
+  <data name="Trustee" xml:space="preserve"><value>Usuario de confianza</value></data>
+  <data name="AccessTemplate" xml:space="preserve"><value>Plantilla de acceso</value></data>
+  <data name="Type" xml:space="preserve"><value>Tipo</value></data>
+  <data name="Rights" xml:space="preserve"><value>Derechos</value></data>
+  <data name="AppliesTo" xml:space="preserve"><value>Se aplica a</value></data>
+  <data name="Risk" xml:space="preserve"><value>Riesgo</value></data>
+  <data name="Allow" xml:space="preserve"><value>Permitir</value></data>
+  <data name="Deny" xml:space="preserve"><value>Denegar</value></data>
+  <data name="Inherited" xml:space="preserve"><value>Heredado</value></data>
+  <data name="Yes" xml:space="preserve"><value>Sí</value></data>
+  <data name="No" xml:space="preserve"><value>No</value></data>
+  <data name="RowsTruncated" xml:space="preserve"><value>Solo se muestran las primeras {0} filas. Use los filtros para acotar los resultados.</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>No se pudieron leer los permisos</value></data>
+  <data name="Export" xml:space="preserve"><value>Exportar resultados filtrados:</value></data>
+  <data name="HideExchange" xml:space="preserve"><value>Ocultar permisos predeterminados de Exchange</value></data>
+  <data name="NoMatches" xml:space="preserve"><value>Ninguna fila coincide con los filtros actuales</value></data>
+  <data name="ColumnFilter" xml:space="preserve"><value>Filtrar columna</value></data>
+  <data name="Clear" xml:space="preserve"><value>Borrar</value></data>
+  <data name="Search" xml:space="preserve"><value>Buscar...</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>(Seleccionar todo)</value></data>
+  <data name="Loading" xml:space="preserve"><value>Cargando...</value></data>
+  <data name="HideExchangeHint" xml:space="preserve"><value>Oculta los permisos concedidos a los grupos creados por la instalación de Exchange (p. ej. Exchange Trusted Subsystem, Exchange Windows Permissions, Organization Management).</value></data>
+<data name="Partition" xml:space="preserve"><value>Naming context</value></data><data name="PartitionDomain" xml:space="preserve"><value>Domain naming context</value></data><data name="PartitionConfig" xml:space="preserve"><value>Configuration partition</value></data><data name="ShowArDelegations" xml:space="preserve"><value>Mostrar delegaciones de Active Roles</value></data><data name="ShowArDelegationsHint" xml:space="preserve"><value>Superponer los permisos delegados de Active Roles (vínculos de Access Template) a los permisos nativos de AD</value></data><data name="ArsVia" xml:space="preserve"><value>mediante</value></data><data name="ArsDelegated" xml:space="preserve"><value>Permiso delegado de Active Roles</value></data></root>

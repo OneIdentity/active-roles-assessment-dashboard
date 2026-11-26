@@ -149,6 +149,12 @@ builder.Services.AddSingleton<FilterValidationHarness>();
 builder.Services.AddSingleton<SupersetLoaderHostedService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SupersetLoaderHostedService>());
 
+// Permission Tracker background scans (in-memory jobs, bounded concurrency, cancelled on shutdown).
+builder.Services.Configure<ActiveRolesDashboard.Services.PermissionTracker.PermissionTrackerOptions>(builder.Configuration.GetSection("PermissionTracker"));
+builder.Services.AddSingleton<ActiveRolesDashboard.Services.PermissionTracker.IPermissionScanDataSource, ActiveRolesDashboard.Services.PermissionTracker.ActiveRolesPermissionScanDataSource>();
+builder.Services.AddSingleton<ActiveRolesDashboard.Services.PermissionTracker.PermissionScanJobManager>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<ActiveRolesDashboard.Services.PermissionTracker.PermissionScanJobManager>());
+
 // In-memory performance-trend samples + the background sampler that captures them on an interval
 // using the service-account identity (mirrors the superset loader).
 builder.Services.AddSingleton<PerformanceTrendStore>();

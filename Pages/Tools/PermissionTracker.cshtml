@@ -1,0 +1,345 @@
+﻿@page
+@model ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@using ActiveRolesDashboard.Services.PermissionTracker
+@{
+    ViewData["Title"] = "Permission Tracker";
+    Layout = null;
+    var scan = Model.Scan;
+    var result = scan?.Result;
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <base href="@Url.Content("~/")" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")" asp-append-version="true" />
+    <title>Active Roles Dashboard - @Localizer["PageTitle"]</title>
+    <link rel="stylesheet" href="css/iris-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-snapshots.css" asp-append-version="true" />
+    <link rel="stylesheet" href="css/iris-group-tree.css" asp-append-version="true" />
+</head>
+<body class="iris-shell iris-tools">
+<div class="page iris-shell-page">
+    @{
+        ViewData["IrisActive"] = "tools";
+        ViewData["IrisCrumb"] = ActiveRolesDashboard.Services.ToolCatalog.Localize("Tools", "Tools");
+    }
+    <partial name="_IrisShell" />
+    <main class="iris-shell-main">
+    @{ ViewData["ActiveTool"] = "permissiontracker"; }
+    <partial name="_ToolTabs" />
+    <p class="snap-hint">@Localizer["Intro"]</p>
+
+    <section class="snap-card">
+    <form method="post" asp-page-handler="Start" class="snap-compare-form ga-search">
+        <label>@Localizer["Sources"]
+            <select name="Sources" class="snap-input">
+                <option value="ad" selected="@(Model.SelectedSources == "ad")">@Localizer["SourceAd"]</option>
+                <option value="ar" selected="@(Model.SelectedSources == "ar")">@Localizer["SourceAr"]</option>
+            </select>
+        </label>
+        <label class="ga-query">@Localizer["BaseDn"]
+            <input type="text" name="BaseDn" class="snap-input" placeholder="@Localizer["BaseDnPlaceholder"]" />
+        </label>
+        <label class="pt-check"><input type="checkbox" name="AllObjects" value="true" /> @Localizer["AllObjects"]</label>
+        <button type="submit" class="snap-btn snap-btn-primary" disabled="@(scan?.IsActive == true)">@Localizer["StartScan"]</button>
+    </form>
+    <p class="snap-hint">@Localizer["ScopeHint"]</p>
+    @if (Model.AlreadyRunning)
+    {
+        <div class="membership-warning" role="status">@Localizer["AlreadyRunning"]</div>
+    }
+    </section>
+
+    @if (scan != null)
+    {
+        <section class="snap-card" id="ptStatus" data-job="@scan.Id" data-active="@(scan.IsActive ? "true" : "false")"
+                 data-status-url="@Url.Page("PermissionTracker", "Status", new { job = scan.Id })">
+            <dl class="ga-facts">
+                <dt>@Localizer["Status"]</dt><dd id="ptPhase">@Localizer["Status_" + scan.Status]</dd>
+                <dt>@Localizer["Started"]</dt><dd>@scan.StartedAt.ToLocalTime().ToString("g")</dd>
+                @if (scan.Request.IncludeActiveDirectory)
+                {
+                    <dt>@Localizer["Objects"]</dt><dd id="ptProgress">@scan.ProcessedObjects / @scan.TotalObjects</dd>
+                }
+            </dl>
+            @if (scan.IsActive)
+            {
+                <progress id="ptBar" class="pt-progress" max="@Math.Max(1, scan.TotalObjects)" value="@scan.ProcessedObjects"></progress>
+            }
+            @if (scan.Status == PermissionScanStatus.AwaitingConfirmation)
+            {
+                <div class="membership-warning" role="status">@Localizer["ConfirmLarge", scan.TotalObjects]</div>
+                <form method="post" asp-page-handler="Confirm" asp-route-job="@scan.Id" class="pt-inline">
+                    <button type="submit" class="snap-btn snap-btn-primary">@Localizer["Continue"]</button>
+                </form>
+            }
+            @if (scan.IsActive)
+            {
+                <form method="post" asp-page-handler="Cancel" asp-route-job="@scan.Id" class="pt-inline">
+                    <button type="submit" class="snap-btn">@Localizer["Cancel"]</button>
+                </form>
+            }
+            @if (scan.Status == PermissionScanStatus.Cancelled)
+            {
+                <p class="snap-hint" role="status">@Localizer["CancelledPartial"]</p>
+            }
+            @if (scan.Error != null)
+            {
+                <p class="gt-error" role="alert">@Localizer["ScanFailed", scan.Error]</p>
+            }
+            @if (result!.Truncated)
+            {
+                <div class="membership-warning" role="status">@Localizer["Truncated"]</div>
+            }
+        </section>
+    }
+
+    @if (scan != null && !scan.IsActive && scan.Status != PermissionScanStatus.Failed)
+    {
+        var isAr = Model.IsArTab;
+        var tab = Model.CurrentTab;
+        <section class="snap-card">
+            <nav class="pt-tabs" aria-label="@Localizer["Sources"]">
+                @if (scan.Request.IncludeActiveDirectory)
+                {
+                    <a href="@Model.TabUrl("ad")" class="snap-btn @(tab == "ad" ? "snap-btn-primary" : "")" aria-current="@(tab == "ad" ? "page" : null)">
+                        @Localizer["SourceAd"] (@Model.AdHighRiskCount @Localizer["HighRisk"])
+                    </a>
+                }
+                @if (!scan.Request.IncludeActiveDirectory)
+                {
+                    <a href="@Model.TabUrl("ar")" class="snap-btn snap-btn-primary" aria-current="page">
+                        @Localizer["SourceAr"]
+                    </a>
+                }
+            </nav>
+
+            <form method="get" class="ga-search pt-filters">
+                <input type="hidden" name="job" value="@scan.Id" />
+                <input type="hidden" name="tab" value="@tab" />
+                @if (Model.IsConfigPartition)
+                {
+                    <input type="hidden" name="partition" value="config" />
+                }
+                <label>@Localizer["View"]
+                    <select name="view" class="snap-input">
+                        <option value="tree" selected="@(!Model.IsTable)">@Localizer["ViewTree"]</option>
+                        <option value="table" selected="@Model.IsTable">@Localizer["ViewTable"]</option>
+                    </select>
+                </label>
+                <label class="pt-check"><input type="checkbox" name="riskOnly" value="true" checked="@Model.RiskOnly" /> @Localizer["RiskOnly"]</label>
+                @if (Model.ShowAd)
+                {
+                    <label class="pt-check" title="@Localizer["HideDefaultHint"]"><input type="checkbox" name="hideDefault" value="true" checked="@Model.HideDefault" /><input type="hidden" name="hideDefault" value="false" /> @Localizer["HideDefault"]</label>
+                    <label class="pt-check"><input type="checkbox" name="hideInherited" value="true" checked="@Model.HideInherited" /><input type="hidden" name="hideInherited" value="false" /> @Localizer["HideInherited"]</label>
+                    <label class="pt-check" title="@Localizer["HideExchangeHint"]"><input type="checkbox" name="hideExchange" value="true" checked="@Model.HideExchange" /><input type="hidden" name="hideExchange" value="false" /> @Localizer["HideExchange"]</label>
+                    <label class="pt-check" title="@Localizer["ShowArDelegationsHint"]"><input type="checkbox" name="showArDelegations" value="true" checked="@Model.ShowArDelegations" /><input type="hidden" name="showArDelegations" value="false" /> <span class="pt-icon pt-icon-ars" aria-hidden="true"></span>@Localizer["ShowArDelegations"]</label>
+                    <label class="pt-check"><input type="checkbox" name="hideBuiltIn" value="true" checked="@Model.HideBuiltIn" /> @Localizer["HideBuiltIn"]</label>
+                }
+                <button type="submit" class="snap-btn">@Localizer["Apply"]</button>
+            </form>
+
+            <form method="post" asp-page-handler="Export" asp-route-job="@scan.Id" class="pt-export">
+                <input type="hidden" name="riskOnly" value="@(Model.RiskOnly ? "true" : "false")" />
+                <input type="hidden" name="hideInherited" value="@(Model.HideInherited ? "true" : "false")" />
+                <input type="hidden" name="hideBuiltIn" value="@(Model.HideBuiltIn ? "true" : "false")" />
+                <input type="hidden" name="hideDefault" value="@(Model.HideDefault ? "true" : "false")" />
+                <input type="hidden" name="hideExchange" value="@(Model.HideExchange ? "true" : "false")" />
+                <span class="snap-hint">@Localizer["Export"]</span>
+                <button type="submit" name="format" value="Excel" class="snap-btn">Excel</button>
+                <button type="submit" name="format" value="Pdf" class="snap-btn">PDF</button>
+                <button type="submit" name="format" value="Word" class="snap-btn">Word</button>
+            </form>
+
+            @if (Model.ShowAr)
+            {
+                @if (tab == "all")
+                {
+                    <h3 class="pt-section-title">@Localizer["SourceAr"]</h3>
+                }
+                @if (result!.ArError != null)
+                {
+                    <p class="gt-error" role="alert">@Localizer["ArFailed", result.ArError]</p>
+                }
+                var arRows = Model.Filter(result.ArEntries).ToList();
+                @if (arRows.Count == 0)
+                {
+                    <p>@Localizer["None"]</p>
+                }
+                else if (Model.IsTable)
+                {
+                    <table class="ga-table pt-table" data-filter="@Localizer["ColumnFilter"]" data-select-all="@Localizer["SelectAll"]" data-apply="@Localizer["Apply"]" data-clear="@Localizer["Clear"]" data-search="@Localizer["Search"]" data-empty="@Localizer["NoMatches"]">
+                        <thead><tr><th>@Localizer["Object"]</th><th>@Localizer["Trustee"]</th><th>@Localizer["AccessTemplate"]</th><th>@Localizer["Type"]</th><th>@Localizer["Rights"]</th><th>@Localizer["AppliesTo"]</th><th>@Localizer["Risk"]</th></tr></thead>
+                        <tbody>
+                        @foreach (var r in arRows.Take(ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows))
+                        {
+                            <tr>
+                                <td title="@r.SecuredObjectDn">@r.SecuredObjectDn</td>
+                                <td title="@r.TrusteeSid">@Model.TrusteeName(r.TrusteeSid)</td>
+                                <td title="@r.AccessTemplateDn">@r.AccessTemplateName</td>
+                                <td>@(r.IsAllow ? Localizer["Allow"] : Localizer["Deny"])</td>
+                                <td>@r.Rights@(r.ObjectTypeName is { } otn ? " (" + otn + ")" : "")</td>
+                                <td>@r.AppliesTo</td>
+                                <td>@if (r.IsHighRisk) { <span class="pt-risk">@Localizer["HighRisk"]</span> }</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                    @if (arRows.Count > ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows)
+                    {
+                        <p class="snap-hint">@Localizer["RowsTruncated", ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows]</p>
+                    }
+                }
+                else
+                {
+                    <ul class="group-tree gt-root">
+                    @foreach (var objGroup in arRows.GroupBy(r => r.SecuredObjectDn, StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase))
+                    {
+                        <li class="group-tree-item">
+                            <details open>
+                                <summary class="group-tree-row">
+                                    <span class="pt-chevron" aria-hidden="true"></span>
+                                    <span class="pt-icon pt-icon-object" aria-hidden="true"></span>
+                                    <span class="tree-name">@(ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.ParentDn(objGroup.Key) is { } p ? objGroup.Key[..(objGroup.Key.Length - p.Length - 1)] : objGroup.Key)</span>
+                                    <span class="tree-dn" title="@objGroup.Key">@objGroup.Key</span>
+                                </summary>
+                                <ul class="group-tree">
+                                @foreach (var trustee in objGroup.GroupBy(r => r.TrusteeSid, StringComparer.OrdinalIgnoreCase))
+                                {
+                                    <li class="group-tree-item">
+                                        <div class="group-tree-row">
+                                            <span class="pt-icon pt-icon-trustee" aria-hidden="true"></span>
+                                            <span class="tree-name" title="@trustee.Key">
+                                            @foreach (var tpl in trustee.Select(r => r.AccessTemplateName).Distinct())
+                                            {
+                                                <span class="tree-note">@tpl</span>
+                                            }
+                                            @if (trustee.Any(r => r.IsHighRisk))
+                                            {
+                                                <span class="pt-risk">@Localizer["HighRisk"]</span>
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                                </ul>
+                            </details>
+                        </li>
+                    }
+                    </ul>
+                }
+            }
+            @if (Model.ShowAd)
+            {
+                @if (tab == "all")
+                {
+                    <h3 class="pt-section-title">@Localizer["SourceAd"]</h3>
+                }
+                <nav class="pt-tabs" aria-label="@Localizer["Partition"]">
+                    <a href="@Model.PartitionUrl("domain")" class="snap-btn @(!Model.IsConfigPartition ? "snap-btn-primary" : "")" aria-current="@(!Model.IsConfigPartition ? "page" : null)">@Localizer["PartitionDomain"]: @Model.PartitionDomains(false) (@Model.PartitionCount(false))</a>
+                    <a href="@Model.PartitionUrl("config")" class="snap-btn @(Model.IsConfigPartition ? "snap-btn-primary" : "")" aria-current="@(Model.IsConfigPartition ? "page" : null)">@Localizer["PartitionConfig"]: @Model.PartitionDomains(true) (@Model.PartitionCount(true))</a>
+                </nav>
+                @if (Model.IsTable)
+                {
+                    var adRows = Model.PartitionObjects.SelectMany(o => Model.Filter(o.Entries).Select(e => (o.Object, Entry: e))).ToList();
+                    var arOverlay = Model.PartitionObjects.SelectMany(o => Model.ArFor(o.Object.Dn).Select(r => (o.Object, Ar: r))).ToList();
+                    @if (adRows.Count == 0 && arOverlay.Count == 0)
+                    {
+                        <p>@Localizer["None"]</p>
+                    }
+                    else
+                    {
+                        <table class="ga-table pt-table" data-filter="@Localizer["ColumnFilter"]" data-select-all="@Localizer["SelectAll"]" data-apply="@Localizer["Apply"]" data-clear="@Localizer["Clear"]" data-search="@Localizer["Search"]" data-empty="@Localizer["NoMatches"]">
+                            <thead><tr><th>@Localizer["Object"]</th><th>@Localizer["Trustee"]</th><th>@Localizer["Type"]</th><th>@Localizer["Rights"]</th><th>@Localizer["AppliesTo"]</th><th>@Localizer["Inherited"]</th><th>@Localizer["Risk"]</th></tr></thead>
+                            <tbody>
+                            @foreach (var (obj, e) in adRows.Take(ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows))
+                            {
+                                <tr>
+                                    <td title="@obj.Dn">@obj.Name</td>
+                                    <td title="@e.TrusteeSid">@Model.TrusteeName(e.TrusteeSid)</td>
+                                    <td>@(e.IsAllow ? Localizer["Allow"] : Localizer["Deny"])</td>
+                                    <td>@e.Rights@(e.ObjectTypeName is { } otn ? " (" + otn + ")" : "")</td>
+                                    <td>@e.AppliesTo</td>
+                                    <td>@(e.IsInherited ? Localizer["Yes"] : Localizer["No"])</td>
+                                    <td>@if (e.IsHighRisk) { <span class="pt-risk">@Localizer["HighRisk"]</span> }</td>
+                                </tr>
+                            }
+                            @foreach (var (obj, r) in arOverlay.Take(ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows))
+                            {
+                                <tr class="pt-ars-row">
+                                    <td title="@obj.Dn">@obj.Name</td>
+                                    <td title="@r.TrusteeSid"><span class="pt-icon pt-icon-ars" aria-hidden="true"></span>@Model.TrusteeName(r.TrusteeSid)</td>
+                                    <td>@(r.IsAllow ? Localizer["Allow"] : Localizer["Deny"])</td>
+                                    <td>@r.Rights@(r.ObjectTypeName is { } aotn ? " (" + aotn + ")" : "") &middot; @Localizer["ArsVia"] @r.AccessTemplateName</td>
+                                    <td>@r.AppliesTo</td>
+                                    <td>@Localizer["No"]</td>
+                                    <td>@if (r.IsHighRisk) { <span class="pt-risk">@Localizer["HighRisk"]</span> }</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                        @if (adRows.Count > ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows)
+                        {
+                            <p class="snap-hint">@Localizer["RowsTruncated", ActiveRolesDashboard.Pages.Tools.PermissionTrackerModel.MaxTableRows]</p>
+                        }
+                    }
+                }
+                else
+                {
+                    var tree = Model.BuildAdTree();
+                    @if (tree.Count == 0)
+                    {
+                        <p>@Localizer["None"]</p>
+                    }
+                    else
+                    {
+                        ViewData["TrackerPage"] = Model;
+                        ViewData["LblHighRisk"] = Localizer["HighRisk"].Value;
+                        ViewData["LblDeny"] = Localizer["Deny"].Value;
+                        ViewData["LblInherited"] = Localizer["Inherited"].Value;
+                        ViewData["LblReadFailed"] = Localizer["ReadFailed"].Value;
+                        ViewData["LblArsVia"] = Localizer["ArsVia"].Value;
+                        ViewData["LblArs"] = Localizer["ArsDelegated"].Value;
+                        <div class="ga-tree">
+                            <partial name="_PermissionObjectNodes" model="tree" view-data="ViewData" />
+                        </div>
+                    }
+                }
+            }
+        </section>
+    }
+    </main>
+</div>
+<div id="ptBusy" class="pt-busy" role="status" aria-live="polite" hidden><span class="pt-spinner" aria-hidden="true"></span><span>@Localizer["Loading"]</span></div>
+<script src="js/permission-tracker.js" asp-append-version="true"></script>
+@if (scan?.IsActive == true && scan.Status != PermissionScanStatus.AwaitingConfirmation)
+{
+<script>
+(function () {
+    var box = document.getElementById('ptStatus');
+    if (!box) return;
+    var url = box.getAttribute('data-status-url');
+    function poll() {
+        fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (s) {
+                if (!s) return;
+                if (!s.active || s.status === 'AwaitingConfirmation') { window.location.reload(); return; }
+                var p = document.getElementById('ptProgress');
+                if (p) p.textContent = s.processed + ' / ' + s.total;
+                var bar = document.getElementById('ptBar');
+                if (bar) { bar.max = Math.max(1, s.total); bar.value = s.processed; }
+                setTimeout(poll, 2000);
+            })
+            .catch(function () { setTimeout(poll, 5000); });
+    }
+    setTimeout(poll, 2000);
+})();
+</script>
+}
+</body>
+</html>

@@ -56,7 +56,8 @@ public enum DashboardPermission
     RunEntraIdPerformanceTests = 24,
     RunExchangePerformanceTests = 25,
     ManageAssessmentUpdates = 26,
-    UseGroupAnalyzer = 27
+    UseGroupAnalyzer = 27,
+    UsePermissionTracker = 28
 }
 
 /// <summary>
@@ -144,7 +145,8 @@ public static class RolePermissionRegistry
                 DashboardPermission.ExportDashboardData,
                 DashboardPermission.RebuildCache,
                 DashboardPermission.ManageAssessmentUpdates,
-                DashboardPermission.UseGroupAnalyzer
+                DashboardPermission.UseGroupAnalyzer,
+                DashboardPermission.UsePermissionTracker
             },
             [DashboardRole.PowerUser] = new HashSet<DashboardPermission>
             {
@@ -176,7 +178,8 @@ public static class RolePermissionRegistry
     public static readonly IReadOnlySet<DashboardPermission> PermissionsAddedAfterMatrixV1 = new HashSet<DashboardPermission>
     {
         DashboardPermission.ManageAssessmentUpdates,
-        DashboardPermission.UseGroupAnalyzer
+        DashboardPermission.UseGroupAnalyzer,
+        DashboardPermission.UsePermissionTracker
     };
 
     /// <summary>
@@ -185,7 +188,8 @@ public static class RolePermissionRegistry
     /// </summary>
     public static readonly IReadOnlySet<DashboardPermission> ToolPermissions = new HashSet<DashboardPermission>
     {
-        DashboardPermission.UseGroupAnalyzer
+        DashboardPermission.UseGroupAnalyzer,
+        DashboardPermission.UsePermissionTracker
     };
 
     /// <summary>True when the user can see the Tools menu (holds at least one tool permission).</summary>
@@ -195,6 +199,10 @@ public static class RolePermissionRegistry
     /// <summary>True when the user may run the on-demand Group Analyzer tool.</summary>
     public static bool CanUseGroupAnalyzer(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
         isActiveRolesAdmin || permissions.Contains(DashboardPermission.UseGroupAnalyzer);
+
+    /// <summary>True when the user may run the on-demand Permission Tracker tool.</summary>
+    public static bool CanUsePermissionTracker(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin) =>
+        isActiveRolesAdmin || permissions.Contains(DashboardPermission.UsePermissionTracker);
 
     /// <summary>True when the user can see the Settings &gt; Updates category.</summary>
     public static bool CanViewUpdates(IReadOnlySet<DashboardPermission> permissions, bool isActiveRolesAdmin, DashboardRole role) =>
@@ -245,7 +253,8 @@ public static class RolePermissionRegistry
             [DashboardPermission.RunEntraIdPerformanceTests] = new("Perm_RunEntraIdPerformanceTests", "Run Entra Id performance tests"),
             [DashboardPermission.RunExchangePerformanceTests] = new("Perm_RunExchangePerformanceTests", "Run Exchange performance tests"),
             [DashboardPermission.ManageAssessmentUpdates] = new("Perm_ManageAssessmentUpdates", "Manage assessment updates"),
-            [DashboardPermission.UseGroupAnalyzer] = new("Perm_UseGroupAnalyzer", "Use Group Analyzer")
+            [DashboardPermission.UseGroupAnalyzer] = new("Perm_UseGroupAnalyzer", "Use Group Analyzer"),
+            [DashboardPermission.UsePermissionTracker] = new("Perm_UsePermissionTracker", "Use Permission Tracker")
         };
 
     /// <summary>
